@@ -1,0 +1,7 @@
+{
+  "origin": "Direct native followup_task from /root HELP_HUMAN Agent0",
+  "task": "/root/rv30_k6c_kernel TASK Type2 RV30",
+  "text": "Independent bounded source10 review,20minutes fromactualstart. Read K6C R/I21/source_10 (seal4654cec41603ef0ded7c4a057ece046630b6b72313e156b04543cd36f53e7650) and manager/source_10 inA1 (seal767ad8687a1591f8fa349afbe9d2a65700057d84999d3c655a3c8bb8054bbbe6). Review finite H caller allocation/lifetimes, one saved clone, prefix list, actual observer edges, argument/String/stdout partialbindings, format grammar/growth/active-old formulas. Check every numeric bound from source, identify wrong/missing owners or unjustified runtime zeros. Crucially source10 declaresH-R0/R1/R2/F0/I0/C0 open; assess exactness of these gaps and whether a narrower missing premise suffices. Do NOT attempt fullstartup/IO/format audit, newprobes, numericalruns, sourcefixes or scopeexpansion. Return reviewed conditionalHproof plus concretefindings/openpremises; no completeE_max or admissionacceptance. Writes only K6C R/source_review_RV30/h_caller_05 and ownscratch. No Git/index, Rust/build/tests/tools-development/delegation. I21currentlyidle; finalA1runtimecontinuesindependently.",
+  "text_sha256": "192a4da0659ae29ae5550ddaba6225eb1a11c65a583e67fb264b78aaf7ac72dc",
+  "instruction_binding": "../kernel_01/INSTRUCTION_BINDING.json; unchanged origins/hashes"
+}

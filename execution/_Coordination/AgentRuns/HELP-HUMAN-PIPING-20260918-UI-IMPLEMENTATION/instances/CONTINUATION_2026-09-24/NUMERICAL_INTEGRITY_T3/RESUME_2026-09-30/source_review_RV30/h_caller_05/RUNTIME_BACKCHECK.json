@@ -1,0 +1,83 @@
+{
+  "verified_pages": [
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/io/stdio.rs.html",
+      "html_sha256": "1cb714a829fa7a24c40df108462fa6dd60a5654110da9609ebcc848a6c5128bd",
+      "decoded_sha256": "e302f4b2fa83f2d703e1d3211368dc01860b4a602765b62238d8303bba357879",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/io/buffered/linewriter.rs.html",
+      "html_sha256": "c50a7098663f8044208c924e678518f9179a2912e7c503b37dbc95a49d4dd28e",
+      "decoded_sha256": "8e903350507007a0fd812ecb4c00a151239cdf31a7f55d0575445f98edea7516",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/io/buffered/bufwriter.rs.html",
+      "html_sha256": "0a4035e139741741917a9564b72c1031f43f21f9436ae53a540679293d3c7bb6",
+      "decoded_sha256": "bfb94a39508dc287532f7349d08a862a37f0d7eb183c2083ab7c656d9632bad8",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/sys/args/unix.rs.html",
+      "html_sha256": "5de5569d16b0c9a47a22edace21c85dcc06a23ab9158cf5adc1b82a20c24f415",
+      "decoded_sha256": "2e81c0524dec0b5a5f02c4f823198d6c9f4bae031e18d07041cc9d3171868a50",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/rt.rs.html",
+      "html_sha256": "6bf3685ddb528f9442ca1bf68d9c1c04c498286aebe9b0cad280ff4e832bc0a2",
+      "decoded_sha256": "f435576c645fb30eaca560e819c2a113b556452d79c0303f49ffd4487018c01f",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/thread/current.rs.html",
+      "html_sha256": "d06dda771a2b235edfd644cd9a1677013c5698b29978a8693089502631797c2b",
+      "decoded_sha256": "1084535565799fa30c42320309fa2cf4d95aacdfb022ce301b17b0a299e52109",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/env.rs.html",
+      "html_sha256": "ad3e32c3b078f0d70b54a524787073a01992da0c58fedb33885a1c828893b9d3",
+      "decoded_sha256": "2f3114a76020125ebcecfb7accefb98587dc8842ea5c46aba8cc98811f0d3954",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/ffi/os_str.rs.html",
+      "html_sha256": "6245b2e30c4c892c7574c880130cb96d0e8901fc750bb32ab40cd13e2b54d841",
+      "decoded_sha256": "6f237c14ce802de28328b9a53d5e7e9c14b19a47e52a5192b9b8f217a1e933ee",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/sys/os_str/bytes.rs.html",
+      "html_sha256": "c37ebe0c110b54ec029059dd59523fd8e5eaed9a2c7a48f38384294b81108202",
+      "decoded_sha256": "b8db748fa98d57b9c5358dd0ad48c4950691defea188786b0d17c2c23533a721",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/sys/args/common.rs.html",
+      "html_sha256": "3c720a9878ab64456211bc789b25fd998f827188ee2544a6586b07d5a1373577",
+      "decoded_sha256": "dc756711ec75fcd0e1ae97169d2481d2cf617f39262784411f450c482f90502a",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/sys/pal/unix/mod.rs.html",
+      "html_sha256": "95ab5c6e927e6051446000b9507b221cb8f35fb1f2d0c65028abc05bf0c5c738",
+      "decoded_sha256": "34739fd0f91d9e4d6a5458dd6ac47b92702a49fb0cb757889a9642af506765a3",
+      "matches": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/std/sync/reentrant_lock.rs.html",
+      "html_sha256": "40425d0de5e22a1aa4af4791450e871e9aa908321ecdec81e4efad6ed2b99a38",
+      "decoded_sha256": "ade7f5a8328c7e6bdbe301f97ac5cf9d01a08536b145cd5653e68911fc039518",
+      "matches": true
+    }
+  ],
+  "extra_direct_contract": {
+    "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/core/alloc/global.rs.html",
+    "html_sha256": "047073eec6377dd8730b03dc036db2e44ab3965ce3981638314806c5d72a0529",
+    "decoded_sha256": "3c33d30d18b51d866ea3d6a76599fe1daa884addf79c189ff05f5008d3d40ee2",
+    "excerpts": "119: /// # Re-entrance\n120: ///\n121: /// When implementing a global allocator, one has to be careful not to create an infinitely recursive\n122: /// implementation by accident, as many constructs in the Rust standard library may allocate in\n123: /// their implementation. For example, on some platforms, [`std::sync::Mutex`] may allocate, so using\n124: /// it is highly problematic in a global allocator.\n125: ///\n126: /// For this reason, one should generally stick to library features available through\n127: /// [`core`], and avoid using [`std`] in a global allocator. A few features from [`std`] are\n128: /// guaranteed to not use `#[global_allocator]` to allocate:\n129: ///\n130: ///  - [`std::thread_local`],\n131: ///  - [`std::thread::current`],\n132: ///  - [`std::thread::park`] and [`std::thread::Thread`]'s [`unpark`] method and\n133: /// [`Clone`] implementation.\n134: ///\n135: /// [`std`]: ../../std/index.html\n136: /// [`std::sync::Mutex`]: ../../std/sync/struct.Mutex.html\n137: /// [`std::thread_local`]: ../../std/macro.thread_local.html\n138: /// [`std::thread::current`]: ../../std/thread/fn.current.html\n139: /// [`std::thread::park`]: ../../std/thread/fn.park.html\n140: /// [`std::thread::Thread`]: ../../std/thread/struct.Thread.html\n141: /// [`unpark`]: ../../std/thread/struct.Thread.html#method.unpark"
+  },
+  "scope": "No platform backend expansion/full runtime audit; target runtime gaps assessed only from the supplied twelve pages and direct global-allocator contract"
+}

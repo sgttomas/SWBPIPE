@@ -1,0 +1,50 @@
+{
+  "status": "conditional_H_composition_checked_no_blocking_defect_two_narrowed_premises",
+  "actual_start_utc": "2026-10-01T14:32:44+00:00",
+  "deadline_utc": "2026-10-01T14:52:44+00:00",
+  "actual_completion_utc": "2026-10-01T14:39:42.709160+00:00",
+  "elapsed_seconds": 418.70916,
+  "blocking_findings": 0,
+  "nonblocking_refinements": [
+    "RV30-H-N1: geometry error grammar three leaves, max40, wrapped geometry98; remaining float-only premise",
+    "RV30-H-N2: private Thread layouts not a registered-allocator premise under pinned GlobalAlloc contract; current_id distinct"
+  ],
+  "checked": {
+    "product_review_inputs": 17,
+    "direct_runtime_pages": 12,
+    "additional_GlobalAlloc_contract": 1,
+    "SourceError_rows": 22,
+    "UnresolvedReason_rows": 9,
+    "prefix_bound": 387,
+    "source_error_capacity": 150,
+    "unresolved_capacity": 200,
+    "nonerror_stage_line": 315,
+    "known_nonerror_line_plus_temp": 708,
+    "saved_clone": "3328+120B+144b"
+  },
+  "remaining": [
+    "H-R0 surviving registered-runtime owners and later reached growth",
+    "H-R1 selected stdout mutex backend requested storage/lifetime",
+    "H-R2 reached byte-write/flush/drop-error transient and active-old behavior",
+    "H-F0 six finite f64 Debug length/heap/active-old behavior",
+    "H-I0 planned IDs/path lengths/pass flags",
+    "H-C0 checked implementation/final-A1 reconciliation",
+    "full E_max/admission proof"
+  ],
+  "not_performed": [
+    "full startup/IO/format audit",
+    "Rust/build/tests/probe/model/solver",
+    "new tool",
+    "source fixes",
+    "Git/index operation",
+    "network/install",
+    "delegation"
+  ],
+  "write_fence": "<K6C>/<R>/source_review_RV30/h_caller_05",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.13.14",
+    "executable": "<VENV>/bin/python"
+  }
+}
