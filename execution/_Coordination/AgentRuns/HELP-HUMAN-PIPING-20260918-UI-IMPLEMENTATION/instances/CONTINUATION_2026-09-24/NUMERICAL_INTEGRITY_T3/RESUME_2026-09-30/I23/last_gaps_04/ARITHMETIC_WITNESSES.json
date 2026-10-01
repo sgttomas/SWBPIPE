@@ -1,0 +1,43 @@
+{
+  "method": "Python Fraction/integer exact arithmetic only; no solver or generator executed",
+  "M9": {
+    "d": "2^-100",
+    "c": 1,
+    "m": 1,
+    "p": 128,
+    "correct_expression": "2^28 - 2^-100 - 64",
+    "correct_fraction": "340282285791300048856692911642763067391/1267650600228229401496703205376",
+    "correct_sign": 1,
+    "fault_expression": "2^-47 - 2^-100 - 64",
+    "fault_fraction": "-81129638414606672688589750403073/1267650600228229401496703205376",
+    "fault_sign": -1,
+    "scope": "helper-level inequality; m=1 is not asserted to be a factor-loop operation count"
+  },
+  "M32": {
+    "K": 16,
+    "one_free_global_dof": 9,
+    "existing_pattern_carrier": "SPRING-CARRIED",
+    "diagonal_exponent": 4,
+    "scale_exponent": -2,
+    "S": "1/4",
+    "K_tilde": 1,
+    "initial_x": "[1]",
+    "first_y": "[1]",
+    "estimate": 1,
+    "signs_and_z": "[1]",
+    "z_dot_x": 1,
+    "loop_exit": "z[j] is not greater than dot; first iteration ends",
+    "alternating": "[1]",
+    "alternative_exact": "2/3",
+    "alternative_RN128_fraction": "226854911280625642308916404954512140971/340282366920938463463374607431768211456",
+    "alternative_below_estimate": true,
+    "condition_boundary": "2^127",
+    "correct_norm": 1,
+    "fault_norm": 16,
+    "correct_product": 1,
+    "fault_product": 16,
+    "correct_rcond": "1",
+    "fault_rcond": "1/16",
+    "both_condition_checks_pass": true
+  }
+}
