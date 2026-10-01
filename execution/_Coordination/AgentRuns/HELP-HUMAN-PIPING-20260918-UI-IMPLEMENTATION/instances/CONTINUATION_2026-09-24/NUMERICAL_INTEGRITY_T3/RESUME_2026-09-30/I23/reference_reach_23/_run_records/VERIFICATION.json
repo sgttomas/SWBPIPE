@@ -1,0 +1,14 @@
+{
+  "end_utc": "2026-10-01T22:58:56Z",
+  "required193_original_storage_intersection_exact": true,
+  "metadata213_normal24_id_checks": true,
+  "spring_entries_checked": 186,
+  "untouched_node_springs": 0,
+  "directional_cases": 22,
+  "first_directional_index_all_zero": true,
+  "all_source_input_priorseal_hashes_unchanged": true,
+  "external12_size_inode_mtime_hash_unchanged": true,
+  "production_counts_graph_model_solver_runs": 0,
+  "private_triple_node_request_claim": false,
+  "full_Emax_claim": false
+}

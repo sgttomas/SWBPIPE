@@ -1,0 +1,51 @@
+{
+  "agent": "/root/i23_protected_prep",
+  "role": "TASKType2 I23",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "Existing native collaboration child; direct10-minute metadata/source assignment; no descendants",
+  "start_utc": "2026-10-01T22:52:33Z",
+  "deadline_utc": "2026-10-01T23:02:33Z",
+  "brief": "Parent native message for REACHED-TYPES; integer ID-membership permitted only to establish untouched-node spring reach. No production counts/graphs/models/solvers.",
+  "instruction_origins": [
+    {
+      "path": "AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I23_PROTECTED_PREP.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "09ff7d95a7b3273d250b317ee502ba7dc71f46b4d0dfb071d69590840420532f"
+    }
+  ],
+  "new_skill_workflow": [],
+  "write_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/reference_reach_23",
+  "actual_read_inputs": "Exact213caseJSONmetadata plus12alreadybound externalrawJSONmodels, original10storage observations selectedbycontract,193roster andsourcefiles. Only readexisting arrays/scalars and membership.",
+  "restrictions": {
+    "production_counts": 0,
+    "graphs_RCM": 0,
+    "model_generator_solver": 0,
+    "compiler_runtime_probe": 0,
+    "source_test_code_edit": 0,
+    "Git_index": 0,
+    "delegation": 0,
+    "new_tool_or_library_internals": 0
+  },
+  "enforcement": "Prompt fence on shared filesystem; only new evidencepacketwritten. Rawprovenance under_run_records.",
+  "actual_end_utc": "2026-10-01T22:58:56Z"
+}

@@ -1,0 +1,608 @@
+{
+  "cases": [
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 1,
+      "line_sha256": "834f95cf61ad5aba5e09fd9e45d515f0299bbc3da3d485cd5ae395d962f6745a",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "405599999999999a"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-08",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 2,
+      "line_sha256": "b6e415da78d2003845993bc892b9809d3d08136eedcd35bc7a2f2fe6803d56b8",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "3f81b1d92b7fe08b"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-12",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 3,
+      "line_sha256": "21132570f94df9ce1fe1aab77c24cdb3dc0b5ec7691115cdacf01cdea04c22b3",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "3eacfdb417c18a1b"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-04",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 4,
+      "line_sha256": "f304c57ee152efed0098c55c59faa8d0e2cf9e5db6a759c945c0e74887ca4114",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "4062000000000000"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-08",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 5,
+      "line_sha256": "2a662ba23b631fac811b4871fcb741699ce7caff7fb2dcb1b8885e79a9288675",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "3f8d7dbf487fcb92"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-12",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 6,
+      "line_sha256": "3af8d273beaf21bc322ca56457b306e81f9a40fd72454df6ec760971c0c7a8a2",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "3eb828c0be769dc1"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-04",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 13,
+      "line_sha256": "a01fc0810f8f0331b64177d5bd435ae99414503972cf7aaa3d44dce405b37f99",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "405599999999999a"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-08",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 14,
+      "line_sha256": "b6624d60e01729075da4bffb61e59e11348ec36b7212a324b2af60e56bb61f82",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "3f81b1d92b7fe08b"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 15,
+      "line_sha256": "94889861f741634232f1df31680ad440205a7b78cdb3fdd1a9a0e49a03912a89",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "3eacfdb417c18a1b"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-04",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 16,
+      "line_sha256": "40466960bb6b5d4b6099b8118ca96226fe94c78569f8a0460577a9a38c172e90",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "4062000000000000"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-08",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 17,
+      "line_sha256": "8e5e61c0aa804fbedd5aad7429b158ba53e16cc6b819ad43d411c0cd8e88ff6f",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "3f8d7dbf487fcb92"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 18,
+      "line_sha256": "20d561c5a1b7bb68d82b51b5f25f432b42b41a9a098fec7f95d45b3e684f3037",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "3eb828c0be769dc1"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-04",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 25,
+      "line_sha256": "244ef845ce4d85a020caaee18a547775368bf57952f1743e5e12676ce65196a3",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "40d7570000000000"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-08",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 26,
+      "line_sha256": "54a2aedf5f9535f35616375afaff96d4ae43629dab05b1c6bdbe563fa9ee43bd",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "40031eb851eb851f"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-12",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 27,
+      "line_sha256": "3ae2d1b3d8f6445718d0f288c216f824ce4b56830fe408577b5407c554a7ceaf",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "3f2f53825e13b18e"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-04",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 28,
+      "line_sha256": "d2d512c1a57e68c6ee1133a61a12ee6988202d20ece005e54531610475eeb8b6",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "40e36f0000000000"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-08",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 29,
+      "line_sha256": "0127043e0cac6f77d47e7cffd06ec279876f04bd99d00d7ab8cd51eaaf4b8499",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "400fd70a3d70a3d7"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-12",
+      "family": "RF-SKEW",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "input_line": 30,
+      "line_sha256": "8741dc638bf5c02ccfd103a8650ed67aba86df7b1ce70ea29e2ff66517aa60d6",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "3f3a1554fbdad752"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 1,
+      "nodes_preceding_spring_loop": 2
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q3",
+      "family": "RF-INVARIANCE",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_invariance.jsonl",
+      "input_line": 2,
+      "line_sha256": "bd279513e300364675f306d2cfbe41e091d00f9e7c90f47118ece9ef3be51b98",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "c000000000000000"
+        ],
+        "3fb5f90000000000"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 5,
+      "nodes_preceding_spring_loop": 6
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q9",
+      "family": "RF-INVARIANCE",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_invariance.jsonl",
+      "input_line": 3,
+      "line_sha256": "baa673e7bd9b2d8289062f89d93b0324020e63d12b89d2248eccfbb25deb25bf",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4020000000000000",
+          "c010000000000000"
+        ],
+        "3fb5f90000000000"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 5,
+      "nodes_preceding_spring_loop": 6
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q3",
+      "family": "RF-INVARIANCE",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_invariance.jsonl",
+      "input_line": 9,
+      "line_sha256": "a6e26d73ea8d483851794383f543ecd90bfcff95972050ebddcaf4c646bbdd45",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.A0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "c000000000000000"
+        ],
+        "4028b82000000000"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 2,
+      "nodes_preceding_spring_loop": 3
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q9",
+      "family": "RF-INVARIANCE",
+      "in_required193": true,
+      "in_normal24": false,
+      "input_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_invariance.jsonl",
+      "input_line": 10,
+      "line_sha256": "851438a2ec38cdd2d646c67ef5b50b20e75680b2f49cf26fd2da4bf3a44d3768",
+      "first_directional_index": 0,
+      "first_directional_spring": [
+        "S.A0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4020000000000000",
+          "c010000000000000"
+        ],
+        "4028b82000000000"
+      ],
+      "prior_axis_spring_count": 0,
+      "members_preceding_spring_loop": 2,
+      "nodes_preceding_spring_loop": 3
+    }
+  ],
+  "total": 22,
+  "RF_SKEW": 18,
+  "RF_INVARIANCE": 4,
+  "normal24_directional_cases": 0,
+  "source_route": [
+    "parity.rs45-73 constructs nodes and frame elements before inspecting springs. Earlier conversion errors can return first.",
+    "parity.rs74 starts Vec::new springs; all22first spring hasaxis=None atindex0. Conditional on prior conversions succeeding, line78 allocates/returns the exact41-byte String payload a directional spring has no binary64 form. No spring entries have been pushed.",
+    "parity.rs81-103 force/restrained/free/prescribed construction is after that return; these later arrays are not created on this branch. Earlier nodes/frames coexist with the new error String during return construction, then drop.",
+    "parity.rs200-201 propagates binary64_model Err with ? before contribution/allowance/sparse-system construction."
+  ],
+  "literal_utf8_bytes": 41,
+  "caller_boundaries": [
+    {
+      "caller": "examples/vk_scale.rs500-507",
+      "behavior": "Explicit match Err(e) -> binary64 error JSON then merge/emit; no unwrap here. The returned String moves into output ownership. This is the chosen reference continuation source route.",
+      "reach_limit": "Actual CLI at349loads RF-LARGE only; all24 fixed accepted normal inputs havezero springs. The22other-family cases therefore describe SingleCaseFamilyReferenceV1 mathematical continuations, not actual acceptedCLI invocations."
+    },
+    {
+      "caller": "tests/scale.rs40-76",
+      "behavior": "Calls counts and estimate for193storage-qualified cases, not parity. The hypothetical continuation contract cannot be relabeled as a test execution of binary64_model."
+    },
+    {
+      "caller": "examples/vk_records.rs81-87",
+      "behavior": "Calls parity(...).unwrap() only for RF-LARGE or RF-MECH. On an Err this caller panics; it is not generally a handled error. Both actual frozen families havezero directional springs, so none of the22are in this parity branch."
+    },
+    {
+      "caller": "tests/parity.rs13-16 and33-40",
+      "behavior": "Calls parity(...).unwrap() on RF-LARGE and RF-MECH selected subsets. Any Err would panic; current exact subsets contain no directional springs."
+    }
+  ],
+  "qualification": "No execution or assertion that earlier FrameNode/FrameSection/FrameElement conversion succeeded. These are exact metadata eligibility and source branch/caller bounds. Retain earlier construction/error owners and the returned41-byte String; do not set all parity tozero or assume every Result Err ishandled.",
+  "remaining": "No missing triple-key layout premise for these scoped inputs. Other earlier error/panic branches and final-reference/build/accounting qualification remain separate."
+}
