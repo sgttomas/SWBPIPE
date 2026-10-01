@@ -1,0 +1,89 @@
+{
+  "external12": [
+    {
+      "id": "RF-LARGE-CHAIN-n01000-AX",
+      "sha256": "f05afa36126c1adfb2d61f35bd99e98e845ca3727b2bebf34573e116815b49a8",
+      "bytes": 286643,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n01000-AX.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-ROT",
+      "sha256": "27d23bb9770c724e6d2879012e934c233c424b16846b1b52337b0f8fac6b395f",
+      "bytes": 286643,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n01000-ROT.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-AX",
+      "sha256": "8035f34456d150de931797b44cfc9e2ba016fc8bae5d78bff1a5f918c6852115",
+      "bytes": 300622,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n01000-AX.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-ROT",
+      "sha256": "df1e956484195236b452584f3cdc450953357784bc73bafa8b6a4a036ac4777d",
+      "bytes": 329920,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n01000-ROT.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-AX",
+      "sha256": "32ecf3e4dc9725cf33f7374e6b075c826197a98047d9b0d0082e51bf6497bc98",
+      "bytes": 322718,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n01000-AX.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-ROT",
+      "sha256": "4f505009dde44025289b4c08731dc1c4b275403140a87f86a7a4dce75816a61d",
+      "bytes": 341177,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n01000-ROT.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-AX",
+      "sha256": "239ccb63dfd1584d9056f3f2ce86d79056f9fef1c2589317797ded2e6c790d40",
+      "bytes": 2932655,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n10000-AX.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-ROT",
+      "sha256": "0c79de8dffe4044889be6b80a8bdbe430c88fd23800227568d900d61a580bf66",
+      "bytes": 2932655,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n10000-ROT.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-AX",
+      "sha256": "ff4cb28dd53b7a66b4c0364b2d9af7ab7abaa67f33f4ad2e8c8d8528c37a9319",
+      "bytes": 3082946,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n10000-AX.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-ROT",
+      "sha256": "2179d5d397ec15668fba52528fdd8c888dc4b51cf2db972c9d8702c199c20818",
+      "bytes": 3393452,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n10000-ROT.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-AX",
+      "sha256": "1fc2b76151557f23404b95262fe461b067a19e8254eb25cd7a14974cb82df083",
+      "bytes": 3324795,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n10000-AX.json",
+      "matches_original_CLI_and_metadata": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-ROT",
+      "sha256": "c7d027f0fd5bdfb26f0a58a721e47c92dc4fb7185285e22359373a7ae4d78ff9",
+      "bytes": 3519524,
+      "origin": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n10000-ROT.json",
+      "matches_original_CLI_and_metadata": true
+    }
+  ],
+  "no_current_file_or_model_execution": "consumes frozen caller14 rehashes and original CLI20/metadata identities; kernel22 exact policy reproduces CLI20"
+}

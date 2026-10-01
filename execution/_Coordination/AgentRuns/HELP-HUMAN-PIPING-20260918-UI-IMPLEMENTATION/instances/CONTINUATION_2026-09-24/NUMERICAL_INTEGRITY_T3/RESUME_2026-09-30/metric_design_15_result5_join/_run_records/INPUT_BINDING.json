@@ -1,0 +1,252 @@
+[
+  {
+    "name": "caller14",
+    "source_repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "1c64ffb9d492178b3f97eb9c9f074c5c9ebbfac5",
+    "relative_source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_14_reference_callers",
+    "seal": "235c4a77a29789952587c9173bcf42e291540d87ccdde7719bc3dc5d56c2cbb2",
+    "verified_payloads": [
+      {
+        "path": "CLI24_CALLERS.json",
+        "sha256": "6efa3f269ce231cbc89ce35b1c8266fd371579c11f354d1c0ab8dcef0a34e94a",
+        "bytes": 141163
+      },
+      {
+        "path": "CLI24_LAUNCHES.json",
+        "sha256": "c074aca5e8016b274fe779e9e1f36087537da5ae408c8d0ec12091d02f0a12bb",
+        "bytes": 29370
+      },
+      {
+        "path": "FAMILY10_PREFIXES.json",
+        "sha256": "f6d48a477e743af83ed50056c758552d5e70b9e98ba06449a11b24412cdf41c1",
+        "bytes": 10725
+      },
+      {
+        "path": "KERNEL_JOIN_INPUTS.json",
+        "sha256": "cd905be9ca7b5ac9da293d5275b8f617d2880ee9975c27f71c2b205d23896072",
+        "bytes": 461665
+      },
+      {
+        "path": "METHOD_AND_JOIN.md",
+        "sha256": "e9d341feb50e63fe2d7df1b783205d14a1063242e7d7777be7379bea8b1bc8ba",
+        "bytes": 9082
+      },
+      {
+        "path": "REFERENCE193_CALLERS.json",
+        "sha256": "b104510874ea10475534e7d02f42e23c3b2a13bae18026530d63e718c7d159ce",
+        "bytes": 1364377
+      },
+      {
+        "path": "REFERENCE_LAUNCHES.json",
+        "sha256": "92817f74a2d25745e628f4b63963da6f0dcc5560342829417809fa07dec43556",
+        "bytes": 204528
+      },
+      {
+        "path": "RETURN.md",
+        "sha256": "abd3168856c4b5ebb70b86bd762b8a9ca89c081067324a1434cfe3af366332ac",
+        "bytes": 2310
+      },
+      {
+        "path": "SUMMARY.md",
+        "sha256": "5b6b441a68f421bb6e740e2f401d8329662f8013dd2fcbaa92b1947202421ac2",
+        "bytes": 1366
+      },
+      {
+        "path": "_run_records/ARITHMETIC.py",
+        "sha256": "81ce3042e583aa9bc8d9d5c9459dfa757a854ea1a216e8fa3a8b0e8958f5e9d6",
+        "bytes": 34039
+      },
+      {
+        "path": "_run_records/ARITHMETIC_SUMMARY.json",
+        "sha256": "d55fb765a23ef2cda00c1357e6c82f98a137ecb0655bb78bdecd51d500d73313",
+        "bytes": 582
+      },
+      {
+        "path": "_run_records/ASSIGNMENT.txt",
+        "sha256": "c0987da7f432d44dc002f1630d256e4438037c16f215b2d62725b1ee5f82c0cd",
+        "bytes": 1577
+      },
+      {
+        "path": "_run_records/CLI_EXTERNAL_INPUTS.json",
+        "sha256": "2e1901c56536ed36b85ef626537a8bffb83614bd344126ff7c9f12f679c0f93f",
+        "bytes": 2669
+      },
+      {
+        "path": "_run_records/EXECUTION.md",
+        "sha256": "bd4f9c4103236bee2ebb09facdcd3d1731593d5b417122e89cf852accd1ccd1e",
+        "bytes": 2540
+      },
+      {
+        "path": "_run_records/EXPECTED_PARSE_BOUND.json",
+        "sha256": "93474a2a722fed5ef20150f83a41d4e7ff430fad018865d5cb19f68dcef5f0c2",
+        "bytes": 606
+      },
+      {
+        "path": "_run_records/FAMILY_SUMMARY.json",
+        "sha256": "ddc8efdaf70b5d07586fc0d453a8709856020aa01e38fef88974c6c2479500b6",
+        "bytes": 1781
+      },
+      {
+        "path": "_run_records/FINITE_BINDING.json",
+        "sha256": "628828ea0aee87493d522ba172af65f054d03e960b6f65686a2f0448f867aed0",
+        "bytes": 894
+      },
+      {
+        "path": "_run_records/INHERITED_INSTRUCTIONS.json",
+        "sha256": "7a5c9f05bcecea053c73507d53ebbc25f6d4ed8419a9a10e1e6555d5cf956fb2",
+        "bytes": 3323
+      },
+      {
+        "path": "_run_records/INPUT_AUDIT.json",
+        "sha256": "3d5f092e811ba7520c42fb542668f293364696a29ddfa1d46de77e94ffbf5b27",
+        "bytes": 4908
+      },
+      {
+        "path": "_run_records/INPUT_HASHES.json",
+        "sha256": "4d9655641729b3d1b34d3bff6490a61d5a6317df45739cff7657e8a2fd5693e6",
+        "bytes": 3135
+      },
+      {
+        "path": "_run_records/NUMERIC_CHECKS.json",
+        "sha256": "f5ea285069c0c01eaa62c34d639843b4e6239debc20b511957d5f9f0506dcfa7",
+        "bytes": 595
+      },
+      {
+        "path": "_run_records/PUBLIC_SIZES.json",
+        "sha256": "eede8faec788481cbdb6f72cb667751a10df3b2da44b2553bc8146cebe748a85",
+        "bytes": 1202
+      },
+      {
+        "path": "_run_records/REFERENCE_DESCRIPTORS.json",
+        "sha256": "a697b2865f4c0a04c1fb896d6a1f5479b8d8da418c840024fc98d25cd8f2c8d6",
+        "bytes": 101117
+      },
+      {
+        "path": "_run_records/ROOT_SELECTED_CONTRACT.md",
+        "sha256": "b05a6962cd402a943184667093e159bcc35ee7ba4141faf863cf7b74c2d6a269",
+        "bytes": 1628
+      },
+      {
+        "path": "_run_records/RUN.json",
+        "sha256": "527ffb270a49f18dca8691d89305a43808b4261d78bf443e6065a29faf3dbc86",
+        "bytes": 942
+      },
+      {
+        "path": "_run_records/SEALED_INPUT_CHECKS.json",
+        "sha256": "6ce9ffb433db428a6ca9c20b8c0af25a75ccfff4301b2456f261d25953439870",
+        "bytes": 14399
+      },
+      {
+        "path": "_run_records/SOURCE_ORIGINS.json",
+        "sha256": "d9da705635f54a8d55b326c9db07d47250ebed88762d61f78e05babc325378c1",
+        "bytes": 13285
+      },
+      {
+        "path": "_run_records/START.json",
+        "sha256": "30ecfd190af7b287014b46e54fad90d14d263b2b66da4a98112b38b8a6f7afe4",
+        "bytes": 461
+      },
+      {
+        "path": "_run_records/TRIPLE_BINDING.json",
+        "sha256": "4e0a2e3f4e7141269683d07abce4e7b033b58732e265a6f9503ca5c3412cd548",
+        "bytes": 762
+      }
+    ],
+    "status": "sealed candidate; independent component review pending"
+  },
+  {
+    "name": "kernel22",
+    "source_repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "1c64ffb9d492178b3f97eb9c9f074c5c9ebbfac5",
+    "relative_source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22",
+    "seal": "e60c372904e1246338b97166efdb86c389b2ac3669ea3cbdfc851123d792dcd5",
+    "verified_payloads": [
+      {
+        "path": "ARITHMETIC_CHECKS.json",
+        "sha256": "9ff696e82c688164a8675f8d68ce84f6dea22810dc363d3bc407fcef62d0483d",
+        "bytes": 578
+      },
+      {
+        "path": "CLI24_EXACT_KERNEL.json",
+        "sha256": "987e97f1df5a1e5d6875cb94f3e6d487a3efbd25dff0175984b8d0d6d2f8c6f8",
+        "bytes": 662664
+      },
+      {
+        "path": "COMPARISONS.json",
+        "sha256": "e88552ce208426d20e926b264ac03bc20fa4b3dd37f4984e1aec95464e7fc3b7",
+        "bytes": 10247
+      },
+      {
+        "path": "DESCRIPTORS.json",
+        "sha256": "592025f345a3998ffa2f6eb56f2c17465d964e26840f6e109bd9335799b34963",
+        "bytes": 335529
+      },
+      {
+        "path": "GENERIC_TERMS.md",
+        "sha256": "22b16d2c10f78eddfa8dc71528859cfa435fc35098642ce5e8a59a999381a8e4",
+        "bytes": 6547
+      },
+      {
+        "path": "KERNEL_193.json",
+        "sha256": "d2ddd7b23c7f1c920a0e33f018de715582a8bdc69e4c386beabd4a7f6f66487b",
+        "bytes": 5911508
+      },
+      {
+        "path": "MONOTONICITY.md",
+        "sha256": "7aba46fe4d4216ba414e90492f8717e7c78449a11a8209a9ccc2ffa05ddb156d",
+        "bytes": 4724
+      },
+      {
+        "path": "POLICY.md",
+        "sha256": "60632ef406b076473663fff29a00753b0b5532b3cd48e91df3201b911cf58b8f",
+        "bytes": 2557
+      },
+      {
+        "path": "RESULT5_KERNEL_INPUTS.json",
+        "sha256": "f38bfde0925a937b660f28766e6f2cabc1b844ce7741cd5d4cb2d38cf1f607c6",
+        "bytes": 440339
+      },
+      {
+        "path": "RETURN.md",
+        "sha256": "9c0a9815eea9528861f4406a6cbfdb528be2034513f27e429d798deaa32858ba",
+        "bytes": 4358
+      },
+      {
+        "path": "SUMMARY.md",
+        "sha256": "7994aa6c446a0346cb419a8d7f423e0e55fcf69f8bba1260b95296ac51d4d4c2",
+        "bytes": 21509
+      },
+      {
+        "path": "VERIFICATION.json",
+        "sha256": "afe3db25391615d43a030bb286f7cbc24f2c38950c8ba8c4affad9070a1779a8",
+        "bytes": 1772
+      },
+      {
+        "path": "_run_records/ARITHMETIC_ORIGIN.json",
+        "sha256": "3a3c3871e0a3751cdb6618645c7fff17a68e59b8fdb7f1a5c08a3ab851b32076",
+        "bytes": 502
+      },
+      {
+        "path": "_run_records/BINDING.json",
+        "sha256": "ecaad831769f0ee46e7a4347cff60e3a39f290cb544a576e03db1559032ef525",
+        "bytes": 8165
+      },
+      {
+        "path": "_run_records/INSTANTIATE.py",
+        "sha256": "9e3314aeb4d19bd9f02a28224a345e2593067b8f9021995e4188a1fcd6ca7e33",
+        "bytes": 16843
+      },
+      {
+        "path": "_run_records/RAW_COMMANDS.json",
+        "sha256": "872fa96558ab445e7286dfa3db87d94147d9563d0905b16d4c09b8348cfb017e",
+        "bytes": 131729
+      },
+      {
+        "path": "_run_records/ROOT_SELECTION.txt",
+        "sha256": "22779f3e5ab7c1df8906df6ef1f40590fc3f965ef301b0e40a4cef4ff4d90964",
+        "bytes": 1772
+      }
+    ],
+    "status": "sealed candidate; independent component review pending"
+  }
+]

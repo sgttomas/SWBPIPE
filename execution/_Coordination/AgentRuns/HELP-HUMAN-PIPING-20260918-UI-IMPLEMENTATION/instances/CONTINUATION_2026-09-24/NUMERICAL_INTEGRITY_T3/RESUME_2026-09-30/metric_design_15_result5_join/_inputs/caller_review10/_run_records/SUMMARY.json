@@ -1,0 +1,140 @@
+{
+  "family_summary": {
+    "RF-CHAIN": {
+      "cases": 30,
+      "requested": 969499,
+      "moving": 989443
+    },
+    "RF-SKEW": {
+      "cases": 36,
+      "requested": 545610,
+      "moving": 545709
+    },
+    "RF-WEAK": {
+      "cases": 9,
+      "requested": 477590,
+      "moving": 526486
+    },
+    "RF-LARGE": {
+      "cases": 12,
+      "requested": 10063716,
+      "moving": 10542126
+    },
+    "RF-INVARIANCE": {
+      "cases": 25,
+      "requested": 9197273,
+      "moving": 10526516
+    },
+    "RF-RANGE": {
+      "cases": 32,
+      "requested": 1086453,
+      "moving": 1086553
+    },
+    "RF-ZERO": {
+      "cases": 4,
+      "requested": 407832,
+      "moving": 456728
+    },
+    "RF-FINITE": {
+      "cases": 6,
+      "requested": 890522,
+      "moving": 988698
+    },
+    "RF-MECH": {
+      "cases": 1,
+      "requested": 2100700,
+      "moving": 2113087
+    },
+    "RF-CANCEL": {
+      "cases": 38,
+      "requested": 772054,
+      "moving": 772155
+    }
+  },
+  "input_audit": [
+    {
+      "family": "RF-CHAIN",
+      "bytes": 215757,
+      "strings": 13818,
+      "nonascii": 0,
+      "ints": 1350,
+      "floats": 0
+    },
+    {
+      "family": "RF-SKEW",
+      "bytes": 124098,
+      "strings": 7040,
+      "nonascii": 0,
+      "ints": 894,
+      "floats": 0
+    },
+    {
+      "family": "RF-WEAK",
+      "bytes": 70344,
+      "strings": 3656,
+      "nonascii": 0,
+      "ints": 399,
+      "floats": 0
+    },
+    {
+      "family": "RF-LARGE",
+      "bytes": 986182,
+      "strings": 48210,
+      "nonascii": 0,
+      "ints": 4972,
+      "floats": 0
+    },
+    {
+      "family": "RF-INVARIANCE",
+      "bytes": 598682,
+      "strings": 31573,
+      "nonascii": 0,
+      "ints": 3711,
+      "floats": 0
+    },
+    {
+      "family": "RF-RANGE",
+      "bytes": 250091,
+      "strings": 14324,
+      "nonascii": 0,
+      "ints": 1764,
+      "floats": 0
+    },
+    {
+      "family": "RF-ZERO",
+      "bytes": 15624,
+      "strings": 920,
+      "nonascii": 0,
+      "ints": 120,
+      "floats": 0
+    },
+    {
+      "family": "RF-FINITE",
+      "bytes": 75074,
+      "strings": 3412,
+      "nonascii": 0,
+      "ints": 384,
+      "floats": 0
+    },
+    {
+      "family": "RF-MECH",
+      "bytes": 372316,
+      "strings": 19463,
+      "nonascii": 0,
+      "ints": 6759,
+      "floats": 0
+    },
+    {
+      "family": "RF-CANCEL",
+      "bytes": 182811,
+      "strings": 10697,
+      "nonascii": 0,
+      "ints": 1080,
+      "floats": 0
+    }
+  ],
+  "reference_cases": 193,
+  "metrics": 386,
+  "CLI24_unchanged": true,
+  "joined_kernel": false
+}

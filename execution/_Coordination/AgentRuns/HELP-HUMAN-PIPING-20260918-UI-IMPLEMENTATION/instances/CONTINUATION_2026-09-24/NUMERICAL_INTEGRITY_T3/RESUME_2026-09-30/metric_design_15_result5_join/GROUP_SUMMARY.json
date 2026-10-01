@@ -1,0 +1,104 @@
+{
+  "reference193": {
+    "RF-CHAIN": {
+      "cases": 30,
+      "max_requested": 22022644,
+      "max_moving": 23103988,
+      "sel128_requested": 19811076,
+      "sel128_moving": 20892420
+    },
+    "RF-SKEW": {
+      "cases": 36,
+      "max_requested": 19198263,
+      "max_moving": 20297527,
+      "sel128_requested": 18903255,
+      "sel128_moving": 20002519
+    },
+    "RF-WEAK": {
+      "cases": 9,
+      "max_requested": 20375144,
+      "max_moving": 21466728,
+      "sel128_requested": 19285832,
+      "sel128_moving": 20377416
+    },
+    "RF-LARGE": {
+      "cases": 12,
+      "max_requested": 51083600,
+      "max_moving": 52021584,
+      "sel128_requested": 29248640,
+      "sel128_moving": 30186624
+    },
+    "RF-INVARIANCE": {
+      "cases": 25,
+      "max_requested": 51002324,
+      "max_moving": 51940308,
+      "sel128_requested": 29167364,
+      "sel128_moving": 30105348
+    },
+    "RF-RANGE": {
+      "cases": 32,
+      "max_requested": 21888912,
+      "max_moving": 22970256,
+      "sel128_requested": 19780320,
+      "sel128_moving": 20861664
+    },
+    "RF-ZERO": {
+      "cases": 4,
+      "max_requested": 20044067,
+      "max_moving": 21140771,
+      "sel128_requested": 19170803,
+      "sel128_moving": 20267507
+    },
+    "RF-FINITE": {
+      "cases": 6,
+      "max_requested": 22017001,
+      "max_moving": 23098345,
+      "sel128_requested": 19810681,
+      "sel128_moving": 20892025
+    },
+    "RF-MECH": {
+      "cases": 1,
+      "max_requested": 19120115,
+      "max_moving": 20219379,
+      "sel128_requested": 18873299,
+      "sel128_moving": 19972563
+    },
+    "RF-CANCEL": {
+      "cases": 38,
+      "max_requested": 19447802,
+      "max_moving": 20547066,
+      "sel128_requested": 18979082,
+      "sel128_moving": 20078346
+    }
+  },
+  "actual_cli24": {
+    "RF-LARGE / 10": {
+      "cases": 6,
+      "max_requested": 21695548,
+      "max_moving": 22776892,
+      "sel128_requested": 19690876,
+      "sel128_moving": 20772220
+    },
+    "RF-LARGE / 100": {
+      "cases": 6,
+      "max_requested": 47674412,
+      "max_moving": 48612396,
+      "sel128_requested": 27921740,
+      "sel128_moving": 28859724
+    },
+    "RF-LARGE / 1000": {
+      "cases": 6,
+      "max_requested": 338031093,
+      "max_moving": 482055093,
+      "sel128_requested": 338031093,
+      "sel128_moving": 482055093
+    },
+    "RF-LARGE / 10000": {
+      "cases": 6,
+      "max_requested": 29394825566,
+      "max_moving": 43795065566,
+      "sel128_requested": 29394825566,
+      "sel128_moving": 43795065566
+    }
+  }
+}

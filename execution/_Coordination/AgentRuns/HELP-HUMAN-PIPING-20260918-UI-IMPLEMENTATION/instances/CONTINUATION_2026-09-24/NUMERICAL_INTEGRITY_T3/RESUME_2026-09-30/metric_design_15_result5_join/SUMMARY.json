@@ -1,0 +1,144 @@
+{
+  "reference193": {
+    "rows": 193,
+    "metrics": {
+      "requested": {
+        "model": {
+          "bytes": 530408,
+          "ids": [
+            "RF-LARGE-CONT-n00100-ROT"
+          ]
+        },
+        "fixed": {
+          "bytes": 1585031,
+          "ids": [
+            "RF-LARGE-CONT-n00100-ROT"
+          ]
+        },
+        "decide": {
+          "bytes": 19852199,
+          "ids": [
+            "RF-LARGE-CONT-n00100-AX",
+            "RF-LARGE-CONT-n00100-ROT"
+          ]
+        },
+        "sel128": {
+          "bytes": 29248640,
+          "ids": [
+            "RF-LARGE-TREE-n00100-ROT"
+          ]
+        },
+        "max": {
+          "bytes": 51083600,
+          "ids": [
+            "RF-LARGE-TREE-n00100-ROT"
+          ]
+        }
+      },
+      "moving": {
+        "model": {
+          "bytes": 530408,
+          "ids": [
+            "RF-LARGE-CONT-n00100-ROT"
+          ]
+        },
+        "fixed": {
+          "bytes": 1585031,
+          "ids": [
+            "RF-LARGE-CONT-n00100-ROT"
+          ]
+        },
+        "decide": {
+          "bytes": 20790183,
+          "ids": [
+            "RF-LARGE-CONT-n00100-AX",
+            "RF-LARGE-CONT-n00100-ROT"
+          ]
+        },
+        "sel128": {
+          "bytes": 30186624,
+          "ids": [
+            "RF-LARGE-TREE-n00100-ROT"
+          ]
+        },
+        "max": {
+          "bytes": 52021584,
+          "ids": [
+            "RF-LARGE-TREE-n00100-ROT"
+          ]
+        }
+      }
+    }
+  },
+  "actual_cli24": {
+    "rows": 24,
+    "metrics": {
+      "requested": {
+        "model": {
+          "bytes": 53109896,
+          "ids": [
+            "RF-LARGE-CONT-n10000-ROT"
+          ]
+        },
+        "fixed": {
+          "bytes": 132810167,
+          "ids": [
+            "RF-LARGE-CONT-n10000-ROT"
+          ]
+        },
+        "decide": {
+          "bytes": 92374357,
+          "ids": [
+            "RF-LARGE-CONT-n10000-AX",
+            "RF-LARGE-CONT-n10000-ROT"
+          ]
+        },
+        "sel128": {
+          "bytes": 29394825566,
+          "ids": [
+            "RF-LARGE-TREE-n10000-ROT"
+          ]
+        },
+        "max": {
+          "bytes": 29394825566,
+          "ids": [
+            "RF-LARGE-TREE-n10000-ROT"
+          ]
+        }
+      },
+      "moving": {
+        "model": {
+          "bytes": 53109896,
+          "ids": [
+            "RF-LARGE-CONT-n10000-ROT"
+          ]
+        },
+        "fixed": {
+          "bytes": 132810167,
+          "ids": [
+            "RF-LARGE-CONT-n10000-ROT"
+          ]
+        },
+        "decide": {
+          "bytes": 102860117,
+          "ids": [
+            "RF-LARGE-CONT-n10000-AX",
+            "RF-LARGE-CONT-n10000-ROT"
+          ]
+        },
+        "sel128": {
+          "bytes": 43795065566,
+          "ids": [
+            "RF-LARGE-TREE-n10000-ROT"
+          ]
+        },
+        "max": {
+          "bytes": 43795065566,
+          "ids": [
+            "RF-LARGE-TREE-n10000-ROT"
+          ]
+        }
+      }
+    }
+  }
+}

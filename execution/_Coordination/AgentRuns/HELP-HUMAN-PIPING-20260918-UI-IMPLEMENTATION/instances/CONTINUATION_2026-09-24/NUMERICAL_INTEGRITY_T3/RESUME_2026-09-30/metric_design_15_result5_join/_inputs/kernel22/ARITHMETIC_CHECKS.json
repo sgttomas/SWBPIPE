@@ -1,0 +1,25 @@
+{
+  "reference_rows": 193,
+  "families": {
+    "RF-CANCEL": 38,
+    "RF-CHAIN": 30,
+    "RF-FINITE": 6,
+    "RF-INVARIANCE": 25,
+    "RF-LARGE": 12,
+    "RF-MECH": 1,
+    "RF-RANGE": 32,
+    "RF-SKEW": 36,
+    "RF-WEAK": 9,
+    "RF-ZERO": 4
+  },
+  "phase_records": 24318,
+  "kernel_subset_checks": 1737,
+  "all_subset_checks_pass": true,
+  "exact_CLI24_comparisons": 24,
+  "exact_CLI24_all_match": true,
+  "upper_overlap_count": 12,
+  "upper_overlap_all_dominate": true,
+  "caller_RESULT5_checked": false,
+  "source_algorithm_execution": false,
+  "observed_heap_input": false
+}

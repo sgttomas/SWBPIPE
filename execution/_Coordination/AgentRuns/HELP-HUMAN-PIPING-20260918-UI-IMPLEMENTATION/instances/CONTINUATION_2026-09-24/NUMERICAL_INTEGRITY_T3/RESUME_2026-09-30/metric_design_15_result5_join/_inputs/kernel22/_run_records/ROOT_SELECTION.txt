@@ -1,0 +1,24 @@
+3957: ## Complete-context API and five-field contract selected (ROOT, 2026-10-01)
+3958: 
+3959: ROOT read the full metric_design_13_api_contract contract and independent RV28
+3960: api_contract_09 review, verified all seals/payloads, and selects this conditional
+3961: interface design. Capture checked source facts before the existing source drop;
+3962: obtain input-history facts while the existing raw/typed owners are available;
+3963: keep coherent immutable reference profiles and external executable qualification.
+3964: The actual CLI remains RF-LARGE-only. The unchanged broader storage/order test
+3965: uses an explicit mathematical single-family reference invocation, not an asserted
+3966: CLI execution or bound on its load_all process.
+3967: 
+3968: Adopt the reviewed named model/fixed/decide/full/selected128 meanings and owner-
+3969: subset ordering proof. No +1, forced ordering, stale port, partial global value,
+3970: missing-cell zero, fixture exclusion or unqualified current-build assertion is
+3971: permitted. Every original test assertion and ordinary CLI/admission rule remains.
+3972: The review's six instantiation/translation cells remain real prerequisites; this
+3973: is not full adapter implementation or complete E_max acceptance.
+3974: 
+3975: Commission only bounded reuse/instantiation of existing generic equations and
+3976: fixed inputs: kernel terms on the required reference roster, each family's
+3977: caller/input composition and result mappings, and the reach-dependent triple-key
+3978: set premise. No new host tool or generic library proof programme is commissioned.
+3979: Unknown concrete facts must be returned by name; code translation and any added
+3980: allocation costs still require their own explicit later grant and review.

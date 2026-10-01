@@ -1,0 +1,154 @@
+{
+  "kernel22": {
+    "status": "independent RV30 review27 verified within explicit conditional reference premises; no findings; not global/implementation/artifact acceptance",
+    "review_revision": "8bcb8717fe36deb51e1b64f7cd64709f50f3742f",
+    "review_seal": "2e0e0cf05cea3c11ea2a7b6eb4d26b0b5afb3886b0a1eae1e71bc816ecef6c82",
+    "payloads": [
+      {
+        "path": "ARITHMETIC_BACKCHECK.json",
+        "sha256": "5687120c773ac48f3808e0043a0e28508e2a3760e4a8f02bd110f5ec42bccbc3"
+      },
+      {
+        "path": "FINDINGS.json",
+        "sha256": "5cb636c83a1e241e8c8dc345f2f1a551f6d7d255f601f013de0052bf854acb09"
+      },
+      {
+        "path": "GRANT.json",
+        "sha256": "0aa724a22d8a885ece78f8cde34d519afd4b8c87d9e0bb2bb04b9b59ad75dfe0"
+      },
+      {
+        "path": "INPUT_DESCRIPTOR_BACKCHECK.json",
+        "sha256": "ca5ab4744b21788ce47adb7db00d36b96205946b32f435cfa27fb6b237460d1b"
+      },
+      {
+        "path": "INTERFACE_POLICY_BACKCHECK.json",
+        "sha256": "2f305e3959d4e22520414e1cbd7ec9d32d1fd36a59f1eca1f9d4468509cbfcfc"
+      },
+      {
+        "path": "RETURN.md",
+        "sha256": "803e3a8e4319bba0444aca7431673d8482dda91eac47b8be7dd9d75484e15467"
+      },
+      {
+        "path": "SUMMARY_BACKCHECK.json",
+        "sha256": "5196ba0ba9e98622914646a954706e3fdb35cc9a0e6df416d056e2beb3732ad3"
+      },
+      {
+        "path": "VERIFICATION.json",
+        "sha256": "39153023d0722493fba5ded212fa98800feece4f44e02edf391c57a0fda534e8"
+      },
+      {
+        "path": "WRITE_INVENTORY.json",
+        "sha256": "38e0d909d4e27904515db34d36054cf7043dbd85aa280dc7577150236301dc61"
+      },
+      {
+        "path": "_run_records/COMMANDS_AND_RESULTS.json",
+        "sha256": "83cfe2fe3b57429bf8500f22b2012f69b13ce9946fcccc3f8720e6aab1a3eeb3"
+      }
+    ],
+    "ROOT_message": "full RETURN read/all10 payloads verified/committed; caller review and RESULT5 remain separate"
+  },
+  "caller14": {
+    "status": "RV28 independent review verified, no findings; ROOT conditionally accepted exact component scope",
+    "revision": "185b63970d5b200bcbe5a4c3a40844f4a81c09d6",
+    "seal": "c3eadadd67f038cbb4e56a10cf9cf89a168bea8e2ae4a554646f484a5cf930b7",
+    "payloads": [
+      {
+        "path": "EXECUTION.md",
+        "sha256": "8bfc76897efb614e43369fee52ca6c5d7c0956c8bd9ea415cd6a3e3a3aa2e91d"
+      },
+      {
+        "path": "REVIEW.md",
+        "sha256": "ca23d1e74b7a1b9a5d60162bd9931c1ba14bca491ae8e422faa9c8873e266f1f"
+      },
+      {
+        "path": "TIMING.json",
+        "sha256": "7369afaf596ce02fa3d6f06cbf409972708790f45b31a2a306720167a7305af8"
+      },
+      {
+        "path": "_run_records/BASIS.json",
+        "sha256": "a0e235ae79f90d0b47fcb2b3ad10a5b151e4d25811c46388b2157c807267be74"
+      },
+      {
+        "path": "_run_records/CHECKS.json",
+        "sha256": "a1bd35e4e2bc9ee7d51ffcdae679d3672a2533ef9726c3e9f890368df7b7e44d"
+      },
+      {
+        "path": "_run_records/INITIAL_INTERFACE_COUNT.stdout.json",
+        "sha256": "be027b6ccf3e24d244c6ae02e77a613b59a8ecf0b15d2fc89e52f112d437bc43"
+      },
+      {
+        "path": "_run_records/INITIAL_INTERFACE_COUNT_CHECK.json",
+        "sha256": "217f98e97825c9304f8280947c1020ab44e16e19fe6f0b0f439fc0ead58757ab"
+      },
+      {
+        "path": "_run_records/INITIAL_METADATA_ERROR.stderr.txt",
+        "sha256": "49dcf0e495ed8b5976edafd1cfc09aa8f9f1c97c77f4c3a5d40b42530e4fb2fe"
+      },
+      {
+        "path": "_run_records/INITIAL_METADATA_ERROR.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "_run_records/INTERFACES.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "_run_records/INTERFACES.stdout.json",
+        "sha256": "804335ad512f3b4929bf00da5463a45be3732bbb191024d8ca64802b07b4153b"
+      },
+      {
+        "path": "_run_records/INTERFACE_CHECKS.json",
+        "sha256": "e14bd5ad413de526c4087f83a49b5c9139674d104b37132d521ec4c837e20498"
+      },
+      {
+        "path": "_run_records/PRODUCT_HASH_RECHECK.json",
+        "sha256": "6373f39bfb0e8aed23f15a629124581bc74715adf4ec6fa800749edd8dfd391f"
+      },
+      {
+        "path": "_run_records/RECOMPUTED.json",
+        "sha256": "d92eed03fbde71d511268b02427ecf63b2da7605204fd2322575998a46f2c4bc"
+      },
+      {
+        "path": "_run_records/RUN.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "_run_records/RUN.stdout.json",
+        "sha256": "96167a5694a0ec5cfdb2b6ac5cdb258f8b2a2a8276f75a96ccabcb6b24860ede"
+      },
+      {
+        "path": "_run_records/SOURCE_ORIGIN_RECHECK.json",
+        "sha256": "60db26cc06da5cd45514b71fa973fafbc4379a6171b65939eabf9eb79be483de"
+      },
+      {
+        "path": "_run_records/SUMMARY.json",
+        "sha256": "e42bedbc04bcb7c4b6b5217cbb2e626381587feda84cf78c667abac3dede10f0"
+      },
+      {
+        "path": "_run_records/check.py",
+        "sha256": "9fb57b3205c37aac11570fae2118c07ee188dbbe12a0511e2a4cdf3b10b42754"
+      },
+      {
+        "path": "_run_records/interfaces.py",
+        "sha256": "d6a5846ea263cc807d94c32d824964f12543b26b7bbc57a7a25f792cf8876e66"
+      },
+      {
+        "path": "_run_records/reviewer_driver.py",
+        "sha256": "89731d66faa9c625449a68f34f9233f6e1bf4b65053937b310ce25cc3f40632c"
+      },
+      {
+        "path": "_run_records/reviewer_math.py",
+        "sha256": "3fa11e684ed4b5b8819f36f82a914471878eabf67d7ba445a651e0aa9d464b4b"
+      }
+    ]
+  },
+  "this_join": {
+    "status": "author arithmetic candidate, independent join review pending"
+  },
+  "component_disposition": {
+    "revision": "b364c67947fd7801124c9a594a36ef7558c07223",
+    "ruling_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+    "full_ruling_sha256": "51702729613582ea8a2d8a792fd81263e21bc10f0bfecd92d9c3a8fba238db3c",
+    "ROOT_direction": "conditionally accepts both components within exact profiles; matching join/result5 review remains separate; no global/implementation/admission acceptance"
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "role": "TASK I21, existing native child of WORKING_ITEMS recovery manager; no delegation",
+  "instruction_basis": "Inherited Root/TASK/Piping/COMMON origins and native bounded KERNEL-193 assignment; full API13/result contract/review09 read; no new skill/workflow",
+  "dispatch_start_utc": "2026-10-01 22:52:50 UTC",
+  "actual_tool_start_utc": "2026-10-01 22:53:59 UTC",
+  "hard_end_utc": "2026-10-01 23:22:50 UTC",
+  "root_selection": {
+    "commit": "b3f6aef7705b31939f412960ffde954b84a742ba",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+    "sha256": "6f11af0d5e5f74ed55cffa8e01918eed08899a09ca291058d03ee2b464201523",
+    "captured_from_line": 3957
+  },
+  "additional_seals_verified": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/SHA256SUMS",
+      "sha256": "1d75c56c26e0167b36d161e887fd8a709c6ef408523c43c7d4c5df2d86b63c92",
+      "payloads": 29
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_05/SHA256SUMS",
+      "sha256": "948978b8eaad1feacfb0fa1165d8418f0fa78cb52d308796bde7e6b4723cdf7a",
+      "payloads": 7
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_06/SHA256SUMS",
+      "sha256": "7d7d84cca83fc019a51134458cd5f5cee32708039657a5b8d92b60b4ff1ee255",
+      "payloads": 6
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/SHA256SUMS",
+      "sha256": "6d2d3dae877a3cf756cd32697732aa72a3f9bca33de243d4dda7e9d8410a9195",
+      "payloads": 8
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout_04/SHA256SUMS",
+      "sha256": "c2e198a9b71fb573e356dadb0b646b99487f23bcd8b69e82b5af2a3d74ea0103",
+      "payloads": 23
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_run/SHA256SUMS",
+      "sha256": "0f2b007052f9cd2d1300b9df3135e22d9ef201aa076257ca41db6a2e87f7d8c2",
+      "payloads": 12
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/kernel_01/backcheck_01/SHA256SUMS",
+      "sha256": "2e80a5a7ad3f8cee4e83f73a7858723e70523dec128f9fdd5eb7ca80f4ab0e86",
+      "payloads": 7
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/source09_04/SHA256SUMS",
+      "sha256": "6e60b39d3f22f16bc725eb3544a0966a1a2f90d2803f502f33a7fbe2ef9c3bb8",
+      "payloads": 8
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_numeric_23/SHA256SUMS",
+      "sha256": "6ff5205bb500593bf02437fdc89c65df11acd8ea6d39aedf535598dee81e05b5",
+      "payloads": 15
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_summary_24/SHA256SUMS",
+      "sha256": "23a3552e2a777ac96c40080fc6411894e240c70c269322cd240322fe2633ea29",
+      "payloads": 5
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_join_25/SHA256SUMS",
+      "sha256": "41d6335e1b60a28e982b15a16b376a695ff57dd66b44d2d01445235d23dab1e1",
+      "payloads": 11
+    }
+  ],
+  "frozen_application_sources": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "bytes": 24432
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "bytes": 29088
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+      "bytes": 29280
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "bytes": 160870
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+      "bytes": 47344
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+      "bytes": 17973
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+      "bytes": 46099
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+      "bytes": 8977
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "3e5b9be185428f1652775f60cbb98b9d30e08bff4ce2a9b2bb83ccf662d30a1b",
+      "bytes": 51441
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+      "bytes": 18171
+    }
+  ],
+  "roster_and_original_storage_binding": "DESCRIPTORS.json",
+  "contract_seals": "DESCRIPTORS.json sealed_bases",
+  "policy": "Reference193 exact stored z/h, B_upper=N,b_upper=f only in monotone terms; CLI24 exact B/b for equality",
+  "write_fence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22",
+  "git_policy": "Every Git read GIT_OPTIONAL_LOCKS=0; no Git/index writes",
+  "execution_scope": "one-off integer bound arithmetic and original fixed metadata only; no product/source algorithm run"
+}

@@ -1,0 +1,45 @@
+
+
+## S2 corrected VALUE witness qualified; remaining A1 validation (ROOT, 2026-10-01)
+
+ROOT read the full RV29 vk_s2_result_41/REVIEW.md, verified all payloads and
+seal97cb6c7a3542616af3e9a86ca8e43d5e4c85e94608ae1c71fccabd5436c7bd6f,
+and accepts the corrected S2 observation under the unchanged nonzero-reaction
+VALUE criterion. The review's Actual numerical witness and Controls and history
+sections state the exact case/key/reference attribution and actual returned
+controls. P35 remains permanently zero-credit; its actual P36 return is closed.
+The expired earlier preparation remains history, not an execution or authority.
+
+Close the S2 runtime window. Release original P37-P47 only under the fresh
+BRIEFS/A1_VK_REMAINDER_09.md grant. R02's unprinted numerical-field gap remains;
+existing scalar and TREE100 tests are bounded investigation inputs, not P49
+credit or an amended criterion. P48-P53 remain held pending ROOT's next grant.
+No source, oracle, protected criterion or F17 scope changes. A1 acceptance,
+final-head gates, merge and F2a reliance remain open.
+
+The sealed caller14 and kernel_reference22 K6c instantiations have been preserved
+for independent reviews RV28 reference_callers_10 and RV30 kernel_reference_27.
+These are conditional source-arithmetic candidates; composition, result ordering,
+context/code translation, artifact qualification, admission and measurements
+remain. They do not block A1's independent completion path.
+
+
+## Conditional generic K6c components verified (ROOT, 2026-10-01)
+
+ROOT read the complete RV30 kernel_reference_27/RETURN.md and RV28
+reference_callers_10/REVIEW.md and verified all payloads under seals
+2e0e0cf05cea3c11ea2a7b6eb4d26b0b5afb3886b0a1eae1e71bc816ecef6c82 and
+c3eadadd67f038cbb4e56a10cf9cf89a168bea8e2ae4a554646f484a5cf930b7.
+Accept their independently verified generic kernel and caller instantiations
+conditionally on the explicitly named source, input, request-profile and launch
+premises. The reports give full roster/metric figures and their scoped units;
+no measured heap supplied an arithmetic term.
+
+Reference B/b substitutions are tagged monotone population uppers, not graph
+facts. Original stored z/h and actual generic spring/load/string terms remain.
+Mathematical SingleCaseFamilyReferenceV1 and actual CLI24 retain their distinct
+input/launch/count policies; equal case names do not identify those contexts.
+No field is zeroed or forced solely to satisfy ordering. The complete result
+join, context/allocation translation, checked maintained implementation, final
+ordinary-production correspondence, admission and measurements remain open.
+These component dispositions do not accept full E_max or delay A1's own gates.

@@ -1,0 +1,36 @@
+{
+  "completed_utc": "2026-10-01 23:19:51 UTC",
+  "dispatch_start_utc": "2026-10-01 22:52:50 UTC",
+  "actual_tool_start_utc": "2026-10-01 22:53:59 UTC",
+  "hard_end_utc": "2026-10-01 23:22:50 UTC",
+  "reference_cases": 193,
+  "kernel_phase_records": 24318,
+  "kernel_subset_checks": 1737,
+  "all_kernel_subset_checks_pass": true,
+  "exact_CLI_policy_matches": 24,
+  "reference_upper_overlap_dominance_rows": 12,
+  "external_CLI_exact_cases": 12,
+  "stored_attempt_z_h_pairs_checked": 390,
+  "maximum_reference_full_requested": 50786900,
+  "maximum_reference_full_moving": 51724884,
+  "unavailable_exact_graph_facts": [
+    "actual B and b not supplied by original193 metadata/storage; tagged monotone upper policy used, never relabeled exact"
+  ],
+  "unresolved_required_kernel_cells_under_selected_policy": [],
+  "caller_RESULT5_or_global_bound_supplied": false,
+  "full_adapter_Emax_artifact_admission_acceptance": false,
+  "remaining_obligations": [
+    "Independent generic source-owner/numeric review",
+    "Separately owned caller193/RESULT5 composition and reached-types premise",
+    "Context translation/checked implementation under later grant",
+    "Final source/type/compiler/library/target/cfg/profile/allocator/request/launch correspondence",
+    "Existing validation/admission/measurement obligations"
+  ],
+  "json_parse": "PASS",
+  "portable_paths": "PASS",
+  "no_product_algorithm_or_runtime_execution": true,
+  "no_running_experiment": true,
+  "no_git_index_maintained_or_api_changes": true,
+  "no_delegation_or_followon": true,
+  "write_fence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22"
+}

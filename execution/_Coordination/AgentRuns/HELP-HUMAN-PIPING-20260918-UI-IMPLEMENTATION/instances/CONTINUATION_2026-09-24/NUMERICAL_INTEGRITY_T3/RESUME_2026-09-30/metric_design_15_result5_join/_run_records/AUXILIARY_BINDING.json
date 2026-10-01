@@ -1,0 +1,32 @@
+{
+  "metric_design_13_api_contract/CONTRACT.md": {
+    "path": "metric_design_13_api_contract__CONTRACT.md",
+    "sha256": "e314e8b259da7e08c448b643b8c9d6777a13072bd693a30e7eba10b87c5db3b9",
+    "bytes": 15826
+  },
+  "metric_design_13_api_contract/RESULT_CONTRACT.json": {
+    "path": "metric_design_13_api_contract__RESULT_CONTRACT.json",
+    "sha256": "7592fc4ff178f8af9ff90dec0176a16572f002b1806a52032786380446caa89e",
+    "bytes": 1735
+  },
+  "metric_design_13_api_contract/_run_records/ROSTER_CONTEXT.json": {
+    "path": "metric_design_13_api_contract___run_records__ROSTER_CONTEXT.json",
+    "sha256": "c160e3611911dce17cadf9ffe7436b97c74c68b3a3c3b657f1969cb2aef2a5cf",
+    "bytes": 97114
+  },
+  "design_review_RV28/api_contract_09/REVIEW.md": {
+    "path": "design_review_RV28__api_contract_09__REVIEW.md",
+    "sha256": "804c82b2a97499b6047cbfe52c94da82d7479f1ae39ef1c7c3e800dfc93a2e19",
+    "bytes": 12519
+  },
+  "I21/vr_join_20/JOINED_PHASES.json": {
+    "path": "I21__vr_join_20__JOINED_PHASES.json",
+    "sha256": "e18473f14ef7619de761c4b475dace98828659bc2b0f98c46b1dbacdb4744ae3",
+    "bytes": 333874
+  },
+  "I21/source_09/FIXTURE_INPUTS.json": {
+    "path": "I21__source_09__FIXTURE_INPUTS.json",
+    "sha256": "fd7aed3c52089362fd6e84fb23c9fc056a2864b873371ec43fc5d68d77147a26",
+    "bytes": 166532
+  }
+}

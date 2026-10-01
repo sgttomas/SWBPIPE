@@ -1,0 +1,187 @@
+[
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_10_vr_numbers/_run_records/assemble.py",
+    "sha256": "72caaa70da1782f49c5d44e17a6f446f81ea330711fa21a9807ff2bef1902f10",
+    "bytes": 25888,
+    "selection": "reviewed integer/interval/helper equations reused and explicitly generalized"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_15/SERIALIZER_ENVELOPE.md",
+    "sha256": "887b234931a89b9f5b75ef3cac69f54d3e5943362925d1aaa09feecbd4aeca4d",
+    "bytes": 19470,
+    "selection": "generic quantity/row/geometry formatting grammar; geometry2+23B+27min(d,2N)"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_15/SCHEMAS.json",
+    "sha256": "88b59eaeac4cf512f44c4ebd827825e0d15996751a7d72574dc3f9e2aa42df0d",
+    "bytes": 8982,
+    "selection": "full finite JSON key grammar"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_05/FACTS.json",
+    "sha256": "ca6a1f859e5484b5bfbb117644847e5c93b1c73e228f9a394f44e544d5b55c07",
+    "bytes": 18939,
+    "selection": "existing nominal/public sizes, including SpringSpec88 and H.Tuple.Load16"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/DESCRIPTOR_MAP.md",
+    "sha256": "e56fb9767188f161c96aaeac0c221b004a8ad065719248669bbb9907716d4c33",
+    "bytes": 20951,
+    "selection": "generic source construction/count/aggregate contracts, inherited"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/FIXTURE_INPUTS.json",
+    "sha256": "fd7aed3c52089362fd6e84fb23c9fc056a2864b873371ec43fc5d68d77147a26",
+    "bytes": 166532,
+    "selection": "all213 metadata"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_04_sparse/DESCRIPTORS.md",
+    "sha256": "45cd940cb3972d7aa8c442fccb23458f911a0d36d560a83b8290382fa98bf47b",
+    "bytes": 4647,
+    "selection": "full"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_04_sparse/DERIVATION.md",
+    "sha256": "d6b3f258d21634cf876c4d05e313f64dfe8f786cb61003b8a1a88eae06dc7c89",
+    "bytes": 20232,
+    "selection": "adapter/contribution/pattern/front equations and retained generic equations"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_13_api_contract/CONTRACT.md",
+    "sha256": "e314e8b259da7e08c448b643b8c9d6777a13072bd693a30e7eba10b87c5db3b9",
+    "bytes": 15826,
+    "selection": "selected contract, already full in prior leg"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV28/api_contract_09/REVIEW.md",
+    "sha256": "804c82b2a97499b6047cbfe52c94da82d7479f1ae39ef1c7c3e800dfc93a2e19",
+    "bytes": 12519,
+    "selection": "full"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/finite_callers_12/RETURN.md",
+    "sha256": "29ffee7cdc2d621c6a00a8d53430f03ab3dddcd6681d1692ebf5800879797cab",
+    "bytes": 9332,
+    "selection": "full fixed floor and finite-call scope"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV28/selected_numerators_01/REVIEW.md",
+    "sha256": "db6bec8ae1523d5f1f395d6f8683b9f7eab9b54ed500e0048179e7bb70878544",
+    "bytes": 16156,
+    "selection": "full; consume released consequence only"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/expected_list_parse_20/RETURN.md",
+    "sha256": "dcf678a3dd02cbbc43bed75688045c67b95ab457fd266f4c0409f41b5b228056",
+    "bytes": 1998,
+    "selection": "full"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/expected_list_parse_20/_run_records/SCRATCH_WARRANT.json",
+    "sha256": "83009404f16c8c166c795bb060c99ff0a0f7bdedd441fdc4f102597f4ebcdd14",
+    "bytes": 4493,
+    "selection": "full"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/reference_reach_23/RETURN.md",
+    "sha256": "32a0b5baa455ac436445d53482ee8d09e74e3718ce0c8cf1357f167202bcd477",
+    "bytes": 2910,
+    "selection": "full"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/reference_reach_26/RETURN.md",
+    "sha256": "b683106ef09221e5db750ebe536b80f71a023b2bcb7191cba2a574747e1438d0",
+    "bytes": 4168,
+    "selection": "full"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/vr_join_20/CORRECTED_CALLER_TABLE.json",
+    "sha256": "244fde57a9a177a5a920e8f4ba607f5db16d5153d207b3985c8e09d8f92da22d",
+    "bytes": 116607,
+    "selection": "CLI24 original component values; no kernel joined"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/vr_join_20/LAUNCHES.json",
+    "sha256": "c074aca5e8016b274fe779e9e1f36087537da5ae408c8d0ec12091d02f0a12bb",
+    "bytes": 29370,
+    "selection": "original CLI24 provenance"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/public_layout_20/_run_records/VALUES.json",
+    "sha256": "bdb9d138c58942a1b0bc4f77723c149b4de650c1be43aa8da4e66ca272916e6c",
+    "bytes": 1431,
+    "selection": "inherited released exact public type facts"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/floor.rs",
+    "sha256": "882f0047fb9e3474703b7fb2fa723ffc4544066a3b0919a3cd5e42b68742f9aa",
+    "bytes": 6811,
+    "selection": "full",
+    "read": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/parity.rs",
+    "sha256": "525e6993e37df919535004dc418439a6b919036b7ca4fe588d51a514a393fe01",
+    "bytes": 10913,
+    "selection": "constructor/error/contributions/allowance/class,36\u2013181",
+    "read": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/compare.rs",
+    "sha256": "54843240c5f1f3cb2894e67f05bfae84a31ef8d3e96b3d7b1895591b163680e4",
+    "bytes": 5517,
+    "selection": "1\u2013170",
+    "read": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+    "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990",
+    "bytes": 14774,
+    "selection": "60\u2013180",
+    "read": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/exact.rs",
+    "sha256": "a336e9c787dd1a2a0c99e7065c6822a398ebeed0eddb9af2e1cdae476165b855",
+    "bytes": 22279,
+    "selection": "345\u2013545; immediate predicate/floor interfaces only",
+    "read": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+    "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+    "bytes": 24432,
+    "selection": "380\u2013450 and730\u2013745; source constructor/type/encoding interfaces",
+    "read": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+    "sha256": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f",
+    "bytes": 19650,
+    "selection": "40\u201386; same actual (usize,f64) load type anchor",
+    "read": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "revision": "b3f6aef7705b31939f412960ffde954b84a742ba",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+    "sha256": "6f11af0d5e5f74ed55cffa8e01918eed08899a09ca291058d03ee2b464201523",
+    "selection": "Complete-context API and five-field contract selected section",
+    "read": "GIT_OPTIONAL_LOCKS=0 git show"
+  }
+]

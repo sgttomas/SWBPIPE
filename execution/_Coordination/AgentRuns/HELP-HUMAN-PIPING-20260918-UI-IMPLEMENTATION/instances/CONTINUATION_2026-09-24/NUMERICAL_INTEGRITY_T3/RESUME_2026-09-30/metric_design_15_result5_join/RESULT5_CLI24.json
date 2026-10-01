@@ -1,0 +1,2731 @@
+{
+  "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "context": "actual RF-LARGE-only CLI24, original exact count/launch/input policy",
+  "status": "conditional composed candidate pending independent join review; components conditionally accepted only within exact profiles; no implementation/artifact/admission acceptance",
+  "rows": [
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CHAIN-n00010-AX",
+        "N": 11,
+        "m": 10,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 6,
+        "t": 10,
+        "n": 66,
+        "f": 60,
+        "z": 1116,
+        "h": 534,
+        "q": 263,
+        "X": 1494,
+        "source_id_bytes": 12,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 52280,
+            "fixed": 165056,
+            "decide": 18807367,
+            "max": 21691809,
+            "sel128": 19687137
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 38252,
+                "kernel": 21653557,
+                "total": 21691809,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 38252,
+                "kernel": 19648885,
+                "total": 19687137,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 112776,
+            "sel128_minus_fixed": 19522081,
+            "max_minus_sel128": 2004672
+          },
+          "caller_fixed_addend": 86762,
+          "kernel_B0": 78294
+        },
+        "moving": {
+          "fields": {
+            "model": 52280,
+            "fixed": 165056,
+            "decide": 19888711,
+            "max": 22773153,
+            "sel128": 20768481
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 38252,
+                "kernel": 22734901,
+                "total": 22773153,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 38252,
+                "kernel": 20730229,
+                "total": 20768481,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 112776,
+            "sel128_minus_fixed": 20603425,
+            "max_minus_sel128": 2004672
+          },
+          "caller_fixed_addend": 86762,
+          "kernel_B0": 78294
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 52280,
+        "fixed": 165056,
+        "decide": 19888711,
+        "max": 22773153,
+        "sel128": 20768481
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CHAIN-n00010-ROT",
+        "N": 11,
+        "m": 10,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 6,
+        "t": 10,
+        "n": 66,
+        "f": 60,
+        "z": 1116,
+        "h": 534,
+        "q": 263,
+        "X": 1494,
+        "source_id_bytes": 12,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 52280,
+            "fixed": 165790,
+            "decide": 18807367,
+            "max": 21692551,
+            "sel128": 19687879
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 38994,
+                "kernel": 21653557,
+                "total": 21692551,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 38994,
+                "kernel": 19648885,
+                "total": 19687879,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 113510,
+            "sel128_minus_fixed": 19522089,
+            "max_minus_sel128": 2004672
+          },
+          "caller_fixed_addend": 87496,
+          "kernel_B0": 78294
+        },
+        "moving": {
+          "fields": {
+            "model": 52280,
+            "fixed": 165790,
+            "decide": 19888711,
+            "max": 22773895,
+            "sel128": 20769223
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 38994,
+                "kernel": 22734901,
+                "total": 22773895,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 38994,
+                "kernel": 20730229,
+                "total": 20769223,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 113510,
+            "sel128_minus_fixed": 20603433,
+            "max_minus_sel128": 2004672
+          },
+          "caller_fixed_addend": 87496,
+          "kernel_B0": 78294
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 52280,
+        "fixed": 165790,
+        "decide": 19888711,
+        "max": 22773895,
+        "sel128": 20769223
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-TREE-n00010-AX",
+        "N": 11,
+        "m": 10,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 4,
+        "t": 10,
+        "n": 66,
+        "f": 60,
+        "z": 1116,
+        "h": 534,
+        "q": 263,
+        "X": 1456,
+        "source_id_bytes": 8,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 52178,
+            "fixed": 161368,
+            "decide": 18807367,
+            "max": 21688113,
+            "sel128": 19683441
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 36066,
+                "kernel": 21652047,
+                "total": 21688113,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 36066,
+                "kernel": 19647375,
+                "total": 19683441,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 109190,
+            "sel128_minus_fixed": 19522073,
+            "max_minus_sel128": 2004672
+          },
+          "caller_fixed_addend": 84584,
+          "kernel_B0": 76784
+        },
+        "moving": {
+          "fields": {
+            "model": 52178,
+            "fixed": 161368,
+            "decide": 19888711,
+            "max": 22769457,
+            "sel128": 20764785
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 36066,
+                "kernel": 22733391,
+                "total": 22769457,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 36066,
+                "kernel": 20728719,
+                "total": 20764785,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 109190,
+            "sel128_minus_fixed": 20603417,
+            "max_minus_sel128": 2004672
+          },
+          "caller_fixed_addend": 84584,
+          "kernel_B0": 76784
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 52178,
+        "fixed": 161368,
+        "decide": 19888711,
+        "max": 22769457,
+        "sel128": 20764785
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-TREE-n00010-ROT",
+        "N": 11,
+        "m": 10,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 12,
+        "t": 10,
+        "n": 66,
+        "f": 60,
+        "z": 1116,
+        "h": 534,
+        "q": 263,
+        "X": 1610,
+        "source_id_bytes": 26,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 52580,
+            "fixed": 168795,
+            "decide": 18807367,
+            "max": 21695548,
+            "sel128": 19690876
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 37613,
+                "kernel": 21657935,
+                "total": 21695548,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 37613,
+                "kernel": 19653263,
+                "total": 19690876,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 116215,
+            "sel128_minus_fixed": 19522081,
+            "max_minus_sel128": 2004672
+          },
+          "caller_fixed_addend": 86123,
+          "kernel_B0": 82672
+        },
+        "moving": {
+          "fields": {
+            "model": 52580,
+            "fixed": 168795,
+            "decide": 19888711,
+            "max": 22776892,
+            "sel128": 20772220
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 37613,
+                "kernel": 22739279,
+                "total": 22776892,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 37613,
+                "kernel": 20734607,
+                "total": 20772220,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 116215,
+            "sel128_minus_fixed": 20603425,
+            "max_minus_sel128": 2004672
+          },
+          "caller_fixed_addend": 86123,
+          "kernel_B0": 82672
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 52580,
+        "fixed": 168795,
+        "decide": 19888711,
+        "max": 22776892,
+        "sel128": 20772220
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CONT-n00010-AX",
+        "N": 11,
+        "m": 10,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 21,
+        "l": 7,
+        "t": 10,
+        "n": 66,
+        "f": 45,
+        "z": 1116,
+        "h": 297,
+        "q": 278,
+        "X": 1708,
+        "source_id_bytes": 14,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 55400,
+            "fixed": 172394,
+            "decide": 18810982,
+            "max": 21624562,
+            "sel128": 19672258
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 40851,
+                "kernel": 21583711,
+                "total": 21624562,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 40851,
+                "kernel": 19631407,
+                "total": 19672258,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 116994,
+            "sel128_minus_fixed": 19499864,
+            "max_minus_sel128": 1952304
+          },
+          "caller_fixed_addend": 92201,
+          "kernel_B0": 80193
+        },
+        "moving": {
+          "fields": {
+            "model": 55400,
+            "fixed": 172394,
+            "decide": 19892326,
+            "max": 22705906,
+            "sel128": 20753602
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 40851,
+                "kernel": 22665055,
+                "total": 22705906,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 40851,
+                "kernel": 20712751,
+                "total": 20753602,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 116994,
+            "sel128_minus_fixed": 20581208,
+            "max_minus_sel128": 1952304
+          },
+          "caller_fixed_addend": 92201,
+          "kernel_B0": 80193
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 55400,
+        "fixed": 172394,
+        "decide": 19892326,
+        "max": 22705906,
+        "sel128": 20753602
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CONT-n00010-ROT",
+        "N": 11,
+        "m": 10,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 21,
+        "l": 14,
+        "t": 10,
+        "n": 66,
+        "f": 45,
+        "z": 1116,
+        "h": 297,
+        "q": 278,
+        "X": 1845,
+        "source_id_bytes": 32,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 55754,
+            "fixed": 178308,
+            "decide": 18810982,
+            "max": 21630484,
+            "sel128": 19678180
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 41712,
+                "kernel": 21588772,
+                "total": 21630484,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 41712,
+                "kernel": 19636468,
+                "total": 19678180,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 122554,
+            "sel128_minus_fixed": 19499872,
+            "max_minus_sel128": 1952304
+          },
+          "caller_fixed_addend": 93054,
+          "kernel_B0": 85254
+        },
+        "moving": {
+          "fields": {
+            "model": 55754,
+            "fixed": 178308,
+            "decide": 19892326,
+            "max": 22711828,
+            "sel128": 20759524
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 41712,
+                "kernel": 22670116,
+                "total": 22711828,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 41712,
+                "kernel": 20717812,
+                "total": 20759524,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 122554,
+            "sel128_minus_fixed": 20581216,
+            "max_minus_sel128": 1952304
+          },
+          "caller_fixed_addend": 93054,
+          "kernel_B0": 85254
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 55754,
+        "fixed": 178308,
+        "decide": 19892326,
+        "max": 22711828,
+        "sel128": 20759524
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CHAIN-n00100-AX",
+        "N": 101,
+        "m": 100,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 6,
+        "t": 100,
+        "n": 606,
+        "f": 600,
+        "z": 10836,
+        "h": 5664,
+        "q": 2513,
+        "X": 12654,
+        "source_id_bytes": 12,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 493462,
+            "fixed": 1396731,
+            "decide": 19392177,
+            "max": 47579334,
+            "sel128": 27826662
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 276759,
+                "kernel": 47302575,
+                "total": 47579334,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 276759,
+                "kernel": 27549903,
+                "total": 27826662,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 903269,
+            "sel128_minus_fixed": 26429931,
+            "max_minus_sel128": 19752672
+          },
+          "caller_fixed_addend": 750069,
+          "kernel_B0": 646662
+        },
+        "moving": {
+          "fields": {
+            "model": 493462,
+            "fixed": 1396731,
+            "decide": 20330161,
+            "max": 48517318,
+            "sel128": 28764646
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 276759,
+                "kernel": 48240559,
+                "total": 48517318,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 276759,
+                "kernel": 28487887,
+                "total": 28764646,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 903269,
+            "sel128_minus_fixed": 27367915,
+            "max_minus_sel128": 19752672
+          },
+          "caller_fixed_addend": 750069,
+          "kernel_B0": 646662
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 493462,
+        "fixed": 1396731,
+        "decide": 20330161,
+        "max": 48517318,
+        "sel128": 28764646
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CHAIN-n00100-ROT",
+        "N": 101,
+        "m": 100,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 6,
+        "t": 100,
+        "n": 606,
+        "f": 600,
+        "z": 10836,
+        "h": 5664,
+        "q": 2513,
+        "X": 12654,
+        "source_id_bytes": 12,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 493462,
+            "fixed": 1397253,
+            "decide": 19392177,
+            "max": 47579864,
+            "sel128": 27827192
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 277289,
+                "kernel": 47302575,
+                "total": 47579864,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 277289,
+                "kernel": 27549903,
+                "total": 27827192,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 903791,
+            "sel128_minus_fixed": 26429939,
+            "max_minus_sel128": 19752672
+          },
+          "caller_fixed_addend": 750591,
+          "kernel_B0": 646662
+        },
+        "moving": {
+          "fields": {
+            "model": 493462,
+            "fixed": 1397253,
+            "decide": 20330161,
+            "max": 48517848,
+            "sel128": 28765176
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 277289,
+                "kernel": 48240559,
+                "total": 48517848,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 277289,
+                "kernel": 28487887,
+                "total": 28765176,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 903791,
+            "sel128_minus_fixed": 27367923,
+            "max_minus_sel128": 19752672
+          },
+          "caller_fixed_addend": 750591,
+          "kernel_B0": 646662
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 493462,
+        "fixed": 1397253,
+        "decide": 20330161,
+        "max": 48517848,
+        "sel128": 28765176
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-TREE-n00100-AX",
+        "N": 101,
+        "m": 100,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 43,
+        "t": 100,
+        "n": 606,
+        "f": 600,
+        "z": 10836,
+        "h": 5664,
+        "q": 2513,
+        "X": 13390,
+        "source_id_bytes": 119,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 495325,
+            "fixed": 1410412,
+            "decide": 19392177,
+            "max": 47593007,
+            "sel128": 27840335
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 263085,
+                "kernel": 47329922,
+                "total": 47593007,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 263085,
+                "kernel": 27577250,
+                "total": 27840335,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 915087,
+            "sel128_minus_fixed": 26429923,
+            "max_minus_sel128": 19752672
+          },
+          "caller_fixed_addend": 736403,
+          "kernel_B0": 674009
+        },
+        "moving": {
+          "fields": {
+            "model": 495325,
+            "fixed": 1410412,
+            "decide": 20330161,
+            "max": 48530991,
+            "sel128": 28778319
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 263085,
+                "kernel": 48267906,
+                "total": 48530991,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 263085,
+                "kernel": 28515234,
+                "total": 28778319,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 915087,
+            "sel128_minus_fixed": 27367907,
+            "max_minus_sel128": 19752672
+          },
+          "caller_fixed_addend": 736403,
+          "kernel_B0": 674009
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 495325,
+        "fixed": 1410412,
+        "decide": 20330161,
+        "max": 48530991,
+        "sel128": 28778319
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-TREE-n00100-ROT",
+        "N": 101,
+        "m": 100,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 129,
+        "t": 100,
+        "n": 606,
+        "f": 600,
+        "z": 10836,
+        "h": 5664,
+        "q": 2513,
+        "X": 15139,
+        "source_id_bytes": 406,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 499740,
+            "fixed": 1491809,
+            "decide": 19392177,
+            "max": 47674412,
+            "sel128": 27921740
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 278300,
+                "kernel": 47396112,
+                "total": 47674412,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 278300,
+                "kernel": 27643440,
+                "total": 27921740,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 992069,
+            "sel128_minus_fixed": 26429931,
+            "max_minus_sel128": 19752672
+          },
+          "caller_fixed_addend": 751610,
+          "kernel_B0": 740199
+        },
+        "moving": {
+          "fields": {
+            "model": 499740,
+            "fixed": 1491809,
+            "decide": 20330161,
+            "max": 48612396,
+            "sel128": 28859724
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 278300,
+                "kernel": 48334096,
+                "total": 48612396,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 278300,
+                "kernel": 28581424,
+                "total": 28859724,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 992069,
+            "sel128_minus_fixed": 27367915,
+            "max_minus_sel128": 19752672
+          },
+          "caller_fixed_addend": 751610,
+          "kernel_B0": 740199
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 499740,
+        "fixed": 1491809,
+        "decide": 20330161,
+        "max": 48612396,
+        "sel128": 28859724
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CONT-n00100-AX",
+        "N": 101,
+        "m": 100,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 156,
+        "l": 73,
+        "t": 100,
+        "n": 606,
+        "f": 450,
+        "z": 10836,
+        "h": 3132,
+        "q": 2663,
+        "X": 15940,
+        "source_id_bytes": 209,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 527575,
+            "fixed": 1496214,
+            "decide": 19428327,
+            "max": 46807471,
+            "sel128": 27663919
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 289365,
+                "kernel": 46518106,
+                "total": 46807471,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 289365,
+                "kernel": 27374554,
+                "total": 27663919,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 968639,
+            "sel128_minus_fixed": 26167705,
+            "max_minus_sel128": 19143552
+          },
+          "caller_fixed_addend": 791003,
+          "kernel_B0": 705211
+        },
+        "moving": {
+          "fields": {
+            "model": 527575,
+            "fixed": 1496214,
+            "decide": 20366311,
+            "max": 47745455,
+            "sel128": 28601903
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 289365,
+                "kernel": 47456090,
+                "total": 47745455,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 289365,
+                "kernel": 28312538,
+                "total": 28601903,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 968639,
+            "sel128_minus_fixed": 27105689,
+            "max_minus_sel128": 19143552
+          },
+          "caller_fixed_addend": 791003,
+          "kernel_B0": 705211
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 527575,
+        "fixed": 1496214,
+        "decide": 20366311,
+        "max": 47745455,
+        "sel128": 28601903
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CONT-n00100-ROT",
+        "N": 101,
+        "m": 100,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 156,
+        "l": 128,
+        "t": 100,
+        "n": 606,
+        "f": 450,
+        "z": 10836,
+        "h": 3132,
+        "q": 2663,
+        "X": 17068,
+        "source_id_bytes": 402,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 530408,
+            "fixed": 1547875,
+            "decide": 19428327,
+            "max": 46859140,
+            "sel128": 27715588
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 303577,
+                "kernel": 46555563,
+                "total": 46859140,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 303577,
+                "kernel": 27412011,
+                "total": 27715588,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 1017467,
+            "sel128_minus_fixed": 26167713,
+            "max_minus_sel128": 19143552
+          },
+          "caller_fixed_addend": 805207,
+          "kernel_B0": 742668
+        },
+        "moving": {
+          "fields": {
+            "model": 530408,
+            "fixed": 1547875,
+            "decide": 20366311,
+            "max": 47797124,
+            "sel128": 28653572
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 303577,
+                "kernel": 47493547,
+                "total": 47797124,
+                "kernel_phases": [
+                  "R7_tracker_decision_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 303577,
+                "kernel": 28349995,
+                "total": 28653572,
+                "kernel_phases": [
+                  "R7_tracker_decision_256"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 1017467,
+            "sel128_minus_fixed": 27105697,
+            "max_minus_sel128": 19143552
+          },
+          "caller_fixed_addend": 805207,
+          "kernel_B0": 742668
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 530408,
+        "fixed": 1547875,
+        "decide": 20366311,
+        "max": 47797124,
+        "sel128": 28653572
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CHAIN-n01000-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CHAIN-n01000-AX",
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 6,
+        "t": 1000,
+        "n": 6006,
+        "f": 6000,
+        "z": 108036,
+        "h": 56964,
+        "q": 25013,
+        "X": 124254,
+        "source_id_bytes": 12,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 4908168,
+            "fixed": 11325253,
+            "decide": 24953557,
+            "max": 337948600,
+            "sel128": 337948600
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 337948600,
+                "kernel": 0,
+                "total": 337948600,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 337948600,
+                "kernel": 0,
+                "total": 337948600,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 6417085,
+            "sel128_minus_fixed": 326623347,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 5181023,
+          "kernel_B0": 6144230
+        },
+        "moving": {
+          "fields": {
+            "model": 4908168,
+            "fixed": 11325253,
+            "decide": 25608917,
+            "max": 481972600,
+            "sel128": 481972600
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 481972600,
+                "kernel": 0,
+                "total": 481972600,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 481972600,
+                "kernel": 0,
+                "total": 481972600,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 6417085,
+            "sel128_minus_fixed": 470647347,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 5181023,
+          "kernel_B0": 6144230
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 4908168,
+        "fixed": 11325253,
+        "decide": 25608917,
+        "max": 481972600,
+        "sel128": 481972600
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CHAIN-n01000-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CHAIN-n01000-ROT",
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 6,
+        "t": 1000,
+        "n": 6006,
+        "f": 6000,
+        "z": 108036,
+        "h": 56964,
+        "q": 25013,
+        "X": 124254,
+        "source_id_bytes": 12,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 4908168,
+            "fixed": 11325986,
+            "decide": 24953557,
+            "max": 337949334,
+            "sel128": 337949334
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 337949334,
+                "kernel": 0,
+                "total": 337949334,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 337949334,
+                "kernel": 0,
+                "total": 337949334,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 6417818,
+            "sel128_minus_fixed": 326623348,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 5181756,
+          "kernel_B0": 6144230
+        },
+        "moving": {
+          "fields": {
+            "model": 4908168,
+            "fixed": 11325986,
+            "decide": 25608917,
+            "max": 481973334,
+            "sel128": 481973334
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 481973334,
+                "kernel": 0,
+                "total": 481973334,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 481973334,
+                "kernel": 0,
+                "total": 481973334,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 6417818,
+            "sel128_minus_fixed": 470647348,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 5181756,
+          "kernel_B0": 6144230
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 4908168,
+        "fixed": 11325986,
+        "decide": 25608917,
+        "max": 481973334,
+        "sel128": 481973334
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-TREE-n01000-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-TREE-n01000-AX",
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 428,
+        "t": 1000,
+        "n": 6006,
+        "f": 6000,
+        "z": 108036,
+        "h": 56964,
+        "q": 25013,
+        "X": 133018,
+        "source_id_bytes": 1602,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 4929796,
+            "fixed": 11684315,
+            "decide": 24953557,
+            "max": 337985943,
+            "sel128": 337985943
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 337985943,
+                "kernel": 0,
+                "total": 337985943,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 337985943,
+                "kernel": 0,
+                "total": 337985943,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 6754519,
+            "sel128_minus_fixed": 326301628,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 5232091,
+          "kernel_B0": 6452224
+        },
+        "moving": {
+          "fields": {
+            "model": 4929796,
+            "fixed": 11684315,
+            "decide": 25608917,
+            "max": 482009943,
+            "sel128": 482009943
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 482009943,
+                "kernel": 0,
+                "total": 482009943,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 482009943,
+                "kernel": 0,
+                "total": 482009943,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 6754519,
+            "sel128_minus_fixed": 470325628,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 5232091,
+          "kernel_B0": 6452224
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 4929796,
+        "fixed": 11684315,
+        "decide": 25608917,
+        "max": 482009943,
+        "sel128": 482009943
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-TREE-n01000-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-TREE-n01000-ROT",
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 1284,
+        "t": 1000,
+        "n": 6006,
+        "f": 6000,
+        "z": 108036,
+        "h": 56964,
+        "q": 25013,
+        "X": 151278,
+        "source_id_bytes": 5310,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 4974592,
+            "fixed": 12413208,
+            "decide": 24953557,
+            "max": 338031093,
+            "sel128": 338031093
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 338031093,
+                "kernel": 0,
+                "total": 338031093,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 338031093,
+                "kernel": 0,
+                "total": 338031093,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 7438616,
+            "sel128_minus_fixed": 325617885,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 5313760,
+          "kernel_B0": 7099448
+        },
+        "moving": {
+          "fields": {
+            "model": 4974592,
+            "fixed": 12413208,
+            "decide": 25608917,
+            "max": 482055093,
+            "sel128": 482055093
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 482055093,
+                "kernel": 0,
+                "total": 482055093,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 482055093,
+                "kernel": 0,
+                "total": 482055093,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 7438616,
+            "sel128_minus_fixed": 469641885,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 5313760,
+          "kernel_B0": 7099448
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 4974592,
+        "fixed": 12413208,
+        "decide": 25608917,
+        "max": 482055093,
+        "sel128": 482055093
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CONT-n01000-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CONT-n01000-AX",
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 1506,
+        "l": 733,
+        "t": 1000,
+        "n": 6006,
+        "f": 4500,
+        "z": 108036,
+        "h": 31482,
+        "q": 26513,
+        "X": 158923,
+        "source_id_bytes": 2822,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 5252856,
+            "fixed": 12408812,
+            "decide": 25315057,
+            "max": 319903830,
+            "sel128": 211856094
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 606635,
+                "kernel": 319297195,
+                "total": 319903830,
+                "kernel_phases": [
+                  "own_fallback_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 211856094,
+                "kernel": 0,
+                "total": 211856094,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 7155956,
+            "sel128_minus_fixed": 199447282,
+            "max_minus_sel128": 108047736
+          },
+          "caller_fixed_addend": 5611153,
+          "kernel_B0": 6797659
+        },
+        "moving": {
+          "fields": {
+            "model": 5252856,
+            "fixed": 12408812,
+            "decide": 25970417,
+            "max": 337533014,
+            "sel128": 292874094
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 606635,
+                "kernel": 336926379,
+                "total": 337533014,
+                "kernel_phases": [
+                  "own_fallback_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 292874094,
+                "kernel": 0,
+                "total": 292874094,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 7155956,
+            "sel128_minus_fixed": 280465282,
+            "max_minus_sel128": 44658920
+          },
+          "caller_fixed_addend": 5611153,
+          "kernel_B0": 6797659
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 5252856,
+        "fixed": 12408812,
+        "decide": 25970417,
+        "max": 337533014,
+        "sel128": 292874094
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CONT-n01000-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CONT-n01000-ROT",
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 1506,
+        "l": 1268,
+        "t": 1000,
+        "n": 6006,
+        "f": 4500,
+        "z": 108036,
+        "h": 31482,
+        "q": 26513,
+        "X": 170426,
+        "source_id_bytes": 5230,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 5280944,
+            "fixed": 12867195,
+            "decide": 25315057,
+            "max": 320362221,
+            "sel128": 211884109
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 657589,
+                "kernel": 319704632,
+                "total": 320362221,
+                "kernel_phases": [
+                  "own_fallback_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 211884109,
+                "kernel": 0,
+                "total": 211884109,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 7586251,
+            "sel128_minus_fixed": 199016914,
+            "max_minus_sel128": 108478112
+          },
+          "caller_fixed_addend": 5662099,
+          "kernel_B0": 7205096
+        },
+        "moving": {
+          "fields": {
+            "model": 5280944,
+            "fixed": 12867195,
+            "decide": 25970417,
+            "max": 337991405,
+            "sel128": 292902109
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "kernel_join:solve_max",
+                "caller": 657589,
+                "kernel": 337333816,
+                "total": 337991405,
+                "kernel_phases": [
+                  "own_fallback_1024"
+                ],
+                "kernel_role": "solve, matching metric; caller stationary"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 292902109,
+                "kernel": 0,
+                "total": 292902109,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 7586251,
+            "sel128_minus_fixed": 280034914,
+            "max_minus_sel128": 45089296
+          },
+          "caller_fixed_addend": 5662099,
+          "kernel_B0": 7205096
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 5280944,
+        "fixed": 12867195,
+        "decide": 25970417,
+        "max": 337991405,
+        "sel128": 292902109
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CHAIN-n10000-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CHAIN-n10000-AX",
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 6,
+        "t": 10000,
+        "n": 60006,
+        "f": 60000,
+        "z": 1080036,
+        "h": 569964,
+        "q": 250013,
+        "X": 1240254,
+        "source_id_bytes": 12,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 49367450,
+            "fixed": 112396350,
+            "decide": 78273597,
+            "max": 29394128434,
+            "sel128": 29394128434
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 29394128434,
+                "kernel": 0,
+                "total": 29394128434,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 29394128434,
+                "kernel": 0,
+                "total": 29394128434,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 63028900,
+            "sel128_minus_fixed": 29281732084,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 51872408,
+          "kernel_B0": 60523942
+        },
+        "moving": {
+          "fields": {
+            "model": 49367450,
+            "fixed": 112396350,
+            "decide": 83516477,
+            "max": 43794368434,
+            "sel128": 43794368434
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 43794368434,
+                "kernel": 0,
+                "total": 43794368434,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 43794368434,
+                "kernel": 0,
+                "total": 43794368434,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 63028900,
+            "sel128_minus_fixed": 43681972084,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 51872408,
+          "kernel_B0": 60523942
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 49367450,
+        "fixed": 112396350,
+        "decide": 83516477,
+        "max": 43794368434,
+        "sel128": 43794368434
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CHAIN-n10000-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CHAIN-n10000-ROT",
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 6,
+        "t": 10000,
+        "n": 60006,
+        "f": 60000,
+        "z": 1080036,
+        "h": 569964,
+        "q": 250013,
+        "X": 1240254,
+        "source_id_bytes": 12,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 49367450,
+            "fixed": 112397117,
+            "decide": 78273597,
+            "max": 29394129202,
+            "sel128": 29394129202
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 29394129202,
+                "kernel": 0,
+                "total": 29394129202,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 29394129202,
+                "kernel": 0,
+                "total": 29394129202,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 63029667,
+            "sel128_minus_fixed": 29281732085,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 51873175,
+          "kernel_B0": 60523942
+        },
+        "moving": {
+          "fields": {
+            "model": 49367450,
+            "fixed": 112397117,
+            "decide": 83516477,
+            "max": 43794369202,
+            "sel128": 43794369202
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 43794369202,
+                "kernel": 0,
+                "total": 43794369202,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 43794369202,
+                "kernel": 0,
+                "total": 43794369202,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 63029667,
+            "sel128_minus_fixed": 43681972085,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 51873175,
+          "kernel_B0": 60523942
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 49367450,
+        "fixed": 112397117,
+        "decide": 83516477,
+        "max": 43794369202,
+        "sel128": 43794369202
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-TREE-n10000-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-TREE-n10000-AX",
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 4286,
+        "t": 10000,
+        "n": 60006,
+        "f": 60000,
+        "z": 1080036,
+        "h": 569964,
+        "q": 250013,
+        "X": 1333322,
+        "source_id_bytes": 20320,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 49590982,
+            "fixed": 116081586,
+            "decide": 78273597,
+            "max": 29394368050,
+            "sel128": 29394368050
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 29394368050,
+                "kernel": 0,
+                "total": 29394368050,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 29394368050,
+                "kernel": 0,
+                "total": 29394368050,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 66490604,
+            "sel128_minus_fixed": 29278286464,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 52294292,
+          "kernel_B0": 63787294
+        },
+        "moving": {
+          "fields": {
+            "model": 49590982,
+            "fixed": 116081586,
+            "decide": 83516477,
+            "max": 43794608050,
+            "sel128": 43794608050
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 43794608050,
+                "kernel": 0,
+                "total": 43794608050,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 43794608050,
+                "kernel": 0,
+                "total": 43794608050,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 66490604,
+            "sel128_minus_fixed": 43678526464,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 52294292,
+          "kernel_B0": 63787294
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 49590982,
+        "fixed": 116081586,
+        "decide": 83516477,
+        "max": 43794608050,
+        "sel128": 43794608050
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-TREE-n10000-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-TREE-n10000-ROT",
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 6,
+        "l": 12858,
+        "t": 10000,
+        "n": 60006,
+        "f": 60000,
+        "z": 1080036,
+        "h": 569964,
+        "q": 250013,
+        "X": 1524764,
+        "source_id_bytes": 66038,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 50048156,
+            "fixed": 123150061,
+            "decide": 78273597,
+            "max": 29394825566,
+            "sel128": 29394825566
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 29394825566,
+                "kernel": 0,
+                "total": 29394825566,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 29394825566,
+                "kernel": 0,
+                "total": 29394825566,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 73101905,
+            "sel128_minus_fixed": 29271675505,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 53134691,
+          "kernel_B0": 70015370
+        },
+        "moving": {
+          "fields": {
+            "model": 50048156,
+            "fixed": 123150061,
+            "decide": 83516477,
+            "max": 43795065566,
+            "sel128": 43795065566
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 43795065566,
+                "kernel": 0,
+                "total": 43795065566,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 43795065566,
+                "kernel": 0,
+                "total": 43795065566,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 73101905,
+            "sel128_minus_fixed": 43671915505,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 53134691,
+          "kernel_B0": 70015370
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 50048156,
+        "fixed": 123150061,
+        "decide": 83516477,
+        "max": 43795065566,
+        "sel128": 43795065566
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CONT-n10000-AX",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CONT-n10000-AX",
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 15006,
+        "l": 7333,
+        "t": 10000,
+        "n": 60006,
+        "f": 45000,
+        "z": 1080036,
+        "h": 314982,
+        "q": 265013,
+        "X": 1595356,
+        "source_id_bytes": 35555,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 52824473,
+            "fixed": 128281335,
+            "decide": 92374357,
+            "max": 16793033660,
+            "sel128": 16793033660
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 16793033660,
+                "kernel": 0,
+                "total": 16793033660,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 16793033660,
+                "kernel": 0,
+                "total": 16793033660,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 75456862,
+            "sel128_minus_fixed": 16664752325,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 56055856,
+          "kernel_B0": 72225479
+        },
+        "moving": {
+          "fields": {
+            "model": 52824473,
+            "fixed": 128281335,
+            "decide": 102860117,
+            "max": 24893213660,
+            "sel128": 24893213660
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 24893213660,
+                "kernel": 0,
+                "total": 24893213660,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 24893213660,
+                "kernel": 0,
+                "total": 24893213660,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 75456862,
+            "sel128_minus_fixed": 24764932325,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 56055856,
+          "kernel_B0": 72225479
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 52824473,
+        "fixed": 128281335,
+        "decide": 102860117,
+        "max": 24893213660,
+        "sel128": 24893213660
+      }
+    },
+    {
+      "context": "actual_cli24",
+      "id": "RF-LARGE-CONT-n10000-ROT",
+      "family": "RF-LARGE",
+      "descriptor": {
+        "id": "RF-LARGE-CONT-n10000-ROT",
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "u": 0,
+        "r": 15006,
+        "l": 12668,
+        "t": 10000,
+        "n": 60006,
+        "f": 45000,
+        "z": 1080036,
+        "h": 314982,
+        "q": 265013,
+        "X": 1715394,
+        "source_id_bytes": 64898,
+        "B": 1,
+        "b": 1
+      },
+      "status": "conditional composed candidate pending independent join review",
+      "metrics": {
+        "requested": {
+          "fields": {
+            "model": 53109896,
+            "fixed": 132810167,
+            "decide": 92374357,
+            "max": 16793318994,
+            "sel128": 16793318994
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 16793318994,
+                "kernel": 0,
+                "total": 16793318994,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 16793318994,
+                "kernel": 0,
+                "total": 16793318994,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 79700271,
+            "sel128_minus_fixed": 16660508827,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 56581191,
+          "kernel_B0": 76228976
+        },
+        "moving": {
+          "fields": {
+            "model": 53109896,
+            "fixed": 132810167,
+            "decide": 102860117,
+            "max": 24893498994,
+            "sel128": 24893498994
+          },
+          "dominant": {
+            "all": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 24893498994,
+                "kernel": 0,
+                "total": 24893498994,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ],
+            "selected128": [
+              {
+                "phase": "caller_only:late_sparse_parity",
+                "caller": 24893498994,
+                "kernel": 0,
+                "total": 24893498994,
+                "kernel_role": "not yet invoked or already dropped; source-defined absence"
+              }
+            ]
+          },
+          "ordering_margins": {
+            "fixed_minus_model": 79700271,
+            "sel128_minus_fixed": 24760688827,
+            "max_minus_sel128": 0
+          },
+          "caller_fixed_addend": 56581191,
+          "kernel_B0": 76228976
+        }
+      },
+      "legacy_estimate_fields": {
+        "model": 53109896,
+        "fixed": 132810167,
+        "decide": 102860117,
+        "max": 24893498994,
+        "sel128": 24893498994
+      }
+    }
+  ]
+}
