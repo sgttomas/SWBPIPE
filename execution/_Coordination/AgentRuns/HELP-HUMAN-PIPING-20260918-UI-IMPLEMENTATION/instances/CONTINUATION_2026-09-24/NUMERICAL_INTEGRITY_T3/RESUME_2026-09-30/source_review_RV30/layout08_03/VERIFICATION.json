@@ -1,0 +1,41 @@
+{
+  "status": "source_review_ready_for_one_bounded_standalone_release_run_no_runtime_grant",
+  "actual_start_utc": "2026-10-01T13:23:24+00:00",
+  "deadline_utc": "2026-10-01T13:38:24+00:00",
+  "actual_completion_utc": "2026-10-01T13:26:39.664085+00:00",
+  "elapsed_seconds": 195.664085,
+  "blocking_findings": 0,
+  "reviewed_overlay_sha256": "0d6c1ff750241f76ffb15a590ae76b70b23581013e32fb78fb10899214d0d13a",
+  "packet_seal_verified_unchanged": true,
+  "checked": [
+    "full217-line overlay",
+    "all228 archive files",
+    "all227 originals rebound to immutable40129",
+    "two modified originals plus sole new example",
+    "18 manifests/locks",
+    "20 contained dependency edges",
+    "unchanged allocator",
+    "exact types and label map",
+    "stack samples and operand extraction",
+    "observable lifetimes and content checks",
+    "after-drop current/call tests",
+    "cfg/profile command and output interpretation"
+  ],
+  "unrun": [
+    "Rust/compiler",
+    "build",
+    "probe",
+    "solver/model",
+    "network",
+    "Git/index mutation",
+    "delegation"
+  ],
+  "claim_boundary": "No actual node requests or layouts measured; private node alignment and full E_max/caller gaps remain explicit. ROOT owns separate guard/runtime-slot release.",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.13.14",
+    "python_executable": "<VENV>/bin/python"
+  },
+  "write_fence": "<K6C>/<R>/source_review_RV30/layout08_03"
+}

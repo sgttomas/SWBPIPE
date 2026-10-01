@@ -1,0 +1,30 @@
+{
+  "files": [
+    {
+      "path": "GRANT.json",
+      "sha256": "2fcaec0be68fe2521a0140eda7becd2c0b78051ddd0adc4c3af8cef290cac8ff",
+      "bytes": 1340
+    },
+    {
+      "path": "ISOLATION_CHECK.json",
+      "sha256": "177343322f9e6100688dd23fbb79723eb0d23dd700faa3301f6a4fdfff5b81ce",
+      "bytes": 2917
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "3e0c677542662a81ef989bfcddc62f248d46ca987523dd48df6e39d74a2bc560",
+      "bytes": 10584
+    },
+    {
+      "path": "SOURCE_VERIFICATION.json",
+      "sha256": "44637c2cf3d77e548c33fcc8f40fccae90c613f330ea3d3b60a7a055383a87f4",
+      "bytes": 9600
+    },
+    {
+      "path": "VERIFICATION.json",
+      "sha256": "0f386ccfc0dffede5f9429aa086966451dc99537c457af3144cf01287b042718",
+      "bytes": 1462
+    }
+  ],
+  "note": "SHA256SUMS includes this inventory and all packet payloads except itself; only additive review writes."
+}

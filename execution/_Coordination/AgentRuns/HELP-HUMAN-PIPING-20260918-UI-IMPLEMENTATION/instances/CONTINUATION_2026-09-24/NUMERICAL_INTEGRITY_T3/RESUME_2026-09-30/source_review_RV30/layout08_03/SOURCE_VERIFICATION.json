@@ -1,0 +1,240 @@
+{
+  "seal_sha256": "d52b1f699836434850b696690f0bc8ba4ac6638e98f57f74784438bd729e0716",
+  "inputs": [
+    {
+      "name": "ARCHIVE_FILES.json",
+      "sha256": "c497c4f6ff1412842c5b9b0575b84cbc7691790ced4b6f29d4c263ae8c157a32",
+      "bytes": 49725
+    },
+    {
+      "name": "ISOLATION.md",
+      "sha256": "af33acd06618901014a00c28aad863d0b5b988e806a79bd414d5ed3959f6d981",
+      "bytes": 6342
+    },
+    {
+      "name": "LABEL_TYPE_MAP.json",
+      "sha256": "563f64f75ee978936b057f6c9e0cff02190386c68795cb082c64a7fdc9918d54",
+      "bytes": 6148
+    },
+    {
+      "name": "OVERLAY.diff",
+      "sha256": "0d6c1ff750241f76ffb15a590ae76b70b23581013e32fb78fb10899214d0d13a",
+      "bytes": 9864
+    },
+    {
+      "name": "OVERLAY_FILES.json",
+      "sha256": "1f9fd7be7e7fea40c1b9c185bfcb00173eae61e1c285f6403d2f52115676a6f1",
+      "bytes": 852
+    },
+    {
+      "name": "RAW_COMMANDS.json",
+      "sha256": "792b9f698cbe6a964c6ee7c06f013e2b61b5d39c14618c15a98555685e12a5c9",
+      "bytes": 81153
+    },
+    {
+      "name": "RETURN.md",
+      "sha256": "4bdea5dd6c62f2d4c471cb089638e7ab2e46e9837b4c7c8c96c4e195b17362f4",
+      "bytes": 3365
+    },
+    {
+      "name": "RUNTIME_COMMAND.txt",
+      "sha256": "91ab97ef516cc5321ca394f0850b8ea117e3899353c5ca34a379c36d938ab93f",
+      "bytes": 1635
+    },
+    {
+      "name": "SOURCE_BINDING.json",
+      "sha256": "9f9158d8b30e0d070aeba775963b4f967c1818166841b4a3684c0aaf7bb50312",
+      "bytes": 11517
+    },
+    {
+      "name": "SOURCE_ORIGINALS.json",
+      "sha256": "ef909f8907ea7e5e57e565872539ead5191e9a3239849689994462bac23f748b",
+      "bytes": 54821
+    },
+    {
+      "name": "VERIFICATION.json",
+      "sha256": "615bcd7ce17737a77f3dcb89174cfa1a684d22f6d565f9082faedf54976e0efe",
+      "bytes": 7736
+    },
+    {
+      "name": "WRITE_INVENTORY.json",
+      "sha256": "3396d5b1b12fd06ae7e0462864049bdbd4e4802a42a0fa87087090d3e364f0e7",
+      "bytes": 1615
+    }
+  ],
+  "archive_files_verified": 228,
+  "original_files_rebound_to_git40129": 227,
+  "modified_files": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs"
+  ],
+  "new_files": [
+    "projects/chirality-piping/core/solver/performance_harness/examples/i21_kernel_layout.rs"
+  ],
+  "full_diff_recomputed_equal": true,
+  "manifest_lock_files": [
+    "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml",
+    "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.lock",
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock",
+    "projects/chirality-piping/core/solver/curved_bend/Cargo.toml",
+    "projects/chirality-piping/core/solver/curved_bend/Cargo.lock",
+    "projects/chirality-piping/core/solver/diagnostics/Cargo.toml",
+    "projects/chirality-piping/core/solver/diagnostics/Cargo.lock",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+    "projects/chirality-piping/core/solver/linear_supports/Cargo.toml",
+    "projects/chirality-piping/core/solver/linear_supports/Cargo.lock",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock",
+    "projects/chirality-piping/core/loads/primitive_loads/Cargo.toml",
+    "projects/chirality-piping/core/loads/primitive_loads/Cargo.lock"
+  ],
+  "path_dependency_edges": [
+    {
+      "origin": "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_linear_supports",
+      "target": "projects/chirality-piping/core/solver/linear_supports"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_solver_diagnostics",
+      "target": "projects/chirality-piping/core/solver/diagnostics"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_frame_kernel",
+      "target": "projects/chirality-piping/core/solver/frame_kernel"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_nonlinear_integration",
+      "target": "projects/chirality-piping/core/solver/nonlinear_integration"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_solver_diagnostics",
+      "target": "projects/chirality-piping/core/solver/diagnostics"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_sparse_direct",
+      "target": "projects/chirality-piping/core/solver/sparse_direct"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_curved_bend",
+      "target": "projects/chirality-piping/core/solver/curved_bend"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_frame_kernel",
+      "target": "projects/chirality-piping/core/solver/frame_kernel"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_nonlinear_supports",
+      "target": "projects/chirality-piping/core/solver/nonlinear_supports"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_solver_diagnostics",
+      "target": "projects/chirality-piping/core/solver/diagnostics"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_sparse_direct",
+      "target": "projects/chirality-piping/core/solver/sparse_direct"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/curved_bend/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_frame_kernel",
+      "target": "projects/chirality-piping/core/solver/frame_kernel"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/diagnostics/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_frame_kernel",
+      "target": "projects/chirality-piping/core/solver/frame_kernel"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/diagnostics/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_linear_supports",
+      "target": "projects/chirality-piping/core/solver/linear_supports"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/diagnostics/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_primitive_loads",
+      "target": "projects/chirality-piping/core/loads/primitive_loads"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/diagnostics/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_sparse_direct",
+      "target": "projects/chirality-piping/core/solver/sparse_direct"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/linear_supports/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_frame_kernel",
+      "target": "projects/chirality-piping/core/solver/frame_kernel"
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_frame_kernel",
+      "target": "projects/chirality-piping/core/solver/frame_kernel"
+    },
+    {
+      "origin": "projects/chirality-piping/core/loads/primitive_loads/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_frame_kernel",
+      "target": "projects/chirality-piping/core/solver/frame_kernel"
+    },
+    {
+      "origin": "projects/chirality-piping/core/loads/primitive_loads/Cargo.toml",
+      "kind": "dependencies",
+      "name": "open_pipe_stress_linear_supports",
+      "target": "projects/chirality-piping/core/solver/linear_supports"
+    }
+  ],
+  "symlinks": [],
+  "allocator_sha256": "0bb07a2346d0fedf9411ec9e93ab427b4fc4eafbb9de01c412067e3fbe7e4ba0",
+  "target_entries": [],
+  "config_files": [],
+  "relevant_environment_variable_names": [],
+  "read_git_command": [
+    "git",
+    "-C",
+    "<WT>/a1",
+    "archive",
+    "--format=tar",
+    "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "projects/chirality-piping/core/loads/primitive_loads",
+    "projects/chirality-piping/core/solver/curved_bend",
+    "projects/chirality-piping/core/solver/diagnostics",
+    "projects/chirality-piping/core/solver/frame_kernel",
+    "projects/chirality-piping/core/solver/linear_supports",
+    "projects/chirality-piping/core/solver/nonlinear_integration",
+    "projects/chirality-piping/core/solver/nonlinear_supports",
+    "projects/chirality-piping/core/solver/performance_harness",
+    "projects/chirality-piping/core/solver/sparse_direct"
+  ],
+  "runtime_execution": false
+}
