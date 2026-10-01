@@ -1,0 +1,80 @@
+{
+  "proposal_id": "D03_NONE_RETURN",
+  "argv": [
+    "<wt>/a1-vk-target/release/examples/vk_records",
+    "RF-CHAIN",
+    "--show=RF-CHAIN-T-n03-r1e-04",
+    "--show=RF-CHAIN-T-n03-r1e-06",
+    "--show=RF-CHAIN-T-n03-r1e-08",
+    "--show=RF-CHAIN-T-n03-r1e-10",
+    "--show=RF-CHAIN-T-n03-r1e-12",
+    "--show=RF-CHAIN-T-n05-r1e-04",
+    "--show=RF-CHAIN-T-n05-r1e-06",
+    "--show=RF-CHAIN-T-n05-r1e-08",
+    "--show=RF-CHAIN-T-n05-r1e-10",
+    "--show=RF-CHAIN-T-n05-r1e-12",
+    "--show=RF-CHAIN-T-n10-r1e-04",
+    "--show=RF-CHAIN-T-n10-r1e-06",
+    "--show=RF-CHAIN-T-n10-r1e-08",
+    "--show=RF-CHAIN-T-n10-r1e-10",
+    "--show=RF-CHAIN-T-n10-r1e-12",
+    "--show=RF-CHAIN-A-n03-r1e-04",
+    "--show=RF-CHAIN-A-n03-r1e-06",
+    "--show=RF-CHAIN-A-n03-r1e-08",
+    "--show=RF-CHAIN-A-n03-r1e-10",
+    "--show=RF-CHAIN-A-n03-r1e-12",
+    "--show=RF-CHAIN-A-n05-r1e-04",
+    "--show=RF-CHAIN-A-n05-r1e-06",
+    "--show=RF-CHAIN-A-n05-r1e-08",
+    "--show=RF-CHAIN-A-n05-r1e-10",
+    "--show=RF-CHAIN-A-n05-r1e-12",
+    "--show=RF-CHAIN-A-n10-r1e-04",
+    "--show=RF-CHAIN-A-n10-r1e-06",
+    "--show=RF-CHAIN-A-n10-r1e-08",
+    "--show=RF-CHAIN-A-n10-r1e-10",
+    "--show=RF-CHAIN-A-n10-r1e-12"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_NET_OFFLINE": "true",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "FK_SEEDED_FAULT": "NONE"
+  },
+  "unset_environment": [
+    "RUSTFLAGS",
+    "CARGO_ENCODED_RUSTFLAGS",
+    "RUSTC_WRAPPER",
+    "RUSTC_WORKSPACE_WRAPPER"
+  ],
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "fresh_process_required": true,
+  "stdout": "<ROOT_ASSIGNED_SIBLING_LOG_DIRECTORY>/D03_NONE_RETURN.stdout",
+  "stderr": "<ROOT_ASSIGNED_SIBLING_LOG_DIRECTORY>/D03_NONE_RETURN.stderr",
+  "executed": true,
+  "cmd": "/usr/bin/time -l env -u 'RUSTFLAGS' -u 'CARGO_ENCODED_RUSTFLAGS' -u 'RUSTC_WRAPPER' -u 'RUSTC_WORKSPACE_WRAPPER' RUSTUP_TOOLCHAIN='1.97.1' RUSTUP_AUTO_INSTALL='0' CARGO_INCREMENTAL='0' RUST_TEST_THREADS='2' CARGO_NET_OFFLINE='true' GIT_OPTIONAL_LOCKS='0' FK_SEEDED_FAULT='NONE' '<wt>/a1-vk-target/release/examples/vk_records' 'RF-CHAIN' '--show=RF-CHAIN-T-n03-r1e-04' '--show=RF-CHAIN-T-n03-r1e-06' '--show=RF-CHAIN-T-n03-r1e-08' '--show=RF-CHAIN-T-n03-r1e-10' '--show=RF-CHAIN-T-n03-r1e-12' '--show=RF-CHAIN-T-n05-r1e-04' '--show=RF-CHAIN-T-n05-r1e-06' '--show=RF-CHAIN-T-n05-r1e-08' '--show=RF-CHAIN-T-n05-r1e-10' '--show=RF-CHAIN-T-n05-r1e-12' '--show=RF-CHAIN-T-n10-r1e-04' '--show=RF-CHAIN-T-n10-r1e-06' '--show=RF-CHAIN-T-n10-r1e-08' '--show=RF-CHAIN-T-n10-r1e-10' '--show=RF-CHAIN-T-n10-r1e-12' '--show=RF-CHAIN-A-n03-r1e-04' '--show=RF-CHAIN-A-n03-r1e-06' '--show=RF-CHAIN-A-n03-r1e-08' '--show=RF-CHAIN-A-n03-r1e-10' '--show=RF-CHAIN-A-n03-r1e-12' '--show=RF-CHAIN-A-n05-r1e-04' '--show=RF-CHAIN-A-n05-r1e-06' '--show=RF-CHAIN-A-n05-r1e-08' '--show=RF-CHAIN-A-n05-r1e-10' '--show=RF-CHAIN-A-n05-r1e-12' '--show=RF-CHAIN-A-n10-r1e-04' '--show=RF-CHAIN-A-n10-r1e-06' '--show=RF-CHAIN-A-n10-r1e-08' '--show=RF-CHAIN-A-n10-r1e-10' '--show=RF-CHAIN-A-n10-r1e-12' > '<wt>/scratch/i23/vk_prep/logs/f01_diagnostic_01/D03_NONE_RETURN.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/f01_diagnostic_01/D03_NONE_RETURN.stderr'",
+  "log": "<wt>/scratch/i23/vk_prep/logs/f01_diagnostic_01/D03_NONE_RETURN",
+  "launch_utc": "2026-10-01T18:35:48.208Z",
+  "preflight": " 5387     1 03-16:59:29 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "tool_initial": {
+    "chunk_id": "a8c307",
+    "wall_time_seconds": 0.062406208,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "raw_hashes": {
+    "stdout": "3fad47d8362cafa964e8d7b5670341573ad7b0f9e8d8a8ff0411bb103a877494",
+    "stderr": "1877593fa1c2f88a1893e3ed0ca7b87bfa922cf2511c0e2ee46450b60c1caa13"
+  },
+  "verdict": "CONTROL_PASS",
+  "comparison": {
+    "record_count": 30,
+    "complete_records_equal_frozen_observation": true,
+    "complete_records_equal_first_NONE": true,
+    "roster_order_exact": true,
+    "fixed_report_pins_match": true
+  }
+}
