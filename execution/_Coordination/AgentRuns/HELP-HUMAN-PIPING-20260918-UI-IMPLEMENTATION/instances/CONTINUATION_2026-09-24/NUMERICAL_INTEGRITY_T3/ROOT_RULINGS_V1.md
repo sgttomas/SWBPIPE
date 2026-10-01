@@ -3918,3 +3918,21 @@ I23 has a bounded source-only diagnosis under the selected software-defect-
 diagnosis skill; its return and independent review precede further action.
 A1 acceptance/merge and F2a reliance remain held. No production fault is inferred
 merely from the surviving test.
+
+
+## S1 source mapping corrected, original numerical criterion retained (ROOT, 2026-10-01)
+
+ROOT read and verified I23 diagnosis21 and RV29 vk_s1_mapping_38. The observed
+P33 survivor is explained by the empty spring arrays in RF-FINITE, which make
+the S1 site unreachable. The original maintained register required directional-
+spring VALUE evidence and ran the broad suite; our later frozen A1 mapping
+introduced the incorrect rf_finite restriction. Prior preparation/review missed
+that source reach. Preserve that attribution and the original records.
+
+Accept the independently reviewed source-ready correction to the existing
+rf_skew test, which supplies a loaded nonunit direction and unchanged numerical
+oracles. The review's source and exact fixture checks establish eligibility,
+not a runtime kill. This changes no protected numerical criterion and imports
+none of the F17 amendment. P33 remains an unqualified survivor. The separate
+BRIEFS/A1_VK_S1_RETARGET.md grant permits only its actual P34 return and controlled
+replacement triplet; later calls and A1 acceptance remain held pending results.
