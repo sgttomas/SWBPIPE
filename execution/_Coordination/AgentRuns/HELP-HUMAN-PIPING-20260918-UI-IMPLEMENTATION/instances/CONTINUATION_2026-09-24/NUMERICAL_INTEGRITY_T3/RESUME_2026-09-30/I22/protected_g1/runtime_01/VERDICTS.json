@@ -1,0 +1,934 @@
+{
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "release_utc": "2026-10-01T10:15:15Z",
+  "actual_start_utc": "2026-10-01T10:17:03.095Z",
+  "fixed_end_utc": "2026-10-01T11:15:15Z",
+  "baseline": [
+    {
+      "id": "B01",
+      "filter": "structural::retained::verify::tests::phi_is_exact_where_the_product_is_normal_and_rounded_up_below_2_to_the_minus_584",
+      "status": "PASS"
+    },
+    {
+      "id": "B02",
+      "filter": "structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm",
+      "status": "PASS"
+    },
+    {
+      "id": "B03",
+      "filter": "structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them",
+      "status": "PASS"
+    },
+    {
+      "id": "B04",
+      "filter": "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly",
+      "status": "PASS"
+    },
+    {
+      "id": "B05",
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path",
+      "status": "PASS"
+    },
+    {
+      "id": "B06",
+      "filter": "structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends",
+      "status": "PASS"
+    },
+    {
+      "id": "B07",
+      "filter": "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+      "status": "PASS"
+    },
+    {
+      "id": "B08",
+      "filter": "structural::retained::combine::tests::a_combination_escalates_independently_of_its_operands",
+      "status": "PASS"
+    },
+    {
+      "id": "B09",
+      "filter": "structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit",
+      "status": "PASS"
+    },
+    {
+      "id": "B10",
+      "filter": "structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member",
+      "status": "PASS"
+    },
+    {
+      "id": "B11",
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star",
+      "status": "PASS"
+    },
+    {
+      "id": "B12",
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "PASS"
+    },
+    {
+      "id": "B13",
+      "filter": "structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without",
+      "status": "PASS"
+    },
+    {
+      "id": "B14",
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work",
+      "status": "PASS"
+    },
+    {
+      "id": "B15",
+      "filter": "structural::retained::bound::tests::kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal",
+      "status": "PASS"
+    },
+    {
+      "id": "B16",
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order",
+      "status": "PASS"
+    },
+    {
+      "id": "B17",
+      "filter": "structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64",
+      "status": "PASS"
+    },
+    {
+      "id": "B18",
+      "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+      "status": "PASS"
+    },
+    {
+      "id": "B19",
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_the_g_check_passes_at_2_to_the_p_minus_16_and_fails_above",
+      "status": "PASS"
+    },
+    {
+      "id": "B20",
+      "filter": "structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification",
+      "status": "PASS"
+    },
+    {
+      "id": "B21",
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row",
+      "status": "PASS"
+    },
+    {
+      "id": "B22",
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_the_gates_bounded_test_at_its_boundary_and_the_best_state",
+      "status": "PASS"
+    },
+    {
+      "id": "B23",
+      "filter": "structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero",
+      "status": "PASS"
+    },
+    {
+      "id": "B24",
+      "filter": "structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only",
+      "status": "PASS"
+    },
+    {
+      "id": "B25",
+      "filter": "structural::retained::adaptive::tests::the_predicate_is_decided_exactly_at_its_boundary",
+      "status": "PASS"
+    },
+    {
+      "id": "B26",
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_in_verify_state_a_refusal_stop_outranks_uc",
+      "status": "PASS"
+    },
+    {
+      "id": "B27",
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "PASS"
+    },
+    {
+      "id": "B28",
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "PASS"
+    }
+  ],
+  "groups": [
+    {
+      "id": "G01",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M8",
+          "assertion": "PHI_SCALE_BITS represents 2^-438 and phi_512(1) equals 2^-438; the reconstructed fault yields 2^-950.",
+          "status": "PATCH_BLOCKED_NO_RUST"
+        }
+      ],
+      "filter": "structural::retained::verify::tests::phi_is_exact_where_the_product_is_normal_and_rounded_up_below_2_to_the_minus_584",
+      "status": "PATCH_BLOCKED_NO_RUST",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G02",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M34",
+          "assertion": "The Uc forward recurrence equals upward-directed emulation; require the U/uc numeric mismatch, not a count or unrelated stage difference.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G03",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M35",
+          "assertion": "For the same unshifted scaled profile, shifted_factor reproduces factor() L and D operation-for-operation. Require direct entry equality failure, not the preceding pinned digest alone.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G04",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M24",
+          "assertion": "Specifically CEIL5A3 combination must lose its required R7 verdict: 128 Pivot /256 verification-estimate /512 StopRule, or its explicitly pinned unwarranted acceptance. K4-M24 overwrites tied512; D15 also256. Generic certificate/unwrap/earlier unrelated tuple drift is NOT a kill.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G05",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M17",
+          "assertion": "Successful solve_case_at charged total equals its stages.total; double-recording ctx breaks this identity before any publication.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G06",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M19",
+          "assertion": "meter.charged equals sum of recorded full work, including verification; needed succeeds and needed-1 stops at the correct budget.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G07",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M25b",
+          "assertion": "classify(small,small) remains AbsoluteVerified when small is the binary64 just below 2^-988.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G08",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M29",
+          "assertion": "classify(threshold(1),1) is RelativeVerified; only values strictly below threshold are absolute.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G09",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M30i",
+          "assertion": "SKEW operands selected at 256 cancel to a combination selected at 128 with exact positive-zero rows.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::combine::tests::a_combination_escalates_independently_of_its_operands",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G10",
+      "aliases": [
+        {
+          "id": "R7_K4::D1",
+          "assertion": "Retained assembled entries equal the independent Fraction emulation at p; entrywise binary64 rounding must change the expected value.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G11",
+      "aliases": [
+        {
+          "id": "R7_K4::D15",
+          "assertion": "Specifically CEIL5A3 combination must lose its required R7 verdict: 128 Pivot /256 verification-estimate /512 StopRule, or its explicitly pinned unwarranted acceptance. K4-M24 overwrites tied512; D15 also256. Generic certificate/unwrap/earlier unrelated tuple drift is NOT a kill.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G12",
+      "aliases": [
+        {
+          "id": "R7_K4::D16a",
+          "assertion": "The duplicate-operand assembled entry preserves the weak member that the demonstrated sequential p fold loses.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G13",
+      "aliases": [
+        {
+          "id": "R7_K4::D17",
+          "assertion": "The shared relative_class predicate must classify a below-threshold and below-2^-988 row AbsoluteVerified; the patch reaches both pure and metered production classification.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G14",
+      "aliases": [
+        {
+          "id": "RV19::RV19-D4u",
+          "assertion": "Both original overflow verdict assertions pass. The first original underflow-straddle verdict (tiny candidate, above_tiny verifier) must be Some(StopRule index 1); the scoped fault makes it None. Only failure at this underflow assertion is a kill.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G15",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M1",
+          "assertion": "Refused Uc must be None, B must use S, not false zero. Specifically bounds[0].uc == None, while its refused Uc yields B=S>0.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23::RV23-M1b-refused-bound-formed-as-0",
+          "assertion": "The refused block has uc=None, B=S; unaffected block equals standalone, and where both bounds exist B=min(Uc,S). Require the assertion corresponding to this entry's named corruption.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G16",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M2",
+          "assertion": "B uses the minimum available bound, not maximum. Specifically certified(Some(uc1),Some(s1)) == Some(uc1) when s1>uc1.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23::RV23-M2-B-is-max",
+          "assertion": "The refused block has uc=None, B=S; unaffected block equals standalone, and where both bounds exist B=min(Uc,S). Require the assertion corresponding to this entry's named corruption.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G17",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M3",
+          "assertion": "No available bound on data requires the named refusal stop. Specifically (B,uc_missing,stop) == (None,None,Some((0,r))) for the refused data block.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23::RV23-M3b-no-bound-stop-dropped",
+          "assertion": "With data and no bound, the recorded refusal stops; without data no stop; refusal outranks another block's missing-Uc marker.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G18",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M4a",
+          "assertion": "Stopped shared build stage total must equal charged total. Compare stages.total()==charged total at the named build, with a nonzero partially charged stage.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G19",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M4b",
+          "assertion": "Stopped solve stage total must equal charged total. Compare stages.total()==charged total at the named build, with a nonzero partially charged stage.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23::RV23-M5b-partial-stage-unrecorded-solve-case-at",
+          "assertion": "The exact named build records the partial work in its current stage and stages.total()==charged total; wrong-stage variant must fail that stage-specific check, not an unrelated total.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G20",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M4c",
+          "assertion": "Stopped verify-shared Uc work remains staged. Compare stages.total()==charged total at the named build, with a nonzero partially charged stage.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23::RV23-M5-partial-stage-unrecorded-build-verify-shared",
+          "assertion": "The stopped build has stages.total()==total and 0<stages.uc<full.stages.uc.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G21",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M4d",
+          "assertion": "Stopped verify_state work remains staged. Compare stages.total()==charged total at the named build, with a nonzero partially charged stage.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23::I19-M4d-partial-stage-unrecorded-verify-state",
+          "assertion": "The exact named build records the partial work in its current stage and stages.total()==charged total; wrong-stage variant must fail that stage-specific check, not an unrelated total.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G22",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M5",
+          "assertion": "Other block remains bit-identical and unaffected by one block refusal. Specifically bounds[1] == ba[0] and its refusal remains None.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23::I19-M5-refusal-not-per-block",
+          "assertion": "The refused block has uc=None, B=S; unaffected block equals standalone, and where both bounds exist B=min(Uc,S). Require the assertion corresponding to this entry's named corruption.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G23",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M6",
+          "assertion": "Budget stop propagates as budget, not a bound refusal. Specifically refusable(Err(Budget)) == Err(Budget) and the refusal slot stays None.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23::I19-M6-budget-as-refusal",
+          "assertion": "refusable propagates Budget and leaves its refusal slot None.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G24",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M7",
+          "assertion": "No-data refused block must not stop the case. Specifically the no-data tuple is (None,None,None), despite recorded refusal.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23::I19-M7-refused-block-without-data-stops",
+          "assertion": "With data and no bound, the recorded refusal stops; without data no stop; refusal outranks another block's missing-Uc marker.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G25",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M8",
+          "assertion": "A2 finite alternatives/no-data cases retain their protected selection. uc_bounds must return Ok(bounds) after a block refusal, allowing finite S or no-data handling.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23::I19-M8-pre-KF3-any-refusal-stops",
+          "assertion": "The refused block has uc=None, B=S; unaffected block equals standalone, and where both bounds exist B=min(Uc,S). Require the assertion corresponding to this entry's named corruption.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G26",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M1",
+          "assertion": "Rule (a) changes verdict at the exact V allowance boundary; 2^(8-P)*e_hat must participate.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G27",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M2",
+          "assertion": "e_hat([1,8],2) == [4,8] and e_hat([5,8],2) == [5,10].",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G28",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M6",
+          "assertion": "E uses the exact net ledger load after cancellation, not the sum of absolute authored terms; identify the per-row E mismatch.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G29",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M10",
+          "assertion": "g passes exactly at 2^(P-16), rejects above, and the selected member exponent must reflect geometry rather than zero.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_the_g_check_passes_at_2_to_the_p_minus_16_and_fails_above",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G30",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M11",
+          "assertion": "Above the exact estimate allowance, verdict is VerificationEstimate at the expected row, before later gates.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G31",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M18",
+          "assertion": "q_w = min(3P/2+64,1024), and W/charge match independent emulation at that precision, not P+64.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G32",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M20",
+          "assertion": "Theta above 1/2 rejects with Rejection::Theta at the designated block.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G33",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M22",
+          "assertion": "The translation-row W-plus enters the rule-(a) comparison at its exact boundary.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G34",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M23",
+          "assertion": "A reported g violation rejects with the expected member id after earlier gates pass.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G35",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M16",
+          "assertion": "The bounded gate selects the best eligible state, not the last; observe GateTest state/index selection at the constructed boundary.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_the_gates_bounded_test_at_its_boundary_and_the_best_state",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G36",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M6",
+          "assertion": "Accessor returns signed positive-minus-negative net with canonical zero, not positive magnitude alone.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G37",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M10",
+          "assertion": "After pivots pass, the condition screen returns Condition at 128 and succeeds at 256.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G38",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M14a",
+          "assertion": "Rule threshold derives from verification q_2p, not candidate q_p, at a straddling exact predicate boundary.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::tests::the_predicate_is_decided_exactly_at_its_boundary",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G39",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M14b",
+          "assertion": "The exact disagreement tolerance is 2^-64, not 2^-53.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::tests::the_predicate_is_decided_exactly_at_its_boundary",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G40",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M1-unavailable-as-0",
+          "assertion": "The refused block has uc=None, B=S; unaffected block equals standalone, and where both bounds exist B=min(Uc,S). Require the assertion corresponding to this entry's named corruption.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G41",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M3a-no-bound-stop-becomes-uc",
+          "assertion": "With data and no bound, the recorded refusal stops; without data no stop; refusal outranks another block's missing-Uc marker.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G42",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M4a-precedence-swapped-in-certificates",
+          "assertion": "With data and no bound, the recorded refusal stops; without data no stop; refusal outranks another block's missing-Uc marker.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G43",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M4b-precedence-swapped-in-verify-state",
+          "assertion": "verify_state returns the recorded Span/Exponent refusal despite a different block missing Uc.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23_1::RV23-M4b-precedence-swapped-in-verify-state",
+          "assertion": "verify_state returns the recorded Span/Exponent refusal despite a different block missing Uc.",
+          "status": "UNRUN"
+        },
+        {
+          "id": "RV23C::RV23-M4b-precedence-swapped-in-verify-state",
+          "assertion": "verify_state returns the recorded Span/Exponent refusal despite a different block missing Uc.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_in_verify_state_a_refusal_stop_outranks_uc",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G44",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M6-refusal-evidence-not-recorded",
+          "assertion": "The proposed filter initially completes KF3-UC-SPAN and asserts verification p256 has exactly one refusal at kf3_tests.rs547. That completed-run assertion discriminates this patch; the later stopped-build loop is not the mutated site and is not cached non-budget coverage.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G45",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M6b-refusal-not-marked-on-its-block",
+          "assertion": "Require direct refusable(Err(Exponent)) recording assertion: slot must contain the expected Exponent/Pivot/row4 refusal. Do not credit an arbitrary downstream panic.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G46",
+      "aliases": [
+        {
+          "id": "RV23_1::RV23-1-M1-uc-refusals-dropped-in-verify-precision",
+          "assertion": "A budget stop after Uc refusal retains exact block/kind/pass/row in attempt evidence, without crediting the separately qualified cached non-budget path.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G47",
+      "aliases": [
+        {
+          "id": "RV23_1::RV23-1-M2-uc-refusals-dropped-in-build-verify-shared",
+          "assertion": "A budget stop after Uc refusal retains exact block/kind/pass/row in attempt evidence, without crediting the separately qualified cached non-budget path.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G48",
+      "aliases": [
+        {
+          "id": "RV23_1::RV23-1-M3-s-refusals-dropped-in-shift-schedule",
+          "assertion": "Stopped shift schedule retains both previously completed and in-flight S-refusal evidence with original block/pass/row.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G49",
+      "aliases": [
+        {
+          "id": "RV23_1::RV23-1-M3a-kept-results-refusals-dropped",
+          "assertion": "Stopped shift schedule retains both previously completed and in-flight S-refusal evidence with original block/pass/row.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G50",
+      "aliases": [
+        {
+          "id": "RV23_1::RV23-1-M3b-in-flight-refusals-dropped",
+          "assertion": "Stopped shift schedule retains both previously completed and in-flight S-refusal evidence with original block/pass/row.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G51",
+      "aliases": [
+        {
+          "id": "RV23C::RV23C-M2-verify-precision-ignores-a-stopped-builds-refusals",
+          "assertion": "A budget stop after Uc refusal retains exact block/kind/pass/row in attempt evidence, without crediting the separately qualified cached non-budget path.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G52",
+      "aliases": [
+        {
+          "id": "RV23C::RV23C-M3-schedule-stop-drops-kept-results",
+          "assertion": "Stopped shift schedule retains both previously completed and in-flight S-refusal evidence with original block/pass/row.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G53",
+      "aliases": [
+        {
+          "id": "RV23C::RV23C-M4-schedule-stop-drops-in-flight",
+          "assertion": "Stopped shift schedule retains both previously completed and in-flight S-refusal evidence with original block/pass/row.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    },
+    {
+      "id": "G54",
+      "aliases": [
+        {
+          "id": "RV23C::RV23C-M5-stopped-shared-build-returns-no-refusals",
+          "assertion": "A budget stop after Uc refusal retains exact block/kind/pass/row in attempt evidence, without crediting the separately qualified cached non-budget path.",
+          "status": "UNRUN"
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "UNRUN",
+      "returned_baseline_control": "UNRUN"
+    }
+  ],
+  "owned_job_running": false,
+  "baseline_complete": true,
+  "status": "STOP_PATCH_POSTIMAGE_MISMATCH",
+  "stop": {
+    "group": "G01",
+    "registration": "R7_K4::R7-M8",
+    "reason": "System patch failed to create inherited host temporary output (Permission denied) despite exit0; source remained original and mandatory postimage check failed.",
+    "mutant_rust_launched": false,
+    "kill": false,
+    "repair_or_retry": false
+  },
+  "counts": {
+    "baseline_passes": 28,
+    "mutant_filters_executed": 0,
+    "returned_baseline_controls_executed": 0,
+    "patch_attempts": 1,
+    "qualified_kills": 0,
+    "registrations_credited": 0,
+    "later_groups_unrun": 53,
+    "total_mutant_filters_unrun": 54,
+    "total_controls_unrun": 54
+  }
+}
