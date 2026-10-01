@@ -1,0 +1,7 @@
+PASS seal I23/r09_r10_tail_10 13
+PASS seal I23/r09_r10_tail_correction_11 6
+PASS seal source_review_RV29/tail_correction_16 3
+PASS BASELINE 116 complete files; append-only exact overlay, all protected inputs, original faults unapplied, paths/inodes/empty target+logs
+PASS K4-M2 116 complete files; append-only exact overlay, all protected inputs, original faults unapplied, paths/inodes/empty target+logs
+PASS K4-M3 116 complete files; append-only exact overlay, all protected inputs, original faults unapplied, paths/inodes/empty target+logs
+PASS guard5387; baseline and two mutant copies fully bound; no build released by this record.

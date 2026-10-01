@@ -1,0 +1,821 @@
+{
+  "task": "/root/t3_recovery_manager/i22_a1",
+  "role": "TASK Type2 no child",
+  "grant": {
+    "commit": "e40d1d2e814982ad5c8725e61224c51bbabe7511",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_TAIL_RUNTIME_AND_G3_REMAINDER.md",
+    "sha256": "87806c76ff87d14dde4634d325cb4d70ba973ccce750a103af921f211c39d967",
+    "executed_scope": "Part1 tail only; Part2 awaiting separate verified dispatch"
+  },
+  "start_utc": "2026-10-01T16:34:56Z",
+  "fixed_end_utc": "2026-10-01T16:49:56Z",
+  "completed_utc": "2026-10-01T16:41:16.486Z",
+  "releases": [
+    {
+      "id": "BASELINE",
+      "at": "2026-10-01T16:35:31Z",
+      "by": "manager"
+    },
+    {
+      "id": "K4-M2",
+      "at": "2026-10-01T16:38:33Z",
+      "by": "manager"
+    },
+    {
+      "id": "K4-M3",
+      "at": "2026-10-01T16:40:01Z",
+      "by": "manager"
+    }
+  ],
+  "applied_tool_patches": [
+    {
+      "id": "K4-M2",
+      "tool": "apply_patch",
+      "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i23/r09_r10_tail/K4-M2/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs\n@@\n         let (negative, magnitude, used) = self.net();\n         let anchor = i64::try_from(self.anchor).map_err(|_| SumRefusal::Exponent)?;\n         self.work.rounded_limbs += used as u64;\n-        Ok(context.from_integer(negative, &magnitude[..used.max(1)], anchor)?)\n+        let top = used.max(1);\n+        let start = top.saturating_sub(L + 1);\n+        Ok(context.from_integer(negative, &magnitude[start..top], anchor + 64 * start as i64)?)\n     }\n }\n*** End Patch",
+      "result": {},
+      "pre": {
+        "chunk_id": "e683a1",
+        "wall_time_seconds": 0.000014417,
+        "exit_code": 0,
+        "original_token_count": 162,
+        "output": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188  <wt>/scratch/i23/r09_r10_tail/K4-M2/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs\na718338ef292bf41f7522133131dcc7fdb4a2d1a7b0c192404da3dd4ebf19763  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M2.patch\n"
+      },
+      "post": {
+        "chunk_id": "da54bd",
+        "wall_time_seconds": 0.000009125,
+        "exit_code": 0,
+        "original_token_count": 67,
+        "output": "e671336b0dc5dc2eb71825f667bb4fe1926cf93c2f9c4d3f3e5f1518c051752e  <wt>/scratch/i23/r09_r10_tail/K4-M2/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs\n"
+      }
+    },
+    {
+      "id": "K4-M3",
+      "tool": "apply_patch",
+      "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i23/r09_r10_tail/K4-M3/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs\n@@\n         let (negative, magnitude, used) = self.net();\n         let anchor = i64::try_from(self.anchor).map_err(|_| SumRefusal::Exponent)?;\n         self.work.rounded_limbs += used as u64;\n-        Ok(context.from_integer(negative, &magnitude[..used.max(1)], anchor)?)\n+        let top = used.max(1);\n+        let mut window = magnitude;\n+        let bits = top * 64 - window[top - 1].leading_zeros() as usize;\n+        let cut = bits.saturating_sub(context.precision() as usize);\n+        for i in 0..cut {\n+            window[i / 64] &= !(1u64 << (i % 64));\n+        }\n+        Ok(context.from_integer(negative, &window[..top], anchor)?)\n     }\n }\n*** End Patch",
+      "result": {},
+      "pre": {
+        "chunk_id": "e60f22",
+        "wall_time_seconds": 0.000008458,
+        "exit_code": 0,
+        "original_token_count": 162,
+        "output": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188  <wt>/scratch/i23/r09_r10_tail/K4-M3/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs\n0584b6798761b6bc8681aaa789962fe41fd552ba5fa68a506c9d81b4918d7d3f  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M3.patch\n"
+      },
+      "post": {
+        "chunk_id": "a70f86",
+        "wall_time_seconds": 0.000008667,
+        "exit_code": 0,
+        "original_token_count": 67,
+        "output": "e76bcc7baf9395e588b7b6f2af42b02f45438ee86c03283637126ef09581e7d2  <wt>/scratch/i23/r09_r10_tail/K4-M3/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs\n"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "kind": "build",
+      "id": "BASELINE",
+      "index": null,
+      "name": "build",
+      "filter": null,
+      "argv": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE",
+        "--lib",
+        "--no-run"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE \"$HOME/.cargo/bin/cargo\" 'test' '--offline' '--locked' '-j' '4' '--manifest-path' '<wt>/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml' '--target-dir' '<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE' '--lib' '--no-run' > '<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/build.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/build.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/build",
+      "launch_utc": "2026-10-01T16:36:45.676Z",
+      "guard_before": {
+        "chunk_id": "1e7779",
+        "wall_time_seconds": 0.000007292,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:00:26 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "6d6b8b",
+        "wall_time_seconds": 1.001921833,
+        "session_id": 17694,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "85d300",
+        "wall_time_seconds": 0.000015125,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:37:01.918Z",
+      "evidence": "BASELINE/build/EVIDENCE.json",
+      "stdout": "BASELINE/build/stdout.txt",
+      "stderr": "BASELINE/build/stderr.txt",
+      "raw_fingerprint": "BASELINE/build/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "3ffde24a8803fafea6700d072ec141584b3e551a90a480aacef2225c04d5d714"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "list",
+      "id": "BASELINE",
+      "index": 0,
+      "name": "list_01",
+      "filter": "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--list",
+        "--exact",
+        "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--list' '--exact' 'structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up' > '<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/list_01.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/list_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/list_01",
+      "launch_utc": "2026-10-01T16:37:08.423Z",
+      "guard_before": {
+        "chunk_id": "ae2b1e",
+        "wall_time_seconds": 0.000007625,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:00:49 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "3a2c57",
+        "wall_time_seconds": 0.70284125,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "3a2c57",
+        "wall_time_seconds": 0.70284125,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:37:09.461Z",
+      "evidence": "BASELINE/list_01/EVIDENCE.json",
+      "stdout": "BASELINE/list_01/stdout.txt",
+      "stderr": "BASELINE/list_01/stderr.txt",
+      "raw_fingerprint": "BASELINE/list_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "3ffde24a8803fafea6700d072ec141584b3e551a90a480aacef2225c04d5d714"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "baseline",
+      "id": "BASELINE",
+      "index": 0,
+      "name": "baseline_01",
+      "filter": "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--exact",
+        "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/baseline_01.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/baseline_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/baseline_01",
+      "launch_utc": "2026-10-01T16:37:09.535Z",
+      "guard_before": {
+        "chunk_id": "fb0270",
+        "wall_time_seconds": 0.000007666,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:00:50 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "448225",
+        "wall_time_seconds": 0.000008458,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "448225",
+        "wall_time_seconds": 0.000008458,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:37:09.774Z",
+      "evidence": "BASELINE/baseline_01/EVIDENCE.json",
+      "stdout": "BASELINE/baseline_01/stdout.txt",
+      "stderr": "BASELINE/baseline_01/stderr.txt",
+      "raw_fingerprint": "BASELINE/baseline_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "3ffde24a8803fafea6700d072ec141584b3e551a90a480aacef2225c04d5d714"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "list",
+      "id": "BASELINE",
+      "index": 1,
+      "name": "list_02",
+      "filter": "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--list",
+        "--exact",
+        "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--list' '--exact' 'structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest' > '<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/list_02.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/list_02.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/list_02",
+      "launch_utc": "2026-10-01T16:37:21.108Z",
+      "guard_before": {
+        "chunk_id": "869b99",
+        "wall_time_seconds": 0.000006959,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:01:02 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "dfdb73",
+        "wall_time_seconds": 0.000009417,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "dfdb73",
+        "wall_time_seconds": 0.000009417,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:37:21.349Z",
+      "evidence": "BASELINE/list_02/EVIDENCE.json",
+      "stdout": "BASELINE/list_02/stdout.txt",
+      "stderr": "BASELINE/list_02/stderr.txt",
+      "raw_fingerprint": "BASELINE/list_02/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "3ffde24a8803fafea6700d072ec141584b3e551a90a480aacef2225c04d5d714"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "baseline",
+      "id": "BASELINE",
+      "index": 1,
+      "name": "baseline_02",
+      "filter": "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--exact",
+        "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/baseline_02.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/baseline_02.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/BASELINE/baseline_02",
+      "launch_utc": "2026-10-01T16:37:21.424Z",
+      "guard_before": {
+        "chunk_id": "cbed3c",
+        "wall_time_seconds": 0.000007708,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:01:02 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "8a0f61",
+        "wall_time_seconds": 0.000008958,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "8a0f61",
+        "wall_time_seconds": 0.000008958,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:37:21.659Z",
+      "evidence": "BASELINE/baseline_02/EVIDENCE.json",
+      "stdout": "BASELINE/baseline_02/stdout.txt",
+      "stderr": "BASELINE/baseline_02/stderr.txt",
+      "raw_fingerprint": "BASELINE/baseline_02/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "3ffde24a8803fafea6700d072ec141584b3e551a90a480aacef2225c04d5d714"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "build",
+      "id": "K4-M2",
+      "index": null,
+      "name": "build",
+      "filter": null,
+      "argv": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/r09_r10_tail/K4-M2/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2",
+        "--lib",
+        "--no-run"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE \"$HOME/.cargo/bin/cargo\" 'test' '--offline' '--locked' '-j' '4' '--manifest-path' '<wt>/scratch/i23/r09_r10_tail/K4-M2/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml' '--target-dir' '<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2' '--lib' '--no-run' > '<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/build.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/build.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/K4-M2/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/build",
+      "launch_utc": "2026-10-01T16:39:07.045Z",
+      "guard_before": {
+        "chunk_id": "2b045b",
+        "wall_time_seconds": 0.000007917,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:02:48 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "855738",
+        "wall_time_seconds": 1.001853917,
+        "session_id": 32430,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "dbcab6",
+        "wall_time_seconds": 0.000006125,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:39:19.885Z",
+      "evidence": "K4-M2/build/EVIDENCE.json",
+      "stdout": "K4-M2/build/stdout.txt",
+      "stderr": "K4-M2/build/stderr.txt",
+      "raw_fingerprint": "K4-M2/build/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "50b513d305d6f8b0da2ef325a0494b8ccde1c37bfb5090add938c56fd5e17087"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "list",
+      "id": "K4-M2",
+      "index": 0,
+      "name": "list_01",
+      "filter": "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--list",
+        "--exact",
+        "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--list' '--exact' 'structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up' > '<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/list_01.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/list_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/K4-M2/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/list_01",
+      "launch_utc": "2026-10-01T16:39:19.962Z",
+      "guard_before": {
+        "chunk_id": "e9bcf4",
+        "wall_time_seconds": 0.000008125,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:03:00 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "a4339c",
+        "wall_time_seconds": 0.651211958,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "a4339c",
+        "wall_time_seconds": 0.651211958,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:39:20.949Z",
+      "evidence": "K4-M2/list_01/EVIDENCE.json",
+      "stdout": "K4-M2/list_01/stdout.txt",
+      "stderr": "K4-M2/list_01/stderr.txt",
+      "raw_fingerprint": "K4-M2/list_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "50b513d305d6f8b0da2ef325a0494b8ccde1c37bfb5090add938c56fd5e17087"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "mutant",
+      "id": "K4-M2",
+      "index": 0,
+      "name": "mutant_01",
+      "filter": "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--exact",
+        "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/mutant_01.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/mutant_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/K4-M2/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/mutant_01",
+      "launch_utc": "2026-10-01T16:39:21.024Z",
+      "guard_before": {
+        "chunk_id": "059cbe",
+        "wall_time_seconds": 0.000007792,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:03:01 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "240392",
+        "wall_time_seconds": 0.000009,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "240392",
+        "wall_time_seconds": 0.000009,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:39:21.266Z",
+      "evidence": "K4-M2/mutant_01/EVIDENCE.json",
+      "stdout": "K4-M2/mutant_01/stdout.txt",
+      "stderr": "K4-M2/mutant_01/stderr.txt",
+      "raw_fingerprint": "K4-M2/mutant_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "50b513d305d6f8b0da2ef325a0494b8ccde1c37bfb5090add938c56fd5e17087"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "control",
+      "id": "K4-M2",
+      "index": 0,
+      "name": "control_01",
+      "filter": "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--exact",
+        "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/control_01.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/control_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/control_01",
+      "launch_utc": "2026-10-01T16:39:32.530Z",
+      "guard_before": {
+        "chunk_id": "c2d06d",
+        "wall_time_seconds": 0.000007375,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:03:13 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "7fa73b",
+        "wall_time_seconds": 0.000009167,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "7fa73b",
+        "wall_time_seconds": 0.000009167,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:39:32.774Z",
+      "evidence": "K4-M2/control_01/EVIDENCE.json",
+      "stdout": "K4-M2/control_01/stdout.txt",
+      "stderr": "K4-M2/control_01/stderr.txt",
+      "raw_fingerprint": "K4-M2/control_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "3ffde24a8803fafea6700d072ec141584b3e551a90a480aacef2225c04d5d714"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "build",
+      "id": "K4-M3",
+      "index": null,
+      "name": "build",
+      "filter": null,
+      "argv": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/r09_r10_tail/K4-M3/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3",
+        "--lib",
+        "--no-run"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE \"$HOME/.cargo/bin/cargo\" 'test' '--offline' '--locked' '-j' '4' '--manifest-path' '<wt>/scratch/i23/r09_r10_tail/K4-M3/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml' '--target-dir' '<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3' '--lib' '--no-run' > '<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/build.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/build.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/K4-M3/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/build",
+      "launch_utc": "2026-10-01T16:40:35.119Z",
+      "guard_before": {
+        "chunk_id": "af0f3a",
+        "wall_time_seconds": 0.000008125,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:04:16 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "e9d9d7",
+        "wall_time_seconds": 1.001849208,
+        "session_id": 38473,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "ff9f73",
+        "wall_time_seconds": 0.00001925,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:40:55.144Z",
+      "evidence": "K4-M3/build/EVIDENCE.json",
+      "stdout": "K4-M3/build/stdout.txt",
+      "stderr": "K4-M3/build/stderr.txt",
+      "raw_fingerprint": "K4-M3/build/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "a2674bf5dd770fa2d7333d519efc7322f6d527fc994373cb54e840c787173db4"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "list",
+      "id": "K4-M3",
+      "index": 0,
+      "name": "list_01",
+      "filter": "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--list",
+        "--exact",
+        "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--list' '--exact' 'structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest' > '<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/list_01.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/list_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/K4-M3/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/list_01",
+      "launch_utc": "2026-10-01T16:40:55.222Z",
+      "guard_before": {
+        "chunk_id": "fc157b",
+        "wall_time_seconds": 0.000008167,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:04:36 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "be5cde",
+        "wall_time_seconds": 0.697657791,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "be5cde",
+        "wall_time_seconds": 0.697657791,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:40:56.258Z",
+      "evidence": "K4-M3/list_01/EVIDENCE.json",
+      "stdout": "K4-M3/list_01/stdout.txt",
+      "stderr": "K4-M3/list_01/stderr.txt",
+      "raw_fingerprint": "K4-M3/list_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "a2674bf5dd770fa2d7333d519efc7322f6d527fc994373cb54e840c787173db4"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "mutant",
+      "id": "K4-M3",
+      "index": 0,
+      "name": "mutant_01",
+      "filter": "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--exact",
+        "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/mutant_01.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/mutant_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/K4-M3/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/mutant_01",
+      "launch_utc": "2026-10-01T16:40:56.333Z",
+      "guard_before": {
+        "chunk_id": "9b694c",
+        "wall_time_seconds": 0.0000085,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:04:37 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "e147c7",
+        "wall_time_seconds": 0.000008959,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "e147c7",
+        "wall_time_seconds": 0.000008959,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:40:56.575Z",
+      "evidence": "K4-M3/mutant_01/EVIDENCE.json",
+      "stdout": "K4-M3/mutant_01/stdout.txt",
+      "stderr": "K4-M3/mutant_01/stderr.txt",
+      "raw_fingerprint": "K4-M3/mutant_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "a2674bf5dd770fa2d7333d519efc7322f6d527fc994373cb54e840c787173db4"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "control",
+      "id": "K4-M3",
+      "index": 0,
+      "name": "control_01",
+      "filter": "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--exact",
+        "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/control_01.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/control_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M3/control_01",
+      "launch_utc": "2026-10-01T16:41:07.987Z",
+      "guard_before": {
+        "chunk_id": "320d8c",
+        "wall_time_seconds": 0.000008375,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:04:48 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "1bb7f1",
+        "wall_time_seconds": 0.000010459,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "1bb7f1",
+        "wall_time_seconds": 0.000010459,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T16:41:08.228Z",
+      "evidence": "K4-M3/control_01/EVIDENCE.json",
+      "stdout": "K4-M3/control_01/stdout.txt",
+      "stderr": "K4-M3/control_01/stderr.txt",
+      "raw_fingerprint": "K4-M3/control_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "3ffde24a8803fafea6700d072ec141584b3e551a90a480aacef2225c04d5d714"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    }
+  ],
+  "counts": {
+    "builds": 3,
+    "lists": 4,
+    "baselines": 2,
+    "required_numeric_failures": 2,
+    "returned_controls": 2,
+    "test_invocations": 6,
+    "total_commands": 13
+  },
+  "final_process_check": {
+    "utc": "2026-10-01T16:41:16.607Z",
+    "processes": []
+  },
+  "no_owned_job_running": true,
+  "earlier_original_loop_stops_remain_uncredited": true
+}

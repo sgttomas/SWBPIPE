@@ -1,0 +1,24 @@
+
+thread 'structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest' (26090979) panicked at src/structural/retained/../../../tests/retained_k4/wide_sum_tests.rs:102:17:
+assertion `left == right` failed: p 128 terms ["w:+8p0", "w:+8p-128", "w:+8p-133"]
+  left: "Z+"
+ right: "+80000000000000000000000000000001p0"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.00 real         0.00 user         0.00 sys
+             4833280  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 653  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  10  involuntary context switches
+            35944779  instructions retired
+            13941109  cycles elapsed
+             1720656  peak memory footprint
