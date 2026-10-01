@@ -1,0 +1,250 @@
+   Compiling zmij v1.0.23
+   Compiling serde_core v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/root-a1-consumers-40129/preview/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling memchr v2.8.3
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/scratch/root-a1-consumers-40129/preview/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/scratch/root-a1-consumers-40129/preview/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `release` profile [optimized] target(s) in 11.13s
+     Running `<wt>/a1-consumer-vr-preview-target/release/examples/vk_records --write`
+RF-CHAIN-T-n03-r1e-04 selected Some(128) 0.01s
+RF-CHAIN-T-n03-r1e-06 selected Some(128) 0.00s
+RF-CHAIN-T-n03-r1e-08 selected Some(128) 0.00s
+RF-CHAIN-T-n03-r1e-10 selected Some(128) 0.00s
+RF-CHAIN-T-n03-r1e-12 selected Some(128) 0.00s
+RF-CHAIN-T-n05-r1e-04 selected Some(128) 0.00s
+RF-CHAIN-T-n05-r1e-06 selected Some(128) 0.00s
+RF-CHAIN-T-n05-r1e-08 selected Some(128) 0.00s
+RF-CHAIN-T-n05-r1e-10 selected Some(128) 0.00s
+RF-CHAIN-T-n05-r1e-12 selected Some(128) 0.00s
+RF-CHAIN-T-n10-r1e-04 selected Some(128) 0.01s
+RF-CHAIN-T-n10-r1e-06 selected Some(128) 0.01s
+RF-CHAIN-T-n10-r1e-08 selected Some(128) 0.01s
+RF-CHAIN-T-n10-r1e-10 selected Some(128) 0.01s
+RF-CHAIN-T-n10-r1e-12 selected Some(128) 0.01s
+RF-CHAIN-A-n03-r1e-04 selected Some(128) 0.00s
+RF-CHAIN-A-n03-r1e-06 selected Some(128) 0.00s
+RF-CHAIN-A-n03-r1e-08 selected Some(128) 0.00s
+RF-CHAIN-A-n03-r1e-10 selected Some(128) 0.00s
+RF-CHAIN-A-n03-r1e-12 selected Some(128) 0.00s
+RF-CHAIN-A-n05-r1e-04 selected Some(128) 0.00s
+RF-CHAIN-A-n05-r1e-06 selected Some(128) 0.00s
+RF-CHAIN-A-n05-r1e-08 selected Some(128) 0.00s
+RF-CHAIN-A-n05-r1e-10 selected Some(128) 0.00s
+RF-CHAIN-A-n05-r1e-12 selected Some(128) 0.00s
+RF-CHAIN-A-n10-r1e-04 selected Some(128) 0.01s
+RF-CHAIN-A-n10-r1e-06 selected Some(128) 0.01s
+RF-CHAIN-A-n10-r1e-08 selected Some(128) 0.01s
+RF-CHAIN-A-n10-r1e-10 selected Some(128) 0.01s
+RF-CHAIN-A-n10-r1e-12 selected Some(128) 0.01s
+RF-SKEW-T-PIN-AX-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-PIN-AX-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-PIN-AX-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-PIN-AX-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-PIN-AX-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-PIN-AX-122-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-122-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-122-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-122-r1e-12 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-122-r1e-12 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-122-r1e-12 selected Some(128) 0.00s
+RF-WEAK-W-AX-rho1e-04 selected Some(128) 0.00s
+RF-WEAK-W-AX-rho1e-08 selected Some(128) 0.00s
+RF-WEAK-W-AX-rho1e-12 selected Some(128) 0.00s
+RF-WEAK-W-L-r1e-04 selected Some(128) 0.00s
+RF-WEAK-W-L-r1e-08 selected Some(128) 0.00s
+RF-WEAK-W-L-r1e-12 selected Some(128) 0.00s
+RF-WEAK-W-3D-rho1e-04 selected Some(128) 0.01s
+RF-WEAK-W-3D-rho1e-08 selected Some(128) 0.01s
+RF-WEAK-W-3D-rho1e-12 selected Some(128) 0.01s
+RF-LARGE-CHAIN-n00010-AX selected Some(128) 0.01s
+RF-LARGE-CHAIN-n00010-ROT selected Some(128) 0.02s
+RF-LARGE-TREE-n00010-AX selected Some(128) 0.01s
+RF-LARGE-TREE-n00010-ROT selected Some(128) 0.02s
+RF-LARGE-CONT-n00010-AX selected Some(128) 0.01s
+RF-LARGE-CONT-n00010-ROT selected Some(128) 0.02s
+RF-LARGE-CHAIN-n00100-AX selected Some(128) 0.10s
+RF-LARGE-CHAIN-n00100-ROT selected Some(128) 0.18s
+RF-LARGE-TREE-n00100-AX selected Some(128) 0.11s
+RF-LARGE-TREE-n00100-ROT selected Some(128) 0.17s
+RF-LARGE-CONT-n00100-AX selected Some(128) 0.09s
+RF-LARGE-CONT-n00100-ROT selected Some(128) 0.15s
+RF-LARGE-CHAIN-n00010-AX parity 0.0s
+RF-LARGE-CHAIN-n00010-ROT parity 0.0s
+RF-LARGE-TREE-n00010-AX parity 0.0s
+RF-LARGE-TREE-n00010-ROT parity 0.0s
+RF-LARGE-CONT-n00010-AX parity 0.0s
+RF-LARGE-CONT-n00010-ROT parity 0.0s
+RF-LARGE-CHAIN-n00100-AX parity 0.1s
+RF-LARGE-CHAIN-n00100-ROT parity 0.1s
+RF-LARGE-TREE-n00100-AX parity 0.1s
+RF-LARGE-TREE-n00100-ROT parity 0.1s
+RF-LARGE-CONT-n00100-AX parity 0.1s
+RF-LARGE-CONT-n00100-ROT parity 0.1s
+RF-INVARIANCE-PINTOR-BASE selected Some(128) 0.00s
+RF-INVARIANCE-PINTOR-ROT-Q3 selected Some(128) 0.01s
+RF-INVARIANCE-PINTOR-ROT-Q9 selected Some(128) 0.01s
+RF-INVARIANCE-PINTOR-OFF-1e3 selected Some(128) 0.00s
+RF-INVARIANCE-PINTOR-OFF-1e6 selected Some(128) 0.00s
+RF-INVARIANCE-PINTOR-RELABEL selected Some(128) 0.00s
+RF-INVARIANCE-PINTOR-UNITS-mm selected Some(128) 0.00s
+RF-INVARIANCE-LFRAME-BASE selected Some(128) 0.00s
+RF-INVARIANCE-LFRAME-ROT-Q3 selected Some(128) 0.00s
+RF-INVARIANCE-LFRAME-ROT-Q9 selected Some(128) 0.00s
+RF-INVARIANCE-LFRAME-OFF-1e3 selected Some(128) 0.00s
+RF-INVARIANCE-LFRAME-OFF-1e6 selected Some(128) 0.00s
+RF-INVARIANCE-LFRAME-RELABEL selected Some(128) 0.00s
+RF-INVARIANCE-LFRAME-UNITS-mm selected Some(128) 0.00s
+RF-INVARIANCE-CONT4-BASE selected Some(128) 0.01s
+RF-INVARIANCE-CONT4-ROT-Q3 selected Some(128) 0.01s
+RF-INVARIANCE-CONT4-ROT-Q9 selected Some(128) 0.01s
+RF-INVARIANCE-CONT4-OFF-1e3 selected Some(128) 0.01s
+RF-INVARIANCE-CONT4-OFF-1e6 selected Some(128) 0.01s
+RF-INVARIANCE-CONT4-RELABEL selected Some(128) 0.01s
+RF-INVARIANCE-CONT4-UNITS-mm selected Some(128) 0.01s
+RF-INVARIANCE-TREE100-BASE selected Some(128) 0.11s
+RF-INVARIANCE-TREE100-OFF-1e3 selected Some(128) 0.11s
+RF-INVARIANCE-TREE100-OFF-1e6 selected Some(128) 0.11s
+RF-INVARIANCE-TREE100-RELABEL selected Some(128) 0.11s
+RF-RANGE-CHAIN-L-240 selected Some(128) 0.00s
+RF-RANGE-CHAIN-L+240 selected Some(128) 0.00s
+RF-RANGE-CHAIN-E-1000 selected Some(128) 0.00s
+RF-RANGE-CHAIN-E+960 selected Some(128) 0.00s
+RF-RANGE-CHAIN-F-960 selected Some(128) 0.00s
+RF-RANGE-CHAIN-F+960 selected Some(128) 0.00s
+RF-RANGE-CHAIN-LEF-small selected Some(128) 0.00s
+RF-RANGE-CHAIN-LEF-large selected Some(128) 0.00s
+RF-RANGE-CHAIN-SIM-a selected Some(128) 0.00s
+RF-RANGE-CHAIN-SIM-b selected Some(128) 0.00s
+RF-RANGE-SKEW-L-240 selected Some(128) 0.00s
+RF-RANGE-SKEW-L+240 selected Some(128) 0.00s
+RF-RANGE-SKEW-E-1000 selected Some(128) 0.00s
+RF-RANGE-SKEW-E+960 selected Some(128) 0.00s
+RF-RANGE-SKEW-F-960 selected Some(128) 0.00s
+RF-RANGE-SKEW-F+960 selected Some(128) 0.00s
+RF-RANGE-SKEW-LEF-small selected Some(128) 0.00s
+RF-RANGE-SKEW-LEF-large selected Some(128) 0.00s
+RF-RANGE-SKEW-SIM-a selected Some(128) 0.00s
+RF-RANGE-SKEW-SIM-b selected Some(128) 0.00s
+RF-RANGE-CONT-L-240 selected Some(128) 0.01s
+RF-RANGE-CONT-L+240 selected Some(128) 0.01s
+RF-RANGE-CONT-E-1000 selected Some(128) 0.01s
+RF-RANGE-CONT-E+960 selected Some(128) 0.01s
+RF-RANGE-CONT-F-960 selected Some(128) 0.01s
+RF-RANGE-CONT-F+960 selected Some(128) 0.01s
+RF-RANGE-CONT-LEF-small selected Some(128) 0.01s
+RF-RANGE-CONT-LEF-large selected Some(128) 0.01s
+RF-RANGE-CONT-SIM-a selected Some(128) 0.01s
+RF-RANGE-CONT-SIM-b selected Some(128) 0.01s
+RF-RANGE-THIN-A unresolved None 0.00s
+RF-RANGE-THIN-B unresolved None 0.00s
+RF-ZERO-SYM selected Some(128) 0.00s
+RF-ZERO-TORSION selected Some(128) 0.00s
+RF-ZERO-PLANAR selected Some(128) 0.00s
+RF-ZERO-TINY selected Some(128) 0.00s
+RF-FINITE-THIRDS-O0 selected Some(128) 0.01s
+RF-FINITE-THIRDS-O1e3 selected Some(128) 0.01s
+RF-FINITE-THIRDS-O1e6 selected Some(128) 0.01s
+RF-FINITE-TENTHS-O1e6 selected Some(128) 0.01s
+RF-FINITE-THIRTIETHS-O1e6 selected Some(128) 0.01s
+RF-FINITE-ROT-Q9-NONMULT selected Some(128) 0.00s
+RF-MECH-LINE122-TORQUE refused None 0.00s
+RF-MECH-LINE122-PERP refused None 0.00s
+RF-MECH-LINE122-UNLOADED refused None 0.00s
+RF-MECH-LINE345-RZ refused None 0.00s
+RF-MECH-K0 refused None 0.00s
+RF-MECH-DISC-CHAIN100 refused None 0.00s
+RF-MECH-DISC-CHAIN100-SPRING refused None 0.00s
+RF-MECH-LINE-IN-CHAIN1000 refused None 0.00s
+RF-MECH-LINE345-RX-COMPANION selected Some(128) 0.00s
+RF-MECH-LINE122-TORQUE parity 0.0s
+RF-MECH-LINE122-PERP parity 0.0s
+RF-MECH-LINE122-UNLOADED parity 0.0s
+RF-MECH-LINE345-RZ parity 0.0s
+RF-MECH-K0 parity 0.0s
+RF-MECH-DISC-CHAIN100 parity 0.1s
+RF-MECH-DISC-CHAIN100-SPRING parity 0.1s
+RF-MECH-LINE-IN-CHAIN1000 parity 0.1s
+RF-MECH-LINE345-RX-COMPANION parity 0.0s
+RF-CANCEL-F-G1e5-GnG selected Some(128) 0.00s
+RF-CANCEL-F-G1e5-GGn selected Some(128) 0.00s
+RF-CANCEL-F-G1e5-nGG selected Some(128) 0.00s
+RF-CANCEL-F-G1e6-GnG selected Some(128) 0.00s
+RF-CANCEL-F-G1e6-GGn selected Some(128) 0.00s
+RF-CANCEL-F-G1e6-nGG selected Some(128) 0.00s
+RF-CANCEL-F-G1e7-GnG selected Some(128) 0.00s
+RF-CANCEL-F-G1e7-GGn selected Some(128) 0.00s
+RF-CANCEL-F-G1e7-nGG selected Some(128) 0.00s
+RF-CANCEL-F-G1e8-GnG selected Some(128) 0.00s
+RF-CANCEL-F-G1e8-GGn selected Some(128) 0.00s
+RF-CANCEL-F-G1e8-nGG selected Some(128) 0.00s
+RF-CANCEL-F-G1e8-GnG-ORTHO selected Some(128) 0.00s
+RF-CANCEL-F-G1e8-GnG-INPLANE selected Some(128) 0.00s
+RF-CANCEL-F-G1e80-GnG selected Some(128) 0.00s
+RF-CANCEL-F-G1e80-GGn selected Some(128) 0.00s
+RF-CANCEL-F-G1e80-nGG selected Some(128) 0.00s
+RF-CANCEL-F-G1e80-GnG-ORTHO selected Some(128) 0.00s
+RF-CANCEL-F-G1e80-GnG-INPLANE selected Some(128) 0.00s
+RF-CANCEL-M-G1e5-GnG selected Some(128) 0.00s
+RF-CANCEL-M-G1e5-GGn selected Some(128) 0.00s
+RF-CANCEL-M-G1e5-nGG selected Some(128) 0.00s
+RF-CANCEL-M-G1e6-GnG selected Some(128) 0.00s
+RF-CANCEL-M-G1e6-GGn selected Some(128) 0.00s
+RF-CANCEL-M-G1e6-nGG selected Some(128) 0.00s
+RF-CANCEL-M-G1e7-GnG selected Some(128) 0.00s
+RF-CANCEL-M-G1e7-GGn selected Some(128) 0.00s
+RF-CANCEL-M-G1e7-nGG selected Some(128) 0.00s
+RF-CANCEL-M-G1e8-GnG selected Some(128) 0.00s
+RF-CANCEL-M-G1e8-GGn selected Some(128) 0.00s
+RF-CANCEL-M-G1e8-nGG selected Some(128) 0.00s
+RF-CANCEL-M-G1e8-GnG-ORTHO selected Some(128) 0.00s
+RF-CANCEL-M-G1e8-GnG-INPLANE selected Some(128) 0.00s
+RF-CANCEL-M-G1e80-GnG selected Some(128) 0.00s
+RF-CANCEL-M-G1e80-GGn selected Some(128) 0.00s
+RF-CANCEL-M-G1e80-nGG selected Some(128) 0.00s
+RF-CANCEL-M-G1e80-GnG-ORTHO selected Some(128) 0.00s
+RF-CANCEL-M-G1e80-GnG-INPLANE selected Some(128) 0.00s
+       14.30 real         2.82 user         0.07 sys
+           107970560  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               12137  page reclaims
+                   2  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 374  involuntary context switches
+         40060765088  instructions retired
+          8320770873  cycles elapsed
+            77578648  peak memory footprint

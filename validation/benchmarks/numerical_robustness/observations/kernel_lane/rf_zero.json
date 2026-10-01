@@ -4,10 +4,10 @@
     "attempts": [
       {
         "corrections": 0,
-        "exact_sum_work": 12263,
+        "exact_sum_work": 66382,
         "gate": "Coalesced",
         "outcome": "Accepted",
-        "own_work": 1059362,
+        "own_work": 2897492,
         "precision": 128,
         "residual_basis": 192,
         "role": "Candidate",
@@ -51,11 +51,11 @@
           "scale": 0,
           "shift": 0,
           "solve": 28836,
-          "stop_rule": 962438,
+          "stop_rule": 2854687,
           "uc": 0,
           "wide_formation": 0
         },
-        "stop_rule_work": 962438,
+        "stop_rule_work": 2854687,
         "storage": {
           "limbs_per_entry": 4,
           "pattern_entries": 468,
@@ -142,7 +142,7 @@
     "family": "RF-ZERO",
     "geometry": "[Restrained]",
     "id": "RF-ZERO-SYM",
-    "invocation_charged": 3261916,
+    "invocation_charged": 5154165,
     "k4src_sha256": "1bc8872c455262b0bd48dca75ebb9e2e8fafc1de5238b75e060012538a4839b0",
     "outcome": "Selected at 128",
     "published_rows": 119,
@@ -165,10 +165,10 @@
     "attempts": [
       {
         "corrections": 0,
-        "exact_sum_work": 4625,
+        "exact_sum_work": 18543,
         "gate": "Coalesced",
         "outcome": "Accepted",
-        "own_work": 465632,
+        "own_work": 1008318,
         "precision": 128,
         "residual_basis": 192,
         "role": "Candidate",
@@ -212,11 +212,11 @@
           "scale": 0,
           "shift": 0,
           "solve": 8460,
-          "stop_rule": 406750,
+          "stop_rule": 963354,
           "uc": 0,
           "wide_formation": 0
         },
-        "stop_rule_work": 406750,
+        "stop_rule_work": 963354,
         "storage": {
           "limbs_per_entry": 4,
           "pattern_entries": 144,
@@ -303,7 +303,7 @@
     "family": "RF-ZERO",
     "geometry": "[Restrained]",
     "id": "RF-ZERO-TORSION",
-    "invocation_charged": 1229257,
+    "invocation_charged": 1785861,
     "k4src_sha256": "6b0a7a9f4371fa6823de879473c634a632fca532bfd0b096b97695723fa5ceae",
     "outcome": "Selected at 128",
     "published_rows": 38,
@@ -326,10 +326,10 @@
     "attempts": [
       {
         "corrections": 0,
-        "exact_sum_work": 5640,
+        "exact_sum_work": 30755,
         "gate": "Coalesced",
         "outcome": "Accepted",
-        "own_work": 480918,
+        "own_work": 1461254,
         "precision": 128,
         "residual_basis": 192,
         "role": "Candidate",
@@ -373,11 +373,11 @@
           "scale": 0,
           "shift": 0,
           "solve": 18648,
-          "stop_rule": 425178,
+          "stop_rule": 1430629,
           "uc": 0,
           "wide_formation": 0
         },
-        "stop_rule_work": 425178,
+        "stop_rule_work": 1430629,
         "storage": {
           "limbs_per_entry": 4,
           "pattern_entries": 252,
@@ -464,7 +464,7 @@
     "family": "RF-ZERO",
     "geometry": "[Restrained]",
     "id": "RF-ZERO-PLANAR",
-    "invocation_charged": 1713405,
+    "invocation_charged": 2718856,
     "k4src_sha256": "97773753954ceff015ceb35eab4125c92053e06fbd77b61ef513654ee24e58ff",
     "outcome": "Selected at 128",
     "published_rows": 63,
@@ -487,10 +487,10 @@
     "attempts": [
       {
         "corrections": 0,
-        "exact_sum_work": 2809,
+        "exact_sum_work": 14919,
         "gate": "Coalesced",
         "outcome": "Accepted",
-        "own_work": 820448,
+        "own_work": 1363134,
         "precision": 128,
         "residual_basis": 192,
         "role": "Candidate",
@@ -534,11 +534,11 @@
           "scale": 0,
           "shift": 0,
           "solve": 8460,
-          "stop_rule": 787769,
+          "stop_rule": 1342565,
           "uc": 0,
           "wide_formation": 0
         },
-        "stop_rule_work": 787769,
+        "stop_rule_work": 1342565,
         "storage": {
           "limbs_per_entry": 4,
           "pattern_entries": 144,
@@ -625,7 +625,7 @@
     "family": "RF-ZERO",
     "geometry": "[Restrained]",
     "id": "RF-ZERO-TINY",
-    "invocation_charged": 1402703,
+    "invocation_charged": 1957499,
     "k4src_sha256": "835d003491f6832bca8b8bb0bd6e8cce00869bea0fbb2baddd5680c7459760b6",
     "outcome": "Selected at 128",
     "published_rows": 38,
