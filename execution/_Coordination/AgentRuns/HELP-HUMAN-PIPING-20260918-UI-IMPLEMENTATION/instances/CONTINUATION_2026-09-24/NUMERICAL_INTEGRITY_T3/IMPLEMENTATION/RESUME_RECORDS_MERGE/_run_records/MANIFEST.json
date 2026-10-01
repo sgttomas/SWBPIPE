@@ -1,0 +1,42 @@
+[
+  {
+    "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/root-resume-20260930/PR1068_MERGED.json",
+    "copy": "PR1068_MERGED.json",
+    "sha256": "c28bb64e41864d59d4755947ad8a1a2a77230d83b58de2272b08801583f20245"
+  },
+  {
+    "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/root-resume-20260930/ci_36819769945/piping-e2e-plan.json",
+    "copy": "piping-e2e-plan.json",
+    "sha256": "1e8fdaec4f5d9c451b28f5d37818ff267517657c75cb4859c3fb8d69efaba9f5"
+  },
+  {
+    "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/sweep_resume_records_729e80b5/suites_vs_baseline.txt",
+    "copy": "suites_vs_baseline.txt",
+    "sha256": "67f4d8c0f7db3bcdab6d6d1b90bb1e049b38315ff3f56b45ad8a561c5fdb1708"
+  },
+  {
+    "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/sweep_resume_records_729e80b5/self_weight_wasm_isolated/toolchain_postcheck.txt",
+    "copy": "isolated_toolchain_postcheck.txt",
+    "sha256": "e794146d99fad54562fdcbd4a7c8b22b0240d2b0312ff6d879d67939b3131850"
+  },
+  {
+    "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/sweep_resume_records_729e80b5/self_weight_wasm_isolated/DISPOSITION.json",
+    "copy": "isolated_DISPOSITION.json",
+    "sha256": "ce465f622dbb881afc0434ca7ceed00a018161af16c721b7333e20b16ef82f4a"
+  },
+  {
+    "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/sweep_resume_records_729e80b5/self_weight_wasm_isolated/run.log",
+    "copy": "isolated_run.log",
+    "sha256": "62e66b63941bca893238bdea99b738b827abb7de1485ca6c15582c5f530b395a"
+  },
+  {
+    "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/sweep_resume_records_729e80b5/self_weight_wasm_isolated/EXECUTION_BINDING.json",
+    "copy": "isolated_EXECUTION_BINDING.json",
+    "sha256": "2965aeea2ccd4473a9d02b58a7637721ba2f3daf1f565f1ad08580983401ae9e"
+  },
+  {
+    "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/sweep_resume_records_729e80b5/self_weight_wasm_isolated/tree.txt",
+    "copy": "isolated_tree.txt",
+    "sha256": "253fdc905252a2a152af9f4b86554e481e8da5c9744e82275efd1be6d8ddee21"
+  }
+]

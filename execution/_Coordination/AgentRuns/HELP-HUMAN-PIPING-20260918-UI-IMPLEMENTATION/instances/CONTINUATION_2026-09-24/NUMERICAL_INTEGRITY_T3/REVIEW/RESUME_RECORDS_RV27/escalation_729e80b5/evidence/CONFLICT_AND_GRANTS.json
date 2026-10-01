@@ -1,0 +1,31 @@
+{
+  "merge": "7870b019aecf404fab4ca782b8bc3f19af857c11 ea2aaee702624cd612eee23a7e1969fd3c670d3f dd677a972799237edfd8f389468aaa13c2ecf330",
+  "later_commit": "729e80b5c2a33b278623a850d9c75c25372b688c 7870b019aecf404fab4ca782b8bc3f19af857c11",
+  "grant_pins": [
+    {
+      "ref": "d2c73c3217dd3c483a22e4e26e5e07a9f6ffb47d",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I22_G1_B.md",
+      "sha256": "1363b0bab8c64d0b3a84576aadb19f5dfaa637509715287964426989236acd26",
+      "candidate_bytes_identical": true,
+      "commit_time": "2026-09-30T23:02:14-06:00"
+    },
+    {
+      "ref": "d5bee8a74c79e806e907572b34cb689db4f0e32b",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I22_G2_C.md",
+      "sha256": "1b254724f6092e874db39cb82685d184bb1c13fd8dd33d3c72c3fd0c3c12034c",
+      "candidate_bytes_identical": true,
+      "commit_time": "2026-09-30T23:12:23-06:00"
+    }
+  ],
+  "conflict_markers": [],
+  "native_tree_observation": {
+    "method": "collaboration.list_agents",
+    "confirmed_paths": [
+      "/root/a1_design",
+      "/root/a1_oracle_fresh",
+      "/root/t3_recovery_manager/i22_a1"
+    ],
+    "observed": "design agent exists with completed proposal return; oracle and I22 completed C17 BLOCKING returns; status_at_record running in dispatch remains historical",
+    "limit": "No proposal body read or design accepted by RV27."
+  }
+}

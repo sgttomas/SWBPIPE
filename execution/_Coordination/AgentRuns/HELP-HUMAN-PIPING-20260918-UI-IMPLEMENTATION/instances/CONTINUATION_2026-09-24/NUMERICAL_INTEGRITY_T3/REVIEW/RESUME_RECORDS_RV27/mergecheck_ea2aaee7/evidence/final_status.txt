@@ -1,0 +1,3 @@
+HEAD ea2aaee702624cd612eee23a7e1969fd3c670d3f
+status --porcelain=v1: empty
+GEN-8 process exit: 0

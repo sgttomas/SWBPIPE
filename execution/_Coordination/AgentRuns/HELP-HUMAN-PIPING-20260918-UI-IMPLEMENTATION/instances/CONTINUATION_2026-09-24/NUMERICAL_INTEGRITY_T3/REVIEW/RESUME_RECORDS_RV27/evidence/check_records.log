@@ -1,0 +1,115 @@
+{
+  "candidate": "90b6bcbbf64b13975211038bf3f33bb87273e646",
+  "base": "d01ad98a754698631f927709d08284c272de85e8",
+  "head_actual": "90b6bcbbf64b13975211038bf3f33bb87273e646",
+  "status_before": "",
+  "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "changed_files": 322,
+  "scope_unexpected": [],
+  "append_only": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md": true,
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REVIEW/RECORDS_PR1063_REVIEW.md": true
+  },
+  "packet_seal": "729d342640301294dfd31e02659a0a443231f627858aca85c57ee5b7b8192b97",
+  "packet_manifest": {
+    "manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/_run_records/aud_t3_04/SHA256SUMS",
+    "entries": 293,
+    "failures": []
+  },
+  "packet_coverage": {
+    "unlisted": [],
+    "missing": []
+  },
+  "relocation_identity_failures": [],
+  "audit_manifest": {
+    "manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/AUDIT/SHA256SUMS",
+    "entries": 14,
+    "failures": []
+  },
+  "audit_unchanged": true,
+  "replays": {
+    "arithmetic": {
+      "actual": "7869d35c6820d243034f3b2ac61ba4192771758c79caebb048f75ed5bb74a9fa",
+      "recorded": "7869d35c6820d243034f3b2ac61ba4192771758c79caebb048f75ed5bb74a9fa",
+      "historical_bytes_equal": true
+    },
+    "hashes": {
+      "actual": "cb6f24861e0fa8854f7b6b549fe5db295f0e8fd6091d26b96d05d710c56f277e",
+      "recorded": "cb6f24861e0fa8854f7b6b549fe5db295f0e8fd6091d26b96d05d710c56f277e",
+      "historical_bytes_equal": true
+    },
+    "admissions": {
+      "actual": "e624c21ee9f524ae302ceeca412be27a3818751a16fde5c4f6c9f96f8ba9a12e",
+      "recorded": "e624c21ee9f524ae302ceeca412be27a3818751a16fde5c4f6c9f96f8ba9a12e",
+      "historical_bytes_equal": true
+    },
+    "figures": {
+      "actual": "bef09fff719212ba347fa64749c4568ab721d630c4d2a7eb060a0ff6ac50a3b1",
+      "recorded": "bef09fff719212ba347fa64749c4568ab721d630c4d2a7eb060a0ff6ac50a3b1",
+      "historical_bytes_equal": true
+    },
+    "merges": {
+      "actual": "12444f50ae98f6530be995aca33271a8563091555aa642ac9858c94228e8f9c8",
+      "recorded": "12444f50ae98f6530be995aca33271a8563091555aa642ac9858c94228e8f9c8",
+      "historical_bytes_equal": true
+    },
+    "ci": {
+      "actual": "1812e87be343b55ac7ba6de43189a8e2ba2ce7232496f41559f1000e0c052888",
+      "recorded": "1812e87be343b55ac7ba6de43189a8e2ba2ce7232496f41559f1000e0c052888",
+      "historical_bytes_equal": true
+    },
+    "dec025": {
+      "actual": "7ff510aa13b21179a0b21e68cec52db0304a1d6de928bf56e378f6e91193d0bd",
+      "recorded": "7ff510aa13b21179a0b21e68cec52db0304a1d6de928bf56e378f6e91193d0bd",
+      "historical_bytes_equal": true
+    }
+  },
+  "principal_inputs_count": 61,
+  "principal_input_mismatches": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "sha256": "444c18e09467c205b70be853045b4d68ec655241cae1b2dea518a8f7da9bf22a",
+      "current": "910c1640fda40bb2252d324d69f5659fe185ee6755a7f91e22a7c3da7ed15271",
+      "base": "444c18e09467c205b70be853045b4d68ec655241cae1b2dea518a8f7da9bf22a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "5987bacc8260e2bd5ebc10a08a855ec210e50bc4f0b87bd77726fa1ec7886c56",
+      "current": "029c1260f24fa77adaa01917e15db40cad0b3b9fd53ac39ea5172bebacd953f3",
+      "base": "5987bacc8260e2bd5ebc10a08a855ec210e50bc4f0b87bd77726fa1ec7886c56"
+    }
+  ],
+  "script_binding": true,
+  "originals": {
+    "count": 268,
+    "failures": []
+  },
+  "sanitized": {
+    "count": 268,
+    "failures": []
+  },
+  "gate_archives": [
+    {
+      "side": "base",
+      "restored_sha256": "c42981e541650578a60efe48cbf346360fedbb4507b3d02365b5f5abb78e9f68",
+      "bytes": 605711611,
+      "records": 884,
+      "nonobjects": 0,
+      "matches_prior_record": true,
+      "matches_raw_original": true,
+      "metadata_matches": true
+    },
+    {
+      "side": "cand",
+      "restored_sha256": "11dfe8296681280e0fd4163ee3195cc16ff0f78f3ce81dff82516a520bf2ef3f",
+      "bytes": 605711700,
+      "records": 884,
+      "nonobjects": 0,
+      "matches_prior_record": true,
+      "matches_raw_original": true,
+      "metadata_matches": true
+    }
+  ],
+  "status_after": ""
+}
+archival manifests 90 entries 9088 failures []

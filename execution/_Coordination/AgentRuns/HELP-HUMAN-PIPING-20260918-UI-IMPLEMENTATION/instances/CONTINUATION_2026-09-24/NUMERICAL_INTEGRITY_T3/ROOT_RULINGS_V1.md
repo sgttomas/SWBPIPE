@@ -3184,7 +3184,7 @@ oracle /root/a1_exact_oracle was stopped after it disclosed premature expected-
 answer exposure; its only return is provenance, not an accepted oracle result.
 A fresh /root/a1_oracle_fresh excludes old expected-answer/output records until
 its independent derivation is frozen. DISPATCH.json and DISPATCH_UPDATES.jsonl
-record parentage, supplied bases and scopes. No Rust experiment has been granted.
+record parentage, supplied bases and scopes. No Rust experiment has been granted. [Correction (ROOT, 2026-09-30, RV27-S1): this describes the initial source-only dispatch. The later BRIEFS/I22_G0_BUILD.md in this records candidate authorizes one probe build only; no solver case or numerical acceptance is granted here.]
 
 The preservation TASK returned a sealed packet in RESUME_2026-09-30/evidence.
 ROOT verified its seal and file hashes and independently restored both compressed
@@ -3210,6 +3210,18 @@ is authorized by this clarification.
   original return prefix to the current one; the original seal is unchanged.
   No test, checker or sealed evidence text was edited. The first GEN-8 failure
   remains recorded; rerun is required before the records candidate merges.
+
+
+## Records resumption: RV27-S1 corrected (ROOT, 2026-09-30)
+
+RV27 independently reviewed candidate 90b6bcbbf64b13975211038bf3f33bb87273e646.
+Its REVIEW.md is SHA256 8bb6773bfb27f2e11a3b4f2a2dd1e740cc92fcb8f1a74fcc4ca0792a619658f6,
+under REVIEW/RESUME_RECORDS_RV27 on numerics. Its sole SHOULD-FIX, RV27-S1,
+is corrected here: the current graph identifies initial source-only dispatch
+and the later included G0 build-only authorization. The dispatch ruling retains
+its historical words with an explicit correction bracket. This frozen records
+slice contains no solver-case grant or numerical acceptance. ROOT verified
+RV27's seal; the same reviewer must confirm this correction before merge.
 
 ## AUD-T3-01 escalated to BLOCKING: C17 source witness (ROOT, 2026-09-30)
 
@@ -3246,6 +3258,14 @@ correction and its contract/availability effects. A fresh design reviewer must
 re-derive it before reliance. No new bound, cutoff or implementation is selected
 by this escalation. K6c stays unaccepted and tied to the settled A1 kernel.
 
+- **Durable C17 basis:** complete diagnostic/oracle/manager packets are committed
+  and pushed on the retained A1 branch at a6b40d2d036acac556e28f28f5b482a4adb39333.
+  RESUME_2026-09-30/C17_EVIDENCE_BINDING.json pins paths, raw/binary hashes,
+  manifests, scope and restore method. The records PR now incorporates the
+  blocking escalation before merge; earlier review confirmations cover their
+  named historical candidates only. A fresh design agent is executing the
+  committed bounded brief; no repair or design alternative is accepted.
+
 ## A1 certificate correction selected for bounded implementation (ROOT, 2026-10-01)
 
 ROOT selects the sealed independent design and additive correction, after
@@ -3280,3 +3300,16 @@ The source branch now carries current main at 0ce33d7e89a306cfc01f3ce29f421f4dbd
 ROOT will verify the core diff/hashes, commission a fresh source reviewer and
 run every required gate on the actual candidate before merge. A1 is still
 BLOCKING, K6c unaccepted and F2a held.
+
+
+## Audit resumption records merged (ROOT, 2026-10-01)
+
+PR1068 merged at 2026-10-01T06:38:11Z as
+546e05a159a58f5ceffe1d315373bc2f31982ea8, exact candidate
+729e80b5c2a33b278623a850d9c75c25372b688c. ROOT checked main a38617d
+immediately before the guarded merge. RV27's final independent confirmation,
+full-SHA CI, exact-head Mac DEC-025 comparison (including the disclosed isolated
+missing-suite recovery), and GEN-8 are recorded in
+IMPLEMENTATION/RESUME_RECORDS_MERGE/RECORD.md. No numerical repair is accepted.
+AUD-T3-01 remains BLOCKING, F2a held and K6c unaccepted. Original raw evidence
+remains preserved; no pruning is authorized. The owner stopped the response drift.
