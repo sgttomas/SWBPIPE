@@ -3375,3 +3375,15 @@ required. The independently checked relative-control fixture is accepted as
 unit-level arithmetic truth, not a source-model result. No production change,
 old fixture rewrite, new public formula or availability relaxation is selected.
 A1 and K6c retain their separate closure boundaries under the owner's sequence.
+
+## A1 VR records: include certificate work (ROOT, 2026-10-01)
+
+The unchanged kernel-lane generator on immutable40129 produces only the five
+accounting-field deltas documented in RESUME_2026-09-30/verification/
+vr_record_refresh_01/FIELD_DIFF.json on A1. ROOT checked all field comparisons
+and charge closure. Accuracy, outcomes, precision, classes, controls and
+not-covered expectations stay fixed; invariance/parity records are identical.
+The ten generated family JSONs and kernel_lane/SHA256SUMS may be refreshed to
+include the new certificate work. No other observation or criterion is granted.
+The failed preflight and original hashes remain evidence. Same-reviewer
+backcheck and an affected-suite rerun are required; this is not A1 closure.
