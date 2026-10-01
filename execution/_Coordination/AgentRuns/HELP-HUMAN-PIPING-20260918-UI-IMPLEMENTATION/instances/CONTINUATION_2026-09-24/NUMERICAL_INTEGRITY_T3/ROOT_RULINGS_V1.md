@@ -3322,3 +3322,18 @@ PublicationEnclosure arm in FK/tests/retained_k4/method_tests.rs as a fifth
 maintained path, plus explicit Wide::<4> in the new tests. Existing expected
 tokens/fixtures/assertions remain protected. The committed B compile addendum
 sets the exact scope; this is no availability or numerical acceptance.
+
+## A1 compiled-source checkpoint and reach (ROOT, 2026-10-01)
+
+ROOT froze the exact compiler repair at dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1.
+I22 implementation_b_fix_01 records the preceding successful focused tests on
+3cf296e plus that exact patch; they are not falsely rebound to a later launch.
+Full numerical/runtime/mutant acceptance is still pending. The C brief grants
+finite source-control and new-test work, plus RV29's independent fixed-head FK
+suite. No old expected outcome or protected availability is changed.
+
+The actual caller trace, independently checked in RV29 candidate_01, reaches
+H/validation only. The legacy product solver uses unchanged retained arithmetic
+and seeded hooks, not the changed adaptive route. Accordingly T9/both-entry
+are not triggered by this slice alone; all other standing exact-candidate gates
+remain. Reassess if the source/write set gains product reach.
