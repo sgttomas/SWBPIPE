@@ -1,0 +1,7 @@
+PASS: frozen manifest exact66 selected registration aliases,54 complete-binding/filter groups in READY first-occurrence order,28 unique single-test filters.
+PASS:54 fresh archives (6264 files) plus baseline (116) all match40129 original archive;6380 distinct nlink1 file inodes, no symlinks/maintained aliases;54 exact targets empty.
+PASS:baseline read-only, source/test/lock/manifest included in full-tree check, bound binary/fingerprint unchanged and empty features/rustflags.
+Manifest proposes82 direct pinned-binary calls +54 Cargo mutant calls=136 test invocations. ROOT release is still required; no patch/Rust by manager.
+manifest bd4dae325f30af11bb9ec1479f255f73912b96b7d4e50a066825aee725644e90
+containment 97c1d5443ce095fcbaa3342e43b05105c349ba44297b829b3834fd28413aae28
+bindings dd732f58453cd944dc886201e010ac020f76fc40549790324e1f8fe8872b9f88

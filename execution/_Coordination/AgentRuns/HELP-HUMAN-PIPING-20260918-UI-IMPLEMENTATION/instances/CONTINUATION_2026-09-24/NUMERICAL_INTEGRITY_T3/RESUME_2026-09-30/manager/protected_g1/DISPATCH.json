@@ -1,0 +1,33 @@
+{
+  "record": "G1 protected replay source-only preparation and prospective runtime",
+  "mechanism": "collaboration.followup_task",
+  "manager": "/root/t3_recovery_manager",
+  "parent": "/root",
+  "child": "/root/t3_recovery_manager/i22_a1",
+  "new_child": false,
+  "role": "TASK",
+  "actual_prep_start_utc": "2026-10-01 10:04:33 UTC",
+  "prep_deadline_utc": "2026-10-01 10:14:33 UTC",
+  "grant_commit": "6ada0f8b4fc3587a5de92362222aa23e17941d72",
+  "grant_path": "<COORD>/<R>/BRIEFS/A1_G1_PROTECTED.md",
+  "grant_sha256": "790efa5772ac9fd90a1f19f8fd5659b68e8fdb637eafc6213891ecca80926575",
+  "ready_path": "<A1_WT>/<R>/source_review_RV29/protected_06/READY_SUBSET.json",
+  "ready_sha256": "c6e68130f490e666a3a008ca3846ba4e80d000b0613e73a8ad8e119555d45d5d",
+  "review_seal": "c58a74059025803e0a3dfb251dd53d3b0ba8f580351c24e5af09a337915625b4",
+  "review_read": "Manager read full REVIEW/RETURN/EXECUTION and verified all9 payloads",
+  "I23_preserved_commit": "b086b4d9851a60bec6881c862973efdd6f6da8fa",
+  "source_candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "scope": "66 ready registrations only,54 physical experiments iff complete pre/post bindings and filter lists identical;28 baseline filters; every alias retained",
+  "scratch": "<WT>/scratch/i22/protected_g1",
+  "targets": "<WT>/a1-protected-target/g1",
+  "write_scope": [
+    "<A1_WT>/<R>/I22/protected_g1/**",
+    "owned scratch/targets"
+  ],
+  "baseline": "existing verified read-only E1 base and bound binary after fresh identity checks",
+  "patch_tool": "existing /usr/bin/patch exact context; no new framework/host tool",
+  "runtime_permission": "NO RUST until manager containment verified AND ROOT explicitly releases after active FK baseline PTY15015",
+  "prospective_runtime": "60 minutes after ROOT slot release;5-minute command checkpoint;28 baseline+54 mutant+54 primary return controls; fixed reviewed semantic stops; no repairs/other mappings/V-K",
+  "status": "source preparation completed and frozen; manifest/54-copy containment verified; ROOT explicit runtime release pending",
+  "native_prompt": "Full supplied followup retained in native event stream"
+}
