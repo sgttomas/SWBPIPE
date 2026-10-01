@@ -1,0 +1,21 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/i23/discriminators_g2/sources/R7-M26/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.68s
+  Executable unittests src/lib.rs (<wt>/a1-diagnostic-target/g2/R7-M26/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+        7.70 real        13.54 user         0.37 sys
+          1277657088  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              161690  page reclaims
+                  99  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   2  signals received
+                  21  voluntary context switches
+                1472  involuntary context switches
+           206048905  instructions retired
+            73103217  cycles elapsed
+             6308320  peak memory footprint
