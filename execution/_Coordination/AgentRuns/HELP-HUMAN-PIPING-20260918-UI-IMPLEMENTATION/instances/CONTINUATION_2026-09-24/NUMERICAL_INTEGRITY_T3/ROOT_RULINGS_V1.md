@@ -3469,3 +3469,8 @@ Debug. Planned path/model inputs and checked final implementation remain to
 bind. These are precise open premises, not free estimator inputs or measured
 allowances. No full E_max, prelaunch admission, W1 or F2a acceptance follows.
 VR's finite caller composition continues separately under its source-only brief.
+
+The source_10 and h_caller_05 records cited here are on the separately preserved
+K6c branch at `79ab5428470ca747a484ea145ea979e5bb965c96`, under
+RESUME_2026-09-30/I21/source_10 and source_review_RV30/h_caller_05.
+Their presence on that branch is not a merged K6c implementation.
