@@ -1,0 +1,16 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<WT>/scratch/rv29-a1/runtime_01/archive/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.85s
+     Running unittests src/lib.rs (<WT>/rv29-a1-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+error: test failed, to rerun pass `--lib`
+     Running tests/k1_k2a_interaction.rs (<WT>/rv29-a1-target/debug/deps/k1_k2a_interaction-dfd952cd9bde6092)
+     Running tests/k2a_checked_formation.rs (<WT>/rv29-a1-target/debug/deps/k2a_checked_formation-0387eee873bbe84e)
+     Running tests/k2b_force_scaling.rs (<WT>/rv29-a1-target/debug/deps/k2b_force_scaling-483dbaf4043a2fce)
+     Running tests/k5_constrained_bodies.rs (<WT>/rv29-a1-target/debug/deps/k5_constrained_bodies-13451d88c1f17f79)
+     Running tests/k5_scale.rs (<WT>/rv29-a1-target/debug/deps/k5_scale-c8a9272bef8d01ab)
+     Running tests/m03_skew_scope.rs (<WT>/rv29-a1-target/debug/deps/m03_skew_scope-4f2c745387a5ac56)
+     Running tests/s11_site_table.rs (<WT>/rv29-a1-target/debug/deps/s11_site_table-c8ba14d9f767e011)
+error: test failed, to rerun pass `--test s11_site_table`
+   Doc-tests open_pipe_stress_frame_kernel
+error: 2 targets failed:
+    `--lib`
+    `--test s11_site_table`
