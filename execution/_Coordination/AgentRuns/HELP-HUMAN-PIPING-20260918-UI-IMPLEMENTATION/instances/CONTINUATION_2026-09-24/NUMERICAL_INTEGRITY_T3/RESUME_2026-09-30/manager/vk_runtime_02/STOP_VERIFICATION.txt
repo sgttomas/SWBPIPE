@@ -1,0 +1,2 @@
+PASS18payload seal,4 exactfreshprocess argv/env/cwd/exit/raw/artifact bindings,4binary/rawfingerprint hashes,189source files unchanged; P14-P53 streams absent. P10/P12 exactly1PASS, P11/P13 each1FAIL; P13 30unattributedCeilings no credit.
+RETURN 3f421df8f2c5dfe618273f33e30a374c84c6581aeae5b783bbc2b8997df39431
