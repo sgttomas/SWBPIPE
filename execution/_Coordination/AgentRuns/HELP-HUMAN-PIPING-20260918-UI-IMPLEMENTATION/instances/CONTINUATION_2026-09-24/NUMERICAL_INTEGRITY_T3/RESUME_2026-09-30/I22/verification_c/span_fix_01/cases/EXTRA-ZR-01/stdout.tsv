@@ -1,0 +1,71 @@
+FORMAT	a1-public-tsv-v1
+CASE	EXTRA-ZR-01
+SOURCE_COMMIT	dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1
+LIMITS	100000000	100000000
+SOURCE_ENCODING	4b34535243010200000000000000000000000000000000000000000000000000000000000000000030460000000000000000000000000000000001000000010000000000000001000000000000000000f03f000000000000f03f0000000000005046000000000000f03f000000000000f03f00000000000050460000000000000000000000000000f03f000000000000000000000000000000000a000000000000000000000000000000000000000001000000000000000000000000020000000000000000000000000300000000000000000000000004000000000000000000000000050000000000000000010000000100000000000000000100000002000000000000000001000000040000000000000000010000000500000000000000000100000001000000001000000045585452412d5a522d30313a6c6f616405000000000000000000000000000000
+STIFFNESS_ENCODING	4b34535446010200000000000000000000000000000000000000000000000000000000000000000030460000000000000000000000000000000001000000010000000000000001000000000000000000f03f000000000000f03f0000000000005046000000000000f03f000000000000f03f00000000000050460000000000000000000000000000f03f000000000000000000000000000000000a0000000000000000000000000100000000020000000003000000000400000000050100000001010000000201000000040100000005
+LAYOUT	D:0	Translation	0	true
+LAYOUT	D:1	Translation	0	true
+LAYOUT	D:2	Translation	0	true
+LAYOUT	D:3	Rotation	0	true
+LAYOUT	D:4	Rotation	0	true
+LAYOUT	D:5	Rotation	0	true
+LAYOUT	D:6	Translation	0	false
+LAYOUT	D:7	Translation	0	true
+LAYOUT	D:8	Translation	0	true
+LAYOUT	D:9	Rotation	0	false
+LAYOUT	D:10	Rotation	0	true
+LAYOUT	D:11	Rotation	0	true
+LAYOUT	M:0	Translation	0	false
+LAYOUT	M:1	Translation	0	false
+LAYOUT	E:1:I:0	Force	0	false
+LAYOUT	E:1:I:1	Force	0	false
+LAYOUT	E:1:I:2	Force	0	false
+LAYOUT	E:1:I:3	Moment	0	false
+LAYOUT	E:1:I:4	Moment	0	false
+LAYOUT	E:1:I:5	Moment	0	false
+LAYOUT	E:1:J:0	Force	0	false
+LAYOUT	E:1:J:1	Force	0	false
+LAYOUT	E:1:J:2	Force	0	false
+LAYOUT	E:1:J:3	Moment	0	false
+LAYOUT	E:1:J:4	Moment	0	false
+LAYOUT	E:1:J:5	Moment	0	false
+LAYOUT	R:0	Force	0	false
+LAYOUT	R:1	Force	0	false
+LAYOUT	R:2	Force	0	false
+LAYOUT	R:3	Moment	0	false
+LAYOUT	R:4	Moment	0	false
+LAYOUT	R:5	Moment	0	false
+LAYOUT	R:7	Force	0	false
+LAYOUT	R:8	Force	0	false
+LAYOUT	R:10	Moment	0	false
+LAYOUT	R:11	Moment	0	false
+PUBLIC_RCM_ON_DERIVED_PATTERN	[1, 0]
+METER	5519468	100000000	false
+STATUS	Unresolved
+UNRESOLVED	Ceiling
+GEOMETRY	[Restrained]
+ATTEMPT	0	128	Candidate	Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Rx }), body: 0, kind: Rotation, predicate: AbsoluteBound })	192	0	476fffffffffffff	3ff0000000000000	0000000000000000
+ATTEMPT_WORK	0	AttemptWork { widths: [WidthWork { add: 0, sub: 2, mul: 4, div: 51, sqrt: 2, round: 183, two_sum: 0, two_product: 6 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 53, sqrt: 0, round: 106, two_sum: 0, two_product: 0 }] }	StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 104, solve: 2628, refinement: 144, recovery: 3568, stop_rule: 995277, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }	StageWork { formation: 27116, assembly: 832, residual_formation: 27948, factor: 1382, condition: 34626, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }	StorageCounts { pattern_entries: 144, profile_entries: 3, limbs_per_entry: 4 }
+ATTEMPT_FLAGS	0	Some(Coalesced)	[]	91904	true	995277	0	0	false
+ATTEMPT	1	256	VerificationThenCandidate	Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Rx }), body: 0, kind: Rotation, predicate: AbsoluteBound })	320	0	4f6fffffffffffff	3ff0000000000000	0000000000000000
+ATTEMPT_WORK	1	AttemptWork { widths: [WidthWork { add: 0, sub: 4, mul: 4, div: 51, sqrt: 4, round: 339, two_sum: 0, two_product: 97 }, WidthWork { add: 0, sub: 0, mul: 2, div: 2, sqrt: 0, round: 0, two_sum: 0, two_product: 4 }, WidthWork { add: 0, sub: 0, mul: 0, div: 53, sqrt: 0, round: 106, two_sum: 0, two_product: 0 }] }	StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 104, solve: 2628, refinement: 282, recovery: 3568, stop_rule: 1003525, bounded_gate: 0, scale: 1302, estimate: 6156, charge: 5027, bound: 512, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }	StageWork { formation: 27116, assembly: 832, residual_formation: 92540, factor: 1394, condition: 38604, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 27210, wide_formation: 91084, uc: 5797 }	StorageCounts { pattern_entries: 144, profile_entries: 3, limbs_per_entry: 4 }
+ATTEMPT_FLAGS	1	Some(Coalesced)	[]	160486	true	1003525	12997	124091	true
+VERIFY_FLAGS	1	1	0	None	0	None
+VERIFY_RESOLUTION	1	0	0000000000000005	0000000000000001
+VERIFY_THETA	1	0	3060000000000001
+VERIFY_BOUND	1	0	3ff0000000000001
+ATTEMPT	2	512	VerificationThenCandidate	Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Rx }), body: 0, kind: Rotation, predicate: AbsoluteBound })	576	0	5f6fffffffffffff	3ff0000000000000	0000000000000000
+ATTEMPT_WORK	2	AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 47, sqrt: 0, round: 131, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 4, mul: 4, div: 4, sqrt: 4, round: 213, two_sum: 0, two_product: 97 }, WidthWork { add: 0, sub: 0, mul: 2, div: 55, sqrt: 0, round: 106, two_sum: 0, two_product: 4 }] }	StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 200, solve: 9412, refinement: 766, recovery: 11312, stop_rule: 1032468, bounded_gate: 0, scale: 3334, estimate: 20684, charge: 11439, bound: 1164, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }	StageWork { formation: 91084, assembly: 1456, residual_formation: 334044, factor: 4842, condition: 85916, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 68298, wide_formation: 331340, uc: 19921 }	StorageCounts { pattern_entries: 144, profile_entries: 3, limbs_per_entry: 8 }
+ATTEMPT_FLAGS	2	Some(Coalesced)	[]	517342	true	1032468	36621	419559	true
+VERIFY_FLAGS	2	1	0	None	0	None
+VERIFY_RESOLUTION	2	0	0000000000000006	0000000000000001
+VERIFY_THETA	2	0	2060000000000001
+VERIFY_BOUND	2	0	3ff0000000000001
+ATTEMPT	3	1024	Verification	Solved	1024	0	7f6fffffffffffff	3ff0000000000000	0000000000000000
+ATTEMPT_WORK	3	AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 4, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 4, mul: 4, div: 4, sqrt: 4, round: 213, two_sum: 0, two_product: 101 }] }	StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 392, solve: 35460, refinement: 838, recovery: 39472, stop_rule: 0, bounded_gate: 0, scale: 9830, estimate: 74060, charge: 29053, bound: 2652, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }	StageWork { formation: 331340, assembly: 2704, residual_formation: 0, factor: 17978, condition: 267420, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 205770, wide_formation: 0, uc: 73513 }	StorageCounts { pattern_entries: 144, profile_entries: 3, limbs_per_entry: 16 }
+ATTEMPT_FLAGS	3	Some(Coalesced)	[]	619442	true	0	115595	279283	true
+VERIFY_FLAGS	3	1	0	None	0	None
+VERIFY_RESOLUTION	3	0	0000000000000006	0000000000000001
+VERIFY_THETA	3	0	0060000000000001
+VERIFY_BOUND	3	0	3ff0000000000001

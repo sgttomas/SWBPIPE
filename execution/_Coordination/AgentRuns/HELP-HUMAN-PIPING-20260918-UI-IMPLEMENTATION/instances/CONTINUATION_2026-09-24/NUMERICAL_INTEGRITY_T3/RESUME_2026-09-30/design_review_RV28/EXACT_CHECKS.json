@@ -1,0 +1,222 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "rounding ties even at raw subnormals",
+      "pass": true
+    },
+    {
+      "name": "four-direction raw loss 1->0",
+      "pass": true,
+      "gap": "5 * 2^-978",
+      "relative_gap": "5/21"
+    },
+    {
+      "name": "post-coupling h/2 insufficient 0",
+      "pass": true
+    },
+    {
+      "name": "four-direction raw loss 0->1",
+      "pass": true,
+      "gap": "5 * 2^-978",
+      "relative_gap": "5/21"
+    },
+    {
+      "name": "post-coupling h/2 insufficient 1",
+      "pass": true
+    },
+    {
+      "name": "four-direction raw loss 3->2",
+      "pass": true,
+      "gap": "5 * 2^-978",
+      "relative_gap": "5/21"
+    },
+    {
+      "name": "post-coupling h/2 insufficient 2",
+      "pass": true
+    },
+    {
+      "name": "four-direction raw loss 2->3",
+      "pass": true,
+      "gap": "5 * 2^-978",
+      "relative_gap": "5/21"
+    },
+    {
+      "name": "post-coupling h/2 insufficient 3",
+      "pass": true
+    },
+    {
+      "name": "coupling underflow 1->0",
+      "pass": true
+    },
+    {
+      "name": "coupling underflow 0->1",
+      "pass": true
+    },
+    {
+      "name": "coupling underflow 3->2",
+      "pass": true
+    },
+    {
+      "name": "coupling underflow 2->3",
+      "pass": true
+    },
+    {
+      "name": "L=0 omits all coupling",
+      "pass": true
+    },
+    {
+      "name": "max switching",
+      "pass": true
+    },
+    {
+      "name": "O9 common membership includes zero excludes under/overflow",
+      "pass": true
+    },
+    {
+      "name": "same floor nonexpansive 0",
+      "pass": true
+    },
+    {
+      "name": "same floor nonexpansive 1/202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784",
+      "pass": true
+    },
+    {
+      "name": "same floor nonexpansive 1/101201126653655309176247673359458653524778324882071059178450679013715169783997673445980191850718562247593538932158405955694904368692896738433506699970369254960758712138283180682233453871046608170619883839236372534281003741712346349309051677824579778170405028256179384776166707307615251266093163754323003131653853870546747392",
+      "pass": true
+    },
+    {
+      "name": "same floor nonexpansive 1/709803441694928604052074031140629428079727891296209043243642772637343054798240159498233447962659731992932150006119314388217384402944",
+      "pass": true
+    },
+    {
+      "name": "same floor nonexpansive 10",
+      "pass": true
+    },
+    {
+      "name": "p512 positive floor/b -1074",
+      "pass": true,
+      "phi": "1 * 2^-1074",
+      "b": "1 * 2^-1073"
+    },
+    {
+      "name": "p512 positive floor/b -600",
+      "pass": true,
+      "phi": "1 * 2^-1038",
+      "b": "1 * 2^-1073"
+    },
+    {
+      "name": "p512 positive floor/b 0",
+      "pass": true,
+      "phi": "1 * 2^-438",
+      "b": "1 * 2^-502"
+    },
+    {
+      "name": "p512 positive floor/b 100",
+      "pass": true,
+      "phi": "1 * 2^-338",
+      "b": "1 * 2^-402"
+    },
+    {
+      "name": "A1 discontinuity actual b bits",
+      "pass": true
+    },
+    {
+      "name": "classification threshold tie",
+      "pass": true
+    },
+    {
+      "name": "zero bound iff zero certificate",
+      "pass": true
+    },
+    {
+      "name": "C17 direct source equilibrium",
+      "pass": true
+    },
+    {
+      "name": "C17 both radii fail",
+      "pass": true,
+      "error_over_b": "9 * 2^-3"
+    },
+    {
+      "name": "pure certificate omission discriminator formation",
+      "pass": true,
+      "omitted": "1 * 2^0",
+      "full": "115792089237316195423570985008687907853269984665640564039457584007913129640005 * 2^-256"
+    },
+    {
+      "name": "pure certificate omission discriminator W",
+      "pass": true,
+      "omitted": "1 * 2^0",
+      "full": "5 * 2^-2"
+    },
+    {
+      "name": "pure certificate omission discriminator W_rounding",
+      "pass": true,
+      "omitted": "1 * 2^0",
+      "full": "115792089237316195423570985008687907853269984665640564039457584007913129639937 * 2^-256"
+    },
+    {
+      "name": "pure certificate omission discriminator charge",
+      "pass": true,
+      "omitted": "1 * 2^0",
+      "full": "9 * 2^-3"
+    },
+    {
+      "name": "pure certificate omission discriminator W_plus",
+      "pass": true,
+      "omitted": "1 * 2^0",
+      "full": "17 * 2^-4"
+    },
+    {
+      "name": "pure certificate omission discriminator magnitude",
+      "pass": true,
+      "omitted": "1 * 2^0",
+      "full": "57896044618658097711785492504343953926634992332820282019728792003956564819969 * 2^-255"
+    },
+    {
+      "name": "candidate instead of actual publication discriminator",
+      "pass": true
+    },
+    {
+      "name": "rounded H unsafe",
+      "pass": true
+    },
+    {
+      "name": "qualified radius differs from bare",
+      "pass": true
+    },
+    {
+      "name": "relative public and protected are separate",
+      "pass": true
+    },
+    {
+      "name": "relative decimal exact cross product",
+      "pass": true
+    },
+    {
+      "name": "G5a lower bound honest synthetic failure",
+      "pass": true,
+      "lower": "1 * 2^-974",
+      "attested": "3 * 2^-976"
+    },
+    {
+      "name": "exact unit factor requires conversion radius",
+      "pass": true
+    },
+    {
+      "name": "unit transfer triangle",
+      "pass": true
+    },
+    {
+      "name": "span statics cancellation needs sum errors",
+      "pass": true
+    },
+    {
+      "name": "outward D2 qualified not single ulp at x=0",
+      "pass": true
+    }
+  ],
+  "count": 46,
+  "scope": "Exact independent algebra and synthetic certificate discriminators; no solver execution, no realized mutant kill claim."
+}

@@ -1,0 +1,29 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<WT>/a1/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<WT>/a1/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<WT>/a1/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<WT>/a1/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<WT>/a1/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<WT>/a1/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<WT>/a1/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<WT>/a1/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (<WT>/a1/projects/chirality-piping/core/solver/performance_harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.60s
+     Running tests/k6b_export.rs (<WT>/a1-target/debug/deps/k6b_export-9847e09a71ddaf09)
+        3.97 real         8.55 user         0.51 sys
+           505217024  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              202714  page reclaims
+                 400  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                  12  signals received
+                 268  voluntary context switches
+                2557  involuntary context switches
+           267421062  instructions retired
+           112776293  cycles elapsed
+             7274952  peak memory footprint

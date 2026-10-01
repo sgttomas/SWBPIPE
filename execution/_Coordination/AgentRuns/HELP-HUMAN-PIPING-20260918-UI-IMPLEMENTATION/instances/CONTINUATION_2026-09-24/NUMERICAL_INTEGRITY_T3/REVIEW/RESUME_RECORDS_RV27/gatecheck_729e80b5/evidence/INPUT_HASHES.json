@@ -1,0 +1,482 @@
+[
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/000_core_gui_viewport_editor_Cargo.toml.log",
+    "sha256": "ef7b0297f1e3fb43d8daa5efdee8335ae0ee1797359dec914bd482849f557c65",
+    "bytes": 1176
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/001_core_library_import_library_import_document_Cargo.toml.log",
+    "sha256": "0b0fc95851f9c3de28a8c4024fd91c15e13bbcc7ebab5524cdabe7c744d3e7ef",
+    "bytes": 2691
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/002_core_loads_load_case_algebra_Cargo.toml.log",
+    "sha256": "145be25bed7b59c7834450b785c7744eef6cb5e6a2555f94b9314505979944db",
+    "bytes": 2786
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/003_core_loads_primitive_loads_Cargo.toml.log",
+    "sha256": "9628f1dad25efe86d99b395708f64f0c0d5825e80b7b7ccba724b704cab144e0",
+    "bytes": 4599
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/004_core_loads_self_weight_wasm_Cargo.toml.log",
+    "sha256": "4d7f0c370e8061127e0dc5214fc9914c1dc158014a0559e03e1ccec0baa54654",
+    "bytes": 10545
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/005_core_loads_stress_recovery_Cargo.toml.log",
+    "sha256": "e2dcb42bf349ad130c60de10392a92928c749cc60498fb873a91c4d90a34d120",
+    "bytes": 4781
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/006_core_loads_user_loads_Cargo.toml.log",
+    "sha256": "f494745e29c381958c3e1619779f8adb4567d28ee28ac0c0ac7ff78383d462cc",
+    "bytes": 2963
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/007_core_model_operations_operation_applier_Cargo.toml.log",
+    "sha256": "537663bdd8b146c47d1607bfbb302d5f55ed5c6dff08619b2424ccf1013336b2",
+    "bytes": 25747
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/008_core_product_physics_Cargo.toml.log",
+    "sha256": "6398dc79ff3da05e09fcf3cdd49ecd327144b1b9de81cc243cc81832beb74ddb",
+    "bytes": 59794
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/009_core_reporting_audit_manifest_Cargo.toml.log",
+    "sha256": "b50892ce465f142260b5b4bac1a25f4eb01c82470d21364391667a1172e92bcd",
+    "bytes": 1653
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/010_core_reporting_pdf_emitter_Cargo.toml.log",
+    "sha256": "26706a2a3bc24c8e341ffa378eb1bc338f237f02dc1759e55f5c583801496cae",
+    "bytes": 2502
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/011_core_reporting_protected_content_linter_Cargo.toml.log",
+    "sha256": "1b438b4deb766c2ae99f883a017160a49f114f49f3ec7b5e8a51ccf1719edcc0",
+    "bytes": 3042
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/012_core_reporting_report_generator_Cargo.toml.log",
+    "sha256": "ee3227dc2ffbb8ee92b42a81713ca25f0da1daf84eec3c3f32a15432f97a0cee",
+    "bytes": 1395
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/013_core_reporting_report_package_Cargo.toml.log",
+    "sha256": "1c99e5aba5cb114e7c6a2930b1521bae71cfb9ef8e7b9f5f2a90121dc502eaa0",
+    "bytes": 3845
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/014_core_reporting_report_renderer_Cargo.toml.log",
+    "sha256": "2db482b0671493731c5446c56ea9b9e32d9f968e984bf563060b27fbe19b9bd4",
+    "bytes": 1928
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/015_core_reporting_report_sections_Cargo.toml.log",
+    "sha256": "f8797ad0ab45f2a8b39df461cbd8e4d1c08cfdb60fa005928ef7017adfd1e5b2",
+    "bytes": 1613
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/016_core_reporting_result_export_Cargo.toml.log",
+    "sha256": "d7aac24f9ad56bcafe3cff0b306a21d088d5d76b9f57419fdda0d98a5c833dcf",
+    "bytes": 10573
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/017_core_rules_completeness_checker_Cargo.toml.log",
+    "sha256": "a081b7fe805efca9d8f7c384550107e1f2c719df275af8a26b025552a03a1407",
+    "bytes": 1656
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/018_core_rules_expression_evaluator_Cargo.toml.log",
+    "sha256": "e36883014f67970dbee78a88c29d758f482784133b6a68840c0e8ea16e784b42",
+    "bytes": 3051
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/019_core_rules_rule_check_runner_Cargo.toml.log",
+    "sha256": "0a430f65910f11ae1ef4a992dc83c79660f31a4bb604ea7f6a8e5bef0c2d9626",
+    "bytes": 3902
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/020_core_rules_rule_pack_document_Cargo.toml.log",
+    "sha256": "248a6b9b6c875a84ec8b0a5ec54137717147931103eddeb80183b21508d07214",
+    "bytes": 2023
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/021_core_rules_rule_pack_lifecycle_Cargo.toml.log",
+    "sha256": "9592d06cf711ccdb8525e9a1ed35d1dee1d4402d4f0d273862dd1eee8ae76d55",
+    "bytes": 1550
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/022_core_runner_headless_Cargo.toml.log",
+    "sha256": "fcbdbac36a9a4883dc0cb303c028736bcf4bae21b969832b100f6a6b0745287d",
+    "bytes": 972422
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/023_core_serialization_canonical_json_Cargo.toml.log",
+    "sha256": "bfac6209ebf0121b6a71706d92ec07b531ebe982bf22b44984e193e1ea55a1f2",
+    "bytes": 3174
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/024_core_solver_curved_bend_Cargo.toml.log",
+    "sha256": "60b6634654140dc42570e46d85b5bc98e20d66b42580bf2bf2f62193e67e21db",
+    "bytes": 2557
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/025_core_solver_diagnostics_Cargo.toml.log",
+    "sha256": "b8ec24dc36fde2118988c8d62c2e4c66d1d27c392bf3045b8939d34b03c0db75",
+    "bytes": 2641
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/026_core_solver_frame_kernel_Cargo.toml.log",
+    "sha256": "4cfedaa4a8a5f0641ab363f2df56e2e2ff762dceba7e18759065e840e5b4a8f5",
+    "bytes": 44477
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/027_core_solver_linear_supports_Cargo.toml.log",
+    "sha256": "09b9d648cf2d423a3fafcda8e3f3daac8b18ba90ff21d6fec145e735166dfac7",
+    "bytes": 1792
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/028_core_solver_nonlinear_integration_Cargo.toml.log",
+    "sha256": "e7aeefa5a52da5aebe79280417f4f400114ca995c7065762eb5b910753afb1e5",
+    "bytes": 13035
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/029_core_solver_nonlinear_supports_Cargo.toml.log",
+    "sha256": "5380490bb93c30c1c9f3f3b49c697ae5aa282f96c4df9fc42551c2d1a107e695",
+    "bytes": 2484
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/030_core_solver_performance_harness_Cargo.toml.log",
+    "sha256": "97d17b2b2f285bc7b082c19b9399005952c31d7bd93721016b57027ac735ec20",
+    "bytes": 8152
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/031_core_solver_sparse_direct_Cargo.toml.log",
+    "sha256": "87277d0da2279cc88d8e591de61e9d2982c1703fd8e07a16eeb8967f4841523e",
+    "bytes": 2988
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/032_core_solver_straight_pipe_Cargo.toml.log",
+    "sha256": "9de8f6651615297c87ef39cee9dde4c0cbe489be76454b9c7415261c1568b6f6",
+    "bytes": 3971
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/033_core_units_Cargo.toml.log",
+    "sha256": "fc3aa302f4349cd84f40406a3d739106f59c2725fc90ca1689d55a58f15295a5",
+    "bytes": 2067
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/034_validation_benchmarks_mechanics_Cargo.toml.log",
+    "sha256": "dc26dfaa1cc2bea75faab71e2176e84cb1bea3ef30b1a7a479ef66813f2d28c9",
+    "bytes": 5662
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/035_validation_benchmarks_nonlinear_Cargo.toml.log",
+    "sha256": "1603979ca94f25627d1a6ea526209859d97feb1e373e87fc25850ad4653b6b4a",
+    "bytes": 2296
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/036_validation_benchmarks_numerical_integrity_Cargo.toml.log",
+    "sha256": "a527bd119db688fdb8e4219de7beb7b14ddf50c2fd277a92da1af70dd2626a68",
+    "bytes": 5960
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/037_validation_benchmarks_numerical_robustness_Cargo.toml.log",
+    "sha256": "59090146d7e44359056ba516f205499e22c4ef9b48dc024b39b4b577f8c8824d",
+    "bytes": 6091
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/038_validation_benchmarks_physics_audit_regression_Cargo.toml.log",
+    "sha256": "b7b62b455ee722e73519163cf369b306733a091214faab868c0e342faeb069ad",
+    "bytes": 7899
+  },
+  {
+    "origin": "<wt>/scratch/sweep_kf2/suites/039_validation_benchmarks_stress_Cargo.toml.log",
+    "sha256": "7bd794eb7f6971e70fd34e7ff94e89205448b17f9d36ade655a0fd542660b2d6",
+    "bytes": 3430
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/000_core_gui_viewport_editor_Cargo.toml.log",
+    "sha256": "20d499a824123c6ae79954ea8b7ca64f3513ba7ea041db873a61f74828ab54de",
+    "bytes": 982
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/001_core_library_import_library_import_document_Cargo.toml.log",
+    "sha256": "b91c98fde1510a4ef7ddfa0b2c1be4390c02a21c676ca1e8a09adbe46e0d11ef",
+    "bytes": 2150
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/002_core_loads_load_case_algebra_Cargo.toml.log",
+    "sha256": "0677728499167283b7a626809c37e980efebf7a75660c7daabf8ecf5ba17d11a",
+    "bytes": 1972
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/003_core_loads_primitive_loads_Cargo.toml.log",
+    "sha256": "2797c3b2ab6719165a0be93ade7a4b8880c4ad0a5c2c5e82b68a915bcbbadaaa",
+    "bytes": 4403
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/004_core_loads_self_weight_wasm_Cargo.toml.log",
+    "sha256": "f075981c32ea41c485e64f803817baa53ea3d923ebed3de69325eb5d60602578",
+    "bytes": 31956
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/005_core_loads_stress_recovery_Cargo.toml.log",
+    "sha256": "19a08100dc1bfd3d005d166d316c5cba08a8c4715d96a5200959c0d448b2b085",
+    "bytes": 4585
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/006_core_loads_user_loads_Cargo.toml.log",
+    "sha256": "72360a7a340177944290c5f7864b66634d3f910f9e1bd742819567068e8d8321",
+    "bytes": 2777
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/007_core_model_operations_operation_applier_Cargo.toml.log",
+    "sha256": "2cbd1fc95a0f36c9de917dd4766eb5c9467e151769b4c0ed72fccba13d9d1a68",
+    "bytes": 25058
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/008_core_product_physics_Cargo.toml.log",
+    "sha256": "7830fd28b4a9e18bfac033a0fe9d566610a72cd8018cbfdd103101bfba589f07",
+    "bytes": 59478
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/009_core_reporting_audit_manifest_Cargo.toml.log",
+    "sha256": "b43dd0d52fa1563347d3186ab85c4c406080b1fad1f9036a21960bfcf0cbc57f",
+    "bytes": 1663
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/010_core_reporting_pdf_emitter_Cargo.toml.log",
+    "sha256": "31e47fe3383dd09562ebf643c8365ec54561423501d6eaeab07b5c9b89475c53",
+    "bytes": 2522
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/011_core_reporting_protected_content_linter_Cargo.toml.log",
+    "sha256": "6ad4704266538bdfff62ebac3c28df40a0e690db8101174605737aa154e10e64",
+    "bytes": 3072
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/012_core_reporting_report_generator_Cargo.toml.log",
+    "sha256": "af9f4c8eb8fe08d2b8d9083151de560cee27e813dde39259ba54e67a2ff205b8",
+    "bytes": 1405
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/013_core_reporting_report_package_Cargo.toml.log",
+    "sha256": "f040d30a0cfedb2080b4df69e84a95f477a3734e6bc7bdc43a125f5d45ab2fc5",
+    "bytes": 3865
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/014_core_reporting_report_renderer_Cargo.toml.log",
+    "sha256": "4beb08985da085fe8aec92cf8011ad029b9a8c9b31c3fe2061aa20d52fb9b67f",
+    "bytes": 1948
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/015_core_reporting_report_sections_Cargo.toml.log",
+    "sha256": "78d88bfec87f6ca33408b212552f01129018ab2f7da49bd9ead7d4dfcf206c79",
+    "bytes": 1623
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/016_core_reporting_result_export_Cargo.toml.log",
+    "sha256": "df8346ef7d91fe224a19b7103e207b433d830ef2d3b176a0249d29648663b1cb",
+    "bytes": 10663
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/017_core_rules_completeness_checker_Cargo.toml.log",
+    "sha256": "47f0e8cfe3f1e807d2f5668a9bb9ae05bb17d01e455b630b81b8d2a5293e56fe",
+    "bytes": 1666
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/018_core_rules_expression_evaluator_Cargo.toml.log",
+    "sha256": "baec7bb0f03dc7421af4533514a2ea142b5563dee876cffdf9509f5a65c7a2d0",
+    "bytes": 3071
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/019_core_rules_rule_check_runner_Cargo.toml.log",
+    "sha256": "d22cf1925048e49b8d44a9cbe2982170212082038ea4de04806c5506c39b18a0",
+    "bytes": 3932
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/020_core_rules_rule_pack_document_Cargo.toml.log",
+    "sha256": "48c4e7b981267f68870111f5c7b80a33ff94f4041ac156f85b197c4fcc52dc73",
+    "bytes": 2053
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/021_core_rules_rule_pack_lifecycle_Cargo.toml.log",
+    "sha256": "3bf9ee358ddbd4bc42f59480fc14dbd3c0cf0d757436708237c8ca0463853b06",
+    "bytes": 1560
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/022_core_runner_headless_Cargo.toml.log",
+    "sha256": "8b8b5024bc9543b5f51f95ff6dfdf9a540846a2804f7f10f99a25f944be15eb4",
+    "bytes": 972492
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/023_core_serialization_canonical_json_Cargo.toml.log",
+    "sha256": "32ca5376c76736119b7554deb052c1dde8325e013a4d15c8ffece34521c9ea75",
+    "bytes": 3214
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/024_core_solver_curved_bend_Cargo.toml.log",
+    "sha256": "2439525defc34818c9dd60a84f9cde2e6a25328e23daca3786ef4872f9aa2203",
+    "bytes": 2567
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/025_core_solver_diagnostics_Cargo.toml.log",
+    "sha256": "420e336ebcdfeebd73f55748d67fa5617272b91f760436f2e65c0e59ec679608",
+    "bytes": 2651
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/026_core_solver_frame_kernel_Cargo.toml.log",
+    "sha256": "d51056afe89200899ca352cf578ba09d2138ea25e2e74475d7b0aa69e6a4d6da",
+    "bytes": 44557
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/027_core_solver_linear_supports_Cargo.toml.log",
+    "sha256": "eb0585cf0b3230b8ac8bdde5b1150883f5101bd44b405bf3e2d7840cd1273539",
+    "bytes": 1802
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/028_core_solver_nonlinear_integration_Cargo.toml.log",
+    "sha256": "f084bd3908b37082fcbe734cdad5b415b73900748802efac7d5af57f13f8a5d3",
+    "bytes": 13046
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/029_core_solver_nonlinear_supports_Cargo.toml.log",
+    "sha256": "288311d03b99ec2ce887c7734ff3977f0b09cdaf7e1f4538e252d6fe42eaab1c",
+    "bytes": 2494
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/030_core_solver_performance_harness_Cargo.toml.log",
+    "sha256": "789ba2657c69e4f402d233ab2ec6a6133e0cea544c4f6201e30a1f8494d106f6",
+    "bytes": 8263
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/031_core_solver_sparse_direct_Cargo.toml.log",
+    "sha256": "75aba41185d71e306b998027b99f56a1b71d6d3f3bcf7341b3824884ec186376",
+    "bytes": 2998
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/032_core_solver_straight_pipe_Cargo.toml.log",
+    "sha256": "a252b5471fd67ad0b9d909b2415f8b79105789dd460fb83e063f5b400467ab4f",
+    "bytes": 3981
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/033_core_units_Cargo.toml.log",
+    "sha256": "cc70fe33bc4088ed692579ea9951bc78f2a2b90cc78072cd87548aff8249fb45",
+    "bytes": 2077
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/034_validation_benchmarks_mechanics_Cargo.toml.log",
+    "sha256": "ef774f57a97d9fb0bf25292f906caf2dbd7d5e09e48eaf5b4fdc92c295ae4eb3",
+    "bytes": 5672
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/035_validation_benchmarks_nonlinear_Cargo.toml.log",
+    "sha256": "af4a26f9d40634c9750493111203ffe3c59b4f026b54a119f7638b68e64d84e0",
+    "bytes": 2306
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/036_validation_benchmarks_numerical_integrity_Cargo.toml.log",
+    "sha256": "bcf73b86e6264ddb2e4d6c0e534133c457e20b62c8db0e6a6dfe962eb8c17cef",
+    "bytes": 5970
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/037_validation_benchmarks_numerical_robustness_Cargo.toml.log",
+    "sha256": "001df03223d3b1e45ede9e395dea5c9a650449a401882fbf24f3e6494784e7e0",
+    "bytes": 6191
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/038_validation_benchmarks_physics_audit_regression_Cargo.toml.log",
+    "sha256": "ec550ee0dc9371ba626898fa2837e3ba95fe9899ca7b7b4843dbad46b36833a0",
+    "bytes": 7919
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/039_validation_benchmarks_stress_Cargo.toml.log",
+    "sha256": "54b2279a07d64fc2f91b4e7cea871f33727ad727445a095006acd8ab4e7383e8",
+    "bytes": 3440
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/self_weight_wasm_isolated/run.log",
+    "sha256": "62e66b63941bca893238bdea99b738b827abb7de1485ca6c15582c5f530b395a",
+    "bytes": 12040
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites_vs_baseline.txt",
+    "sha256": "67f4d8c0f7db3bcdab6d6d1b90bb1e049b38315ff3f56b45ad8a561c5fdb1708",
+    "bytes": 961
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/self_weight_wasm_isolated/DISPOSITION.json",
+    "sha256": "ce465f622dbb881afc0434ca7ceed00a018161af16c721b7333e20b16ef82f4a",
+    "bytes": 930
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/self_weight_wasm_isolated/tree.txt",
+    "sha256": "253fdc905252a2a152af9f4b86554e481e8da5c9744e82275efd1be6d8ddee21",
+    "bytes": 10274
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/suites/004_core_loads_self_weight_wasm_Cargo.toml.log",
+    "sha256": "f075981c32ea41c485e64f803817baa53ea3d923ebed3de69325eb5d60602578",
+    "bytes": 31956
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/SWEEP_20261001T052810Z_729e80b5c2a3.json",
+    "sha256": "1b6a269f02cfe43aae8b0691d1ed54b71395f8f4a52451f6a3fa629c5a4a1de5",
+    "bytes": 2410
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/surfaces.txt",
+    "sha256": "a76cfddf9da1dc692b17c395aa3adee411496449b8c0c048c6f307b2abf9d355",
+    "bytes": 437
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/meta.txt",
+    "sha256": "77f42391ec042782b8994dbf2d3d3e74fa941409052320c3c451d1f8a1279fee",
+    "bytes": 170
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/python_pytest.log",
+    "sha256": "52a76e010fd4bbd737b7ef26a5b5307ea41b9b6b34b70ec306eab468d6349b23",
+    "bytes": 3653
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/desktop_vitest_build_wasm.log",
+    "sha256": "65bcc4746b58f633df16f0e58caa25d4a504ce6cc80c8fd30c19f16810d5c198",
+    "bytes": 860
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/desktop_vitest.log",
+    "sha256": "8aa862534c04f145245580f69a1791451114d43ade23ff3880ee247c0c55aeb4",
+    "bytes": 2137555
+  },
+  {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/desktop_production_build.log",
+    "sha256": "e1f13148e4987e967ea95967305fd58c924927a6ed8cd9a091b4c9673160f1f7",
+    "bytes": 2079
+  },
+  {
+    "origin": "<wt>/scratch/root-resume-20260930/records-harness-729e80b5.log",
+    "sha256": "1b3821e602aa5e5db994c51d84b12f0a1e3253857fcc09d95cdeed774d95363a",
+    "bytes": 511
+  },
+  {
+    "origin": "<wt>/scratch/root-resume-20260930/DEC025_INVOCATION.json",
+    "sha256": "fdd736f55b047b3220e6b1d256f0fcc0cc2b98e40481d6448ac49d68111b81c9",
+    "bytes": 877
+  },
+  {
+    "origin": "<wt>/scratch/root-resume-20260930/dec025_mac_4x2.sh",
+    "sha256": "026c6c87c581cc97ee7958a85b810b584f8fa2a5c7b103d8f5e7b06ea7a6f2e5",
+    "bytes": 1431
+  },
+  {
+    "origin": "<wt>/scratch/root-resume-20260930/run_suites_nff_4x2.sh",
+    "sha256": "38d9eb236b2bc1a0c2b3e4901147319a737d51c0de87ceddb4bd6430ac1d0947",
+    "bytes": 1370
+  }
+]

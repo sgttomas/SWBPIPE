@@ -1,0 +1,356 @@
+{
+  "grant": {
+    "cmd": "GIT_OPTIONAL_LOCKS=0 git show 45c2a03f45d1123ccdcfae57e208a535ee1d5d9c:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I22_IMPLEMENTATION_A.md",
+    "chunk_id": "00c29d",
+    "wall_time_seconds": 0.000009833,
+    "exit_code": 0,
+    "original_token_count": 1193,
+    "output": "# I22 checkpoint A — bounded SI kernel implementation grant (ROOT, 2026-10-01)\n\nROOT selects DESIGN_PROPOSAL.md plus design_a1/addendum_01/CORRECTION.md,\nas independently verified by RV28 and its backcheck. Original proposal SHA256\n926dea73178b0ecde07203fdf7fc85e5ce752b1a5f6ead7cf31a30673249b178;\ncorrection 30c907589e80a60407acc139a5805d9941b5df1a5b9dd5a2f1dc845159bae80a;\nbackcheck 1a71f9b5d4adb9fa85ad26a850e117f1f8f4d306e4b7529a4ca0f19d21172247.\nThe choice is bare-b conservative certification, not qualified/outward public\nradii or a changed physical domain. No additional owner permission is required\nfor this already accepted direction. A1 stays BLOCKING until corrected code is\nindependently verified and merged; F2a qualification remains separate and held.\n\nThe verified implementation_0 plan is approved with its accounting addendum:\nPLAN cc18d71ac1ebe1533ecd022a7807f794062d8fd7cf6f8e27a6804ab0e5e111d8;\nplan seal 61c0ecebd66c7ad2516dc3f0d2df375247ea51f449dd8bd757392cd2e7a77125;\naccounting clarification c37f2e12e82633fca52f363493e19293679484fb00bc4266f1aed91ccf5b87e2.\nROOT has merged current main into the A1 checkout at\n0ce33d7e89a306cfc01f3ce29f421f4dbd02e716; numerical source is unchanged.\nUse that as implementation starting HEAD, recording the actual read.\n\n## Exact maintained write set\n\nOnly these four files, plus additive I22/implementation_a/** and owned scratch:\n- P/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n- P/core/solver/frame_kernel/src/structural.rs\n- P/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs (new)\n- P/core/solver/performance_harness/tests/k6b_export.rs\n\nNothing else, including verify.rs, exact_sum.rs, existing protected tests/oracles,\nVR snapshots/expected-unresolved, H estimates, schemas, unit/interval engine,\nlibraries, CI, instructions or tools. Return an exact dependency before expansion.\n\nROOT reserves corrected kernel policy M03-INTEGRITY-MP-v2 in the existing\nadaptive.rs exported POLICY / RetainedEvidence.policy mechanism. METHOD_TOKEN\nstays contribution_preserving_multiprecision_v1. No separate maintained registry\nwas found; do not invent one. Old v1 evidence is never relabelled certified.\nLater F2a/D2 must recognize the corrected policy explicitly before reliance.\n\nAuthorize the plan's typed PublicationPredicate/CertificateIssue and numeric\nPublicationEnclosure versus terminal PublicationCertificate semantics, reexports\nonly as needed. Keep old rejection/terminal precedence and precision ceiling.\nThe Arc-bound prep/verification-state bundle is approved as the smallest actual\npairing invariant; validate layout/row/precision/source identity before indexing.\n\nUse exactly the reviewed H/error formulas, bare b, public relative predicate\nand min(A_exact,A_f64); all old R7 gates remain first and unchanged.\nCertify final prescribed-replaced provisional publication; move the exact draft\nplus private RU64(H) Box into RetainedSolve. Sentinel is absence, not infinity\nas allowance. Preserve the reviewed zero/subnormal/overflow and clone semantics.\nNo report retention/recompute or public radius field/accessor is granted.\n\nRV28-N1 is mandatory: account for new helper/clone/product-reaches work and\nscratch on success/rejection/stop, excluding inherited counters once, preserving\nthe 19-stage schema, exact case/invocation identities and budget precedence.\nKeep the explicitly disclosed legacy ExactAccumulator boundary; no unrelated\ninstrumentation or invented LME prices. Frozen independent absolute-work\nledgers from the plan addendum must precede reliance on accounting tests.\nNo self-reported counter may serve as its own oracle.\n\n## Checkpoint and runtime boundary\n\nThis grants source/test authoring and formatting of those exact owned files only.\nNo Cargo build, Rust test, solver case, new probe, mutant, generator --write,\nobservation refresh, scale job or host-tool operation yet. ROOT will grant a\nbounded build/test slot after source checkpoint / current isolated gate check.\nDo not silently run checks while writing. Use GIT_OPTIONAL_LOCKS=0 for reads.\n\nReturn the small core diff, file hashes, APIs/accounting/lifetimes and unrun tests.\nNo test/repair pass is implied by authored tests. A code or criterion conflict\ncomes back immediately; a protected ordinary availability change is not resolved\nby changing a fixture, tolerance or accepted outcome. Independent source review\nwill be a fresh reviewer distinct from designer, RV28 and I22.\n\nThe three new fixed source controls in the test plan still require independent\nraw-input truth before acceptance; ROOT routes that oracle work. Embedding their\nproposed raw primitives is allowed, but do not invent expected results or claim\nthem verified. C17/B truth stays frozen. Preserve all old evidence.\n\n"
+  },
+  "initial": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "head",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git rev-parse HEAD",
+        "chunk_id": "554a77",
+        "wall_time_seconds": 0.000006334,
+        "exit_code": 0,
+        "original_token_count": 11,
+        "output": "0ce33d7e89a306cfc01f3ce29f421f4dbd02e716\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "status",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git status --short",
+        "chunk_id": "d066ae",
+        "wall_time_seconds": 0.214269333,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "numeric-diff",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --exit-code d01ad98a754698631f927709d08284c272de85e8 -- projects/chirality-piping/core/solver/frame_kernel projects/chirality-piping/core/solver/performance_harness",
+        "chunk_id": "def9e1",
+        "wall_time_seconds": 0.000007167,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "grant-hash",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git show 45c2a03f45d1123ccdcfae57e208a535ee1d5d9c:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I22_IMPLEMENTATION_A.md | shasum -a 256",
+        "chunk_id": "4dd849",
+        "wall_time_seconds": 0.000008542,
+        "exit_code": 0,
+        "original_token_count": 17,
+        "output": "4edcfc56d22a839cf9e4fdaba4c5474c35fa3becc12a1fc9e359255a1a94e597  -\n"
+      }
+    }
+  ],
+  "read_commands": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "top",
+        "cmd": "sed -n '1,65p' projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "chunk_id": "3d2a22",
+        "wall_time_seconds": 0.000007583,
+        "exit_code": 0,
+        "original_token_count": 960,
+        "output": "//! K4: the adaptive schedule, the stop rule, the scales, the classification,\n//! budgets and the evidence (T3 D1 §4.1.6, §4.1.6.1, §4.1.7, §5 item 1).\n//!\n//! - **Schedule.** \"Candidates at p = 128, 256 and 512, each verified at 2p. The\n//!   ceiling is 1024 bits.\" \"The verification solve at 2p repeats formation\n//!   from the binary64 operands.\" \"A rejected 128 candidate's 256 verification\n//!   becomes the next candidate … at most four solves.\" Widths (K3 ruling 8):\n//!   128 and 256 at L = 4, 512 at L = 8, 1024 at L = 16; the residuals at p + 64\n//!   (192, 320, 576) at L = 4, 8, 16; the ceiling's residual at 1024 (ROOT's Q4).\n//! - **Solve and refinement** (D1 §4.1.4): the residual against K re-formed at\n//!   p + 64 from the same primitives, each r_i one exact expansion of the ledger\n//!   terms and the products, gated exactly against 64·γ_p(m_i) with M03's\n//!   coalesced denominator; at most three corrections with the p-factor, each\n//!   right-hand side rounded once from its exact sum.\n//! - **Stop rule**: \"|q_p − q_2p| ≤ 2^-64 · max(|q_2p|, S*)\" on every published\n//!   quantity, compared exactly, with S\\* per body and kind formed at 2p (the\n//!   coupling of §4.1.6.1 item 6, the products and quotients rounded once at 2p).\n//! - **Classification** on the published binary64 values with the pinned\n//!   binary64 formulas of §4.1.6.1 (R = 2^-34, t = fl(R·S\\*), b = fl↑(2^-64·S\\*),\n//!   S\\* < 2^-988 → `absolute_verified`), rule 2a for restrained and prescribed\n//!   DOFs, and the per-member stress scales for F2a's product rows.\n//! - **Budgets** (ROOT's K4 ruling Q5, amended): the per-case and\n//!   per-invocation limits are required parameters with no default; K4 ships\n//!   no numeric limit. Work is counted in limb-multiply equivalents per attempt;\n//!   \"successful, failed and verification work is all charged\".\n//! - **Factor reuse** (D1 §4.1.7): cases with the same stiffness identity share\n//!   formation, assembly, ordering and the p-factor per precision. Each case's\n//!   limit counts the full shared work; the invocation meter counts it once.\nuse super::assemble::{\n    assemble, assemble_bounded, form_directional, form_members, reduced_rhs, BoundedCoefficients,\n    DirectionalBlock, MemberOperators, Structure,\n};\nuse super::bound::{block_refusals, free_blocks, BlockRatios, BlockRefusal, FreeBlocks};\nuse super::directed::binary64_up;\nuse super::factor::{\n    geometry_first, order_free, BodyGeometry, GeometryRefusal, Ordering, RetainedFactor,\n};\nuse super::ledger::{LedgerRefusal, RetainedLedger};\nuse super::recover::{\n    layout, publish_value, recover, state_encoding, Kind, QuantityId, QuantityMeta, Recovered,\n};\nuse super::source::{put_u32, put_u64, Dof, PrimitiveSource};\nuse super::verify::{\n    build_verify_shared, e_hat, phi_512, verify_state, VerificationReport, VerifyShared,\n};\nuse super::wide::multi::{AttemptWork, Binary64Outcome, SupportedWidth, WideContext};\nuse super::wide::{Wide, WideError};\nuse super::wide_sum::{ExactWideSum, SumRefusal, SumWork};\nuse crate::exact_sum::ExactAccumulator;\nuse crate::structural::StructuralError;\nuse std::cmp::Ordering as CmpOrdering;\nuse std::sync::Arc;\n\n/// Proposed method token (a placeholder for ROOT, D1 §4.1).\npub const METHOD_TOKEN: &str = \"contribution_preserving_multiprecision_v1\";\n/// Proposed policy (a placeholder for ROOT).\npub const POLICY: &str = \"M03-INTEGRITY-MP-v1\";\n/// The label D1 §4.1.3 gives the published condition estimate.\npub const RCOND_LABEL: &str =\n    \"sensitivity to matrix-entry perturbation, not to authored parameters\";\n/// The solve precisions: candidates 128, 256, 512; the ceiling 1024.\npub const PRECISIONS: [u32; 4] = [128, 256, 512, 1024];\n/// R = 2^-34.\npub const FLOOR_RATIO_BITS: u64 = 0x3DD0_0000_0000_0000;\n/// k√2, the nearest double to √2 (≥ √2).\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "rejections",
+        "cmd": "sed -n '2915,2980p' projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "chunk_id": "3f631f",
+        "wall_time_seconds": 0.000009417,
+        "exit_code": 0,
+        "original_token_count": 548,
+        "output": "    }\n    match p {\n        128 => run!(&mut cache.s128, 4, 4, 192, P128),\n        256 => run!(&mut cache.s256, 4, 8, 320, P256),\n        512 => run!(&mut cache.s512, 8, 16, 576, P512),\n        _ => run!(&mut cache.s1024, 16, 16, 1024, P1024),\n    }\n}\n\n/// An attempt's reason for a rejection by `decide`.\nfn rejection_reason(\n    rejection: Option<Rejection>,\n    layout: &[QuantityMeta],\n    group: &GroupPrep,\n) -> AttemptReason {\n    let row = |index: usize| layout[index];\n    match rejection {\n        Some(Rejection::StopRule { index }) => AttemptReason::StopRule {\n            quantity: row(index).id,\n            body: row(index).body,\n            kind: row(index).kind,\n        },\n        Some(Rejection::VerificationEstimate { index }) => AttemptReason::VerificationEstimate {\n            quantity: row(index).id,\n            body: row(index).body,\n            kind: row(index).kind,\n        },\n        Some(Rejection::Uc { block }) => AttemptReason::Uc {\n            body: group.blocks.body[block],\n        },\n        Some(Rejection::Theta { block }) => AttemptReason::Theta {\n            body: group.blocks.body[block],\n        },\n        Some(Rejection::GValidity { member }) => AttemptReason::GValidity { member },\n        Some(Rejection::Charge { index }) => AttemptReason::Charge {\n            quantity: row(index).id,\n            body: row(index).body,\n            kind: row(index).kind,\n        },\n        None => AttemptReason::VerificationFailed,\n    }\n}\n\n/// The verification's shared data at a precision: reused from the cache, or\n/// built (and cached) here; as `obtain`. The last item is a failed build's\n/// Uc_c refusals (RV23-1; empty on success, whose are in `uc`).\n#[allow(clippy::type_complexity)]\nfn obtain_verify<const L: usize, const R: usize, const W: usize>(\n    slot: &mut VerifySlot<VerifyShared<L, W>>,\n    shared: &Shared<L, R>,\n    source: &PrimitiveSource,\n    group: &GroupPrep,\n    guard: StageGuard,\n) -> (\n    Result<Arc<VerifyShared<L, W>>, AttemptStop>,\n    u64,\n    bool,\n    StageWork,\n    Vec<BlockRefusal>,\n)\nwhere\n    Wide<L>: SupportedWidth,\n    Wide<R>: SupportedWidth,\n    Wide<W>: SupportedWidth,\n{\n    if let Some(cached) = slot {\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "test-support",
+        "cmd": "sed -n '1,100p' projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+        "chunk_id": "886d0e",
+        "wall_time_seconds": 0.00001,
+        "exit_code": 0,
+        "original_token_count": 890,
+        "output": "//! K4 tests of S\\* and the classification (the brief's J), bit for bit against\n//! the generator's binary64 reimplementation (`classification.txt`).\n//!\n//! S\\*-dependent assertions (every test here; to be updated mechanically if\n//! D1 revision 5a.3 changes S\\*): `SD-J1` the seeded and targeted row sets'\n//! classes, bounds and body scales; `SD-J2` S8-W's far-node rows.\nuse super::super::recover::QuantityId;\nuse super::super::source::Dof;\nuse super::*;\n\n#[allow(dead_code)]\n#[path = \"support.rs\"]\nmod support;\n\n#[allow(dead_code)]\n#[path = \"models.rs\"]\nmod models;\n\nconst VECTORS: &str = include_str!(\"classification.txt\");\n\nfn hex(h: &str) -> f64 {\n    f64::from_bits(u64::from_str_radix(h, 16).unwrap())\n}\n\nfn outcome(token: &str) -> Binary64Outcome {\n    match token {\n        \"U+\" => Binary64Outcome::Underflow { negative: false },\n        \"U-\" => Binary64Outcome::Underflow { negative: true },\n        \"O+\" => Binary64Outcome::Overflow { negative: false },\n        \"O-\" => Binary64Outcome::Overflow { negative: true },\n        _ => {\n            let (kind, bits) = token.split_once(':').unwrap();\n            let value = hex(bits);\n            if kind == \"N\" {\n                Binary64Outcome::Normal(value)\n            } else {\n                Binary64Outcome::Subnormal {\n                    value,\n                    relative_precision: 0.0,\n                }\n            }\n        }\n    }\n}\n\nfn class(token: &str) -> RowClass {\n    match token {\n        \"I\" => RowClass::InputDerived,\n        \"R\" => RowClass::RelativeVerified,\n        \"U\" => RowClass::Unpublishable,\n        _ => RowClass::AbsoluteVerified {\n            bound_bits: u64::from_str_radix(&token[2..], 16).unwrap(),\n        },\n    }\n}\n\n#[test]\nfn the_classification_matches_the_binary64_reimplementation_bit_for_bit() {\n    // SD-J1.\n    let mut sets = 0;\n    let mut counts = [0usize; 4];\n    let mut layout = Vec::new();\n    let mut values = Vec::new();\n    let mut expected = Vec::new();\n    let mut scales: Vec<(u32, Kind, u64)> = Vec::new();\n    let mut extents = Vec::new();\n    for line in VECTORS.lines() {\n        let f: Vec<&str> = line.split_whitespace().collect();\n        match f[0] {\n            \"set\" => {\n                layout.clear();\n                values.clear();\n                expected.clear();\n                scales.clear();\n                extents = f[3..].iter().map(|h| hex(h)).collect();\n            }\n            \"row\" => {\n                layout.push(QuantityMeta {\n                    id: QuantityId::Displacement(Dof::from_global(layout.len())),\n                    kind: Kind::ALL[f[1].parse::<usize>().unwrap()],\n                    body: f[2].parse().unwrap(),\n                    input_derived: f[3] == \"1\",\n                });\n                values.push(outcome(f[4]));\n                expected.push(class(f[5]));\n            }\n            \"scales\" => {\n                let b: u32 = f[1].parse().unwrap();\n                for (k, h) in f[2..].iter().enumerate() {\n                    scales.push((b, Kind::ALL[k], u64::from_str_radix(h, 16).unwrap()));\n                }\n            }\n            \"end\" => {\n                let publication = classify_rows(&layout, &values, &extents);\n                let got: Vec<RowClass> = publication.rows.iter().map(|r| r.class).collect();\n                assert_eq!(got, expected, \"set {sets}\");\n                assert_eq!(publication.body_scales, scales, \"set {sets}\");\n                for c in &got {\n                    counts[match c {\n                        RowClass::RelativeVerified => 0,\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "export-test",
+        "cmd": "cat projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs",
+        "chunk_id": "a795e1",
+        "wall_time_seconds": 0.00001175,
+        "exit_code": 0,
+        "original_token_count": 1390,
+        "output": "//! K6b A0: the public path to K4's W1a method is sufficient (T3 K6b brief,\n//! Scope 1; ROOT's rulings on K6b's A0 and V-K's Q8).\n//!\n//! Every exported name is imported from `structural::retained_api`, outside\n//! FK, so an item missing from the facade fails this test's build. One invented\n//! case is then built from `SourceParts`, solved through `solve_case`, and a\n//! published row and an attempt's `StageWork` are read.\n//!\n//! Invented inputs, stated here: a cantilever of two 1 m members along x;\n//! E = 2e11, G = 8e10, A = 0.01, Iy = Iz = 8e-6, J = 1.6e-5 (the harness's\n//! invented section); node 0 fully restrained; a tip force Fy = -1000 at node 2.\n//! No time or memory bound is asserted.\n\n#[allow(unused_imports)]\nuse open_pipe_stress_frame_kernel::structural::retained_api::{\n    absolute_bound, body_extent, classify, classify_rows, classify_rows_floored, coupled_scales,\n    e_hat, intensified_k, layout, phi_512, resolution_hats, reverse_cuthill_mckee, solve_case,\n    solve_cases, stress_scale, threshold, AttemptOutcome, AttemptReason, AttemptRecord,\n    AttemptRole, AttemptStop, AttemptWork, Binary64Outcome, BodyGeometry, BudgetScope, CaseLimit,\n    CaseOutcome, CombinationOutcome, CombinationReason, Component, Constraint, DirectionalSpring,\n    Dof, End, GateTest, InvocationMeter, Kind, LedgerRefusal, MemberProperty, NodalLoad,\n    PrimitiveSource, Publication, PublishedRow, QuantityId, QuantityMeta, Refusal,\n    RetainedCombination, RetainedEvidence, RetainedSolve, RowClass, SourceError, SourceParts,\n    Spring, SpringKind, StageWork, Station, StorageCounts, StraightMember, SumWork, SupportGroup,\n    UnresolvedReason, VerificationSummary, WideError, WidthWork, FLOOR_RATIO_BITS, K_SQRT2_BITS,\n    K_TWO_SQRT2_BITS, METHOD_TOKEN, PHI_SCALE_BITS, POLICY, PRECISIONS, RCOND_LABEL,\n};\n\nconst E: f64 = 2.0e11;\nconst G: f64 = 8.0e10;\nconst AREA: f64 = 0.01;\nconst I: f64 = 8.0e-6;\nconst J: f64 = 1.6e-5;\nconst TIP_FORCE: f64 = -1000.0;\n\nfn member(id: u32, node_i: u32, node_j: u32) -> StraightMember {\n    StraightMember {\n        id,\n        node_i,\n        node_j,\n        elastic_modulus: E,\n        shear_modulus: G,\n        area: AREA,\n        second_moment_y: I,\n        second_moment_z: I,\n        torsion_constant: J,\n        y_reference: [0.0, 1.0, 0.0],\n    }\n}\n\nfn cantilever() -> PrimitiveSource {\n    let parts = SourceParts {\n        nodes: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [2.0, 0.0, 0.0]],\n        members: vec![member(1, 0, 1), member(2, 1, 2)],\n        constraints: Component::ALL\n            .iter()\n            .map(|&component| Constraint {\n                dof: Dof { node: 0, component },\n                value: 0.0,\n            })\n            .collect(),\n        loads: vec![NodalLoad {\n            dof: Dof {\n                node: 2,\n                component: Component::Uy,\n            },\n            value: TIP_FORCE,\n            source_id: \"tip\".to_string(),\n        }],\n        stations: vec![Station {\n            id: 1,\n            member: 2,\n            fraction: 0.5,\n        }],\n        ..SourceParts::default()\n    };\n    PrimitiveSource::new(parts).expect(\"the invented cantilever is a valid source\")\n}\n\n#[test]\nfn a_source_built_outside_fk_is_solved_and_read_through_the_public_path() {\n    let source = cantilever();\n    assert_eq!(source.dof_count(), 18);\n    assert_eq!(source.free_dofs().len(), 12);\n    let tip_uy = Dof {\n        node: 2,\n        component: Component::Uy,\n    };\n    assert_eq!(Dof::from_global(tip_uy.global()), tip_uy);\n    assert_eq!(Component::from_index(Component::Uy.index()), Component::Uy);\n\n    let mut meter = InvocationMeter::new(u64::MAX);\n    let outcome = solve_case(source, CaseLimit::new(u64::MAX), &mut meter);\n    let solve: Box<RetainedSolve> = match outcome {\n        CaseOutcome::Selected(solve) => solve,\n        other => panic!(\"the invented cantilever is not selected: {other:?}\"),\n    };\n    assert!(PRECISIONS.contains(&solve.selected_precision()));\n    assert!(meter.charged() > 0 && !meter.exhausted());\n\n    // A published row: the tip deflection, against the exact Euler–Bernoulli\n    // value P·L³/(3EI) = -1/600 m (a sanity check at 1e-9 relative, not the\n    // row's claim).\n    let publication: &Publication = solve.publish();\n    let row: &PublishedRow = publication\n        .rows\n        .iter()\n        .find(|r| r.id == QuantityId::Displacement(tip_uy))\n        .expect(\"the tip deflection is published\");\n    assert_eq!(row.kind, Kind::Translation);\n    assert!(matches!(\n        row.class,\n        RowClass::RelativeVerified | RowClass::AbsoluteVerified { .. }\n    ));\n    let value = row.value.value().expect(\"a binary64 value\");\n    let exact = -1.0 / 600.0;\n    assert!((value - exact).abs() <= 1e-9 * exact.abs(), \"{value}\");\n\n    // An attempt's work by stage and its storage counts.\n    let evidence: &RetainedEvidence = solve.evidence();\n    assert_eq!(evidence.method, METHOD_TOKEN);\n    assert_eq!(evidence.policy, POLICY);\n    let first: &AttemptRecord = &evidence.attempts[0];\n    assert_eq!(first.precision, PRECISIONS[0]);\n    let own: &StageWork = &first.stages;\n    let shared: &StageWork = &first.shared_stages;\n    assert!(own.solve > 0 && own.recovery > 0);\n    assert!(shared.formation > 0 && shared.factor > 0);\n    let storage: StorageCounts = first.storage;\n    assert_eq!(storage.limbs_per_entry, 4);\n    assert!(storage.pattern_entries > 0 && storage.profile_entries > 0);\n    assert!(first.work.limb_multiply_equivalents() > 0);\n    assert!(first.k4_work.limb_multiply_equivalents() > 0);\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "worktypes",
+        "cmd": "sed -n '90,115p' projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+        "chunk_id": "972724",
+        "wall_time_seconds": 0.000009417,
+        "exit_code": 0,
+        "original_token_count": 240,
+        "output": "\nimpl SumWork {\n    pub fn limb_multiply_equivalents(&self) -> u64 {\n        self.term_limbs\n            .saturating_add(self.shift_limbs)\n            .saturating_add(self.net_limbs)\n            .saturating_add(self.rounded_limbs)\n    }\n\n    pub(crate) fn merge(&mut self, other: &Self) {\n        self.term_limbs = self.term_limbs.saturating_add(other.term_limbs);\n        self.shift_limbs = self.shift_limbs.saturating_add(other.shift_limbs);\n        self.net_limbs = self.net_limbs.saturating_add(other.net_limbs);\n        self.rounded_limbs = self.rounded_limbs.saturating_add(other.rounded_limbs);\n        self.max_span_bits = self.max_span_bits.max(other.max_span_bits);\n    }\n}\n\ntype Magnitude = [u64; SUM_LIMBS];\n\n/// The exact signed sum of its terms (module documentation).\n#[derive(Clone)]\npub(crate) struct ExactWideSum {\n    positive: Magnitude,\n    negative: Magnitude,\n    /// Exponent of bit 0 of both magnitudes (meaningful when not empty).\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "exact-ratio-helper",
+        "cmd": "sed -n '432,462p' projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "chunk_id": "739bc5",
+        "wall_time_seconds": 0.000007292,
+        "exit_code": 0,
+        "original_token_count": 274,
+        "output": "    Up,\n    Down,\n}\n\n/// c·den ≥ num (exact), for c a nonnegative binary64.\nfn product_reaches(c: f64, den: &ExactWideSum, num: &ExactWideSum) -> Result<bool, AttemptStop> {\n    let mut t = ExactWideSum::new();\n    if c != 0.0 {\n        let bits = c.to_bits();\n        let biased = ((bits >> 52) & 0x7ff) as i64;\n        let fraction = bits & ((1u64 << 52) - 1);\n        let (significand, lsb) = if biased == 0 {\n            (fraction, -1074)\n        } else {\n            (fraction | (1u64 << 52), biased - 1075)\n        };\n        t.add_scaled(den, false, significand, lsb)?;\n    }\n    t.add_scaled(num, true, 1, 0)?;\n    Ok(t.signum() >= 0)\n}\n\n/// num/den rounded to binary64 in the given direction (num ≥ 0, den > 0, both\n/// exact): the least binary64 ≥ the quotient (Up) or the largest ≤ it (Down).\n/// The approximation (both rounded to 1024 bits, divided) is corrected with\n/// exact comparisons, so the result is exactly the directed rounding.\npub(crate) fn directed_ratio(\n    ctx: &mut WideContext<16>,\n    num: &ExactWideSum,\n    den: &ExactWideSum,\n    direction: Direction,\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "basic-Wide",
+        "cmd": "sed -n '820,870p' projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+        "chunk_id": "5a23a6",
+        "wall_time_seconds": 0.00000675,
+        "exit_code": 0,
+        "original_token_count": 413,
+        "output": "        Ok(Self {\n            negative,\n            exponent,\n            significand,\n        })\n    }\n\n    /// (negative, exponent of the leading bit, little-endian significand):\n    /// the canonical limbs (D1 §4.1.8's retained-state digest).\n    #[allow(dead_code)] // K4 API\n    pub(crate) fn parts(&self) -> (bool, i64, [u64; L]) {\n        (self.negative, self.exponent, self.significand)\n    }\n\n    /// The exact value of a finite binary64 number, including subnormals and\n    /// the sign of zero. NaN and infinities are refused.\n    #[allow(dead_code)] // K4 API\n    pub(crate) fn from_f64(value: f64) -> Result<Self, WideError> {\n        if !value.is_finite() {\n            return Err(WideError::NonFinite);\n        }\n        let bits = value.to_bits();\n        let negative = bits >> 63 != 0;\n        let biased = ((bits >> 52) & 0x7ff) as i64;\n        let fraction = bits & ((1u64 << 52) - 1);\n        let (integer, lsb) = match (biased, fraction) {\n            (0, 0) => return Ok(signed_zero(negative)),\n            (0, f) => (f, -1074),\n            (b, f) => (f | (1u64 << 52), b - 1075),\n        };\n        let lz = integer.leading_zeros();\n        let mut significand = [0u64; L];\n        significand[L - 1] = integer << lz;\n        Ok(Self {\n            negative,\n            exponent: lsb + 63 - i64::from(lz),\n            significand,\n        })\n    }\n\n    #[allow(dead_code)] // K4 API\n    pub(crate) fn is_zero(&self) -> bool {\n        is_zero_value(self)\n    }\n\n    #[allow(dead_code)] // K4 API\n    pub(crate) fn is_sign_negative(&self) -> bool {\n        self.negative\n    }\n\n    /// Exponent of the leading bit (0 for zero).\n"
+      }
+    }
+  ],
+  "formatting": [
+    {
+      "cmd": "env RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 \"$HOME/.cargo/bin/rustfmt\" --edition 2021 --config skip_children=true projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs projects/chirality-piping/core/solver/frame_kernel/src/structural.rs projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs",
+      "chunk_id": "690a15",
+      "wall_time_seconds": 0.131289,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "env RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 \"$HOME/.cargo/bin/rustfmt\" --edition 2021 --config skip_children=true projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs projects/chirality-piping/core/solver/frame_kernel/src/structural.rs projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs",
+      "chunk_id": "024650",
+      "wall_time_seconds": 0.071807583,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "static_inspection": [
+    [
+      {
+        "status": "fulfilled",
+        "value": {
+          "id": "status",
+          "cmd": "GIT_OPTIONAL_LOCKS=0 git status --short",
+          "chunk_id": "174694",
+          "wall_time_seconds": 0.2453695,
+          "exit_code": 0,
+          "original_token_count": 193,
+          "output": " M projects/chirality-piping/core/solver/frame_kernel/src/structural.rs\n M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n M projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs\n?? projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/manager/implementation_a/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_03_source_controls/\n"
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "id": "stat",
+          "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --stat",
+          "chunk_id": "dd5b10",
+          "wall_time_seconds": 0.128595583,
+          "exit_code": 0,
+          "original_token_count": 64,
+          "output": " .../core/solver/frame_kernel/src/structural.rs     |   8 +-\n .../src/structural/retained/adaptive.rs            | 934 ++++++++++++++++++++-\n .../solver/performance_harness/tests/k6b_export.rs |  41 +-\n 3 files changed, 931 insertions(+), 52 deletions(-)\n"
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "id": "diff-check",
+          "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --check",
+          "chunk_id": "740d52",
+          "wall_time_seconds": 0.128352917,
+          "exit_code": 0,
+          "original_token_count": 0,
+          "output": ""
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "id": "integration",
+          "cmd": "sed -n '3930,4160p' projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "chunk_id": "d85255",
+          "wall_time_seconds": 0.000006042,
+          "exit_code": 0,
+          "original_token_count": 2307,
+          "output": "                        return finish_terminal(&stop, attempts, geometry);\n                    }\n                }\n            }\n        };\n        let verification_p = PRECISIONS[c + 1];\n        let (result, mut record) =\n            solve_precision(verification_p, &prep, &group, cache, &mut budget, meter);\n        record.role = AttemptRole::Verification;\n        attempts.push(record);\n        let v_index = attempts.len() - 1;\n        let verification = match result {\n            Ok(state) => {\n                states.push(state.clone());\n                state\n            }\n            Err(stop) => {\n                attempts[candidate_index].outcome =\n                    AttemptOutcome::Rejected(AttemptReason::VerificationFailed);\n                attempts[v_index].outcome =\n                    AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));\n                if stop.escalates() {\n                    // The failed verification cannot be the next candidate.\n                    c += 2;\n                    continue;\n                }\n                return finish_terminal(&stop, attempts, geometry);\n            }\n        };\n        // D1 revision 5a.3: the verification pass (charged to the verification).\n        let report = match verify_precision(\n            &verification,\n            &prep,\n            &group,\n            cache,\n            &mut budget,\n            meter,\n            &mut attempts[v_index],\n        ) {\n            Ok(report) => report,\n            Err(stop) => {\n                attempts[candidate_index].outcome =\n                    AttemptOutcome::Rejected(AttemptReason::VerificationFailed);\n                attempts[v_index].outcome =\n                    AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));\n                return finish_terminal(&stop, attempts, geometry);\n            }\n        };\n        let guard = StageGuard {\n            base: 0,\n            case_room: budget.limit.saturating_sub(budget.used),\n            invocation_room: meter.room(),\n        };\n        if let Err(stop) = validate_publication_pair(&prep, &candidate, &verification, &report) {\n            attempts[candidate_index].outcome =\n                AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));\n            return finish_terminal(&stop, attempts, geometry);\n        }\n        let decision = compare_states(\n            &prep.layout,\n            &prep.extents,\n            &candidate,\n            &verification,\n            &report.report,\n            guard,\n        );\n        // V-K seeded fault VK-F06 (§7.3-6): the candidate accepted whatever the\n        // verification's verdict (accepted on the pivot screen alone).\n        #[cfg(any(test, feature = \"mutation-controls\"))]\n        let decision = if super::seeded::active(super::seeded::Fault::F06)\n            && matches!(decision.result, Ok(false))\n        {\n            StopDecision {\n                result: Ok(true),\n                ..decision\n            }\n        } else {\n            decision\n        };\n        {\n            let record = &mut attempts[candidate_index];\n            record.stop_rule_work += decision.total;\n            record.stages.stop_rule += decision.total;\n            record.work.merge(&decision.work);\n            record.k4_work.merge(&decision.sum_work);\n        }\n        budget.used = budget.used.saturating_add(decision.total);\n        meter.charge(decision.total);\n        match decision.result {\n            Err(stop) => {\n                attempts[candidate_index].outcome =\n                    AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));\n                return finish_terminal(&stop, attempts, geometry);\n            }\n            Ok(true) => {\n                let publication_guard = StageGuard {\n                    base: 0,\n                    case_room: budget.limit.saturating_sub(budget.used),\n                    invocation_room: meter.room(),\n                };\n                let certificate = certify_publication(\n                    &prep,\n                    &candidate,\n                    &verification,\n                    &report,\n                    decision.floor.as_deref(),\n                    publication_guard,\n                );\n                let record = &mut attempts[candidate_index];\n                record.stop_rule_work = record.stop_rule_work.saturating_add(certificate.total);\n                record.stages.stop_rule = record.stages.stop_rule.saturating_add(certificate.total);\n                record.work.merge(&certificate.work);\n                record.k4_work.merge(&certificate.sums);\n                budget.used = budget.used.saturating_add(certificate.total);\n                meter.charge(certificate.total);\n                match certificate.result {\n                    Err(stop) => {\n                        attempts[candidate_index].outcome =\n                            AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));\n                        return finish_terminal(&stop, attempts, geometry);\n                    }\n                    Ok(PublicationDecision::Accepted(publication)) => {\n                        attempts[candidate_index].outcome = AttemptOutcome::Accepted;\n                        attempts[v_index].outcome = AttemptOutcome::Verified;\n                        return finish_selected(\n                            prep,\n                            group,\n                            cache.clone(),\n                            states,\n                            &candidate,\n                            verification_p,\n                            attempts,\n                            &decision,\n                            &report.report,\n                            publication,\n                            geometry,\n                        );\n                    }\n                    Ok(PublicationDecision::Rejected { index, predicate }) => {\n                        let row = prep.layout[index];\n                        attempts[candidate_index].outcome =\n                            AttemptOutcome::Rejected(AttemptReason::PublicationEnclosure {\n                                quantity: row.id,\n                                body: row.body,\n                                kind: row.kind,\n                                predicate,\n                            });\n                        #[cfg(any(test, feature = \"mutation-controls\"))]\n                        if super::seeded::active(super::seeded::Fault::F05) {\n                            return CaseOutcome::Unresolved {\n                                reason: UnresolvedReason::Ceiling,\n                                attempts,\n                                geometry,\n                            };\n                        }\n                        if c + 1 < 3 {\n                            attempts[v_index].role = AttemptRole::VerificationThenCandidate;\n                            pending = Some((verification, v_index));\n                        }\n                        c += 1;\n                    }\n                }\n            }\n            Ok(false) => {\n                attempts[candidate_index].outcome = AttemptOutcome::Rejected(rejection_reason(\n                    decision.rejection,\n                    &prep.layout,\n                    &group,\n                ));\n                // V-K seeded fault VK-F05 (§7.3-5): no escalation after a\n                // rejected candidate.\n                #[cfg(any(test, feature = \"mutation-controls\"))]\n                if super::seeded::active(super::seeded::Fault::F05) {\n                    return CaseOutcome::Unresolved {\n                        reason: UnresolvedReason::Ceiling,\n                        attempts,\n                        geometry,\n                    };\n                }\n                if c + 1 < 3 {\n                    attempts[v_index].role = AttemptRole::VerificationThenCandidate;\n                    pending = Some((verification, v_index));\n                }\n                c += 1;\n            }\n        }\n    }\n    CaseOutcome::Unresolved {\n        reason: UnresolvedReason::Ceiling,\n        attempts,\n        geometry,\n    }\n}\n\nfn finish_terminal(\n    stop: &AttemptStop,\n    attempts: Vec<AttemptRecord>,\n    geometry: Vec<BodyGeometry>,\n) -> CaseOutcome {\n    match terminal(stop) {\n        Ok(reason) => CaseOutcome::Unresolved {\n            reason,\n            attempts,\n            geometry,\n        },\n        Err(refusal) => CaseOutcome::Refused { refusal, geometry },\n    }\n}\n\n#[allow(clippy::too_many_arguments)]\nfn finish_selected(\n    prep: Arc<CasePrep>,\n    group: Arc<GroupPrep>,\n    cache: GroupCache,\n    states: Vec<PrecisionState>,\n    selected: &PrecisionState,\n    verification_precision: u32,\n    attempts: Vec<AttemptRecord>,\n    decision: &StopDecision,\n    report: &VerificationState,\n    certified: CertifiedPublication,\n    geometry: Vec<BodyGeometry>,\n) -> CaseOutcome {\n    if !Arc::ptr_eq(&prep, &certified.prep) || selected.precision() != certified.precision {\n        return finish_terminal(\n            &certificate_error(None, CertificateIssue::PairIdentity),\n            attempts,\n            geometry,\n        );\n    }\n    // The certified bytes are moved, never re-rounded/reclassified here.\n"
+        }
+      }
+    ],
+    [
+      {
+        "status": "fulfilled",
+        "value": {
+          "id": "bound-match",
+          "cmd": "sed -n '295,328p' projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+          "chunk_id": "612207",
+          "wall_time_seconds": 0.000008583,
+          "exit_code": 0,
+          "original_token_count": 242,
+          "output": "pub(crate) fn refusable<T>(\n    result: Result<T, AttemptStop>,\n    sum: &mut ExactWideSum,\n    slot: &mut Option<BoundRefusal>,\n    pass: BoundPass,\n    row: usize,\n) -> Result<Option<T>, AttemptStop> {\n    match result {\n        Ok(v) => Ok(Some(v)),\n        Err(stop) => {\n            let kind = refusal_kind(stop)?;\n            sum.reset();\n            record(slot, kind, pass, row);\n            Ok(None)\n        }\n    }\n}\n\n/// A refusal's kind, or the stop itself when it is not a refusal (A2).\npub(crate) fn refusal_kind(stop: AttemptStop) -> Result<RefusalKind, AttemptStop> {\n    match stop {\n        AttemptStop::Span => Ok(RefusalKind::Span),\n        AttemptStop::Exponent => Ok(RefusalKind::Exponent),\n        other => Err(other),\n    }\n}\n\n/// Keeps a block's first refusal.\nfn record(slot: &mut Option<BoundRefusal>, kind: RefusalKind, pass: BoundPass, row: usize) {\n    if slot.is_none() {\n        *slot = Some(BoundRefusal { kind, pass, row });\n    }\n}\n\n"
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "id": "verify-binding",
+          "cmd": "sed -n '3808,3885p' projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "chunk_id": "0f6e1b",
+          "wall_time_seconds": 0.000010125,
+          "exit_code": 0,
+          "original_token_count": 803,
+          "output": "            ),\n        };\n    }\n    let spent = build_verify_shared::<L, R, W>(shared, source, group, guard);\n    match spent.result {\n        Ok(v) => {\n            let v = Arc::new(v);\n            *slot = Some(Ok(v.clone()));\n            (Ok(v), spent.total, true, spent.stages, Vec::new())\n        }\n        Err(stop) => {\n            if !matches!(stop, AttemptStop::Budget(_)) {\n                *slot = Some(Err((\n                    stop.clone(),\n                    spent.total,\n                    spent.stages.clone(),\n                    spent.refusals.clone(),\n                )));\n            }\n            (Err(stop), spent.total, true, spent.stages, spent.refusals)\n        }\n    }\n}\n\n/// D1 revision 5a.3's verification pass on a solved verification state: the\n/// shared verification data (built or reused) and the case's own pass, both\n/// charged to the verification attempt, the case budget and the meter (the\n/// shared data once against the invocation).\nfn verify_precision(\n    state: &PrecisionState,\n    prep: &Arc<CasePrep>,\n    group: &Arc<GroupPrep>,\n    cache: &mut GroupCache,\n    budget: &mut CaseBudget,\n    meter: &mut InvocationMeter,\n    record: &mut AttemptRecord,\n) -> Result<BoundVerification, AttemptStop> {\n    let case_room = budget.limit.saturating_sub(budget.used);\n    let invocation_room = meter.room();\n    let guard = StageGuard {\n        base: 0,\n        case_room,\n        invocation_room,\n    };\n    macro_rules! run {\n        ($slot:expr, $vslot:expr, $L:literal, $R:literal, $W:literal, $solved:expr, $variant:ident) => {{\n            let shared = match $slot {\n                Some(Ok(shared)) => shared.clone(),\n                _ => unreachable!(\"a solved state's shared stages are cached\"),\n            };\n            let (vs, vs_total, built, vs_stages, vs_refusals) =\n                obtain_verify::<$L, $R, $W>($vslot, &shared, &prep.source, group, guard);\n            record.verification_shared_work = vs_total;\n            record.verification_shared_built_here = built;\n            record.shared_stages.add(&vs_stages);\n            let invocation_spent = if built { vs_total } else { 0 };\n            budget.used = budget.used.saturating_add(vs_total);\n            meter.charge(invocation_spent);\n            // RV23-1: a stopped shared build's Uc_c refusals reach the record\n            // before its stop propagates.\n            if vs.is_err() {\n                record.bound_refusals = vs_refusals;\n            }\n            let vs = vs?;\n            // Amendment A2: the shared build's Uc_c refusals, per block.\n            record.bound_refusals = block_refusals(&vs.uc, &[]);\n            if vs_total > case_room {\n                return Err(AttemptStop::Budget(BudgetScope::Case));\n            }\n            let own_guard = StageGuard {\n                base: 0,\n                case_room: case_room - vs_total,\n                invocation_room: invocation_room.saturating_sub(invocation_spent),\n            };\n            let spent = verify_state::<$L, $R, $W>(&shared, &vs, prep, group, $solved, own_guard);\n            record.work.merge(&spent.work);\n            record.k4_work.merge(&spent.sum_work);\n            record.stages.add(&spent.stages);\n"
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "id": "publication-shared",
+          "cmd": "sed -n '2650,2740p' projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "chunk_id": "22c3b5",
+          "wall_time_seconds": 0.000008875,
+          "exit_code": 0,
+          "original_token_count": 767,
+          "output": "pub fn classify_rows(\n    layout: &[QuantityMeta],\n    values: &[Binary64Outcome],\n    extents: &[f64],\n) -> Publication {\n    classify_rows_floored(layout, values, extents, None)\n}\n\n/// `classify_rows` with item 6a (D1 revision 5a.3): when the selected\n/// precision is 512, `floor` holds Φ_fo and Φ_mo per body, applied after item\n/// 6's coupling and before items 7 and 8.\npub fn classify_rows_floored(\n    layout: &[QuantityMeta],\n    values: &[Binary64Outcome],\n    extents: &[f64],\n    floor: Option<&[[f64; 2]]>,\n) -> Publication {\n    publication_with(layout, values, extents, floor, |x, s| Ok(classify(x, s)))\n        .expect(\"the public classification closure is infallible\")\n}\n\n/// One publication algorithm for both the public pure helper and the metered\n/// production gate. Shape and finite metadata are checked by the latter's caller.\nfn publication_with(\n    layout: &[QuantityMeta],\n    values: &[Binary64Outcome],\n    extents: &[f64],\n    floor: Option<&[[f64; 2]]>,\n    mut classify_row: impl FnMut(f64, f64) -> Result<RowClass, AttemptStop>,\n) -> Result<Publication, AttemptStop> {\n    let mut s = vec![[0.0f64; 4]; extents.len()];\n    for (meta, v) in layout.iter().zip(values) {\n        if meta.input_derived {\n            continue;\n        }\n        if let Some(x) = v.value() {\n            let slot = &mut s[meta.body as usize][meta.kind.index()];\n            *slot = slot.max(x.abs());\n        }\n    }\n    let scales: Vec<[f64; 4]> = s\n        .iter()\n        .zip(extents)\n        .enumerate()\n        .map(|(b, (&s, &e))| {\n            let mut c = coupled_scales(s, e);\n            if let Some(phi) = floor {\n                c[Kind::Force.index()] = c[Kind::Force.index()].max(phi[b][0]);\n                c[Kind::Moment.index()] = c[Kind::Moment.index()].max(phi[b][1]);\n            }\n            c\n        })\n        .collect();\n    let rows = layout\n        .iter()\n        .zip(values)\n        .map(|(meta, v)| {\n            let class = if meta.input_derived {\n                RowClass::InputDerived\n            } else if let Some(x) = v.value() {\n                classify_row(x, scales[meta.body as usize][meta.kind.index()])?\n            } else {\n                RowClass::Unpublishable\n            };\n            Ok(PublishedRow {\n                id: meta.id,\n                kind: meta.kind,\n                body: meta.body,\n                value: *v,\n                class,\n            })\n        })\n        .collect::<Result<Vec<_>, AttemptStop>>()?;\n    let body_scales = scales\n        .iter()\n        .enumerate()\n        .flat_map(|(b, s)| {\n            Kind::ALL\n                .iter()\n                .map(move |&k| (b as u32, k, s[k.index()].to_bits()))\n        })\n        .collect();\n    Ok(Publication { rows, body_scales })\n}\n\n// ------------------------------------------------------------ SI publication certificate\n\nconst ABSENT_RADIUS_BITS: u64 = 0x7ff0_0000_0000_0000;\n\nfn certificate_error(index: Option<usize>, issue: CertificateIssue) -> AttemptStop {\n    AttemptStop::PublicationCertificate { index, issue }\n"
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "id": "newfile-lines",
+          "cmd": "wc -l projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+          "chunk_id": "f88240",
+          "wall_time_seconds": 0.000010333,
+          "exit_code": 0,
+          "original_token_count": 25,
+          "output": "     476 projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs\n"
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "id": "scoped-diff",
+          "cmd": "GIT_OPTIONAL_LOCKS=0 git diff -- projects/chirality-piping/core/solver/frame_kernel/src/structural.rs projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs",
+          "chunk_id": "0c4278",
+          "wall_time_seconds": 0.000007166,
+          "exit_code": 0,
+          "original_token_count": 1283,
+          "output": "diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs b/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs\nindex 47c7bbfc4b..ad574ac81d 100644\n--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs\n+++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs\n@@ -12,10 +12,10 @@ pub mod retained_api {\n         absolute_bound, body_extent, classify, classify_rows, classify_rows_floored,\n         coupled_scales, intensified_k, solve_case, solve_cases, stress_scale, threshold,\n         AttemptOutcome, AttemptReason, AttemptRecord, AttemptRole, AttemptStop, BudgetScope,\n-        CaseLimit, CaseOutcome, GateTest, InvocationMeter, Publication, PublishedRow, Refusal,\n-        RetainedEvidence, RetainedSolve, RowClass, StageWork, StorageCounts, UnresolvedReason,\n-        VerificationSummary, FLOOR_RATIO_BITS, K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN,\n-        POLICY, PRECISIONS, RCOND_LABEL,\n+        CaseLimit, CaseOutcome, CertificateIssue, GateTest, InvocationMeter, Publication,\n+        PublicationPredicate, PublishedRow, Refusal, RetainedEvidence, RetainedSolve, RowClass,\n+        StageWork, StorageCounts, UnresolvedReason, VerificationSummary, FLOOR_RATIO_BITS,\n+        K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN, POLICY, PRECISIONS, RCOND_LABEL,\n     };\n     pub use super::retained::bound::{\n         BlockRefusal, BoundPass, BoundRefusal, CertifiedBound, RefusalKind,\ndiff --git a/projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs b/projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs\nindex de3f7386b8..d19fecd259 100644\n--- a/projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs\n+++ b/projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs\n@@ -17,13 +17,14 @@ use open_pipe_stress_frame_kernel::structural::retained_api::{\n     e_hat, intensified_k, layout, phi_512, resolution_hats, reverse_cuthill_mckee, solve_case,\n     solve_cases, stress_scale, threshold, AttemptOutcome, AttemptReason, AttemptRecord,\n     AttemptRole, AttemptStop, AttemptWork, Binary64Outcome, BodyGeometry, BudgetScope, CaseLimit,\n-    CaseOutcome, CombinationOutcome, CombinationReason, Component, Constraint, DirectionalSpring,\n-    Dof, End, GateTest, InvocationMeter, Kind, LedgerRefusal, MemberProperty, NodalLoad,\n-    PrimitiveSource, Publication, PublishedRow, QuantityId, QuantityMeta, Refusal,\n-    RetainedCombination, RetainedEvidence, RetainedSolve, RowClass, SourceError, SourceParts,\n-    Spring, SpringKind, StageWork, Station, StorageCounts, StraightMember, SumWork, SupportGroup,\n-    UnresolvedReason, VerificationSummary, WideError, WidthWork, FLOOR_RATIO_BITS, K_SQRT2_BITS,\n-    K_TWO_SQRT2_BITS, METHOD_TOKEN, PHI_SCALE_BITS, POLICY, PRECISIONS, RCOND_LABEL,\n+    CaseOutcome, CertificateIssue, CombinationOutcome, CombinationReason, Component, Constraint,\n+    DirectionalSpring, Dof, End, GateTest, InvocationMeter, Kind, LedgerRefusal, MemberProperty,\n+    NodalLoad, PrimitiveSource, Publication, PublicationPredicate, PublishedRow, QuantityId,\n+    QuantityMeta, Refusal, RetainedCombination, RetainedEvidence, RetainedSolve, RowClass,\n+    SourceError, SourceParts, Spring, SpringKind, StageWork, Station, StorageCounts,\n+    StraightMember, SumWork, SupportGroup, UnresolvedReason, VerificationSummary, WideError,\n+    WidthWork, FLOOR_RATIO_BITS, K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN, PHI_SCALE_BITS,\n+    POLICY, PRECISIONS, RCOND_LABEL,\n };\n \n const E: f64 = 2.0e11;\n@@ -120,6 +121,7 @@ fn a_source_built_outside_fk_is_solved_and_read_through_the_public_path() {\n     let evidence: &RetainedEvidence = solve.evidence();\n     assert_eq!(evidence.method, METHOD_TOKEN);\n     assert_eq!(evidence.policy, POLICY);\n+    assert_eq!(POLICY, \"M03-INTEGRITY-MP-v2\");\n     let first: &AttemptRecord = &evidence.attempts[0];\n     assert_eq!(first.precision, PRECISIONS[0]);\n     let own: &StageWork = &first.stages;\n@@ -132,3 +134,28 @@ fn a_source_built_outside_fk_is_solved_and_read_through_the_public_path() {\n     assert!(first.work.limb_multiply_equivalents() > 0);\n     assert!(first.k4_work.limb_multiply_equivalents() > 0);\n }\n+\n+#[test]\n+fn publication_failure_reasons_are_typed_at_the_public_boundary() {\n+    let predicate = PublicationPredicate::AbsoluteBound;\n+    let reason = AttemptReason::PublicationEnclosure {\n+        quantity: QuantityId::Displacement(Dof::from_global(0)),\n+        body: 0,\n+        kind: Kind::Translation,\n+        predicate,\n+    };\n+    assert!(matches!(reason, AttemptReason::PublicationEnclosure { .. }));\n+    let stop = AttemptStop::PublicationCertificate {\n+        index: Some(0),\n+        issue: CertificateIssue::MissingField,\n+    };\n+    assert!(matches!(stop, AttemptStop::PublicationCertificate { .. }));\n+    let unresolved = UnresolvedReason::PublicationCertificate {\n+        index: None,\n+        issue: CertificateIssue::PairIdentity,\n+    };\n+    assert!(matches!(\n+        unresolved,\n+        UnresolvedReason::PublicationCertificate { .. }\n+    ));\n+}\n"
+        }
+      }
+    ]
+  ],
+  "diff_capture": [
+    {
+      "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --binary 0ce33d7e89a306cfc01f3ce29f421f4dbd02e716 -- projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs projects/chirality-piping/core/solver/frame_kernel/src/structural.rs projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs > <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/implementation_a/CORE.diff",
+      "chunk_id": "7de2cf",
+      "wall_time_seconds": 0.000006625,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --no-index -- /dev/null projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs >> <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/implementation_a/CORE.diff",
+      "chunk_id": "3272d8",
+      "wall_time_seconds": 0.00000675,
+      "exit_code": 1,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "final_checks": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "paths",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --name-only",
+        "chunk_id": "9ed50b",
+        "wall_time_seconds": 0.085827,
+        "exit_code": 0,
+        "original_token_count": 59,
+        "output": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs\nprojects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\nprojects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "new-test",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git status --short -- projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs projects/chirality-piping/core/solver/frame_kernel/src/structural.rs projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs",
+        "chunk_id": "6b571e",
+        "wall_time_seconds": 0.000006833,
+        "exit_code": 0,
+        "original_token_count": 84,
+        "output": " M projects/chirality-piping/core/solver/frame_kernel/src/structural.rs\n M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n M projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs\n?? projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "test-count",
+        "cmd": "rg -c '^#\\[test\\]' projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+        "chunk_id": "b05ac9",
+        "wall_time_seconds": 0.000006375,
+        "exit_code": 0,
+        "original_token_count": 1,
+        "output": "11\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "diff-check",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --check",
+        "chunk_id": "0baec4",
+        "wall_time_seconds": 0.087431208,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    }
+  ],
+  "file_hashes": {
+    "cmd": "shasum -a 256 projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs projects/chirality-piping/core/solver/frame_kernel/src/structural.rs projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs",
+    "chunk_id": "2a9d32",
+    "wall_time_seconds": 0.000008084,
+    "exit_code": 0,
+    "original_token_count": 147,
+    "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d  projects/chirality-piping/core/solver/frame_kernel/src/structural.rs\nc313d0fc3a0908b79d3332aa5c1f3892cbe3d606e06131f946acdc55baadc25b  projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs\ned06e8ab04a78be8f9a13b6aff9f227e0a7cbfb0d3cc044d9d451430b0023f68  projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs\n"
+  },
+  "authoring": "apply_patch within the four granted maintained paths only. One cleanup patch initially missed its formatted import context; corrected with exact context before final formatting. No build/test/solver execution.",
+  "tool_scope": "rustfmt skip_children=true only; no cargo fmt/module recursion. Git queries all explicitly GIT_OPTIONAL_LOCKS=0."
+}

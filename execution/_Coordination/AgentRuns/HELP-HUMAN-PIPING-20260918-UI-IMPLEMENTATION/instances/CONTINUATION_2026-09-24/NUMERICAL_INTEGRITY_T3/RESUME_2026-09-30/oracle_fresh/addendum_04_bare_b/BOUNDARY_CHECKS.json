@@ -1,0 +1,374 @@
+{
+  "scope": "Exact synthetic predicate boundaries and metadata around one existing B01 source; no new primitive cases or repaired outputs",
+  "checks": [
+    {
+      "name": "zero_exact",
+      "pass": true,
+      "details": {
+        "error": {
+          "significand": "0",
+          "exponent2": 0
+        },
+        "bare_b": {
+          "significand": "0",
+          "exponent2": 0
+        },
+        "bare_b_pass": true
+      }
+    },
+    {
+      "name": "zero_bound_nonzero_error",
+      "pass": true,
+      "details": {
+        "error": {
+          "significand": "1",
+          "exponent2": -1075
+        },
+        "bare_b": {
+          "significand": "0",
+          "exponent2": 0
+        },
+        "bare_b_pass": false
+      }
+    },
+    {
+      "name": "subnormal_bound_equality",
+      "pass": true,
+      "details": {
+        "error": {
+          "significand": "1",
+          "exponent2": -1074
+        },
+        "bare_b": {
+          "significand": "1",
+          "exponent2": -1074
+        },
+        "bare_b_pass": true
+      }
+    },
+    {
+      "name": "subnormal_bound_just_outside",
+      "pass": true,
+      "details": {
+        "error": {
+          "significand": "18446744073709551617",
+          "exponent2": -1138
+        },
+        "bare_b": {
+          "significand": "1",
+          "exponent2": -1074
+        },
+        "bare_b_pass": false
+      }
+    },
+    {
+      "name": "normal_bound_equality",
+      "pass": true,
+      "details": {
+        "error": {
+          "significand": "1",
+          "exponent2": 0
+        },
+        "bare_b": {
+          "significand": "1",
+          "exponent2": 0
+        },
+        "bare_b_pass": true
+      }
+    },
+    {
+      "name": "historical_multiplier_cannot_pass",
+      "pass": true,
+      "details": {
+        "error": {
+          "significand": "8388609",
+          "exponent2": -23
+        },
+        "bare_b": {
+          "significand": "1",
+          "exponent2": 0
+        },
+        "bare_b_pass": false
+      }
+    },
+    {
+      "name": "A_f64_smaller_only_exact_would_miss",
+      "pass": true,
+      "details": {
+        "error": {
+          "significand": "44964272878297023690019045320867330547256302225365112510949819932579868627331488958607734354622669874576511473396491555572157224403773349895413758406757702813432008307986562686735485332802959434968058606426490512399138494627485592563383557613705976625527551234043810658586943880521042158426347682384970776577",
+          "exponent2": -1075
+        },
+        "public_allowance": {
+          "numerator": "1",
+          "denominator": "1000000000"
+        },
+        "public_pass": true,
+        "sharper_exact_allowance": {
+          "significand": "22482136439148511845009522660433665273628151112682556255474909966289934313665744479303867177311334937288255736698245777786078612201886674947706879203378851406716004153993281343367742666401479717484029303213245256199569247313742796281691778806852988312763775617021905329293471940260521079213173841192485388289",
+          "exponent2": -1074
+        },
+        "sharper_exact_pass": true,
+        "sharper_binary64_allowance": {
+          "significand": "4297064449",
+          "exponent2": -85
+        },
+        "sharper_binary64_pass": false,
+        "sharper_binary64_steps": {
+          "a0": {
+            "significand": "1",
+            "exponent2": -64
+          },
+          "a1": {
+            "significand": "2097153",
+            "exponent2": -85
+          },
+          "u0": {
+            "significand": "1",
+            "exponent2": -53
+          },
+          "u1": {
+            "significand": "1",
+            "exponent2": -53
+          },
+          "a2": {
+            "significand": "4297064449",
+            "exponent2": -85
+          }
+        },
+        "truth_denominator_relative_pass_diagnostic": true
+      }
+    },
+    {
+      "name": "A_exact_smaller_only_f64_would_miss",
+      "pass": true,
+      "details": {
+        "error": {
+          "significand": "44964272878297041153622943363192464766967779747701085521596453750994684290187104901699240960583973816457545668610473012399038950067138889032686520518898670205751475964726372402485750031474986931322275393730495798805506200743446415357739894120287381707081675833582467772361288679470769844193439960174109392897",
+          "exponent2": -1075
+        },
+        "public_allowance": {
+          "numerator": "4503599627370497",
+          "denominator": "4503599627370496000000000"
+        },
+        "public_pass": true,
+        "sharper_exact_allowance": {
+          "significand": "22482136439148519329411873029159741211476063450825698928865241607417042463785148236335914438452309954379462468733721787900726116902775994222789699347551515103176480386575989459089642609645124626149638868702314629339153230710083652421995839709082448950041557976339774907463282360430040553187789967261574365185",
+          "exponent2": -1074
+        },
+        "sharper_exact_pass": false,
+        "sharper_binary64_allowance": {
+          "significand": "2252899325837313",
+          "exponent2": -104
+        },
+        "sharper_binary64_pass": true,
+        "sharper_binary64_steps": {
+          "a0": {
+            "significand": "4398046511105",
+            "exponent2": -106
+          },
+          "a1": {
+            "significand": "4398048608257",
+            "exponent2": -106
+          },
+          "u0": {
+            "significand": "4503599627370497",
+            "exponent2": -105
+          },
+          "u1": {
+            "significand": "4503599627370497",
+            "exponent2": -105
+          },
+          "a2": {
+            "significand": "2252899325837313",
+            "exponent2": -104
+          }
+        },
+        "truth_denominator_relative_pass_diagnostic": true
+      }
+    },
+    {
+      "name": "public_relative_exact_decimal_equality",
+      "pass": true,
+      "details": {
+        "error": {
+          "numerator": "1",
+          "denominator": "1000000000"
+        },
+        "public_allowance": {
+          "numerator": "1",
+          "denominator": "1000000000"
+        },
+        "public_pass": true,
+        "sharper_exact_allowance": {
+          "significand": "12064120185210077442874102666708396763842461251248056415753095038864601881149664838460387794536365469758545528512460065198138695788579449521345836778257611337492955819209368343505082579326963050824350285642481004310985216078418213189501021832560017630366029078497604527182890053165263421920664763152113317908146290689",
+          "exponent2": -1074
+        },
+        "sharper_exact_pass": true,
+        "sharper_binary64_allowance": {
+          "significand": "536871169",
+          "exponent2": -53
+        },
+        "sharper_binary64_pass": true,
+        "sharper_binary64_steps": {
+          "a0": {
+            "significand": "1",
+            "exponent2": -24
+          },
+          "a1": {
+            "significand": "2097153",
+            "exponent2": -45
+          },
+          "u0": {
+            "significand": "1",
+            "exponent2": -53
+          },
+          "u1": {
+            "significand": "1",
+            "exponent2": -53
+          },
+          "a2": {
+            "significand": "536871169",
+            "exponent2": -53
+          }
+        },
+        "truth_denominator_relative_pass_diagnostic": false
+      }
+    },
+    {
+      "name": "public_relative_just_outside",
+      "pass": true,
+      "details": {
+        "error": {
+          "numerator": "2596148429267413814265248166563173",
+          "denominator": "2596148429267413814265248164610048000000000"
+        },
+        "public_allowance": {
+          "numerator": "1",
+          "denominator": "1000000000"
+        },
+        "public_pass": false,
+        "sharper_exact_allowance": {
+          "significand": "12064120185210077442874102666708396763842461251248056415753095038864601881149664838460387794536365469758545528512460065198138695788579449521345836778257611337492955819209368343505082579326963050824350285642481004310985216078418213189501021832560017630366029078497604527182890053165263421920664763152113317908146290689",
+          "exponent2": -1074
+        },
+        "sharper_exact_pass": true,
+        "sharper_binary64_allowance": {
+          "significand": "536871169",
+          "exponent2": -53
+        },
+        "sharper_binary64_pass": true,
+        "sharper_binary64_steps": {
+          "a0": {
+            "significand": "1",
+            "exponent2": -24
+          },
+          "a1": {
+            "significand": "2097153",
+            "exponent2": -45
+          },
+          "u0": {
+            "significand": "1",
+            "exponent2": -53
+          },
+          "u1": {
+            "significand": "1",
+            "exponent2": -53
+          },
+          "a2": {
+            "significand": "536871169",
+            "exponent2": -53
+          }
+        },
+        "truth_denominator_relative_pass_diagnostic": false
+      }
+    },
+    {
+      "name": "fixed_B01_synthetic_selected",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "missing_source",
+      "pass": true,
+      "details": "missing/malformed/duplicate SOURCE_ENCODING"
+    },
+    {
+      "name": "wrong_source",
+      "pass": true,
+      "details": "SOURCE_ENCODING mismatches exact primitive source"
+    },
+    {
+      "name": "wrong_selected_source",
+      "pass": true,
+      "details": "selected source binding mismatch"
+    },
+    {
+      "name": "historical_policy",
+      "pass": true,
+      "details": "corrected method/policy/floor-ratio identity required"
+    },
+    {
+      "name": "duplicate_selected",
+      "pass": true,
+      "details": "missing/malformed/duplicate SELECTED"
+    },
+    {
+      "name": "unknown_status",
+      "pass": true,
+      "details": "unknown STATUS"
+    },
+    {
+      "name": "negative_scale",
+      "pass": true,
+      "details": "negative scale, floor, or bound"
+    },
+    {
+      "name": "nonfinite_value",
+      "pass": true,
+      "details": "nonfinite binary64"
+    },
+    {
+      "name": "negative_zero_value",
+      "pass": true,
+      "details": "negative zero is noncanonical"
+    },
+    {
+      "name": "missing_floor",
+      "pass": true,
+      "details": "FLOOR coverage/presence"
+    },
+    {
+      "name": "negative_floor",
+      "pass": true,
+      "details": "negative scale, floor, or bound"
+    },
+    {
+      "name": "duplicate_floor",
+      "pass": true,
+      "details": "FLOOR duplicate/shape"
+    },
+    {
+      "name": "Refused_not_accuracy_pass",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Unresolved_not_accuracy_pass",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "SourceRefused_not_accuracy_pass",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "unbound_source_refusal_is_invalid",
+      "pass": true,
+      "details": "missing/malformed/duplicate SOURCE_ENCODING"
+    }
+  ],
+  "count": 27,
+  "pass": true
+}

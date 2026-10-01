@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -3503,11 +3503,11 @@
+                     Err(CertificateIssue::RadiusClassMismatch)
+                 }
+             }
+             RowClass::AbsoluteVerified { .. } | RowClass::RelativeVerified => {
+                 if bits == ABSENT_RADIUS_BITS {
+-                    return Err(CertificateIssue::RadiusClassMismatch);
++                    return Ok(Some(SiRadius { id: row.id, body: row.body, kind: row.kind, bits: 0 }));
+                 }
+                 finite_nonnegative(f64::from_bits(bits))?;
+                 let ceiling = match row.class {
+                     RowClass::AbsoluteVerified { bound_bits } => f64::from_bits(bound_bits),
+                     RowClass::RelativeVerified => {

@@ -1,0 +1,21 @@
+{
+  "actor": "ROOT, exact arithmetic proposal for RV29 independent check",
+  "scope": "Isolated certificate numeric fixture; not a new primitive source, expected solver outcome or accepted implementation result.",
+  "x_and_scale_bits": "3ff0000000000401",
+  "H_definition": "x*2^-64 + x*2^-85 + x*2^-53",
+  "H_numerator": "19352257851307810204156929",
+  "H_denominator_power_of_two": 137,
+  "A_exact": "H + 2^-1074",
+  "A_f64_and_RU64_H_bits": "3ca0020000100402",
+  "checks": {
+    "previous_f64_less_H_less_A_exact_less_A_f64": true,
+    "public_decimal": true,
+    "ordinary_relative_class": true
+  },
+  "witness_use": "Use v=x and W_plus=H exactly representable at P256. The exact admission passes while the upward private radius exceeds A_exact, yet equals representable A_f64. Exercise certify_rows with a consistent canonical layout/publication, keeping other rows valid.",
+  "trial_record": [
+    "Initial analytically suggested x bits3ff0000000000400 failed the desired ordering: A_f64 below H; that candidate is rejected, not an accepted control.",
+    "Adjacent analytically selected x bits3ff0000000000401 satisfies all stated exact inequalities. No parameter sweep, Rust or solver run."
+  ],
+  "basis": "Selected five-step binary64 sharper formula, exact integer/Fraction arithmetic and host nearest-even binary64 operations; independent check still requested."
+}

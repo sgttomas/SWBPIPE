@@ -1,0 +1,674 @@
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs
+index 6626bbe41f..c45fc4ceb0 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs
+@@ -425,6 +425,7 @@ fn a_sums_rounding_charges_the_limbs_it_rounds() {
+ 
+ #[test]
+ fn golden_work_counts() {
++    use super::publication_tests::replay_certificate_components;
+     // SD-L1 (K4-M17/M18/M19; ROOT's O5: TWO-SPAN's p + 64 residual is
+     // evidenced by its correction and its refinement and residual-formation
+     // work). Per attempt: (p, own context work, K4 sum work, shared work,
+@@ -493,7 +494,15 @@ fn golden_work_counts() {
+         golden.into_iter().zip(stages_golden).zip(a3b)
+     {
+         assert_eq!((name, name), (name2, name3));
+-        let solve = selected(name);
++        let (limit, mut meter) = unlimited();
++        let CaseOutcome::Selected(solve) =
++            solve_case(models::model(name).source(), limit, &mut meter)
++        else {
++            panic!("{name}: expected selected golden");
++        };
++        // The historical columns remain R7-only. The helper separately checks
++        // inclusive stage/attempt/case/invocation closure on these SAME states.
++        let components = replay_certificate_components(&solve, meter.charged());
+         let attempts = &solve.evidence().attempts;
+         let got: Vec<(u32, u64, u64, u64, u64, u64, u64)> = attempts
+             .iter()
+@@ -536,13 +545,20 @@ fn golden_work_counts() {
+         assert_eq!(stages, stage_rows, "{name} stages");
+         let new: Vec<(u32, u64, u64, u64, u64, u64, [u64; 6])> = attempts
+             .iter()
+-            .map(|a| {
++            .zip(&components)
++            .map(|(a, certificate)| {
+                 let s = &a.stages;
+                 (
+                     a.precision,
+-                    a.work.limb_multiply_equivalents(),
+-                    a.k4_work.limb_multiply_equivalents(),
+-                    a.stop_rule_work,
++                    a.work
++                        .limb_multiply_equivalents()
++                        .checked_sub(certificate.context)
++                        .unwrap(),
++                    a.k4_work
++                        .limb_multiply_equivalents()
++                        .checked_sub(certificate.sums)
++                        .unwrap(),
++                    certificate.r7,
+                     a.verification_work,
+                     a.verification_shared_work,
+                     [
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs
+index 158be136b8..1c8487a47f 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs
+@@ -940,6 +940,7 @@ fn kf1_rf_large_at_100_members_is_unchanged_but_its_work_at_t_1_and_512() {
+ 
+ #[test]
+ fn kf1_golden_stop_rule_work_where_collapses_occur() {
++    use super::publication_tests::{publication_bits, replay_certificate_components};
+     // K4's golden work (`golden_work_counts`, `A3B_WORK`) does not move: no
+     // tracker of the four golden models reaches 64 rows. At T = 64 only the
+     // RF-LARGE frames at 100 members move (KF1's checkpoint A), and at the
+@@ -973,30 +974,66 @@ fn kf1_golden_stop_rule_work_where_collapses_occur() {
+     let all = all_models();
+     for (name, evaluations, k4) in golden {
+         let m = all.iter().find(|m| m.name == name).unwrap();
+-        let rows = |rows: Option<usize>| -> Vec<Row> {
+-            let CaseOutcome::Selected(s) = solve_under(m, rows) else {
++        let rows = |rows: Option<usize>| {
++            // Keep the SAME tracker/seed overrides alive through paired replay.
++            let _setting = Setting::new(rows, &m.seeds);
++            let mut meter = InvocationMeter::new(u64::MAX);
++            let CaseOutcome::Selected(s) =
++                solve_case(m.source(), CaseLimit::new(u64::MAX), &mut meter)
++            else {
+                 panic!("{name}")
+             };
+-            s.evidence()
++            let components = replay_certificate_components(&s, meter.charged());
++            let historical: Vec<Row> = s
++                .evidence()
+                 .attempts
+                 .iter()
+-                .map(|a| {
++                .zip(&components)
++                .map(|(a, component)| {
+                     (
+                         a.precision,
+-                        a.stop_rule_work,
++                        component.r7,
+                         a.stages.refinement,
+                         a.stages.bounded_gate,
+                         a.shared_stages.condition,
+                     )
+                 })
+-                .collect()
++                .collect();
++            let certificate: Vec<_> = components
++                .iter()
++                .map(|c| (c.context, c.sums, c.total))
++                .collect();
++            (historical, certificate, s)
+         };
+-        assert_eq!(rows(Some(usize::MAX)), k4, "{name} at T = ∞");
++        let (infinite, cert_infinite, solve_infinite) = rows(Some(usize::MAX));
++        assert_eq!(infinite, k4, "{name} at T = ∞");
+         assert_eq!(TRACKER_ROWS, 512);
+-        assert_eq!(rows(None), k4, "{name} at T = 512");
++        let (production, cert_production, solve_production) = rows(None);
++        assert_eq!(production, k4, "{name} at T = 512");
++        assert_eq!(
++            cert_production, cert_infinite,
++            "{name}: certificate components"
++        );
++        same_solve(name, &solve_infinite, &solve_production);
+         let mut at_64 = k4;
+         at_64[0].1 += evaluations * cost;
+-        assert_eq!(rows(Some(64)), at_64, "{name} at T = 64");
++        let (limited, cert_limited, solve_limited) = rows(Some(64));
++        assert_eq!(limited, at_64, "{name} at T = 64");
++        assert_eq!(
++            cert_limited, cert_infinite,
++            "{name}: certificate components"
++        );
++        same_solve(name, &solve_infinite, &solve_limited);
++        for s in [&solve_production, &solve_limited] {
++            assert_eq!(
++                publication_bits(s.publish()),
++                publication_bits(solve_infinite.publish())
++            );
++            assert_eq!(
++                s.publication_radius_bits,
++                solve_infinite.publication_radius_bits
++            );
++        }
+     }
+     assert_eq!(768 * cost, 13_444_608);
+     assert_eq!(640 * cost, 11_203_840);
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs
+index 02a483bec4..baebccf4eb 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs
+@@ -363,12 +363,75 @@ fn c17_cannot_publish_the_false_p128_interval() {
+     assert!(matches!(
+         attempts[0].outcome,
+         AttemptOutcome::Rejected(AttemptReason::PublicationEnclosure {
++            quantity: QuantityId::Displacement(dof),
++            body: 0,
++            kind: Kind::Translation,
+             predicate: PublicationPredicate::AbsoluteBound,
+-            ..
+-        })
++        }) if dof.global() == 0
+     ));
+     assert!(attempts.iter().all(|a| a.precision <= 1024));
++    assert_eq!(attempts[0].role, AttemptRole::Candidate);
++    assert_eq!(attempts[1].precision, 256);
++    assert_eq!(attempts[1].role, AttemptRole::VerificationThenCandidate);
++    let mut widths: Vec<_> = attempts.iter().map(|a| a.precision).collect();
++    widths.sort_unstable();
++    widths.dedup();
++    assert_eq!(
++        widths.len(),
++        attempts.len(),
++        "verification reused, never solved twice"
++    );
+     if let CaseOutcome::Selected(s) = out {
++        let components = replay_certificate_components(&s, invocation.charged());
++        let a = &s.evidence.attempts;
++        // Dynamic budget only places a stop at the first certificate stage.
++        // This is integration/closure, not an independent absolute price oracle.
++        let before_certificate = a[..2]
++            .iter()
++            .map(|r| r.stages.total() + r.shared_stages.total())
++            .sum::<u64>()
++            - components[0].total
++            - a[1].stop_rule_work;
++        let mut stopped_meter = InvocationMeter::new(u64::MAX);
++        let stopped = solve_case(
++            c17(),
++            CaseLimit::new(before_certificate),
++            &mut stopped_meter,
++        );
++        let CaseOutcome::Unresolved {
++            reason: UnresolvedReason::Budget(BudgetScope::Case),
++            attempts: stopped,
++            ..
++        } = stopped
++        else {
++            panic!("certificate budget stop")
++        };
++        assert_eq!(stopped.len(), 2);
++        assert!(matches!(
++            stopped[0].outcome,
++            AttemptOutcome::Failed(AttemptReason::Stop(AttemptStop::Budget(BudgetScope::Case)))
++        ));
++        assert!(stopped.iter().all(|r| !matches!(
++            r.outcome,
++            AttemptOutcome::Accepted | AttemptOutcome::Verified
++        )));
++        super::kf3_tests::assert_stage_identity("C17 stopped certificate", &stopped);
++        assert_eq!(
++            stopped_meter.charged(),
++            stopped
++                .iter()
++                .map(|r| r.stages.total() + r.shared_stages.total())
++                .sum::<u64>()
++        );
++        let partial_context = stopped[0].work.limb_multiply_equivalents()
++            - (a[0].work.limb_multiply_equivalents() - components[0].context);
++        let partial_sums = stopped[0].k4_work.limb_multiply_equivalents()
++            - (a[0].k4_work.limb_multiply_equivalents() - components[0].sums);
++        assert_eq!(
++            stopped[0].stop_rule_work,
++            components[0].r7 + partial_context + partial_sums
++        );
++        assert!(partial_context + partial_sums > 0);
+         assert_ne!(s.selected_precision(), 128);
+         // Sum of applied axial terms is 9h; spring k=2^-33.
+         // The exact truth 9*2^-1041 has binary64 bits 0x0000001200000000.
+@@ -438,9 +501,9 @@ fn a_selected_zero_source_owns_paired_radii_and_clones_them() {
+     );
+ }
+ 
+-// The three new raw source proposals may be embedded, but their independently
+-// frozen all-row truth has not yet been supplied. No result assertion or
+-// automatic test run is attached to these constructors.
++// These fixed sources have independently frozen all-row truth. The unit test
++// checks selected branches conditionally; a named ceiling is not an accuracy
++// pass. The external bare-b checker supplies the independent claim comparison.
+ #[allow(dead_code)]
+ fn proposed_raw_force_control() -> PrimitiveSource {
+     two_node_source(
+@@ -1103,6 +1166,54 @@ fn independent_fixed_extra_source_rows_never_escape_their_bare_claim() {
+         assert_eq!(source.loads()[0].source_id, expected_load);
+         let mut invocation = InvocationMeter::new(u64::MAX);
+         let out = solve_case(source, CaseLimit::new(u64::MAX), &mut invocation);
++        let attempts = outcome_attempts(&out);
++        super::kf3_tests::assert_stage_identity("fixed extra source", attempts);
++        assert_eq!(
++            invocation.charged(),
++            attempts
++                .iter()
++                .map(|a| a.stages.total() + a.shared_stages.total())
++                .sum::<u64>()
++        );
++        if id == 2 {
++            assert!(matches!(
++                &out,
++                CaseOutcome::Unresolved {
++                    reason: UnresolvedReason::Ceiling,
++                    ..
++                }
++            ));
++            assert_eq!(
++                attempts.iter().map(|a| a.precision).collect::<Vec<_>>(),
++                [128, 256, 512, 1024]
++            );
++            assert_eq!(
++                attempts.iter().map(|a| a.role).collect::<Vec<_>>(),
++                [
++                    AttemptRole::Candidate,
++                    AttemptRole::VerificationThenCandidate,
++                    AttemptRole::VerificationThenCandidate,
++                    AttemptRole::Verification
++                ]
++            );
++            for a in &attempts[..3] {
++                assert_eq!(
++                    a.outcome,
++                    AttemptOutcome::Rejected(AttemptReason::PublicationEnclosure {
++                        quantity: QuantityId::Displacement(Dof::from_global(9)),
++                        body: 0,
++                        kind: Kind::Rotation,
++                        predicate: PublicationPredicate::AbsoluteBound,
++                    })
++                );
++            }
++            assert_eq!(attempts[3].outcome, AttemptOutcome::Solved);
++            assert!(attempts.iter().all(|a| !matches!(
++                a.outcome,
++                AttemptOutcome::Accepted | AttemptOutcome::Verified
++            )));
++            // This checks the actual p512 ceiling sequence, never accuracy.
++        }
+         match out {
+             CaseOutcome::Selected(s) => {
+                 assert_eq!(s.publication.rows.len(), if id == 2 { 36 } else { 40 });
+@@ -1252,3 +1363,381 @@ fn pc01_03_complete_closed_kernel_row_error_families() {
+         }
+     }
+ }
++
++// Raw identities deliberately distinguish +0 from -0 and include outcome tags,
++// bound bits, scales, and subnormal precision bits. Floating PartialEq does not.
++#[derive(Debug, Clone, PartialEq)]
++pub(super) struct PublicationBits {
++    rows: Vec<(QuantityId, Kind, u32, [u64; 3], RowClass)>,
++    scales: Vec<(u32, Kind, u64)>,
++}
++
++pub(super) fn publication_bits(p: &Publication) -> PublicationBits {
++    PublicationBits {
++        rows: p
++            .rows
++            .iter()
++            .map(|r| {
++                let bits = match r.value {
++                    Binary64Outcome::Normal(x) => [0, x.to_bits(), 0],
++                    Binary64Outcome::Subnormal {
++                        value,
++                        relative_precision,
++                    } => [1, value.to_bits(), relative_precision.to_bits()],
++                    Binary64Outcome::Underflow { negative } => [2, u64::from(negative), 0],
++                    Binary64Outcome::Overflow { negative } => [3, u64::from(negative), 0],
++                };
++                (r.id, r.kind, r.body, bits, r.class)
++            })
++            .collect(),
++        scales: p.body_scales.clone(),
++    }
++}
++
++#[derive(Debug, Clone, Default, PartialEq, Eq)]
++pub(super) struct CertificateComponents {
++    pub(super) r7: u64,
++    pub(super) context: u64,
++    pub(super) sums: u64,
++    pub(super) total: u64,
++}
++
++/// Test-only paired replay. The caller retains its SAME tracker/seed override.
++/// Recreate the report from the stored state/prep/group; setup charges are local.
++/// This separates components, not an independent price oracle (PC40-43 is that).
++pub(super) fn replay_certificate_components(
++    solve: &RetainedSolve,
++    invocation_charged: u64,
++) -> Vec<CertificateComponents> {
++    let attempts = &solve.evidence.attempts;
++    super::kf3_tests::assert_stage_identity("publication component replay", attempts);
++    let case_total: u64 = attempts
++        .iter()
++        .map(|a| a.stages.total() + a.shared_stages.total())
++        .sum();
++    let invocation_total: u64 = attempts
++        .iter()
++        .map(|a| {
++            a.stages.total()
++                + if a.shared_built_here {
++                    a.shared_work
++                } else {
++                    0
++                }
++                + if a.verification_shared_built_here {
++                    a.verification_shared_work
++                } else {
++                    0
++                }
++        })
++        .sum();
++    assert_eq!(invocation_total, invocation_charged);
++    // These callers solve a single fresh case, with no shared prior cases.
++    assert_eq!(case_total, invocation_total);
++    attempts
++        .iter()
++        .map(|a| {
++            if a.stop_rule_work == 0 {
++                return CertificateComponents::default();
++            }
++            let candidate = solve.state(a.precision).unwrap();
++            let verification = solve.state(2 * a.precision).unwrap();
++            let mut record = attempts
++                .iter()
++                .find(|v| v.precision == 2 * a.precision)
++                .unwrap()
++                .clone();
++            let mut cache = solve.cache.clone();
++            let mut budget = CaseBudget {
++                limit: u64::MAX,
++                used: 0,
++            };
++            let mut setup_meter = InvocationMeter::new(u64::MAX);
++            let bound = verify_precision(
++                verification,
++                &solve.prep,
++                &solve.group,
++                &mut cache,
++                &mut budget,
++                &mut setup_meter,
++                &mut record,
++            )
++            .unwrap();
++            assert!(bound.state.same_state(verification));
++            assert!(Arc::ptr_eq(&bound.prep, &solve.prep));
++            let r7 = compare_states(
++                &solve.prep.layout,
++                &solve.prep.extents,
++                candidate,
++                verification,
++                &bound.report,
++                StageGuard::unlimited(),
++            );
++            assert_eq!(
++                r7.total,
++                r7.work.limb_multiply_equivalents() + r7.sum_work.limb_multiply_equivalents()
++            );
++            let mut out = CertificateComponents {
++                r7: r7.total,
++                ..Default::default()
++            };
++            if r7.result == Ok(true) {
++                let certificate = certify_publication(
++                    &solve.prep,
++                    candidate,
++                    verification,
++                    &bound,
++                    r7.floor.as_deref(),
++                    StageGuard::unlimited(),
++                );
++                out.context = certificate.work.limb_multiply_equivalents();
++                out.sums = certificate.sums.limb_multiply_equivalents();
++                out.total = certificate.total;
++                assert_eq!(out.total, out.context + out.sums);
++                match certificate.result.unwrap() {
++                    PublicationDecision::Accepted(draft) => {
++                        assert_eq!(a.outcome, AttemptOutcome::Accepted);
++                        assert_eq!(
++                            publication_bits(&draft.publication),
++                            publication_bits(&solve.publication)
++                        );
++                        assert_eq!(draft.radii, solve.publication_radius_bits);
++                    }
++                    PublicationDecision::Rejected { index, predicate } => {
++                        let m = solve.prep.layout[index];
++                        assert_eq!(
++                            a.outcome,
++                            AttemptOutcome::Rejected(AttemptReason::PublicationEnclosure {
++                                quantity: m.id,
++                                body: m.body,
++                                kind: m.kind,
++                                predicate
++                            })
++                        );
++                    }
++                }
++            } else {
++                assert_eq!(r7.result, Ok(false));
++                assert!(matches!(a.outcome, AttemptOutcome::Rejected(_)));
++            }
++            assert_eq!(a.stop_rule_work, out.r7 + out.total);
++            assert_eq!(a.stages.stop_rule, out.r7 + out.total);
++            out
++        })
++        .collect()
++}
++
++/// Independently checked RV29 relative_control_03 constants. This changes only
++/// private certificate inputs of the existing zero-pair scaffolding; it is not
++/// a primitive-source equilibrium or claimed solver selection.
++fn relative_pair() -> (PairFixture, usize, usize) {
++    let mut f = zero_pair(128);
++    let d = f
++        .prep
++        .layout
++        .iter()
++        .position(|m| m.id == QuantityId::Displacement(Dof::from_global(6)))
++        .unwrap();
++    let m = f
++        .prep
++        .layout
++        .iter()
++        .position(|m| m.id == QuantityId::DisplacementMagnitude(1))
++        .unwrap();
++    let x = w(f64::from_bits(0x3ff0_0000_0000_0401));
++    let PrecisionState::P128(candidate) = &mut f.candidate else {
++        unreachable!()
++    };
++    let candidate = Arc::get_mut(candidate).expect("fresh candidate has one owner");
++    candidate.recovered.values[d] = x;
++    candidate.recovered.values[m] = x;
++    // Release only the transient verifier alias, then restore exact pairing.
++    f.report.state = f.candidate.clone();
++    let PrecisionState::P256(verification) = &mut f.verification else {
++        unreachable!()
++    };
++    let verification = Arc::get_mut(verification).expect("fresh verifier has one owner");
++    verification.recovered.values[d] = x;
++    verification.recovered.values[m] = x;
++    f.report.state = f.verification.clone();
++    let VerificationState::V256(r) = &mut f.report.report else {
++        unreachable!()
++    };
++    let r = Arc::make_mut(r);
++    r.w_plus[d] = Some(
++        Wide::<4>::from_parts(
++            false,
++            -53,
++            [0, 0, 0x0020_0800_0000_0000, 0x8010_0000_8020_0c01],
++        )
++        .unwrap(),
++    );
++    r.w_plus[m] = Some(Wide::<4>::ZERO);
++    (f, d, m)
++}
++
++#[test]
++fn pc31_39_exact_relative_admission_positive_radii_and_partial_draft() {
++    let (mut f, d, m) = relative_pair();
++    validate_publication_pair(&f.prep, &f.candidate, &f.verification, &f.report).unwrap();
++    let publication = classify_rows(&f.prep.layout, &f.candidate.published(), &f.prep.extents);
++    assert_eq!(publication.body_scales[0].2, 0x3ff0_0000_0000_0401);
++    assert_eq!(publication.rows[d].class, RowClass::RelativeVerified);
++    let PrecisionState::P256(v) = &f.verification else {
++        unreachable!()
++    };
++    let VerificationState::V256(r) = &f.report.report else {
++        unreachable!()
++    };
++    let h = publication_h(
++        d,
++        &f.prep.layout[d],
++        publication.rows[d].value.value().unwrap(),
++        &v.recovered.values[d],
++        r,
++        &mut meter(),
++    )
++    .unwrap();
++    let x = f64::from_bits(0x3ff0_0000_0000_0401);
++    equal_sum(&h, &exact_sum(&[(x, -64), (x, -85), (x, -53)]));
++    let allowance = exact_sum(&[(x, -64), (x, -85), (x, -53), (f64::from_bits(1), 0)]);
++    let mut gap = exact_sum(&[(f64::from_bits(0x3ca0_0200_0010_0402), 0)]);
++    gap.add_scaled(&allowance, true, 1, 0).unwrap();
++    assert_eq!(gap.signum(), 1); // RU64(H) exceeds the exact sharper allowance.
++    let accepted = |r: &VerificationReport<4>, guard| {
++        let mut met = CertificateMeter::new(guard);
++        let out = certify_rows(
++            &f.prep,
++            128,
++            publication.clone(),
++            &v.recovered.values,
++            r,
++            &mut met,
++        );
++        (out, met)
++    };
++    let (out, full_meter) = accepted(r, StageGuard::unlimited());
++    let PublicationDecision::Accepted(draft) = out.unwrap() else {
++        panic!("exact H admits")
++    };
++    assert_eq!(draft.radii[d], 0x3ca0_0200_0010_0402);
++    assert_eq!(draft.radii[m], 0x3000_0000_0000_0401);
++    assert_ne!(draft.radii[d], draft.radii[m]);
++    assert_eq!(
++        publication_bits(&draft.publication),
++        publication_bits(&publication)
++    );
++    let expected_radii = draft.radii.clone();
++    drop(draft);
++
++    // Explicit prefix replay only LOCATES a later conversion, never prices it.
++    // PC40-43's frozen absolute ledger is the independent accounting oracle.
++    let mut prefix = meter();
++    for index in 0..=m {
++        let meta = f.prep.layout[index];
++        if meta.input_derived {
++            continue;
++        }
++        let row = &publication.rows[index];
++        let x = row.value.value().unwrap();
++        let h = publication_h(index, &meta, x, &v.recovered.values[index], r, &mut prefix).unwrap();
++        let scale = f64::from_bits(publication.body_scales[meta.kind.index()].2);
++        assert_eq!(
++            publication_predicate(&h, row, scale, &mut prefix).unwrap(),
++            None
++        );
++        if index == m {
++            break;
++        }
++        let radius = prefix.round_up(&h).unwrap();
++        if index == d {
++            assert_eq!(radius.to_bits(), expected_radii[d]);
++        }
++    }
++    assert!(m > d && prefix.ctx.work().div > 0);
++    let before_conversion = prefix.total();
++    let refs = Arc::strong_count(&f.prep);
++    let (stopped, stopped_meter) = accepted(r, StageGuard::with_case_room(before_conversion));
++    assert!(matches!(
++        stopped,
++        Err(AttemptStop::Budget(BudgetScope::Case))
++    ));
++    assert!(
++        stopped_meter.total() > before_conversion && stopped_meter.total() < full_meter.total()
++    );
++    assert_eq!(Arc::strong_count(&f.prep), refs);
++    let mut late = (**r).clone();
++    late.w_plus[m] = Some(w(1.0));
++    let (rejected, _) = accepted(&late, StageGuard::unlimited());
++    assert!(matches!(rejected, Ok(PublicationDecision::Rejected {
++        index, predicate: PublicationPredicate::PublicRelative
++    }) if index == m));
++    assert_eq!(Arc::strong_count(&f.prep), refs);
++    late.w_plus[m] = None;
++    assert!(matches!(accepted(&late, StageGuard::unlimited()).0,
++        Err(AttemptStop::PublicationCertificate { index: Some(i), issue: CertificateIssue::MissingField }) if i == m));
++
++    // A fresh draft after both failures must contain both original positive
++    // radii; a partial box must neither escape nor seed the next call.
++    let PublicationDecision::Accepted(fresh) = accepted(r, StageGuard::unlimited()).0.unwrap()
++    else {
++        panic!("fresh accepted draft")
++    };
++    assert_eq!(fresh.radii, expected_radii);
++    let expected = publication_bits(&publication);
++    let decision = compare_states(
++        &f.prep.layout,
++        &f.prep.extents,
++        &f.candidate,
++        &f.verification,
++        &f.report.report,
++        StageGuard::unlimited(),
++    );
++    f.attempts[0].outcome = AttemptOutcome::Accepted;
++    f.attempts[1].outcome = AttemptOutcome::Verified;
++    let out = finish_selected(
++        f.prep.clone(),
++        f.group,
++        f.cache,
++        vec![f.candidate.clone(), f.verification.clone()],
++        &f.candidate,
++        256,
++        f.attempts,
++        &decision,
++        &f.report.report,
++        fresh,
++        vec![BodyGeometry::Restrained],
++    );
++    let CaseOutcome::Selected(solve) = out else {
++        panic!("controlled final draft")
++    };
++    assert_eq!(publication_bits(solve.publish()), expected);
++    assert_eq!(solve.publication_radius_bits, expected_radii);
++    let cloned = solve.clone();
++    assert_eq!(publication_bits(cloned.publish()), expected);
++    assert_eq!(cloned.publication_radius_bits, expected_radii);
++    assert_ne!(
++        cloned.publication_radius_bits.as_ptr(),
++        solve.publication_radius_bits.as_ptr()
++    );
++
++    // Prove this identity discriminator detects every requested corruption,
++    // including the signed-zero difference hidden by floating PartialEq.
++    let mut wrong = solve.publication_radius_bits.clone();
++    wrong[d] = 0;
++    assert_ne!(wrong, expected_radii);
++    wrong = expected_radii.clone();
++    wrong.swap(d, m);
++    assert_ne!(wrong, expected_radii);
++    for mode in 0..5 {
++        let mut wrong = solve.publication.clone();
++        match mode {
++            0 => wrong.rows[0].value = Binary64Outcome::Normal(-0.0),
++            1 => wrong.rows[d].value = Binary64Outcome::Underflow { negative: false },
++            2 => wrong.rows[d].class = RowClass::AbsoluteVerified { bound_bits: 1 },
++            3 => wrong.rows[0].class = RowClass::AbsoluteVerified { bound_bits: 2 },
++            _ => wrong.body_scales[0].2 += 1,
++        }
++        assert_ne!(publication_bits(&wrong), expected);
++    }
++}

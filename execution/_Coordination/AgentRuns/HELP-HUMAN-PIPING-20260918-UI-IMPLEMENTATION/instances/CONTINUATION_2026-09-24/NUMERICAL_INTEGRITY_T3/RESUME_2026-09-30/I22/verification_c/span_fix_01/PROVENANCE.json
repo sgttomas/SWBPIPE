@@ -1,0 +1,128 @@
+{
+  "additive_grants": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "span",
+        "rev": "46e5040fcead86af741d09f1bce00b1372883a3a",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_C_SPAN_CORRECTION.md",
+        "result": {
+          "chunk_id": "a27478",
+          "wall_time_seconds": 0.000007417,
+          "exit_code": 0,
+          "original_token_count": 17,
+          "output": "481d185f34600c35296af2a6535bc68996bdb5b550e24e11a8b2d5e6eaadc5a2  -\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "s11",
+        "rev": "f9984bfaba2f0e26569d7744fd2ea1a8c06ff5f6",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_S11_INVENTORY_DELTA.md",
+        "result": {
+          "chunk_id": "ab30e0",
+          "wall_time_seconds": 0.000006416,
+          "exit_code": 0,
+          "original_token_count": 17,
+          "output": "8db64bf1db2942446f9a598cdfdfaa76dfdb18fc25d29bcd8bfbdb22a940109c  -\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "prescription",
+        "rev": "469c22efbd490c1f4d66bd5c972ed999efb9e5e3",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_PRESCRIPTION_DISCRIMINATOR.md",
+        "result": {
+          "chunk_id": "c516a5",
+          "wall_time_seconds": 0.000005333,
+          "exit_code": 0,
+          "original_token_count": 17,
+          "output": "8727f0f53622b67b08fc1a9f974ce64afc972410505c8ad75a6c4e5f251cf3ec  -\n"
+        }
+      }
+    }
+  ],
+  "initial_C_preflight": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "head",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git rev-parse HEAD",
+        "chunk_id": "3b3e3f",
+        "wall_time_seconds": 0.000035667,
+        "exit_code": 0,
+        "original_token_count": 11,
+        "output": "c6e7d35c048f36d45b78184dcf73ce0c75879c95\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "status",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git status --short",
+        "chunk_id": "a2cd03",
+        "wall_time_seconds": 0.247976375,
+        "exit_code": 0,
+        "original_token_count": 104,
+        "output": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/manager/source_03/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/runtime_01/\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "source-diff",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --exit-code dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1 -- projects/chirality-piping/core/solver/frame_kernel projects/chirality-piping/core/solver/performance_harness",
+        "chunk_id": "f88caf",
+        "wall_time_seconds": 0.000005708,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "oracle-files",
+        "cmd": "rg --files projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b",
+        "chunk_id": "f3074b",
+        "wall_time_seconds": 0.000006375,
+        "exit_code": 0,
+        "original_token_count": 522,
+        "output": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/FREEZE_MANIFEST.json\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/CHECKPOINT_0.md\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/SOURCE_READS.json\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/BOUNDARY_CHECKS.json\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/RAW_CHECK_OUTPUTS.txt\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/REGISTRY_CHECKS.json\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/SOURCE_IDENTITIES.json\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/boundary_checks.py\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "grant-hash",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git show 0236cf0969872b2f54a447876f9cf50899035291:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_CHECKPOINT_C.md | shasum -a 256",
+        "chunk_id": "cc56b9",
+        "wall_time_seconds": 0.000008708,
+        "exit_code": 0,
+        "original_token_count": 17,
+        "output": "79c527fbfe1b11bd667e0b4cafb6088db138a91a69d0b443d103360bd19eabb6  -\n"
+      }
+    }
+  ],
+  "launch_basis": {
+    "FK_H": "c6e7d35c048f36d45b78184dcf73ce0c75879c95 + publication_tests.rs 39fa1d4fd016d58eef9b8878ca48c117c3af3aa3285e741bdd6c67e0e58a3b59",
+    "probe": "immutable dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1 archive",
+    "prescription": "f1183b94624f4d1c84db5d6bb6d593694d2cba66 + test 43fe7fa731a7568789225d3abc03356af06abb79cfcc2eb174e2325570e6dc8e",
+    "S11": "Production dd1-identical, publication test 39fa; S11 sole row delta. f118 observed after completion, not asserted as launch HEAD."
+  },
+  "runtime_environment": "Exact commands in COMMANDS.json. Inherited G0 installed toolchain/configuration; no installation, lock generation, host configuration or environment setup change.",
+  "maintained_write_paths": [
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs"
+  ],
+  "other_write_scopes": [
+    "<E>/** as sealed by SHA256SUMS",
+    "<S>/**: immutable archive, copied probe and delta, logs, two pre-change test copies, evidence JSON/helper",
+    "<TARGET>/**: ordinary Cargo outputs; no target-wide inventory requested"
+  ],
+  "final_no_running_owned_job": true
+}

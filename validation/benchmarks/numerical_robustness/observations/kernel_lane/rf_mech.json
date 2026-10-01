@@ -156,10 +156,10 @@
     "attempts": [
       {
         "corrections": 0,
-        "exact_sum_work": 3336,
+        "exact_sum_work": 17212,
         "gate": "Coalesced",
         "outcome": "Accepted",
-        "own_work": 438680,
+        "own_work": 911342,
         "precision": 128,
         "residual_basis": 192,
         "role": "Candidate",
@@ -203,11 +203,11 @@
           "scale": 0,
           "shift": 0,
           "solve": 6930,
-          "stop_rule": 403965,
+          "stop_rule": 890503,
           "uc": 0,
           "wide_formation": 0
         },
-        "stop_rule_work": 403965,
+        "stop_rule_work": 890503,
         "storage": {
           "limbs_per_entry": 4,
           "pattern_entries": 144,
@@ -294,7 +294,7 @@
     "family": "RF-MECH",
     "geometry": "[Restrained]",
     "id": "RF-MECH-LINE345-RX-COMPANION",
-    "invocation_charged": 1034744,
+    "invocation_charged": 1521282,
     "k4src_sha256": "f6534169e65505032b77a66de38754edd81edab9ddb233759b4cc9f17f47ea14",
     "outcome": "Selected at 128",
     "published_rows": 39,

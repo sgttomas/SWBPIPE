@@ -1,0 +1,9 @@
+{
+  "reason": "GEN-8 classified COMMANDS.md outside _run_records as an active unclassified surface; it describes scan patterns, not host-specific evidence leakage. Place this run evidence in the established structural evidence directory. No checker/policy changed.",
+  "old_prefix": "evidence/",
+  "new_prefix": "_run_records/aud_t3_04/",
+  "bytes_changed": false,
+  "packet_seal_sha256": "729d342640301294dfd31e02659a0a443231f627858aca85c57ee5b7b8192b97",
+  "historical_alias_note": "The sealed README describes its original return location. Apply this prefix map to PACKET for current restore commands; internal relative paths and all payload bytes remain unchanged.",
+  "actor": "ROOT integration"
+}

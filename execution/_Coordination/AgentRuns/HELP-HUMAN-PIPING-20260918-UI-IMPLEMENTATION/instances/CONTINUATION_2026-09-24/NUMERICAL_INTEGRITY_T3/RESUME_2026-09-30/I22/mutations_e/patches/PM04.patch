@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2963,11 +2963,11 @@
+                 h.add_wide(w, false)?;
+                 h.add_wide_scaled(w, false, 1, -p)?;
+                 h.add_wide(required_error(&report.charge, index)?, false)?;
+             }
+             Kind::Translation | Kind::Rotation => {
+-                h.add_wide(required_error(&report.w_plus, index)?, false)?;
++                // PM04: W_plus omitted
+                 if matches!(meta.id, QuantityId::DisplacementMagnitude(_)) {
+                     h.add_wide_scaled(&v.abs(), false, 1, 1 - p)?;
+                 }
+             }
+         }

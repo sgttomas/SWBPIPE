@@ -1,0 +1,1315 @@
+{
+  "old_commit": "b13a42ea3b56a492461e0c329ca75790b38818ba",
+  "refresh_commit": "41b01f712a6d113ca26086a51c829469672a6f88",
+  "generator_source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "families": [
+    {
+      "file": "invariance.json",
+      "records": 21,
+      "changed_fields": 0,
+      "old_sha256": "de9314c28b80aefbe1d0daf694317bd4a5c623490eaeb8c18c6ea0771a6e808b",
+      "new_sha256": "de9314c28b80aefbe1d0daf694317bd4a5c623490eaeb8c18c6ea0771a6e808b"
+    },
+    {
+      "file": "parity.json",
+      "records": 21,
+      "changed_fields": 0,
+      "old_sha256": "da3f982ebf2eb3f49f02f35fe5d06b312d68e9db58cc03a1baebbb69f3f5978e",
+      "new_sha256": "da3f982ebf2eb3f49f02f35fe5d06b312d68e9db58cc03a1baebbb69f3f5978e"
+    },
+    {
+      "file": "rf_cancel.json",
+      "records": 38,
+      "changed_fields": 190,
+      "old_sha256": "4ddab57b4b64e53dfda60a81df2f4e439deef16493f17cd4fed96f2a5b1737ee",
+      "new_sha256": "6d6216fa75dadf38dec1bd5bed2668056b06d7dfaf6c98387dc083673b553ab2"
+    },
+    {
+      "file": "rf_chain.json",
+      "records": 30,
+      "changed_fields": 150,
+      "old_sha256": "ec7a1bf2e47a186990a8c47e70a5bc6246453251d7796a66b0b2257549ec068b",
+      "new_sha256": "8feb6901d48639b184d5d93a9814ea27d8b97ae862ea2293f90ed962288e2572"
+    },
+    {
+      "file": "rf_finite.json",
+      "records": 6,
+      "changed_fields": 30,
+      "old_sha256": "a416a6742496bac0007dad03dc615e0a0c0d8389e74280c7ea8df5720e2bbf88",
+      "new_sha256": "b09de0e89254035fef5f1b2670be57f3da34e2e6352ff389b72d126388cd9ba9"
+    },
+    {
+      "file": "rf_invariance.json",
+      "records": 25,
+      "changed_fields": 125,
+      "old_sha256": "3d66739b7e517538d3a8595653ff42bf5d27d9726f7d6ffb38a01e8367620705",
+      "new_sha256": "bc7fa0dda49b5b3c5d6d39b180a593941304d7f93e2d5fce0e98ee2a6086a8a1"
+    },
+    {
+      "file": "rf_large.json",
+      "records": 12,
+      "changed_fields": 60,
+      "old_sha256": "a03f0a3079c4c9dc465319f402f9fde7f940240e26807000528d584b10611437",
+      "new_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e"
+    },
+    {
+      "file": "rf_mech.json",
+      "records": 9,
+      "changed_fields": 5,
+      "old_sha256": "22e5cade8dc0034aa89e6ecdc073f5ba33f9b1afc191c9a7876108920a6ed6a8",
+      "new_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007"
+    },
+    {
+      "file": "rf_range.json",
+      "records": 32,
+      "changed_fields": 150,
+      "old_sha256": "6c3717bed7b95833fc3403cfa7410bb70e79d9278e2942b87d043454aa95f185",
+      "new_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2"
+    },
+    {
+      "file": "rf_skew.json",
+      "records": 36,
+      "changed_fields": 180,
+      "old_sha256": "55e756148f293b6ff3fe0b7dbdc337af944bc2a5f9bbe345e2a8922ae669203b",
+      "new_sha256": "dfcc0eb54a0347268b018d02f3aa1596bb8de05fd46881cea6286a22e142c0fe"
+    },
+    {
+      "file": "rf_weak.json",
+      "records": 9,
+      "changed_fields": 45,
+      "old_sha256": "60e8da91026778fa59f90776c1f7256db4d3b4ce49a359a8164fc6fb96a30037",
+      "new_sha256": "6001e4248410dc926b12ee2ab4e3504cfd43970412638bd7681090e11b67c88f"
+    },
+    {
+      "file": "rf_zero.json",
+      "records": 4,
+      "changed_fields": 20,
+      "old_sha256": "2eaeed8a8ac999634350c39429151f8a62c54a8520ac4bafc8ca840371022a7a",
+      "new_sha256": "8599b0e051c22bf3a102b49b52d43074e5386801a23774590d1f1007b9f8fd93"
+    }
+  ],
+  "changed_paths": {
+    "*/attempts/*/exact_sum_work": 191,
+    "*/attempts/*/own_work": 191,
+    "*/attempts/*/stages/stop_rule": 191,
+    "*/attempts/*/stop_rule_work": 191,
+    "*/invocation_charged": 191
+  },
+  "all_other_fields_identical": true,
+  "case_charge_checks": [
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e5-GnG",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e5-GGn",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e5-nGG",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e6-GnG",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e6-GGn",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e6-nGG",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e7-GnG",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e7-GGn",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e7-nGG",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e8-GnG",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e8-GGn",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e8-nGG",
+      "certificate_delta": 1002772,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+      "certificate_delta": 1009626,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e8-GnG-INPLANE",
+      "certificate_delta": 1002652,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e80-GnG",
+      "certificate_delta": 1001540,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e80-GGn",
+      "certificate_delta": 1001540,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e80-nGG",
+      "certificate_delta": 1001540,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+      "certificate_delta": 1007627,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-F-G1e80-GnG-INPLANE",
+      "certificate_delta": 1001277,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e5-GnG",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e5-GGn",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e5-nGG",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e6-GnG",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e6-GGn",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e6-nGG",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e7-GnG",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e7-GGn",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e7-nGG",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e8-GnG",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e8-GGn",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e8-nGG",
+      "certificate_delta": 998697,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e8-GnG-ORTHO",
+      "certificate_delta": 1003620,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e8-GnG-INPLANE",
+      "certificate_delta": 1000573,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e80-GnG",
+      "certificate_delta": 998866,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e80-GGn",
+      "certificate_delta": 998866,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e80-nGG",
+      "certificate_delta": 998866,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+      "certificate_delta": 1002819,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_cancel.json",
+      "id": "RF-CANCEL-M-G1e80-GnG-INPLANE",
+      "certificate_delta": 999376,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n03-r1e-04",
+      "certificate_delta": 1460435,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n03-r1e-06",
+      "certificate_delta": 1460820,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n03-r1e-08",
+      "certificate_delta": 1460486,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n03-r1e-10",
+      "certificate_delta": 1461451,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n03-r1e-12",
+      "certificate_delta": 1460594,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n05-r1e-04",
+      "certificate_delta": 2352087,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n05-r1e-06",
+      "certificate_delta": 2350689,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n05-r1e-08",
+      "certificate_delta": 2350787,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n05-r1e-10",
+      "certificate_delta": 2352147,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n05-r1e-12",
+      "certificate_delta": 2351323,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n10-r1e-04",
+      "certificate_delta": 4578278,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n10-r1e-06",
+      "certificate_delta": 4579963,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n10-r1e-08",
+      "certificate_delta": 4577628,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n10-r1e-10",
+      "certificate_delta": 4578747,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-T-n10-r1e-12",
+      "certificate_delta": 4578696,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n03-r1e-04",
+      "certificate_delta": 1479761,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n03-r1e-06",
+      "certificate_delta": 1479118,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n03-r1e-08",
+      "certificate_delta": 1479638,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n03-r1e-10",
+      "certificate_delta": 1479238,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n03-r1e-12",
+      "certificate_delta": 1479690,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n05-r1e-04",
+      "certificate_delta": 2371728,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n05-r1e-06",
+      "certificate_delta": 2371374,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n05-r1e-08",
+      "certificate_delta": 2370537,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n05-r1e-10",
+      "certificate_delta": 2371647,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n05-r1e-12",
+      "certificate_delta": 2371407,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n10-r1e-04",
+      "certificate_delta": 4599385,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n10-r1e-06",
+      "certificate_delta": 4597649,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n10-r1e-08",
+      "certificate_delta": 4600058,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n10-r1e-10",
+      "certificate_delta": 4600682,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_chain.json",
+      "id": "RF-CHAIN-A-n10-r1e-12",
+      "certificate_delta": 4598902,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_finite.json",
+      "id": "RF-FINITE-THIRDS-O0",
+      "certificate_delta": 4650401,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_finite.json",
+      "id": "RF-FINITE-THIRDS-O1e3",
+      "certificate_delta": 4645944,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_finite.json",
+      "id": "RF-FINITE-THIRDS-O1e6",
+      "certificate_delta": 4651482,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_finite.json",
+      "id": "RF-FINITE-TENTHS-O1e6",
+      "certificate_delta": 4651075,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_finite.json",
+      "id": "RF-FINITE-THIRTIETHS-O1e6",
+      "certificate_delta": 4648631,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_finite.json",
+      "id": "RF-FINITE-ROT-Q9-NONMULT",
+      "certificate_delta": 1015084,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-PINTOR-BASE",
+      "certificate_delta": 1999615,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q3",
+      "certificate_delta": 2050955,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q9",
+      "certificate_delta": 2054651,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-PINTOR-OFF-1e3",
+      "certificate_delta": 1999615,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-PINTOR-OFF-1e6",
+      "certificate_delta": 1999615,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-PINTOR-RELABEL",
+      "certificate_delta": 1998799,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-PINTOR-UNITS-mm",
+      "certificate_delta": 1996962,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-LFRAME-BASE",
+      "certificate_delta": 1059771,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q3",
+      "certificate_delta": 1178079,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q9",
+      "certificate_delta": 1178508,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-LFRAME-OFF-1e3",
+      "certificate_delta": 1059771,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-LFRAME-OFF-1e6",
+      "certificate_delta": 1059771,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-LFRAME-RELABEL",
+      "certificate_delta": 1059771,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-LFRAME-UNITS-mm",
+      "certificate_delta": 1059966,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-CONT4-BASE",
+      "certificate_delta": 3646769,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-CONT4-ROT-Q3",
+      "certificate_delta": 3659813,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-CONT4-ROT-Q9",
+      "certificate_delta": 3661973,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-CONT4-OFF-1e3",
+      "certificate_delta": 3646769,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-CONT4-OFF-1e6",
+      "certificate_delta": 3646769,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-CONT4-RELABEL",
+      "certificate_delta": 3646966,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-CONT4-UNITS-mm",
+      "certificate_delta": 3646869,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-TREE100-BASE",
+      "certificate_delta": 45193694,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-TREE100-OFF-1e3",
+      "certificate_delta": 45193694,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-TREE100-OFF-1e6",
+      "certificate_delta": 45193694,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_invariance.json",
+      "id": "RF-INVARIANCE-TREE100-RELABEL",
+      "certificate_delta": 45196229,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "certificate_delta": 4650668,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "certificate_delta": 4643313,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "certificate_delta": 4618519,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "certificate_delta": 4628510,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "certificate_delta": 4531526,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "certificate_delta": 4550997,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "certificate_delta": 45515510,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "certificate_delta": 45426420,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "certificate_delta": 45193694,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "certificate_delta": 45316987,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "certificate_delta": 44317536,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_large.json",
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "certificate_delta": 44480157,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_mech.json",
+      "id": "RF-MECH-LINE122-TORQUE",
+      "certificate_delta": 0,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_mech.json",
+      "id": "RF-MECH-LINE122-PERP",
+      "certificate_delta": 0,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_mech.json",
+      "id": "RF-MECH-LINE122-UNLOADED",
+      "certificate_delta": 0,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_mech.json",
+      "id": "RF-MECH-LINE345-RZ",
+      "certificate_delta": 0,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_mech.json",
+      "id": "RF-MECH-K0",
+      "certificate_delta": 0,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_mech.json",
+      "id": "RF-MECH-DISC-CHAIN100",
+      "certificate_delta": 0,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_mech.json",
+      "id": "RF-MECH-DISC-CHAIN100-SPRING",
+      "certificate_delta": 0,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_mech.json",
+      "id": "RF-MECH-LINE-IN-CHAIN1000",
+      "certificate_delta": 0,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_mech.json",
+      "id": "RF-MECH-LINE345-RX-COMPANION",
+      "certificate_delta": 486538,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CHAIN-L-240",
+      "certificate_delta": 2350739,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CHAIN-L+240",
+      "certificate_delta": 2350853,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CHAIN-E-1000",
+      "certificate_delta": 2351075,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CHAIN-E+960",
+      "certificate_delta": 2350023,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CHAIN-F-960",
+      "certificate_delta": 2349851,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CHAIN-F+960",
+      "certificate_delta": 2351777,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CHAIN-LEF-small",
+      "certificate_delta": 2351477,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CHAIN-LEF-large",
+      "certificate_delta": 2351329,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CHAIN-SIM-a",
+      "certificate_delta": 2350883,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CHAIN-SIM-b",
+      "certificate_delta": 2350691,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-SKEW-L-240",
+      "certificate_delta": 612784,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-SKEW-L+240",
+      "certificate_delta": 612586,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-SKEW-E-1000",
+      "certificate_delta": 613126,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-SKEW-E+960",
+      "certificate_delta": 594741,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-SKEW-F-960",
+      "certificate_delta": 361021,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-SKEW-F+960",
+      "certificate_delta": 613369,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-SKEW-LEF-small",
+      "certificate_delta": 612664,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-SKEW-LEF-large",
+      "certificate_delta": 612892,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-SKEW-SIM-a",
+      "certificate_delta": 612712,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-SKEW-SIM-b",
+      "certificate_delta": 612676,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CONT-L-240",
+      "certificate_delta": 4531587,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CONT-L+240",
+      "certificate_delta": 4531587,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CONT-E-1000",
+      "certificate_delta": 4533206,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CONT-E+960",
+      "certificate_delta": 4529983,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CONT-F-960",
+      "certificate_delta": 4510200,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CONT-F+960",
+      "certificate_delta": 4539041,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CONT-LEF-small",
+      "certificate_delta": 4531756,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CONT-LEF-large",
+      "certificate_delta": 4535996,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CONT-SIM-a",
+      "certificate_delta": 4532840,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-CONT-SIM-b",
+      "certificate_delta": 4530392,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-THIN-A",
+      "certificate_delta": 0,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_range.json",
+      "id": "RF-RANGE-THIN-B",
+      "certificate_delta": 0,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+      "certificate_delta": 520164,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-08",
+      "certificate_delta": 520665,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-12",
+      "certificate_delta": 519745,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-04",
+      "certificate_delta": 541222,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-08",
+      "certificate_delta": 540567,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-12",
+      "certificate_delta": 539796,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-04",
+      "certificate_delta": 503509,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-08",
+      "certificate_delta": 503547,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-12",
+      "certificate_delta": 504239,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-04",
+      "certificate_delta": 505912,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-08",
+      "certificate_delta": 506690,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-12",
+      "certificate_delta": 506255,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-04",
+      "certificate_delta": 650299,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-08",
+      "certificate_delta": 650356,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+      "certificate_delta": 649103,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-04",
+      "certificate_delta": 725421,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-08",
+      "certificate_delta": 724851,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+      "certificate_delta": 723482,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-04",
+      "certificate_delta": 608929,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-08",
+      "certificate_delta": 608894,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-12",
+      "certificate_delta": 608562,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-04",
+      "certificate_delta": 613130,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-08",
+      "certificate_delta": 612694,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-12",
+      "certificate_delta": 612186,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-04",
+      "certificate_delta": 664635,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-08",
+      "certificate_delta": 664641,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-12",
+      "certificate_delta": 664583,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-04",
+      "certificate_delta": 743756,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-08",
+      "certificate_delta": 743302,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-12",
+      "certificate_delta": 744137,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-04",
+      "certificate_delta": 627086,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-08",
+      "certificate_delta": 626753,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-12",
+      "certificate_delta": 626470,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+      "certificate_delta": 631183,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+      "certificate_delta": 630222,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_skew.json",
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+      "certificate_delta": 630079,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_weak.json",
+      "id": "RF-WEAK-W-AX-rho1e-04",
+      "certificate_delta": 2344666,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_weak.json",
+      "id": "RF-WEAK-W-AX-rho1e-08",
+      "certificate_delta": 2346421,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_weak.json",
+      "id": "RF-WEAK-W-AX-rho1e-12",
+      "certificate_delta": 2338562,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_weak.json",
+      "id": "RF-WEAK-W-L-r1e-04",
+      "certificate_delta": 1022003,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_weak.json",
+      "id": "RF-WEAK-W-L-r1e-08",
+      "certificate_delta": 1022457,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_weak.json",
+      "id": "RF-WEAK-W-L-r1e-12",
+      "certificate_delta": 1020880,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_weak.json",
+      "id": "RF-WEAK-W-3D-rho1e-04",
+      "certificate_delta": 2367074,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_weak.json",
+      "id": "RF-WEAK-W-3D-rho1e-08",
+      "certificate_delta": 2361833,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_weak.json",
+      "id": "RF-WEAK-W-3D-rho1e-12",
+      "certificate_delta": 2349420,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_zero.json",
+      "id": "RF-ZERO-SYM",
+      "certificate_delta": 1892249,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_zero.json",
+      "id": "RF-ZERO-TORSION",
+      "certificate_delta": 556604,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_zero.json",
+      "id": "RF-ZERO-PLANAR",
+      "certificate_delta": 1005451,
+      "attempt_stage_and_invocation_closure": true
+    },
+    {
+      "file": "rf_zero.json",
+      "id": "RF-ZERO-TINY",
+      "certificate_delta": 554796,
+      "attempt_stage_and_invocation_closure": true
+    }
+  ],
+  "kernel_lane_manifest_entries_verified": 12,
+  "unchanged_source_archive_files_verified": 178,
+  "raw_portable_hashes_and_transformations_verified": 9,
+  "ten_failures_at_final_byte_comparison": true,
+  "refresh_write_set_exact": true,
+  "invariance_parity_byte_identical": true,
+  "generated_preview_equals_committed_refresh": true,
+  "rust_runs_by_RV29": 0
+}

@@ -1,0 +1,372 @@
+{
+  "basis": "direct raw TSV field comparison; no solver/comparator rerun",
+  "cases": [
+    {
+      "case": "B01",
+      "old_selection": [
+        "128",
+        "256"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B02",
+      "old_selection": [
+        "256",
+        "512"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B03",
+      "old_selection": [
+        "128",
+        "256"
+      ],
+      "new_selection": [
+        "128",
+        "256"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 0,
+      "before_floor": [],
+      "after_floor": [],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B04",
+      "old_selection": [
+        "128",
+        "256"
+      ],
+      "new_selection": [
+        "128",
+        "256"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 0,
+      "before_floor": [],
+      "after_floor": [],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B05",
+      "old_selection": [
+        "128",
+        "256"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B06",
+      "old_selection": [
+        "128",
+        "256"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B07",
+      "old_selection": [
+        "256",
+        "512"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B08",
+      "old_selection": [
+        "256",
+        "512"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B09",
+      "old_selection": [
+        "128",
+        "256"
+      ],
+      "new_selection": [
+        "128",
+        "256"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 0,
+      "before_floor": [],
+      "after_floor": [],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B10",
+      "old_selection": [
+        "128",
+        "256"
+      ],
+      "new_selection": [
+        "128",
+        "256"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 0,
+      "before_floor": [],
+      "after_floor": [],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B11",
+      "old_selection": [
+        "128",
+        "256"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B12",
+      "old_selection": [
+        "256",
+        "512"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B13",
+      "old_selection": [
+        "128",
+        "256"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B14",
+      "old_selection": [
+        "256",
+        "512"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B15",
+      "old_selection": [
+        "128",
+        "256"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    },
+    {
+      "case": "B16",
+      "old_selection": [
+        "256",
+        "512"
+      ],
+      "new_selection": [
+        "512",
+        "1024"
+      ],
+      "values_range_tags_classes_and_subnormal_details_equal": true,
+      "changed_bounds": 12,
+      "before_floor": [],
+      "after_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ],
+      "all_changed_bounds_zero_to_2h": true
+    }
+  ],
+  "bound_changes": 144,
+  "p512_cases": 12,
+  "root_and_author_reconciliation_agree": true
+}

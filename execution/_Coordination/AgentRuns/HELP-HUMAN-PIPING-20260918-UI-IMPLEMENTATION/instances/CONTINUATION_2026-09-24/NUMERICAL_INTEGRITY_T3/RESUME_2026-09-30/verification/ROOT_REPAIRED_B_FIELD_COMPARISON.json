@@ -1,0 +1,1336 @@
+{
+  "actor": "ROOT",
+  "scope": "Text-level comparison of fixed raw B observations; no new solver execution or admission acceptance. Bound bits are interpreted in the reported row kind coordinate.",
+  "old_root": "<wt>/scratch/i22/b_01",
+  "new_root": "<wt>/scratch/i22/verification_c/span_fix_01/runs",
+  "cases": [
+    {
+      "case": "B01",
+      "old_sha256": "f8b8781df709efdb98b17d0d689b0f5c6eb45e460dc944e45a55fac58e7e7a3e",
+      "new_sha256": "5cce9889b9eb5c0e614d66d654158a363bd9b8109bdb1bd00a10579cdd57ea32",
+      "old_selected": [
+        "128",
+        "256"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:6",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:7",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:8",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B02",
+      "old_sha256": "a293af61d547adba0ff93fe8d3df3824340f5c9919578e177b0f9e9cddad6c19",
+      "new_sha256": "6d1728ff21f7b288eec509eddbc181d315c6ad9a045892327dbaa5ff4a1db9e4",
+      "old_selected": [
+        "256",
+        "512"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:9",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:10",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:11",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B03",
+      "old_sha256": "073e7f894b07e239031e8ee7d0c04836daeabf43e4df4876cba38e4d2bdb7182",
+      "new_sha256": "c0b8df64af9cf26a063be7a88c148fdc5ac7501b5fe4bf06948f0053cb64c998",
+      "old_selected": [
+        "128",
+        "256"
+      ],
+      "new_selected": [
+        "128",
+        "256"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [],
+      "changed_scales": [],
+      "new_floor": []
+    },
+    {
+      "case": "B04",
+      "old_sha256": "09c4edc4043704d672a7ee8cecb593d749602544ca59c7903a17035ff0eadb73",
+      "new_sha256": "855cea653c0130ed7d90f6e5bb9f9e05467e03a63a69e76e9a8e96c3abbdcb53",
+      "old_selected": [
+        "128",
+        "256"
+      ],
+      "new_selected": [
+        "128",
+        "256"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [],
+      "changed_scales": [],
+      "new_floor": []
+    },
+    {
+      "case": "B05",
+      "old_sha256": "e99f67363834762d39d676315deef74af56d65d4c6f2ae1fe111a369474e115b",
+      "new_sha256": "0c27624dfd19c9378a7d3ad41f36a5efb084ae3f16cc71f3c7f3305973fef476",
+      "old_selected": [
+        "128",
+        "256"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:6",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:7",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:8",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B06",
+      "old_sha256": "8c704167c46a6901670ea76b472c16628c858d5247e7f03e4362df257bc3d571",
+      "new_sha256": "a6fec6bdd365320d6fc3a140ea9dc3ef92fd1fe1b730aa218fb604e78c2bfd03",
+      "old_selected": [
+        "128",
+        "256"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:6",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:7",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:8",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B07",
+      "old_sha256": "a824b99f5f24b2a0fe54962f410c8506078081fcd9275cd62b3e24ff402c39f4",
+      "new_sha256": "c5720dc07483c77b9d8b84e26db50368b1d5c30038ea3518dee430283d77056a",
+      "old_selected": [
+        "256",
+        "512"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:9",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:10",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:11",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B08",
+      "old_sha256": "96aec113b5f1231738957edbfd630c789d13fbd0be9d895592abaf53400dcf8d",
+      "new_sha256": "f010a04e3ba6bbef1ce520f4e0dbf5139e1ae09f6a88e4a3e82ce90537ee3ec5",
+      "old_selected": [
+        "256",
+        "512"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:9",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:10",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:11",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B09",
+      "old_sha256": "bfc5178d8c51765d307664013839398ccb30cff8658ba87fce31ac884230927e",
+      "new_sha256": "fdf839129346eed888a43b0a2905749cde3b8c23696364f5d0dd5a75c97a64d5",
+      "old_selected": [
+        "128",
+        "256"
+      ],
+      "new_selected": [
+        "128",
+        "256"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [],
+      "changed_scales": [],
+      "new_floor": []
+    },
+    {
+      "case": "B10",
+      "old_sha256": "9d9edf448803b805a58f9d74bc7116a1c07e2d1ef5b9c0221f8733dfca88d9ae",
+      "new_sha256": "da7c11071045f9a56704d0c13eca6053d759e3f786d1f393608d8d618335e785",
+      "old_selected": [
+        "128",
+        "256"
+      ],
+      "new_selected": [
+        "128",
+        "256"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [],
+      "changed_scales": [],
+      "new_floor": []
+    },
+    {
+      "case": "B11",
+      "old_sha256": "ed614d95374b031d5265582fadc65b5a0a35182bff91e0a3f192b9e7a1e2bfb6",
+      "new_sha256": "50368bac8d6fdf57bb842f914cecbadd24dc12ed51ec700ad2acb27e74b9522a",
+      "old_selected": [
+        "128",
+        "256"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:6",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:7",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:8",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B12",
+      "old_sha256": "5f2620a353b9f3b51d5ff46a831fd8a593e2de355d4ee8d29c88a676d90be34c",
+      "new_sha256": "b494bc613510c7ff022b73636594151b54949a6c248a71f61834252ba0619cc0",
+      "old_selected": [
+        "256",
+        "512"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:9",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:10",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:11",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B13",
+      "old_sha256": "ff480408836fc33c40bf4ea1da40223d1bdf54b5920beca3e1a935e5ec176f1c",
+      "new_sha256": "aebcbbaa31a200627ab2fce796410540e631add8f24448a592891fe848480152",
+      "old_selected": [
+        "128",
+        "256"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:6",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:7",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:8",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B14",
+      "old_sha256": "712d8004f5c19c11da0549dc83c8a7881331b18b0e373e6c18672201ac018893",
+      "new_sha256": "9dca3282629ad27130d713efb2d7c9d856dc7eba13777dedde61548ea0fc7a7c",
+      "old_selected": [
+        "256",
+        "512"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:9",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:10",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:11",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B15",
+      "old_sha256": "b13fb2ca9177e2cde022df772d41c589ecb0c1e4f9181fbcb5bde9e8b15e4b01",
+      "new_sha256": "703323363c4c2de15a4969321783c455db58b1d14f6ad6078ef93ed0019d6ff5",
+      "old_selected": [
+        "128",
+        "256"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:0",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:1",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:2",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:6",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:7",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:8",
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Force",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    },
+    {
+      "case": "B16",
+      "old_sha256": "787b2dcbf8ac0ceb268b6728b0d0d9ff82f27ec40e5f7782ae141177509b2dae",
+      "new_sha256": "6edf011510e5da25cc1bf1f63fc4c50d33ac3e19cc10d2797914ff367f17917d",
+      "old_selected": [
+        "256",
+        "512"
+      ],
+      "new_selected": [
+        "512",
+        "1024"
+      ],
+      "values_ranges_classes_equal": true,
+      "changed_bounds": [
+        {
+          "row": "E:1:I:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:I:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "E:1:J:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:3",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:4",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:5",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:9",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:10",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        },
+        {
+          "row": "R:11",
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000002"
+        }
+      ],
+      "changed_scales": [
+        {
+          "kind": "Moment",
+          "old_bits": "0000000000000000",
+          "new_bits": "0000000000000001"
+        }
+      ],
+      "new_floor": [
+        [
+          "Force",
+          "0000000000000001"
+        ],
+        [
+          "Moment",
+          "0000000000000001"
+        ]
+      ]
+    }
+  ]
+}

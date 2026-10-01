@@ -1,0 +1,5 @@
+BASIS.json: OK
+COMMANDS.json: OK
+PLAN.md: OK
+RETURN.md: OK
+TEST_AND_MUTANT_PLAN.md: OK

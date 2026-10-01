@@ -17,13 +17,14 @@ use open_pipe_stress_frame_kernel::structural::retained_api::{
     e_hat, intensified_k, layout, phi_512, resolution_hats, reverse_cuthill_mckee, solve_case,
     solve_cases, stress_scale, threshold, AttemptOutcome, AttemptReason, AttemptRecord,
     AttemptRole, AttemptStop, AttemptWork, Binary64Outcome, BodyGeometry, BudgetScope, CaseLimit,
-    CaseOutcome, CombinationOutcome, CombinationReason, Component, Constraint, DirectionalSpring,
-    Dof, End, GateTest, InvocationMeter, Kind, LedgerRefusal, MemberProperty, NodalLoad,
-    PrimitiveSource, Publication, PublishedRow, QuantityId, QuantityMeta, Refusal,
-    RetainedCombination, RetainedEvidence, RetainedSolve, RowClass, SourceError, SourceParts,
-    Spring, SpringKind, StageWork, Station, StorageCounts, StraightMember, SumWork, SupportGroup,
-    UnresolvedReason, VerificationSummary, WideError, WidthWork, FLOOR_RATIO_BITS, K_SQRT2_BITS,
-    K_TWO_SQRT2_BITS, METHOD_TOKEN, PHI_SCALE_BITS, POLICY, PRECISIONS, RCOND_LABEL,
+    CaseOutcome, CertificateIssue, CombinationOutcome, CombinationReason, Component, Constraint,
+    DirectionalSpring, Dof, End, GateTest, InvocationMeter, Kind, LedgerRefusal, MemberProperty,
+    NodalLoad, PrimitiveSource, Publication, PublicationPredicate, PublishedRow, QuantityId,
+    QuantityMeta, Refusal, RetainedCombination, RetainedEvidence, RetainedSolve, RowClass,
+    SourceError, SourceParts, Spring, SpringKind, StageWork, Station, StorageCounts,
+    StraightMember, SumWork, SupportGroup, UnresolvedReason, VerificationSummary, WideError,
+    WidthWork, FLOOR_RATIO_BITS, K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN, PHI_SCALE_BITS,
+    POLICY, PRECISIONS, RCOND_LABEL,
 };
 
 const E: f64 = 2.0e11;
@@ -120,6 +121,7 @@ fn a_source_built_outside_fk_is_solved_and_read_through_the_public_path() {
     let evidence: &RetainedEvidence = solve.evidence();
     assert_eq!(evidence.method, METHOD_TOKEN);
     assert_eq!(evidence.policy, POLICY);
+    assert_eq!(POLICY, "M03-INTEGRITY-MP-v2");
     let first: &AttemptRecord = &evidence.attempts[0];
     assert_eq!(first.precision, PRECISIONS[0]);
     let own: &StageWork = &first.stages;
@@ -131,4 +133,29 @@ fn a_source_built_outside_fk_is_solved_and_read_through_the_public_path() {
     assert!(storage.pattern_entries > 0 && storage.profile_entries > 0);
     assert!(first.work.limb_multiply_equivalents() > 0);
     assert!(first.k4_work.limb_multiply_equivalents() > 0);
+}
+
+#[test]
+fn publication_failure_reasons_are_typed_at_the_public_boundary() {
+    let predicate = PublicationPredicate::AbsoluteBound;
+    let reason = AttemptReason::PublicationEnclosure {
+        quantity: QuantityId::Displacement(Dof::from_global(0)),
+        body: 0,
+        kind: Kind::Translation,
+        predicate,
+    };
+    assert!(matches!(reason, AttemptReason::PublicationEnclosure { .. }));
+    let stop = AttemptStop::PublicationCertificate {
+        index: Some(0),
+        issue: CertificateIssue::MissingField,
+    };
+    assert!(matches!(stop, AttemptStop::PublicationCertificate { .. }));
+    let unresolved = UnresolvedReason::PublicationCertificate {
+        index: None,
+        issue: CertificateIssue::PairIdentity,
+    };
+    assert!(matches!(
+        unresolved,
+        UnresolvedReason::PublicationCertificate { .. }
+    ));
 }

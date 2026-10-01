@@ -1,0 +1,22 @@
+{
+  "records": [
+    {
+      "origin": "COORD@01711fb955:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_CHECKPOINT_B_COMPILE_ADDENDUM.md",
+      "sha256": "f67a647e1f4ae8b6ff1448d476d2d9c410bf260ee4236a33cc3f1f9ee9ed7591"
+    },
+    {
+      "origin": "COORD@3cf296e36645d97e4c657c8ad1a6322bc4163f16:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sha256": "8f60c0faab1538b0e6a3785998033d7d2d7c0ae080f6ba01ad63ac8e890c498e"
+    },
+    {
+      "origin": "A1_WT/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/implementation_b/FK_01.stderr.portable",
+      "sha256": "5184c85ee8050fd3906990554268877be48b84d8fee1059abf67eec14af0b999"
+    },
+    {
+      "origin": "A1_WT/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/implementation_b/SHA256SUMS",
+      "sha256": "f373d31ff93842034a8a6bcc34e558557f4adad02f30a2957829cff1144e94c6"
+    }
+  ],
+  "compiler_executed_by": "I22, not RV29",
+  "ledger_frozen_before_reading_tests_and_compiler_log": true
+}

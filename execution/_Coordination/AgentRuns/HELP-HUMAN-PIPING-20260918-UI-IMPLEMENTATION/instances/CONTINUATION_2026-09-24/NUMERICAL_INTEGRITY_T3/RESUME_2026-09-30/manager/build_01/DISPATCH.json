@@ -1,0 +1,39 @@
+{
+  "record": "G0 manager follow-up addendum; checkpoint-0 seal unchanged",
+  "observed_at_utc": "2026-10-01T04:57:22Z",
+  "mechanism": "collaboration.followup_task",
+  "manager": "/root/t3_recovery_manager",
+  "manager_parent": "/root",
+  "child": "/root/t3_recovery_manager/i22_a1",
+  "new_child": false,
+  "role": "TASK",
+  "grant_commit": "90b6bcbbf64b13975211038bf3f33bb87273e646",
+  "grant_path": "<COORD>/<R>/BRIEFS/I22_G0_BUILD.md",
+  "grant_sha256": "2c1c6e0afdd5bd1a0a96623ca75e2c7084dc8503ab0f5318e23a244e9cc8706b",
+  "prompt_normalized_file": "FOLLOWUP.txt",
+  "actual_transport_prompt_sha256": "cf277f9af5523e42646940418c96a118c5807e1d5238f02b6557f0f58cb28f0f",
+  "prompt_capture": "Host paths replaced by aliases; native transcript retains original. Raw UTF-8 prompt hash excludes terminal newline.",
+  "scope": [
+    "<A1_WT>/<R>/I22/build_01/**",
+    "<wt>/scratch/i22/**"
+  ],
+  "authorization": "Scratch pinning and exactly one offline locked unchanged-probe build only; no solver cases.",
+  "resource_boundary": "Existing host-wide memguard only. No adopted per-process hard RSS cap. Tool-managed PTY and time -l; 300-second operator stop/report threshold, not enforced deadline.",
+  "start_evidence": [
+    "followup_task returned",
+    "list_agents shows existing I22 running and I21 completed",
+    "I22 acknowledged committed grant and resumed scope"
+  ],
+  "status": "completed; G0 build passed and manager evidence checks passed",
+  "return": {
+    "path": "<A1_WT>/<R>/I22/build_01/RETURN.md",
+    "sha256": "68e536ee6b3b68fc0b2876f274944043a99ed038145c6bd175fe182c3b0c87f2",
+    "manifest_sha256": "0a32a4194a0b231c60bf2904bab36d36dab84efd19fd10141f9f77057aa8170e",
+    "binary_sha256": "bcbe897204ec702b99529d25e6d0213d0132af5e6086e0397fae3a8f8ef8a08f",
+    "manager_checked": true,
+    "case_runs": 0,
+    "no_running_owned_build": true
+  },
+  "I21": "idle; no follow-up granted",
+  "returned_at_utc": "2026-10-01 05:01:54 UTC"
+}

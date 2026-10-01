@@ -1,0 +1,54 @@
+{
+  "schema": "a1-c17-independent-confirmation-seal-v1",
+  "sealed_utc": "2026-10-01T05:19:24.384683+00:00",
+  "status": "BLOCKING",
+  "original_truth_sha256": "1772d703e032a71587b922a2f6d825718f777c9dae78d1041fbd874210ee87ea",
+  "prior_manifests": {
+    "FREEZE_MANIFEST.json": "0b6d09a0bb1f1100e316cb6fb188fa701193534324158edacf554e600eef976d",
+    "addendum_01/MANIFEST.json": "c0f4ffa70805e0779c0277419f6aacab996d6d4f7ecba4783c91c91e87e8bf4f"
+  },
+  "all_prior_sealed_files_unchanged": true,
+  "files": [
+    {
+      "path": "addendum_02_C17/COMPARISON.json",
+      "sha256": "d22b3134ac678966fca673f858c51296cdf4ee625d9dbae9d56da2be816edf76",
+      "bytes": 25398
+    },
+    {
+      "path": "addendum_02_C17/CONFIRMATION.json",
+      "sha256": "3e4884df1f07548d42f7ba34f0f493e99d077415571882101868bbe4276b47af",
+      "bytes": 3514
+    },
+    {
+      "path": "addendum_02_C17/METADATA.json",
+      "sha256": "81b2ed1c26207ab1e01fb33fe20d8e203841d474b1f6d94d25d7d28301ac0d59",
+      "bytes": 15178
+    },
+    {
+      "path": "addendum_02_C17/RETURN.md",
+      "sha256": "7dee5e5f5dc57d67da87cc0576bcc477a61bdf7b2f2919257d652f1a30d51504",
+      "bytes": 5701
+    },
+    {
+      "path": "addendum_02_C17/RUN.json",
+      "sha256": "4432609001103b70f75b5d5ab825275654decb93517335dc2f8095f16a65650a",
+      "bytes": 1560
+    },
+    {
+      "path": "addendum_02_C17/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "addendum_02_C17/comparison.stdout.txt",
+      "sha256": "74f765ca86daeecb7be711255124b5b10a4befa04ef398ef03d8cf8d33e648ab",
+      "bytes": 151
+    },
+    {
+      "path": "addendum_02_C17/stdout.tsv",
+      "sha256": "841167ed887a71b0e2a904647e1f217758fad304baaaf0d669f5c47035dc797a",
+      "bytes": 14473
+    }
+  ],
+  "claim_boundary": "C17 false absolute publication at kernel PrimitiveSource boundary only."
+}

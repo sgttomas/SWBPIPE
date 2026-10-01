@@ -1,0 +1,1 @@
+{"case": "C17", "status": "Selected", "failures": ["exact-claim:D:0", "source-claim:D:0", "exact-claim:M:0", "source-claim:M:0"], "compared_rows": 36}

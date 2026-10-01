@@ -1,0 +1,824 @@
+{
+  "schema": "a1-fixed-pm-preparation-v1",
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "numerical_helpers": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1",
+  "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+  "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+  "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+  "archive_command": "GIT_OPTIONAL_LOCKS=0 git archive 40129a225d73860ac2a53da9a2fa73869df668f3 projects/chirality-piping/core/solver/frame_kernel",
+  "working_directory": "<DISPOSABLE>/projects/chirality-piping/core/solver/frame_kernel",
+  "cargo_argv_template": [
+    "<CARGO>",
+    "test",
+    "--offline",
+    "--locked",
+    "-j",
+    "4",
+    "--lib",
+    "<FILTER>",
+    "--",
+    "--exact"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_NET_OFFLINE": "true",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "CARGO_TARGET_DIR": "<OWNED_MUTANT_TARGET>"
+  },
+  "unset_environment": [
+    "FK_SEEDED_FAULT",
+    "RUSTFLAGS",
+    "CARGO_ENCODED_RUSTFLAGS",
+    "RUSTC_WRAPPER",
+    "RUSTC_WORKSPACE_WRAPPER"
+  ],
+  "supervision_proposal": "Existing guard live before each job; time -l + tool PTY, one own Cargo, threshold/grant decided by ROOT; no runtime authority in E.",
+  "acceptance": "Exactly one named test per exact filter must execute. A compile error, empty run, timeout, unrelated failure or snapshot drift is not a semantic kill. Any unmutated failure or surviving required variant stops the affected batch.",
+  "variants": [
+    {
+      "id": "PM01",
+      "family": "PM01",
+      "site": "certify_rows H admission bypass",
+      "patch": "patches/PM01.patch",
+      "patch_sha256": "dd61ec5d9e90a042ab4d41525a46efe9fcdefcfe6455cc6dbf92780f018f21ad",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "3c39058c8aa8d9359156cd33ceac448dd7f7068607cdc20b9af90e92891250f8",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::c17_cannot_publish_the_false_p128_interval"
+      ],
+      "semantic_failure_required": "C17 first p128 D:0/Translation/AbsoluteBound rejection is missing; only that semantic assertion qualifies.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM02",
+      "family": "PM02",
+      "site": "publication_h final-x discrepancy",
+      "patch": "patches/PM02.patch",
+      "patch_sha256": "437a96675076e870154ef972035df28888f18de93cfc7b3ba3c3fb80b9dfdffc",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "c30a33db10ee74a75ca845f823bb3c2e819b0d40800f076e066f0217c53ef0ae",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::h_uses_final_binary64_and_every_error_term"
+      ],
+      "semantic_failure_required": "PC04 x=h,c=v=5h/4 requires exact H=h/4; substituted value yields zero.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM03",
+      "family": "PM03",
+      "site": "certify_rows epsilon*published-scale instead of complete E",
+      "patch": "patches/PM03.patch",
+      "patch_sha256": "180783dcddba7f73af5b12fe832cc704bf5ff1073c72dfffdaacc6239b89bfd8",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "34dde1dfdebcd7cebaaa2a1965dad44d418dd49b66d126342f8c792a492e3bc8",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft"
+      ],
+      "semantic_failure_required": "Independent target RU64(H)=3ca0020000100402 is lost and/or later positive-error row is falsely admitted. A work-count failure is not the kill.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM04",
+      "family": "PM04",
+      "site": "publication_h W_plus",
+      "patch": "patches/PM04.patch",
+      "patch_sha256": "a679583e0bc0a8df9866b126f4b4f6a77da698a3ed4396a55f5d0571f6673cb4",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "fed753682e133d0ccb0ce8acfab5578a646c8dabae7d9bb17eb43667964d1a4d",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families"
+      ],
+      "semantic_failure_required": "Full-family exact H equality loses independently nonzero W_plus.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM05",
+      "family": "PM05",
+      "site": "publication_h magnitude term",
+      "patch": "patches/PM05.patch",
+      "patch_sha256": "074adda1e06e1d107ce7c2ac49f93516172d499f766b6e4b9d76e9828370cbb3",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "f0615e7a5c11caf9019f2c2d9f1dfea8597b5b63326889d9440f6da78472dc7f",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families"
+      ],
+      "semantic_failure_required": "Exact magnitude-family H equality loses 2^(1-P)|v|.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM06",
+      "family": "PM06",
+      "site": "publication_h E_q term",
+      "patch": "patches/PM06.patch",
+      "patch_sha256": "4b034240f77f83ae0b6f105a0cff0d8ac99e6fd354ec5be3c4801252d3ccd196",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "89bc9491e1f4e469d3d8520776647ccb34f970a94f7a8bcea2c86777c1ee7016",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families"
+      ],
+      "semantic_failure_required": "Exact force/moment H equality loses nonzero 69*2^-P*E_q.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM07",
+      "family": "PM07",
+      "site": "publication_h W term",
+      "patch": "patches/PM07.patch",
+      "patch_sha256": "ebdc15862e65f9fd780d9ee718e79a58eee5fbdd0b41300cd02228435d596eeb",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "6b725a62a40521de525bdfb41fc2b85882d0a8acc2f958122e0f4cb13635dc26",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families"
+      ],
+      "semantic_failure_required": "Exact force/moment H equality loses unscaled W, with scaled W retained.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM08",
+      "family": "PM08",
+      "site": "publication_h scaled W",
+      "patch": "patches/PM08.patch",
+      "patch_sha256": "148b0bc810b74e3281be8d7ef0e0f0bfa499bccee593cc75d19f63f127887060",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "58c9869b2ccc404580c2d67e78e668996383b269aefd590d020d40bc68e9ab00",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families"
+      ],
+      "semantic_failure_required": "Exact force/moment H equality loses W*2^-P, with W retained.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM09",
+      "family": "PM09",
+      "site": "publication_h charge",
+      "patch": "patches/PM09.patch",
+      "patch_sha256": "190e9e00f233e8f64bb2d371d4c19a15e1591b96b9a8180ac04211ba652d294a",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "e73c984fe90b7fac00eac24295e61e22e9f5a67abaf87f80689b3225f21fc197",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families"
+      ],
+      "semantic_failure_required": "Exact force/moment H equality loses nonzero charge.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM10a",
+      "family": "PM10",
+      "site": "publication_predicate observed-zero exemption",
+      "patch": "patches/PM10a.patch",
+      "patch_sha256": "0e1f59896f596744cd8bd445703a22e33f8f1c1f37c3741f3b8dd85e29ffad3a",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "4220e2af49517bea8535cc4e44b580ca8c0ad10485734ec13f081a82927a0d02",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption"
+      ],
+      "semantic_failure_required": "Positive H at x=0 must reject in predicate, not merely later radius validation.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM10b",
+      "family": "PM10",
+      "site": "publication_predicate zero-bound exemption",
+      "patch": "patches/PM10b.patch",
+      "patch_sha256": "d5c8e7db4be2cfae89b165948d98c3a124ac52d0f63b1046abe4bc67f0da0cf9",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "c396bb49aa10fe96044b5171931ff16aec3eb24cac6366c8fbbf802eee939a57",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption"
+      ],
+      "semantic_failure_required": "Positive H at b=0 must reject in predicate.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM11",
+      "family": "PM11",
+      "site": "publication_predicate qualified slack",
+      "patch": "patches/PM11.patch",
+      "patch_sha256": "6bd2bb43c080364036d560cb456b664e193bfc8ee9ab3cda2e61cfdbb8aa46cf",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "cdef37db54e3adbe290794cf8e13fe708633ac2f9ff0504c7cda12f0400f2eaf",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption"
+      ],
+      "semantic_failure_required": "H=1+2^-23 exceeds bare b=1 but false b*(1+2^-22) admits it.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM12a",
+      "family": "PM12",
+      "site": "publication_predicate omit public comparison",
+      "patch": "patches/PM12a.patch",
+      "patch_sha256": "3649f501c985f2a7f5504e4e474d11fa81a213e4ee26e998599fa556472ddbe1",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "b11f7ddefd5df2f0f2b9db9501f89ca2f33101ae9e3ff07bdc738d2c887cc8ba",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary"
+      ],
+      "semantic_failure_required": "Above exact decimal public boundary must return PublicRelative.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM12b",
+      "family": "PM12",
+      "site": "publication_predicate omit sharper-exact comparison",
+      "patch": "patches/PM12b.patch",
+      "patch_sha256": "433e9d24c51e47cd836a16243af3613f8a9c11977e72cce09748c0117c83710b",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "a62020f4b4c6eb4740c579cdf89747c1c654381836eb1531f009cdcc59674725",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary"
+      ],
+      "semantic_failure_required": "Frozen A_exact<A_f64 intermediate must return SharperExact.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM12c",
+      "family": "PM12",
+      "site": "publication_predicate omit decoded binary64 comparison",
+      "patch": "patches/PM12c.patch",
+      "patch_sha256": "dbfec60c6dfa6eff3cf9783be88c95844e57e4707692156e7623e1af4ea17cd6",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "73651605aa622290a9089f9f64dbadb3f3115b0cde24b1a9aa3bcda065e4ff8a",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary"
+      ],
+      "semantic_failure_required": "Frozen A_f64<A_exact intermediate must return SharperBinary64.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM13a",
+      "family": "PM13",
+      "site": "publication_predicate rounds H before admission",
+      "patch": "patches/PM13a.patch",
+      "patch_sha256": "5468ba16fc8c1859c8802d3af2957fb99721766afffa2262cd3699231371590b",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "9f9bdc785d57d96f918e451b691efdaa9eac04f03229b36cd9238ac852804919",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary"
+      ],
+      "semantic_failure_required": "H=A_f64+h/2 incorrectly rounds to A_f64 and passes the sharper binary64 predicate.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM13b",
+      "family": "PM13",
+      "site": "certify_rows uses upward radius for exact admission",
+      "patch": "patches/PM13b.patch",
+      "patch_sha256": "149ec917c13409b8bc28d4df0be326c7b844a5bdb7f0ab2a08094cd6330f717c",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "26afd97c60cd126e031d44a5d36ca6dd036efecd0404003e5a68a169f5372415",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft"
+      ],
+      "semantic_failure_required": "Accepted exact H is falsely rejected because RU64(H)>A_exact.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM14a",
+      "family": "PM14",
+      "site": "CertificateMeter::round_up skips directed correction",
+      "patch": "patches/PM14a.patch",
+      "patch_sha256": "b36e397e17ce20151b54b11f5b2373c0dedeade5d0209b86215ab6f4c4c69c18",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "c61df464395cb0f01f91ca50fbd700a715edee0662fce32159d190e500df4c9a",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::upward_radius_is_not_nearest_or_underflowed_zero"
+      ],
+      "semantic_failure_required": "Positive below-h and 1+h upward radius expectations fail.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM14b",
+      "family": "PM14",
+      "site": "publication_radius absent sentinel becomes zero",
+      "patch": "patches/PM14b.patch",
+      "patch_sha256": "962bb4343e43fee3389f047bdf9b1a5eeb2d20b2bb515889c42f11a3ba1fc451",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "671a6eaa8ead9d3c9087d05d6a73924ca890ea416fdff24bd7bdb8191df51fe3",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity"
+      ],
+      "semantic_failure_required": "Eligible corrupted absent sentinel must error, never present +0.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM14c",
+      "family": "PM14",
+      "site": "publication_radius negative zero becomes +0",
+      "patch": "patches/PM14c.patch",
+      "patch_sha256": "1a49bdc43214ca3a3c269ead0cd0485a88ad83b43e9dc92fb21282dad9705604",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "d8babac95c54da81fb6c7b129ed055f0f9bcbf0573615a1f72243d80573272fa",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity"
+      ],
+      "semantic_failure_required": "Eligible corrupted negative-zero radius must error.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM15a",
+      "family": "PM15",
+      "site": "finish_selected zero positive radius",
+      "patch": "patches/PM15a.patch",
+      "patch_sha256": "2ca46a45e7d7512beef5289df553f5d2c22fddb32337ac5b836b582b33d69436",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "acb2037d9cfa4d0e070a22c42e0d0a2fa7dd6dcb8912c1725e6b6e7b1ec7f162",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft"
+      ],
+      "semantic_failure_required": "The independently fixed positive final radius is zero; sentinel excluded explicitly.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM15b",
+      "family": "PM15",
+      "site": "finish_selected swap distinct positive radii",
+      "patch": "patches/PM15b.patch",
+      "patch_sha256": "9f270b32f7aae09fb1c1a3a0f20a57180387166f6e5a77390b2630092e09d820",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "0eab899fa90159d09526ae9a43e9ae63959c8bfe2600acf64da26f11fb73937f",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft"
+      ],
+      "semantic_failure_required": "Two independently unequal positive radii must retain their row indices; zero and absent sentinel excluded.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM15c",
+      "family": "PM15",
+      "site": "finish_selected signed-zero corruption",
+      "patch": "patches/PM15c.patch",
+      "patch_sha256": "96aa7943c4862db7490643c9f213aa7ec5438a135e2fad267fa382060c3d90be",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "55a75c2b229e31344a0a3592c7c83ca7bd5d992f1f6a97e722003ffe8cf2650e",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft"
+      ],
+      "semantic_failure_required": "Raw final publication must preserve +0 bits, not just floating equality.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM15d",
+      "family": "PM15",
+      "site": "finish_selected outcome corruption",
+      "patch": "patches/PM15d.patch",
+      "patch_sha256": "4c80b213198fcb22aea914bc47d552167bbe95dc860f4c200328201fb9b46a88",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "6261640d282a127b5737ede684ed15114c2db6be2d87109af8610b0d5ac00189",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft"
+      ],
+      "semantic_failure_required": "Raw final target outcome must remain the certified value-bearing outcome.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM15e-class",
+      "family": "PM15",
+      "site": "finish_selected class corruption",
+      "patch": "patches/PM15e-class.patch",
+      "patch_sha256": "3e6842e02cf329ade759088d1f7bfe479cbab1256c3b10a55440e3110b7ccb5b",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "e70606e215f315c13f753a1b49d97ba6aa71be1bce51fd70cb48440ab6c025d4",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft"
+      ],
+      "semantic_failure_required": "Raw final row class/bound identity differs from certified draft.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM15e-bound",
+      "family": "PM15",
+      "site": "finish_selected bound corruption",
+      "patch": "patches/PM15e-bound.patch",
+      "patch_sha256": "0acb9ae97191af258bc95f8f3491f6f7eb1932e1ad51ed6f02af9bc2b7677cd3",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "4b3896c4b57b7dc8e1774d2a952aa43a813a018364bce39dfe6c5dddd09467a1",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft"
+      ],
+      "semantic_failure_required": "Raw final absolute-bound bits differ while class remains unchanged.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM15f",
+      "family": "PM15",
+      "site": "finish_selected scale corruption",
+      "patch": "patches/PM15f.patch",
+      "patch_sha256": "36aa937ea38eca8b51642cd297111ff3b813a8bcc2b9025b43642d81d180a22e",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "8915ee55d48503fb0c0c8e8933ec54d6af74e3ce7c8d1825457a8914f89834c0",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft"
+      ],
+      "semantic_failure_required": "Raw final body-scale bits differ from certified draft.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM15g-accessor",
+      "family": "PM15",
+      "site": "publication_radius wrong-index lookup",
+      "patch": "patches/PM15g-accessor.patch",
+      "patch_sha256": "fea8cbb40d7183b4e7b5ea4aa97880e1540155118747682967845ea6a87b98a4",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "8e66ff138454d6a3bcf8c35b8bccb75647f8b827053e38782a51ea9c1d3c044e",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft"
+      ],
+      "semantic_failure_required": "M:1 accessor must return 3000000000000401, not D:6's first positive 3ca0020000100402; stored arrays are unchanged.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM16a",
+      "family": "PM16",
+      "site": "CertificateMeter::clone_delta clone-only omission",
+      "patch": "patches/PM16a.patch",
+      "patch_sha256": "f6f372c991b6096c76f0a4c83e83de5019c8269a56ac4802c1c1005b43beb61f",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "d1661adba9ef736d31c3d39cd7aa7008cca65aa822871ec7c13bd3d3809e508a",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+        "structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes",
+        "structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence"
+      ],
+      "semantic_failure_required": "Correct frozen totals/tuples and stopped checkpoints fail from omitted newly incurred clone work; no compound omission price.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1,
+      "filter_expectations": [
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+          "purpose": "Independent correct arithmetic/checkpoint discriminator",
+          "expected": "semantic failure"
+        },
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes",
+          "purpose": "Independent correct arithmetic/checkpoint discriminator",
+          "expected": "semantic failure"
+        },
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence",
+          "purpose": "Terminal/refusal regression; reaches is never entered before these terminal stops",
+          "expected": "clone-accounting semantic failure"
+        }
+      ],
+      "mutant_price_predictions": "None. Correct frozen oracle is unchanged; no hypothetical combined-omission total used."
+    },
+    {
+      "id": "PM16b",
+      "family": "PM16",
+      "site": "CertificateMeter::clone_delta whole inherited counter",
+      "patch": "patches/PM16b.patch",
+      "patch_sha256": "b5dbaafaf021a3408541aa6cb8a65dd7f64283fcf677091a92d10ff391df29e3",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "0e76fe7ac19799b44506f377612db7c2af932119186309767cfdd94f296b72e8",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+        "structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes",
+        "structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence"
+      ],
+      "semantic_failure_required": "Correct frozen totals/tuples and stopped checkpoints fail from duplicated inherited clone work.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1,
+      "filter_expectations": [
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+          "purpose": "Independent correct arithmetic/checkpoint discriminator",
+          "expected": "semantic failure"
+        },
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes",
+          "purpose": "Independent correct arithmetic/checkpoint discriminator",
+          "expected": "semantic failure"
+        },
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence",
+          "purpose": "Terminal/refusal regression; reaches is never entered before these terminal stops",
+          "expected": "clone-accounting semantic failure"
+        }
+      ],
+      "mutant_price_predictions": "None. Correct frozen oracle is unchanged; no hypothetical combined-omission total used."
+    },
+    {
+      "id": "PM16c",
+      "family": "PM16",
+      "site": "CertificateMeter::reaches scratch-only omission",
+      "patch": "patches/PM16c.patch",
+      "patch_sha256": "9aedb1ad8519de6ae472a19d7f035224d71c3fb7aa145b498df768bd9ceaa0d2",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "5c1c6f1994b1be7fa353e53f22cbd6f0e80ac38e162780cbbaea13cbd581727a",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+        "structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes",
+        "structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence"
+      ],
+      "semantic_failure_required": "Correct frozen totals/tuples and stopped checkpoints fail while all H/predicate/denominator/clone aggregation remains intact.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1,
+      "filter_expectations": [
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+          "purpose": "Independent correct arithmetic/checkpoint discriminator",
+          "expected": "semantic failure"
+        },
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes",
+          "purpose": "Independent correct arithmetic/checkpoint discriminator",
+          "expected": "semantic failure"
+        },
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence",
+          "purpose": "Terminal/refusal regression; reaches is never entered before these terminal stops",
+          "expected": "unchanged pass"
+        }
+      ],
+      "mutant_price_predictions": "None. Correct frozen oracle is unchanged; no hypothetical combined-omission total used."
+    },
+    {
+      "id": "PM17a",
+      "family": "PM17",
+      "site": "publication_with includes prescribed maxima",
+      "patch": "patches/PM17a.patch",
+      "patch_sha256": "c195d427a381fed4652fb45832c20e9486d56ec7b559e0c7ab3228aacc10c134",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "12c2db05f495c0dc5b682bd676426ba7bd6f2cc2ecc39cc644c630b73b07e33a",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling"
+      ],
+      "semantic_failure_required": "Fixed prescribed dominant 1e100 must be excluded: Translation scale bits remain 1, not 1e100.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM17b",
+      "family": "PM17",
+      "site": "publication_with assigns numeric max to O9 outcomes",
+      "patch": "patches/PM17b.patch",
+      "patch_sha256": "7481941d2244ac61b607ec13bac3880a8347d96583562a0930626e3c680583ce",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "83f89a8ba16fecccd80db8b0f072041bd7924e507007eddec2abbca08d4c0dca",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling"
+      ],
+      "semantic_failure_required": "Fixed Overflow plus h row must keep Translation scale bits 1; spurious unit maximum violates that O9 assertion.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM18a",
+      "family": "PM18",
+      "site": "publication_with wrongly floors Translation",
+      "patch": "patches/PM18a.patch",
+      "patch_sha256": "14c83c02390976944b31750f2ca62180517519a1a739fb10677400f7edbbd73c",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "e7c6686007f382404ddfcb6de1b289f925e0f60543a7aeceadcfa37ba8b56e85",
+      "filters": [
+        "structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling"
+      ],
+      "semantic_failure_required": "Translation must not acquire the p512 Force floor.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    },
+    {
+      "id": "PM18b",
+      "family": "PM18",
+      "site": "coupled_scales uses updated Force in Moment",
+      "patch": "patches/PM18b.patch",
+      "patch_sha256": "e2bd867bd12d8e0496d35a01b0d24f50c6f863a3ba3d5c5323947a35e247819e",
+      "source_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "95b99cc8a22a42bed93179a06a17ffdf357e07bb419267b67765a213dfe2d92a",
+      "filters": [
+        "structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit"
+      ],
+      "semantic_failure_required": "Independent 409-set corpus must detect sequentially recoupled/rounded Moment scale.",
+      "rust_compile_status": "UNRUN",
+      "execution_status": "UNRUN",
+      "static_check": "unique anchored substitution and emitted unified patch reapplied to original bytes in memory",
+      "restore": "Discard active mutant only after preserving patch/hash/logs; use untouched immutable baseline archive and reverify before hash; no git reset/index operation.",
+      "control": "Each filter must first pass unmutated candidate. After variant, reverify untouched baseline source and binary; rerun primary filter as restored control.",
+      "source_edits": 1
+    }
+  ],
+  "filter_count_with_supplements": 41,
+  "unique_baseline_filters": [
+    "structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit",
+    "structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption",
+    "structural::retained::adaptive::publication_tests::c17_cannot_publish_the_false_p128_interval",
+    "structural::retained::adaptive::publication_tests::h_uses_final_binary64_and_every_error_term",
+    "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+    "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary",
+    "structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling",
+    "structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling",
+    "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+    "structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity",
+    "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+    "structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes",
+    "structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence",
+    "structural::retained::adaptive::publication_tests::upward_radius_is_not_nearest_or_underflowed_zero"
+  ],
+  "locked_manifest_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "cargo_manifest_sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc",
+  "same_candidate_test_hash_verified": true,
+  "proposed_control_filter_invocations": 49,
+  "proposed_total_filter_invocations": 90
+}

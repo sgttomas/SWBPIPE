@@ -1,0 +1,38 @@
+{
+  "record": "I21 actual-layout continuation",
+  "mechanism": "collaboration.followup_task (existing child; original transport retained in native event stream)",
+  "manager": "/root/t3_recovery_manager",
+  "manager_parent": "/root",
+  "child": "/root/t3_recovery_manager/i21_k6c",
+  "new_child": false,
+  "role": "TASK",
+  "acknowledged_start_utc": "2026-10-01 08:12:46 UTC",
+  "deadline_utc": "2026-10-01 08:52:46 UTC",
+  "grant": {
+    "commit": "e30e94090ab1f671ae3a1a6a09f47732624c18fd",
+    "path": "<COORD>/<R>/BRIEFS/I21_LAYOUT_04.md",
+    "original_sha256": "8145f6a6302b3bc38b9ed04d1a977ec8780e3387f5c9e977f7be6bf3063d253a"
+  },
+  "clarification": {
+    "commit": "71bd33e89041bf71062672c688d3b20ad7b739b5",
+    "relayed_to_child": true,
+    "meaning": "At most one unchanged-package VR and one unchanged-package H build/run, sequential; manager checks each overlay first; same deadline and total two compiler fixes."
+  },
+  "source": "cb13fcf3ea560c0d07ad9ac02dac78e9d2e06e00",
+  "write_scope": [
+    "<K6C_WT>/<R>/I21/layout_04/**",
+    "<WT>/scratch/i21-layout/**",
+    "<WT>/k6c-layout-target/**"
+  ],
+  "runtime_scope": "Only normal-production actual-type sizeof/align_of diagnostics in existing locked package graphs; no models/solver cases/measurement/scale/allocator/observer/maintained edit.",
+  "invariants": [
+    "GIT_OPTIONAL_LOCKS=0 on every Git read; ROOT alone mutates Git/index",
+    "Existing guard/toolchain unchanged; offline/locked/-j4/two threads/incremental0",
+    "No copied structs or changed type definitions; private inaccessible cells remain gaps",
+    "No E_max/W1/F2a acceptance"
+  ],
+  "status": "completed;23-entry child seal,159 layout rows and15 derived Arc requests verified; child idle",
+  "VR": {"release_utc":"2026-10-01 08:23:11 UTC", "session":21772, "launch_time_evidence":"filesystem log-open proxy 08:24:35.014827 UTC; no direct prelaunch clock captured", "completion_observed_utc":"2026-10-01 08:25:17 UTC", "exit_code":0, "layout_rows":151},
+  "H": {"release_utc":"2026-10-01 08:28:02 UTC", "session":31638, "prelaunch_utc":"2026-10-01 08:28:41 UTC", "completion_observed_utc":"2026-10-01 08:29:38 UTC", "exit_code":0, "layout_rows":8},
+  "diagnostic_compiler_fixes":0
+}

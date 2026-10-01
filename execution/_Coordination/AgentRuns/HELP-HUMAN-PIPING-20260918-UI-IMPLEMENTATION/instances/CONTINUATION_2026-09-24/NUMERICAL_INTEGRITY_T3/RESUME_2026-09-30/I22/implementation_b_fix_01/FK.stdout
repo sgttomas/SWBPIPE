@@ -1,0 +1,16 @@
+
+running 11 tests
+test structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption ... ok
+test structural::retained::adaptive::publication_tests::budget_stop_collects_new_conversion_work_without_a_radius ... ok
+test structural::retained::adaptive::publication_tests::a_selected_zero_source_owns_paired_radii_and_clones_them ... ok
+test structural::retained::adaptive::publication_tests::certificate_errors_are_terminal_and_budget_precedence_is_unchanged ... ok
+test structural::retained::adaptive::publication_tests::clone_counter_delta_never_bills_inherited_work ... ok
+test structural::retained::adaptive::publication_tests::h_uses_final_binary64_and_every_error_term ... ok
+test structural::retained::adaptive::publication_tests::metered_bound_matches_pinned_pure_formula_at_branches ... ok
+test structural::retained::adaptive::publication_tests::missing_or_negative_error_is_not_zero ... ok
+test structural::retained::adaptive::publication_tests::relative_admission_keeps_public_and_sharper_predicates ... ok
+test structural::retained::adaptive::publication_tests::upward_radius_is_not_nearest_or_underflowed_zero ... ok
+test structural::retained::adaptive::publication_tests::c17_cannot_publish_the_false_p128_interval ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 367 filtered out; finished in 0.04s
+

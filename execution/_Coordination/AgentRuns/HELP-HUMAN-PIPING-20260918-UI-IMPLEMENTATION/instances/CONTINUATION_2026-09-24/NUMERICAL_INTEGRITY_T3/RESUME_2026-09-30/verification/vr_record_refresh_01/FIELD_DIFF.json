@@ -1,0 +1,98 @@
+{
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "files": [
+    {
+      "file": "invariance.json",
+      "old_sha256": "de9314c28b80aefbe1d0daf694317bd4a5c623490eaeb8c18c6ea0771a6e808b",
+      "new_sha256": "de9314c28b80aefbe1d0daf694317bd4a5c623490eaeb8c18c6ea0771a6e808b",
+      "field_changes": 0,
+      "records": 21
+    },
+    {
+      "file": "parity.json",
+      "old_sha256": "da3f982ebf2eb3f49f02f35fe5d06b312d68e9db58cc03a1baebbb69f3f5978e",
+      "new_sha256": "da3f982ebf2eb3f49f02f35fe5d06b312d68e9db58cc03a1baebbb69f3f5978e",
+      "field_changes": 0,
+      "records": 21
+    },
+    {
+      "file": "rf_cancel.json",
+      "old_sha256": "4ddab57b4b64e53dfda60a81df2f4e439deef16493f17cd4fed96f2a5b1737ee",
+      "new_sha256": "6d6216fa75dadf38dec1bd5bed2668056b06d7dfaf6c98387dc083673b553ab2",
+      "field_changes": 190,
+      "records": 38
+    },
+    {
+      "file": "rf_chain.json",
+      "old_sha256": "ec7a1bf2e47a186990a8c47e70a5bc6246453251d7796a66b0b2257549ec068b",
+      "new_sha256": "8feb6901d48639b184d5d93a9814ea27d8b97ae862ea2293f90ed962288e2572",
+      "field_changes": 150,
+      "records": 30
+    },
+    {
+      "file": "rf_finite.json",
+      "old_sha256": "a416a6742496bac0007dad03dc615e0a0c0d8389e74280c7ea8df5720e2bbf88",
+      "new_sha256": "b09de0e89254035fef5f1b2670be57f3da34e2e6352ff389b72d126388cd9ba9",
+      "field_changes": 30,
+      "records": 6
+    },
+    {
+      "file": "rf_invariance.json",
+      "old_sha256": "3d66739b7e517538d3a8595653ff42bf5d27d9726f7d6ffb38a01e8367620705",
+      "new_sha256": "bc7fa0dda49b5b3c5d6d39b180a593941304d7f93e2d5fce0e98ee2a6086a8a1",
+      "field_changes": 125,
+      "records": 25
+    },
+    {
+      "file": "rf_large.json",
+      "old_sha256": "a03f0a3079c4c9dc465319f402f9fde7f940240e26807000528d584b10611437",
+      "new_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+      "field_changes": 60,
+      "records": 12
+    },
+    {
+      "file": "rf_mech.json",
+      "old_sha256": "22e5cade8dc0034aa89e6ecdc073f5ba33f9b1afc191c9a7876108920a6ed6a8",
+      "new_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "field_changes": 5,
+      "records": 9
+    },
+    {
+      "file": "rf_range.json",
+      "old_sha256": "6c3717bed7b95833fc3403cfa7410bb70e79d9278e2942b87d043454aa95f185",
+      "new_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+      "field_changes": 150,
+      "records": 32
+    },
+    {
+      "file": "rf_skew.json",
+      "old_sha256": "55e756148f293b6ff3fe0b7dbdc337af944bc2a5f9bbe345e2a8922ae669203b",
+      "new_sha256": "dfcc0eb54a0347268b018d02f3aa1596bb8de05fd46881cea6286a22e142c0fe",
+      "field_changes": 180,
+      "records": 36
+    },
+    {
+      "file": "rf_weak.json",
+      "old_sha256": "60e8da91026778fa59f90776c1f7256db4d3b4ce49a359a8164fc6fb96a30037",
+      "new_sha256": "6001e4248410dc926b12ee2ab4e3504cfd43970412638bd7681090e11b67c88f",
+      "field_changes": 45,
+      "records": 9
+    },
+    {
+      "file": "rf_zero.json",
+      "old_sha256": "2eaeed8a8ac999634350c39429151f8a62c54a8520ac4bafc8ca840371022a7a",
+      "new_sha256": "8599b0e051c22bf3a102b49b52d43074e5386801a23774590d1f1007b9f8fd93",
+      "field_changes": 20,
+      "records": 4
+    }
+  ],
+  "changed_paths": {
+    "*/attempts/*/exact_sum_work": 191,
+    "*/attempts/*/own_work": 191,
+    "*/attempts/*/stages/stop_rule": 191,
+    "*/attempts/*/stop_rule_work": 191,
+    "*/invocation_charged": 191
+  },
+  "unexpected": [],
+  "closure_failures": []
+}

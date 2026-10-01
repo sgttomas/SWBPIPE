@@ -425,6 +425,7 @@ fn a_sums_rounding_charges_the_limbs_it_rounds() {
 
 #[test]
 fn golden_work_counts() {
+    use super::publication_tests::replay_certificate_components;
     // SD-L1 (K4-M17/M18/M19; ROOT's O5: TWO-SPAN's p + 64 residual is
     // evidenced by its correction and its refinement and residual-formation
     // work). Per attempt: (p, own context work, K4 sum work, shared work,
@@ -493,7 +494,15 @@ fn golden_work_counts() {
         golden.into_iter().zip(stages_golden).zip(a3b)
     {
         assert_eq!((name, name), (name2, name3));
-        let solve = selected(name);
+        let (limit, mut meter) = unlimited();
+        let CaseOutcome::Selected(solve) =
+            solve_case(models::model(name).source(), limit, &mut meter)
+        else {
+            panic!("{name}: expected selected golden");
+        };
+        // The historical columns remain R7-only. The helper separately checks
+        // inclusive stage/attempt/case/invocation closure on these SAME states.
+        let components = replay_certificate_components(&solve, meter.charged());
         let attempts = &solve.evidence().attempts;
         let got: Vec<(u32, u64, u64, u64, u64, u64, u64)> = attempts
             .iter()
@@ -536,13 +545,20 @@ fn golden_work_counts() {
         assert_eq!(stages, stage_rows, "{name} stages");
         let new: Vec<(u32, u64, u64, u64, u64, u64, [u64; 6])> = attempts
             .iter()
-            .map(|a| {
+            .zip(&components)
+            .map(|(a, certificate)| {
                 let s = &a.stages;
                 (
                     a.precision,
-                    a.work.limb_multiply_equivalents(),
-                    a.k4_work.limb_multiply_equivalents(),
-                    a.stop_rule_work,
+                    a.work
+                        .limb_multiply_equivalents()
+                        .checked_sub(certificate.context)
+                        .unwrap(),
+                    a.k4_work
+                        .limb_multiply_equivalents()
+                        .checked_sub(certificate.sums)
+                        .unwrap(),
+                    certificate.r7,
                     a.verification_work,
                     a.verification_shared_work,
                     [

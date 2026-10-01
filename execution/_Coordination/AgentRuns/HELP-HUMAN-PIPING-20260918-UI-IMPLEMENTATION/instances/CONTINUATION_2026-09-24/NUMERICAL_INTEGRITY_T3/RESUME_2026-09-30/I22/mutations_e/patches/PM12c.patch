@@ -1,0 +1,21 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -3052,15 +3052,16 @@
+                 s.add_scaled(h, true, 1, 0)?;
+                 Ok(())
+             })? {
+                 return Ok(Some(failed));
+             }
+-            compare(PublicationPredicate::SharperBinary64, &mut |s| {
++            let _ = compare(PublicationPredicate::SharperBinary64, &mut |s| {
+                 s.add_binary64(a64, false)?;
+                 s.add_scaled(h, true, 1, 0)?;
+                 Ok(())
+-            })
++            })?;
++            Ok(None)
+         }
+         _ => Err(certificate_error(
+             None,
+             CertificateIssue::RadiusClassMismatch,
+         )),

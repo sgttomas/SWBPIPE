@@ -3078,3 +3078,312 @@ RV26 (`REVIEW/RECORDS_PR1063_REVIEW.md`, sha256 `60813369…`; records `REVIEW/_
   - D2 to D4 are also fixed, in the notes and in the handoff's inventory line, which is new in this PR. The notes gain the next free numbers and a reviewer-prompt shape, since no reviewer prompt has been committed since RV13.
   - Then RV26's short confirmation, and the merge.
 - **RV26's confirmation at `2a6f87562`: PASS,** with two optional NOTEs, C1 and C2. Both are fixed in the notes: C1 cites the M03 and K3 merge records' own justification of their sweep carry-over, and C2 corrects "RV19" to "RV14". RV26 confirms the fix, then the merge.
+
+## Records PR #1063 merged (ROOT, 2026-09-30)
+
+- **Merged:** [PR1063](https://github.com/sgttomas/chirality/pull/1063) at head `a2768ce49`, merge `74b3c7313`, 2026-09-30 12:48:09Z, with `--match-head-commit`. ROOT checked immediately before the merge that main had not moved from `490b75bd9`.
+- **Review:**
+  - RV26's review at `21e2285e3`: PASS, with 2 SHOULD-FIX (fixed) and 10 NOTEs;
+  - its delta check at `95bb2e700`: PASS, with D1 fixed and D2–D4;
+  - its confirmations at `2a6f87562` and `a2768ce49`: PASS, with C1 and C2 fixed.
+  - RV26's last confirmation section is committed here, after the merge.
+- **Hosted CI:** 7 passed and 6 were skipped, as selected for a records-only change. GEN-8 passed at each head.
+- **Main now carries `OPERATING_NOTES_2026-09-30.md`** beside the handoff. T3 stays paused for the owner's audit.
+
+
+## Audit accepted; bounded numerical recovery authorized (ROOT, 2026-09-30)
+
+The owner reviewed ROOT's verification and recommendation, asked for the work-graph
+account and Agent 0 orchestration plan, then directed: "Proceed accordingly."
+The accepted plan and initial briefs are in RESUME_2026-09-30/. These are execution
+briefs, not reusable instructions or acceptance of a new numerical design.
+
+- **AUD-T3-01: accepted as SHOULD-FIX; open.** Subnormal row rounding before
+  multiplication by L or division by L refutes the scale-transfer premise.
+  ROOT reran the arithmetic and checked it by hand (verification/arithmetic.json).
+  No unmutated false solver publication is established by the audit or preserved
+  B01/B02 evidence. Such a witness makes this BLOCKING.
+- **Explicit reliance hold:** F2a must not rely on the published-bound guarantee
+  until the complete coupling argument, realized-source/control investigation and
+  independently reviewed correction or proved exclusion close the finding.
+  An amendment by ruling receives independent design-level re-derivation before
+  reliance; the original A1 ruling does not discharge the missing premise.
+- **Owner-selected direction:** bounded diagnosis and a conservative valid
+  publication guarantee, with named refusal wherever it cannot be established.
+  Extreme-model solvability is not the objective. No physical cutoff, new bound
+  formula, D2 contract or availability change is selected here. Concrete changes
+  to the published contract or supported domain return to the owner.
+- **A2:** the audit and post-merge review sustain its conditional minimum-of-
+  formed-certified-bounds argument. This is not universal runtime qualification,
+  A1 closure or a memory-bound proof.
+- **AUD-T3-02: adopt the replay erratum.** Original SHA256SUMS use their containing
+  directory except REVIEW, DESIGN_NUMERICS, DESIGN_STANDING, REFERENCES and
+  REFERENCES_ELOAD: each _run_records/SHA256SUMS uses its named parent.
+  Preserve the original manifests.
+- **AUD-T3-03: adopt the exception ledger.** S11-K, K2b and K6 disclosed
+  intent-to-add/reset pairs; K6b disclosed fetch; S11-K's separate fast-forward
+  was expressly authorized by its fix brief. Reported nil net effect does not
+  establish no transient write or complete command-history compliance. ROOT
+  owns every current Git/index mutation, including fetch and staging.
+- **AUD-T3-04: accepted NOTE; preservation open.** Original Mac suite logs and
+  KF2 gate JSONL are available; ROOT matched the latter to their original hash
+  record. Preserve originals and sanitized recoverable copies before pruning.
+  Local availability alone is not completed custody. K4's dated-generator-input
+  and sparse-checkout limitation remains disclosed; no tooling repair is granted.
+- **AUD-REV-N1: adopt input binding.** A script's constant BASE is not proof of
+  its working inputs. ROOT's verification identifies the actual checkout, original
+  script and principal input hashes, matched before replay. Preserve historical
+  audit files and label changed-input analyses as new evidence.
+- **PR #1064:** merged at 3bddc2b05f6106e969c7cf43373b230845c7cc66 before independent
+  review. The later Response/instances/AUDIT-REVIEW/REVIEW.md at
+  520d7dfb790bcedabc03e92b9692884ce295be54 confirms the defect, qualified as to
+  reachability, with no blocking or SHOULD-FIX review finding. Its timing does
+  not become pre-merge coverage or a future review waiver.
+- **PR #1066 disposition authorized:** close unmerged, retain its branch and head
+  520d7dfb790bcedabc03e92b9692884ce295be54. Its records are incomplete inputs,
+  not numerical remediation or accepted design. Record actual closure after
+  success. No guard development is carried forward.
+- **Attribution correction:** the owner identified the supporting-tool drift and
+  stopped the response. Its "ROOT's scope correction" wording must not obscure
+  the owner's intervention. Old hash-bound records stay unchanged.
+- **K6c remains required:** original I21 brief, full phase derivation, H/VR
+  deduplication, final admissions and W1-T4 against the settled kernel. Sensitivity
+  replay is not E_max proof; unsealed source_finish_01 is input only.
+  ROOT's W1 limits wait for closure.
+
+Response means the HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE run under the
+project coordination AgentRuns directory. Its REPLAY_AND_PROCESS_ERRATA.md
+supplies the adopted errata with original evidence pointers.
+
+ROOT retains Git, rulings, graph and host scheduling. A fresh WORKING_ITEMS manager
+integrates I22/I21; the independent oracle and fresh reviewers report to ROOT.
+TASKs make no Git/index writes or delegations. Initial grants are source-only;
+actual parentage and scope are recorded at dispatch. Use the existing M5 guard.
+A tooling blocker returns to ROOT and the owner.
+
+After A1/K6c and W1 limits: F2a/S-G1, S-I, S-J where required, F2b per domain,
+F3/S-G2/S-E1, V-P and join, plus T3-close obligations. Owner choices on ceilings,
+PHYS-R4/availability, observation framing, KF3-B1 and KF2 dense screen stay open.
+Every PR, records included, retains exact-final-head gates and fresh independent
+review under the owner's current resumption direction.
+
+## PR #1066 closed unmerged (ROOT, 2026-09-30)
+
+ROOT closed PR #1066 under the owner's accepted disposition. GitHub reports CLOSED,
+closedAt 2026-10-01T04:44:25Z, with head
+520d7dfb790bcedabc03e92b9692884ce295be54. A fresh git ls-remote confirms the
+response branch still points to that head. Nothing was merged or deleted.
+Its numerical results, conditional designs, guard and unfinished K6c packet
+retain the limits stated in the preceding ruling and scope handoff.
+
+## Resumption dispatch and raw-evidence return (ROOT, 2026-09-30)
+
+The native WORKING_ITEMS recovery manager /root/t3_recovery_manager and its
+fresh I22/I21 TASKs are running source-only checkpoint work. ROOT's independent
+oracle /root/a1_exact_oracle was stopped after it disclosed premature expected-
+answer exposure; its only return is provenance, not an accepted oracle result.
+A fresh /root/a1_oracle_fresh excludes old expected-answer/output records until
+its independent derivation is frozen. DISPATCH.json and DISPATCH_UPDATES.jsonl
+record parentage, supplied bases and scopes. No Rust experiment has been granted. [Correction (ROOT, 2026-09-30, RV27-S1): this describes the initial source-only dispatch. The later BRIEFS/I22_G0_BUILD.md in this records candidate authorizes one probe build only; no solver case or numerical acceptance is granted here.]
+
+The preservation TASK returned a sealed packet in RESUME_2026-09-30/evidence.
+ROOT verified its seal and file hashes and independently restored both compressed
+gate files to their original recorded hashes (ROOT_EVIDENCE_CHECK.json).
+The evidence README gives inventory, final-head bindings, transformations and
+restore instructions. ROOT accepts the existing-policy size warnings for the
+two canonical gate gzip copies; no storage tool or policy is changed.
+This prepares Git recovery of sanitized logs and original gate bytes; independent
+records review and remote integration remain pending. The original raw scratch
+and current Mac baseline stay intact; no pruning is authorized. The generator-
+input/sparse-checkout limitation remains separately disclosed.
+
+The manager disclosed uncertainty about optional index stat-cache refresh from
+its initial read-only git status commands. No explicit mutation was reported;
+the record does not assert a complete no-write history. Subsequent delegated
+Git reads require GIT_OPTIONAL_LOCKS=0. No index repair or historical rewrite
+is authorized by this clarification.
+
+- **Evidence location correction (same ROOT integration):** GEN-8 detected the
+  literal scan patterns in the returned COMMANDS.md as an unclassified active
+  surface. The complete sealed packet was relocated byte-for-byte to
+  RESUME_2026-09-30/_run_records/aud_t3_04/. EVIDENCE_RELOCATION.json maps its
+  original return prefix to the current one; the original seal is unchanged.
+  No test, checker or sealed evidence text was edited. The first GEN-8 failure
+  remains recorded; rerun is required before the records candidate merges.
+
+
+## Records resumption: RV27-S1 corrected (ROOT, 2026-09-30)
+
+RV27 independently reviewed candidate 90b6bcbbf64b13975211038bf3f33bb87273e646.
+Its REVIEW.md is SHA256 8bb6773bfb27f2e11a3b4f2a2dd1e740cc92fcb8f1a74fcc4ca0792a619658f6,
+under REVIEW/RESUME_RECORDS_RV27 on numerics. Its sole SHOULD-FIX, RV27-S1,
+is corrected here: the current graph identifies initial source-only dispatch
+and the later included G0 build-only authorization. The dispatch ruling retains
+its historical words with an explicit correction bracket. This frozen records
+slice contains no solver-case grant or numerical acceptance. ROOT verified
+RV27's seal; the same reviewer must confirm this correction before merge.
+
+## AUD-T3-01 escalated to BLOCKING: C17 source witness (ROOT, 2026-09-30)
+
+ROOT read the unchanged C17 raw output, rehashed it and the G0 binary, checked
+the independently frozen exact truth and recomputed the interval inequality.
+The independent oracle TASK separately confirmed it without changing its frozen
+truth or comparator. I22/c_01 and oracle_fresh/addendum_02_C17 preserve the result.
+
+C17 is an admitted unmutated PrimitiveSource selected at p128/P256. D:0 and M:0
+publish +0, AbsoluteVerified with bound bits 0000001000000000. Exact primitive
+force balance gives 9*2^-1041 in model length units; b=2^-1038, so error/b=9/8.
+Even b*(1+2^-22) is too small: the exact qualified ratio is 4718592/4194305.
+These are two false kernel row publications, not merely a proof counterexample.
+
+Raw stdout SHA256: 841167ed887a71b0e2a904647e1f217758fad304baaaf0d669f5c47035dc797a.
+Binary SHA256: bcbe897204ec702b99529d25e6d0213d0132af5e6086e0397fae3a8f8ef8a08f.
+Source: 3bddc2b05f6106e969c7cf43373b230845c7cc66, FK-identical to d01ad98...
+The run uses the unchanged probe, no seeded feature, and the G2 fixed limits.
+The source-level comparator and independent derivation are in the A1 worktree's
+RESUME_2026-09-30 records; ROOT is preserving them as their own pinned Git basis.
+
+AUD-T3-01 is BLOCKING under the audit's existing escalation rule. F2a reliance
+remains held. C18-C24 are unrun; the C sequence stopped after this first witness,
+with no repeat, source repair or new search. The corrected post-read path error
+does not change any solver output. B remains honest within its recorded coverage.
+
+No product/native false publication is established. The literal C17 numeric
+transport is excluded by the current product magnitude profile; equivalent
+product/unit exclusion is not proved. This qualification does not excuse a
+false publication by the admitted kernel API.
+
+A fresh HELPS_HUMANS design assignment now independently derives a warranted
+correction and its contract/availability effects. A fresh design reviewer must
+re-derive it before reliance. No new bound, cutoff or implementation is selected
+by this escalation. K6c stays unaccepted and tied to the settled A1 kernel.
+
+- **Durable C17 basis:** complete diagnostic/oracle/manager packets are committed
+  and pushed on the retained A1 branch at a6b40d2d036acac556e28f28f5b482a4adb39333.
+  RESUME_2026-09-30/C17_EVIDENCE_BINDING.json pins paths, raw/binary hashes,
+  manifests, scope and restore method. The records PR now incorporates the
+  blocking escalation before merge; earlier review confirmations cover their
+  named historical candidates only. A fresh design agent is executing the
+  committed bounded brief; no repair or design alternative is accepted.
+
+## A1 certificate correction selected for bounded implementation (ROOT, 2026-10-01)
+
+ROOT selects the sealed independent design and additive correction, after
+RV28's independent re-derivation and VERIFIED backcheck. Source-qualified
+identities/hashes are in RESUME_2026-09-30/BRIEFS/I22_IMPLEMENTATION_A.md.
+RV28-1 is closed at specification level; its conversion-work note remains an
+implementation/review obligation. This satisfies independent design checking
+before reliance; it does not accept unimplemented code.
+
+The selected correction certifies H=|actual published x-verification v|+E using
+the complete existing R7 error formulas and prerequisites. Absolute rows require
+H<=the unchanged b. Relative rows require the public decimal predicate and both
+the exact and current binary64 tighter allowances. An uncertifiable candidate
+escalates or refuses by name. Existing scale/class/bound bits and source domain
+are not widened. [Correction (ROOT, 2026-10-01): the unchanged
+quantity is the construction at the same selected candidate/floor, not equality
+of old and new output bits. Escalation can activate the existing p512 floor and
+change scales/bounds. ROOT_REPAIRED_B_FIELD_COMPARISON.json under
+RESUME_2026-09-30/verification binds that effect to the old/new raw hashes;
+values/ranges/classes remain equal for these B cases. No new public formula or
+source-domain cutoff is selected.] Private upward binary64 radii accompany the identical certified
+publication; they are not a new public receipt radius. The addendum pins SI
+normalization/binding and later facade obligations.
+
+This bare-b choice implements the owner's already accepted conservative-refusal
+direction. Qualified intervals, outward public bounds/scales, input cutoffs and
+reversal of protected availability remain unselected decisions. No fresh owner
+approval is created for faithful implementation of this choice.
+
+ROOT reserves M03-INTEGRITY-MP-v2 in the current kernel policy mechanism, keeping
+the method token. Historical v1 records are not retroactively certified.
+F2a/D2 recognition, final-row/unit/derived certification and runtime qualification
+remain required before product reliance.
+
+I22 may author only the four maintained files in the committed A grant, with
+additive evidence. No build/test/solver/mutant or snapshot refresh is yet granted.
+The source branch now carries current main at 0ce33d7e89a306cfc01f3ce29f421f4dbd02e716.
+ROOT will verify the core diff/hashes, commission a fresh source reviewer and
+run every required gate on the actual candidate before merge. A1 is still
+BLOCKING, K6c unaccepted and F2a held.
+
+
+## Audit resumption records merged (ROOT, 2026-10-01)
+
+PR1068 merged at 2026-10-01T06:38:11Z as
+546e05a159a58f5ceffe1d315373bc2f31982ea8, exact candidate
+729e80b5c2a33b278623a850d9c75c25372b688c. ROOT checked main a38617d
+immediately before the guarded merge. RV27's final independent confirmation,
+full-SHA CI, exact-head Mac DEC-025 comparison (including the disclosed isolated
+missing-suite recovery), and GEN-8 are recorded in
+IMPLEMENTATION/RESUME_RECORDS_MERGE/RECORD.md. No numerical repair is accepted.
+AUD-T3-01 remains BLOCKING, F2a held and K6c unaccepted. Original raw evidence
+remains preserved; no pruning is authorized. The owner stopped the response drift.
+
+## A1 first compile: bounded matcher repair (ROOT, 2026-10-01)
+
+The B compile stopped before tests on two new-test type-inference errors and
+one exhaustive existing test matcher. ROOT grants only the diagnostic
+PublicationEnclosure arm in FK/tests/retained_k4/method_tests.rs as a fifth
+maintained path, plus explicit Wide::<4> in the new tests. Existing expected
+tokens/fixtures/assertions remain protected. The committed B compile addendum
+sets the exact scope; this is no availability or numerical acceptance.
+
+## A1 compiled-source checkpoint and reach (ROOT, 2026-10-01)
+
+ROOT froze the exact compiler repair at dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1.
+I22 implementation_b_fix_01 records the preceding successful focused tests on
+3cf296e plus that exact patch; they are not falsely rebound to a later launch.
+Full numerical/runtime/mutant acceptance is still pending. The C brief grants
+finite source-control and new-test work, plus RV29's independent fixed-head FK
+suite. No old expected outcome or protected availability is changed.
+
+The actual caller trace, independently checked in RV29 candidate_01, reaches
+H/validation only. The legacy product solver uses unchanged retained arithmetic
+and seeded hooks, not the changed adaptive route. Accordingly T9/both-entry
+are not triggered by this slice alone; all other standing exact-candidate gates
+remain. Reassess if the source/write set gains product reach.
+
+## Independent ledger span correction (ROOT, 2026-10-01)
+
+RV29's candidate ledger understated the successful b=2 algebra route's aggregate
+max_span_bits by one. ROOT and the manager independently checked the frozen
+source: the comparison term span is 1-(-1074)+1=1076, while H alone spans1075.
+The priced work and budgets do not change. The original sealed ledger stays
+unchanged; RV29 provides an additive correction. The C span brief permits only
+the warranted new-test expectation/rationale repair before the next bounded
+run. This is no production defect closure or blanket permission to rebaseline.
+
+## A1 S11 inventory: declare the added integer site (ROOT, 2026-10-01)
+
+The full fixed-head FK suite found one source-inventory mismatch in addition
+to the two legacy work-golden assertions. ROOT and RV29 classified the added
+run_schedule c+=1 as the existing integer precision-schedule index advancing
+after certificate rejection. The exact S11 inventory row may change5 to6 with
+that annotation; all scanner rules/other rows remain. The dedicated committed
+brief bounds the edit/check and same-reviewer backcheck. No floating summation
+site or protected numerical criterion is excused.
+
+## A1 checkpoint D: preserve old work oracles and close test gaps (ROOT, 2026-10-01)
+
+The complete source-run/review evidence now warrants the exact test-only D grant
+in RESUME_2026-09-30/BRIEFS/A1_CHECKPOINT_D.md. I22 may isolate the new certificate
+component in the two named existing work-golden tests while keeping every old
+numerical literal and unrelated criterion. This supersedes the earlier optional
+evidence-patch-only step; the actual diff and same-reviewer backcheck remain
+required. The independently checked relative-control fixture is accepted as
+unit-level arithmetic truth, not a source-model result. No production change,
+old fixture rewrite, new public formula or availability relaxation is selected.
+A1 and K6c retain their separate closure boundaries under the owner's sequence.
+
+## A1 VR records: include certificate work (ROOT, 2026-10-01)
+
+The unchanged kernel-lane generator on immutable40129 produces only the five
+accounting-field deltas documented in RESUME_2026-09-30/verification/
+vr_record_refresh_01/FIELD_DIFF.json on A1. ROOT checked all field comparisons
+and charge closure. Accuracy, outcomes, precision, classes, controls and
+not-covered expectations stay fixed; invariance/parity records are identical.
+The ten generated family JSONs and kernel_lane/SHA256SUMS may be refreshed to
+include the new certificate work. No other observation or criterion is granted.
+The failed preflight and original hashes remain evidence. Same-reviewer
+backcheck and an affected-suite rerun are required; this is not A1 closure.

@@ -1,0 +1,20 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running tests/k6b_export.rs (<TARGET>/debug/deps/k6b_export-9847e09a71ddaf09)
+        0.09 real         0.05 user         0.01 sys
+            23642112  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                3025  page reclaims
+                 179  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   1  signals received
+                  64  voluntary context switches
+                 179  involuntary context switches
+           186525523  instructions retired
+            71334637  cycles elapsed
+             7143904  peak memory footprint

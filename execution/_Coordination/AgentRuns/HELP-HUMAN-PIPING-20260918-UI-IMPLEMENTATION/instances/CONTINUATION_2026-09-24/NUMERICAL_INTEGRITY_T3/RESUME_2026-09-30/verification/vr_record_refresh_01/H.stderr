@@ -1,0 +1,32 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/a1/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/a1/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/a1/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/a1/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/a1/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/a1/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/a1/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/a1/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (<wt>/a1/projects/chirality-piping/core/solver/performance_harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.02s
+     Running tests/k6b_adapter.rs (<wt>/a1-consumer-h-target/debug/deps/k6b_adapter-5a1140c7d0cc1bfe)
+     Running tests/k6b_bin.rs (<wt>/a1-consumer-h-target/debug/deps/k6b_bin-c58f9a201372d8ee)
+     Running tests/k6b_export.rs (<wt>/a1-consumer-h-target/debug/deps/k6b_export-9847e09a71ddaf09)
+     Running tests/k6b_w1.rs (<wt>/a1-consumer-h-target/debug/deps/k6b_w1-2064fb8b57818bf9)
+       21.73 real        37.06 user         1.39 sys
+           501547008  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              268994  page reclaims
+               10966  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                  15  signals received
+                 986  voluntary context switches
+               21672  involuntary context switches
+           420819716  instructions retired
+           225348832  cycles elapsed
+             8569456  peak memory footprint

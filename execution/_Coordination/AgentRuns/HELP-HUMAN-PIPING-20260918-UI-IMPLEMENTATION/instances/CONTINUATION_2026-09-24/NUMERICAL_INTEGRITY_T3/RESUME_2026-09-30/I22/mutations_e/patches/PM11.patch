@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -3024,11 +3024,11 @@
+     match row.class {
+         RowClass::AbsoluteVerified { bound_bits } => {
+             let b = f64::from_bits(bound_bits);
+             finite_nonnegative(b).map_err(|e| certificate_error(None, e))?;
+             compare(PublicationPredicate::AbsoluteBound, &mut |s| {
+-                s.add_binary64(b, false)?;
++                s.add_binary64(b * (1.0 + f64::from_bits(0x3e90_0000_0000_0000)), false)?;
+                 s.add_scaled(h, true, 1, 0)?;
+                 Ok(())
+             })
+         }
+         RowClass::RelativeVerified => {

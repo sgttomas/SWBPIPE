@@ -1,0 +1,42 @@
+{
+  "record": "Finite numerical checkpoint C follow-up",
+  "mechanism": "collaboration.followup_task",
+  "manager": "/root/t3_recovery_manager",
+  "manager_parent": "/root",
+  "child": "/root/t3_recovery_manager/i22_a1",
+  "role": "TASK",
+  "new_child": false,
+  "actual_start_utc": "2026-10-01 06:57:42 UTC",
+  "boundary_utc": "2026-10-01 07:42:42 UTC",
+  "grant_commit": "0236cf0969872b2f54a447876f9cf50899035291",
+  "grant_path": "<COORD>/<R>/BRIEFS/A1_CHECKPOINT_C.md",
+  "grant_sha256": "79c527fbfe1b11bd667e0b4cafb6088db138a91a69d0b443d103360bd19eabb6",
+  "followup_file": "FOLLOWUP.txt",
+  "raw_transport_prompt_sha256": "62c994f9dde8eae3cc16264fd7c668d14a29bafbdf565fa1096bd3198286b034",
+  "frozen_numerical_probe_source": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1",
+  "initial_live_records_head": "c6e7d35c048f36d45b78184dcf73ce0c75879c95",
+  "maintained_scope": "Only new publication_tests.rs; exact granted control-source ID alignment and finite tests. No production helper/API changes.",
+  "runtime_scope": "Augmented publication_tests, H k6b_export, one archived-source probe build, C17 then B01-B16 then3 frozen extras once each; bare-b checker, unchanged caps. No C18-C24, broad suites/PM/scale/refresh.",
+  "stop_rules": "Production/math/accounting/protected failures, false publication, invalid binding/resource limit return before repair/retry; nonselection is not accuracy pass.",
+  "start_evidence": [
+    "followup_task returned",
+    "I22 acknowledged full grant/hash, actual start/timebox and live-versus-frozen source distinction"
+  ],
+  "status": "first augmented FK stopped on frozen max-span evidence mismatch; later resume separately authorized",
+  "return": {
+    "path": "<A1_WT>/<R>/I22/verification_c/RETURN.md",
+    "sha256": "86ad1d72232f33881bd4211b0627c03dde18ed35f6ef9de2cd3d8359af5b8365",
+    "manifest_sha256": "3f198d8c07623e52e712a4fd175f068251ca0c4c4949a713e5cc058461e7df9e",
+    "tests_diff_sha256": "f0a2b02fd13dbf2ded7548f7db8b11c83580953af07286ba80aefb700c7b7e80",
+    "test_source_sha256": "57c759928d251a530286c72bc9e2cd08a8c79a62380dfcf93245780bee517d68",
+    "manager_verified_entries": 5,
+    "tests_passed": 22,
+    "tests_failed": 1,
+    "FK_exit": 101,
+    "H_or_probe_run": false,
+    "no_running_original_job": true
+  },
+  "I21": "separate frozen-source03 only",
+  "RV29": "ROOT-owned separate untimed immutable dd1 FK suite and target",
+  "disposition": "RV29 independently source-derived aggregate span correction to1076, old ledger unchanged; ROOT resumed under46e5040fce. No priced work or production change."
+}

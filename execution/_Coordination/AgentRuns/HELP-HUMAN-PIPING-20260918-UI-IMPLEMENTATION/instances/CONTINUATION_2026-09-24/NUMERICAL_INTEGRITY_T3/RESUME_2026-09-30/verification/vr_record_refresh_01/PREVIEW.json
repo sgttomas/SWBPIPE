@@ -1,0 +1,8 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "purpose": "Generate record candidates in an isolated archive for field-level comparison only; maintained observations unchanged.",
+  "utc": "2026-10-01T08:56:51.202728+00:00",
+  "generator": "unchanged vk_records --write in owned archive",
+  "guard_pid": 5387,
+  "limit": "30-minute checkpoint; existing guard/toolchain/offline4/2; no performance claim"
+}

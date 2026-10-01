@@ -1,0 +1,27 @@
+{
+  "candidate": "729e80b5c2a33b278623a850d9c75c25372b688c",
+  "candidate_status": "clean",
+  "prior_seals": [
+    {
+      "path": "./SHA256SUMS",
+      "sha256": "6d46d3170ca77f3015e0cad5ece55757d5070f566cf59a37aae5a07e91ff8715",
+      "failures": []
+    },
+    {
+      "path": "backcheck_de9f8d83/SHA256SUMS",
+      "sha256": "2b74c7f12a7ab0b0d76497336e4e10490730ac6134f6c223524d782fa90c0218",
+      "failures": []
+    },
+    {
+      "path": "mergecheck_ea2aaee7/SHA256SUMS",
+      "sha256": "2c8a7d9c11626e4d6e2132eafd8a7305971e1f80a1d84db25b0a0940ce38a1ba",
+      "failures": []
+    },
+    {
+      "path": "escalation_729e80b5/SHA256SUMS",
+      "sha256": "ee2f3f2166b5aa2400730946991011ebb5ae4624aa864f04bf91e99f66b25d87",
+      "failures": []
+    }
+  ],
+  "main_premerge_check": "reserved for ROOT immediately before merge"
+}

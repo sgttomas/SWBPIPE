@@ -940,6 +940,7 @@ fn kf1_rf_large_at_100_members_is_unchanged_but_its_work_at_t_1_and_512() {
 
 #[test]
 fn kf1_golden_stop_rule_work_where_collapses_occur() {
+    use super::publication_tests::{publication_bits, replay_certificate_components};
     // K4's golden work (`golden_work_counts`, `A3B_WORK`) does not move: no
     // tracker of the four golden models reaches 64 rows. At T = 64 only the
     // RF-LARGE frames at 100 members move (KF1's checkpoint A), and at the
@@ -973,30 +974,66 @@ fn kf1_golden_stop_rule_work_where_collapses_occur() {
     let all = all_models();
     for (name, evaluations, k4) in golden {
         let m = all.iter().find(|m| m.name == name).unwrap();
-        let rows = |rows: Option<usize>| -> Vec<Row> {
-            let CaseOutcome::Selected(s) = solve_under(m, rows) else {
+        let rows = |rows: Option<usize>| {
+            // Keep the SAME tracker/seed overrides alive through paired replay.
+            let _setting = Setting::new(rows, &m.seeds);
+            let mut meter = InvocationMeter::new(u64::MAX);
+            let CaseOutcome::Selected(s) =
+                solve_case(m.source(), CaseLimit::new(u64::MAX), &mut meter)
+            else {
                 panic!("{name}")
             };
-            s.evidence()
+            let components = replay_certificate_components(&s, meter.charged());
+            let historical: Vec<Row> = s
+                .evidence()
                 .attempts
                 .iter()
-                .map(|a| {
+                .zip(&components)
+                .map(|(a, component)| {
                     (
                         a.precision,
-                        a.stop_rule_work,
+                        component.r7,
                         a.stages.refinement,
                         a.stages.bounded_gate,
                         a.shared_stages.condition,
                     )
                 })
-                .collect()
+                .collect();
+            let certificate: Vec<_> = components
+                .iter()
+                .map(|c| (c.context, c.sums, c.total))
+                .collect();
+            (historical, certificate, s)
         };
-        assert_eq!(rows(Some(usize::MAX)), k4, "{name} at T = ∞");
+        let (infinite, cert_infinite, solve_infinite) = rows(Some(usize::MAX));
+        assert_eq!(infinite, k4, "{name} at T = ∞");
         assert_eq!(TRACKER_ROWS, 512);
-        assert_eq!(rows(None), k4, "{name} at T = 512");
+        let (production, cert_production, solve_production) = rows(None);
+        assert_eq!(production, k4, "{name} at T = 512");
+        assert_eq!(
+            cert_production, cert_infinite,
+            "{name}: certificate components"
+        );
+        same_solve(name, &solve_infinite, &solve_production);
         let mut at_64 = k4;
         at_64[0].1 += evaluations * cost;
-        assert_eq!(rows(Some(64)), at_64, "{name} at T = 64");
+        let (limited, cert_limited, solve_limited) = rows(Some(64));
+        assert_eq!(limited, at_64, "{name} at T = 64");
+        assert_eq!(
+            cert_limited, cert_infinite,
+            "{name}: certificate components"
+        );
+        same_solve(name, &solve_infinite, &solve_limited);
+        for s in [&solve_production, &solve_limited] {
+            assert_eq!(
+                publication_bits(s.publish()),
+                publication_bits(solve_infinite.publish())
+            );
+            assert_eq!(
+                s.publication_radius_bits,
+                solve_infinite.publication_radius_bits
+            );
+        }
     }
     assert_eq!(768 * cost, 13_444_608);
     assert_eq!(640 * cost, 11_203_840);

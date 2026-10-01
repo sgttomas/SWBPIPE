@@ -1,0 +1,5 @@
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs: OK
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs: OK
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs: OK
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs: OK
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs: OK
