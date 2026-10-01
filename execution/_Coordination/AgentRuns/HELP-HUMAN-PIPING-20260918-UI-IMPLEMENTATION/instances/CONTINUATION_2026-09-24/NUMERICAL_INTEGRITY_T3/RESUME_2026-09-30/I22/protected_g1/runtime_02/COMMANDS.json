@@ -1,0 +1,61 @@
+{
+  "grant": {
+    "cmd": "GIT_OPTIONAL_LOCKS=0 git show 87e4a9a0fe5437f53d3ebe214d934b2042d4610d:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_G1_RESUME_02.md",
+    "chunk_id": "6eaebd",
+    "wall_time_seconds": 0.000008459,
+    "exit_code": 0,
+    "original_token_count": 436,
+    "output": "# G1 resumed runtime after owner direction\n\nOwner requested resumption. ROOT's bounded apply_patch trial completes G01:\nexact frozen source hash, intended Phi assertion failure, and fresh unmodified\nbaseline/returned control verified in A1 R/verification/tool_resume_01.\nOld G1 system-patch failure and baseline results remain immutable.\n\nExisting I22 through manager may run G02–G54 in the original frozen\nRUNTIME_MANIFEST order for one60-minute slot from actual release acknowledgement.\nNo G01 repeat or repeated whole baseline batch is needed: reverify the E1 binary,\nfingerprint/source/tests/locks and all prior28 baseline bindings before relying\non them. Preserve alias registrations, no duplicate independent-kill count.\n\nUse the existing apply_patch tool for each frozen patch (transcribe its exact\nhunks/file target into that tool's syntax). No new framework/script, system\npatch retry, TMPDIR/permission/environment repair. Exact pre/post hashes of\nevery changed file remain mandatory. Never use a maintained checkout target.\nRecheck prepared roots/targets/links before runtime; manager verifies the scope.\n\nAll original G1 environment/guard/one-Cargo/-j4/testthreads2/semantic conditions\nand five-minute per-command checkpoints apply. Each group has its exact filter\nand untouched-baseline return. A compile/patch/identity/unrelated failure or\nrequired survivor stops before later groups; no alternate patch/test search\ninside this grant. Return incomplete entries at deadline, no automatic extension.\nWrite only additive I22/protected_g1/runtime_02, manager/protected_g1/runtime_02,\nand the existing owned G02–G54 scratch/targets. No production/test/criterion\nchanges, V-K, new diagnostic runs, Git/index writes or delegation.\n\n"
+  },
+  "start": "2026-10-01T13:10:19.074Z",
+  "deadline": "2026-10-01T14:10:19.074Z",
+  "containment_release": "Manager confirmed 2026-10-01T13:11:26Z.",
+  "recheck": {
+    "chunk_id": "22120d",
+    "wall_time_seconds": 0.000008708,
+    "exit_code": 0,
+    "original_token_count": 273,
+    "output": "{\"roots\": 53, \"files_checked\": 6264, \"prior_baselines\": 28, \"recheck_sha256\": \"ecd8d4f1c633f545389a86603f54b44305188759dd40f09aaaeaeba2e31d47fb\", \"prior_seals\": [{\"path\": \"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/protected_g1\", \"sha256\": \"61c51e169bff21dd116a472e42f49be0468b77207b648b55c086d03830c04b30\", \"entries\": 6}, {\"path\": \"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/protected_g1/runtime_01\", \"sha256\": \"a0eb658cfad4467979e7c1065b35ba5796b92f265f80894604feee1276dc0973\", \"entries\": 90}, {\"path\": \"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/tool_resume_01\", \"sha256\": \"bd19520e49b09b2f8e284e0594f61de54cce670e5d1c75563fdd4378186c8973\", \"entries\": 9}]}\n"
+  },
+  "applied_patches": [
+    {
+      "id": "G02",
+      "tool": "apply_patch",
+      "input": "*** Begin Patch\n*** Update File: <G1_S>/G02/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs\n@@\n                     continue;\n                 }\n                 let Some(t) = refusable(\n-                    mul_toward(ctx, sum, &l, &a[j], Toward::Up),\n+                    ctx.mul(&l, &a[j]).map_err(AttemptStop::from),\n                     sum,\n                     &mut refused[b],\n                     BoundPass::Forward,\n@@\n                     break;\n                 };\n                 let Some(v) = refusable(\n-                    add_toward(ctx, sum, &acc.unwrap_or(one), &t, Toward::Up),\n+                    ctx.add(&acc.unwrap_or(one), &t).map_err(AttemptStop::from),\n                     sum,\n                     &mut refused[b],\n                     BoundPass::Forward,\n*** End Patch",
+      "result": {}
+    }
+  ],
+  "blocked_launch": {
+    "kind": "mutant",
+    "id": "G02",
+    "source_id": "G02",
+    "filter": "structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm",
+    "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<G1_TARGET>/G02' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm' -- --exact > '<G1_S>/G02/runtime_02_logs/logs/mutant/G02.stdout' 2> '<G1_S>/G02/runtime_02_logs/logs/mutant/G02.stderr'",
+    "log_root": "<G1_S>/G02/runtime_02_logs",
+    "workdir": "<G1_S>/G02/projects/chirality-piping/core/solver/frame_kernel",
+    "launch_utc": "2026-10-01T13:12:04.085Z",
+    "guard_before": {
+      "chunk_id": "786108",
+      "wall_time_seconds": 0.000008584,
+      "exit_code": 0,
+      "original_token_count": 73,
+      "output": "mkdir: <G1_S>/G02/runtime_02_logs: Permission denied\n 5387     1 03-11:35:45 /bin/bash <WT>/guard/memguard.sh\n"
+    },
+    "tool_initial": {
+      "chunk_id": "9647f5",
+      "wall_time_seconds": 0.000010375,
+      "exit_code": 1,
+      "original_token_count": 47,
+      "output": "zsh:1: no such file or directory: <G1_S>/G02/runtime_02_logs/logs/mutant/G02.stdout\r\n"
+    }
+  },
+  "stop": {
+    "group": "G02",
+    "reason": "mkdir of per-copy runtime_02_logs denied; shell redirection fails before Cargo",
+    "patch_postimage_match": true,
+    "cargo_started": false,
+    "test_executed": false,
+    "kill": false
+  },
+  "orchestration_note": "A JavaScript quoting error before command launch was corrected; no source/patch change or command retry. The first attempted actual command then failed redirection before Cargo. mkdir and ps had shared a shell cell; ps exit0 masked mkdir failure in that cell, though raw output preserves it. No permission repair or retry."
+}

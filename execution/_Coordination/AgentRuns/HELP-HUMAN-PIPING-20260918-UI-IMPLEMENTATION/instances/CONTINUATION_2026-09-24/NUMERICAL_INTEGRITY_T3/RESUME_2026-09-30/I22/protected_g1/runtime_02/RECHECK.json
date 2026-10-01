@@ -1,0 +1,402 @@
+{
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "manifest_sha256": "bd4dae325f30af11bb9ec1479f255f73912b96b7d4e50a066825aee725644e90",
+  "source_roots": [
+    {
+      "id": "G02",
+      "root": "<G1_S>/G02",
+      "target": "<G1_TARGET>/G02",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G03",
+      "root": "<G1_S>/G03",
+      "target": "<G1_TARGET>/G03",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G04",
+      "root": "<G1_S>/G04",
+      "target": "<G1_TARGET>/G04",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G05",
+      "root": "<G1_S>/G05",
+      "target": "<G1_TARGET>/G05",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G06",
+      "root": "<G1_S>/G06",
+      "target": "<G1_TARGET>/G06",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G07",
+      "root": "<G1_S>/G07",
+      "target": "<G1_TARGET>/G07",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G08",
+      "root": "<G1_S>/G08",
+      "target": "<G1_TARGET>/G08",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G09",
+      "root": "<G1_S>/G09",
+      "target": "<G1_TARGET>/G09",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G10",
+      "root": "<G1_S>/G10",
+      "target": "<G1_TARGET>/G10",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G11",
+      "root": "<G1_S>/G11",
+      "target": "<G1_TARGET>/G11",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G12",
+      "root": "<G1_S>/G12",
+      "target": "<G1_TARGET>/G12",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G13",
+      "root": "<G1_S>/G13",
+      "target": "<G1_TARGET>/G13",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G14",
+      "root": "<G1_S>/G14",
+      "target": "<G1_TARGET>/G14",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G15",
+      "root": "<G1_S>/G15",
+      "target": "<G1_TARGET>/G15",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G16",
+      "root": "<G1_S>/G16",
+      "target": "<G1_TARGET>/G16",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G17",
+      "root": "<G1_S>/G17",
+      "target": "<G1_TARGET>/G17",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G18",
+      "root": "<G1_S>/G18",
+      "target": "<G1_TARGET>/G18",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G19",
+      "root": "<G1_S>/G19",
+      "target": "<G1_TARGET>/G19",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G20",
+      "root": "<G1_S>/G20",
+      "target": "<G1_TARGET>/G20",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G21",
+      "root": "<G1_S>/G21",
+      "target": "<G1_TARGET>/G21",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G22",
+      "root": "<G1_S>/G22",
+      "target": "<G1_TARGET>/G22",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G23",
+      "root": "<G1_S>/G23",
+      "target": "<G1_TARGET>/G23",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G24",
+      "root": "<G1_S>/G24",
+      "target": "<G1_TARGET>/G24",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G25",
+      "root": "<G1_S>/G25",
+      "target": "<G1_TARGET>/G25",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G26",
+      "root": "<G1_S>/G26",
+      "target": "<G1_TARGET>/G26",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G27",
+      "root": "<G1_S>/G27",
+      "target": "<G1_TARGET>/G27",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G28",
+      "root": "<G1_S>/G28",
+      "target": "<G1_TARGET>/G28",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G29",
+      "root": "<G1_S>/G29",
+      "target": "<G1_TARGET>/G29",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G30",
+      "root": "<G1_S>/G30",
+      "target": "<G1_TARGET>/G30",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G31",
+      "root": "<G1_S>/G31",
+      "target": "<G1_TARGET>/G31",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G32",
+      "root": "<G1_S>/G32",
+      "target": "<G1_TARGET>/G32",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G33",
+      "root": "<G1_S>/G33",
+      "target": "<G1_TARGET>/G33",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G34",
+      "root": "<G1_S>/G34",
+      "target": "<G1_TARGET>/G34",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G35",
+      "root": "<G1_S>/G35",
+      "target": "<G1_TARGET>/G35",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G36",
+      "root": "<G1_S>/G36",
+      "target": "<G1_TARGET>/G36",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G37",
+      "root": "<G1_S>/G37",
+      "target": "<G1_TARGET>/G37",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G38",
+      "root": "<G1_S>/G38",
+      "target": "<G1_TARGET>/G38",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G39",
+      "root": "<G1_S>/G39",
+      "target": "<G1_TARGET>/G39",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G40",
+      "root": "<G1_S>/G40",
+      "target": "<G1_TARGET>/G40",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G41",
+      "root": "<G1_S>/G41",
+      "target": "<G1_TARGET>/G41",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G42",
+      "root": "<G1_S>/G42",
+      "target": "<G1_TARGET>/G42",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G43",
+      "root": "<G1_S>/G43",
+      "target": "<G1_TARGET>/G43",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G44",
+      "root": "<G1_S>/G44",
+      "target": "<G1_TARGET>/G44",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G45",
+      "root": "<G1_S>/G45",
+      "target": "<G1_TARGET>/G45",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G46",
+      "root": "<G1_S>/G46",
+      "target": "<G1_TARGET>/G46",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G47",
+      "root": "<G1_S>/G47",
+      "target": "<G1_TARGET>/G47",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G48",
+      "root": "<G1_S>/G48",
+      "target": "<G1_TARGET>/G48",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G49",
+      "root": "<G1_S>/G49",
+      "target": "<G1_TARGET>/G49",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G50",
+      "root": "<G1_S>/G50",
+      "target": "<G1_TARGET>/G50",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G51",
+      "root": "<G1_S>/G51",
+      "target": "<G1_TARGET>/G51",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G52",
+      "root": "<G1_S>/G52",
+      "target": "<G1_TARGET>/G52",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G53",
+      "root": "<G1_S>/G53",
+      "target": "<G1_TARGET>/G53",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    },
+    {
+      "id": "G54",
+      "root": "<G1_S>/G54",
+      "target": "<G1_TARGET>/G54",
+      "original_files": 116,
+      "all_hashes_links_and_target_match": true
+    }
+  ],
+  "base_original_files": 116,
+  "baseline_filters_rebound": 28,
+  "baseline_binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+  "baseline_fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+  "prior_seals": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/protected_g1",
+      "sha256": "61c51e169bff21dd116a472e42f49be0468b77207b648b55c086d03830c04b30",
+      "entries": 6
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/protected_g1/runtime_01",
+      "sha256": "a0eb658cfad4467979e7c1065b35ba5796b92f265f80894604feee1276dc0973",
+      "entries": 90
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/tool_resume_01",
+      "sha256": "bd19520e49b09b2f8e284e0594f61de54cce670e5d1c75563fdd4378186c8973",
+      "entries": 9
+    }
+  ],
+  "no_symlink_hardlink_or_maintained_alias": true,
+  "target_dirs_empty": true,
+  "patches_applied": 0,
+  "Rust_jobs": 0
+}
