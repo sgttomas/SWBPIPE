@@ -1,0 +1,147 @@
+{
+  "role": "existing TASKType2 I23",
+  "native_agent": "/root/i23_protected_prep",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "native followup_task continuation",
+  "start_utc": "2026-10-01T13:53:21Z",
+  "ceiling_utc": "2026-10-01T14:08:21Z",
+  "brief": {
+    "requested_NUM_revision": "6b7bd399d8eb577c811f2dd6bcecdc7085a2e7c0",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I23_VK_PREP_05.md",
+    "sha256": "842153d51f98619735774e63bd2345b3f22d45949b5726e5f236e490c12141cc",
+    "actual_read": "supplied NUM working-tree bytes"
+  },
+  "carried_instructions": [
+    {
+      "path": "AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I23_PROTECTED_PREP.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "09ff7d95a7b3273d250b317ee502ba7dc71f46b4d0dfb071d69590840420532f"
+    }
+  ],
+  "reviewed_input_origins": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/VK_MAPS.json",
+      "sha256": "27e9f300f0a80c34cc08091ab50adfbcedc9d6cf935c0bbefcb2ea4c6de28029"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/VK_FROZEN_FIELDS.json",
+      "sha256": "821812844a705a85761a48096146fa77afe81af4e020b60ebb3e0762036af2ba"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/SHA256SUMS",
+      "sha256": "91be123e9de71fa40c61869fb61e689561365548bec76632f2e975b2aca3b697"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/vr_records_05/CHECKS.json",
+      "sha256": "d7c34e6fa84397fcb78cc5ee9c52cf5ff76d28da205cb764ed06c6dd75aee59d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/vr_records_05/REVIEW.md",
+      "sha256": "89da0d84617a8c3d3f9176eeee4dae63b354fdc150de0899a68b4e5d377fed83"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/vr_records_05/SHA256SUMS",
+      "sha256": "f6c8cc9e3507643bc96ba2cdfab02d4460d82483dd3855eb3a418d2f430197c0"
+    }
+  ],
+  "commands": [
+    {
+      "cwd": "<A1>",
+      "argv": [
+        "git",
+        "archive",
+        "--format=tar",
+        "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "projects/chirality-piping/core/solver/frame_kernel",
+        "projects/chirality-piping/core/solver/sparse_direct",
+        "projects/chirality-piping/validation/benchmarks/numerical_robustness"
+      ],
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "exit": 0,
+      "stdout_sha256": "128167a30648c35bff2ee528d261e2e84f83910d2936149067deb7778f05201d",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1>",
+      "argv": [
+        "git",
+        "archive",
+        "--format=tar",
+        "942572ede4c15aca87b4660c7d570343e14e679e",
+        "projects/chirality-piping/core/solver/frame_kernel",
+        "projects/chirality-piping/core/solver/sparse_direct",
+        "projects/chirality-piping/validation/benchmarks/numerical_robustness"
+      ],
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "exit": 0,
+      "stdout_sha256": "b89d1b8e417557f72b5bceec13351e9f6b62bfc21229c3709ad7286f0feecf6c",
+      "stderr": ""
+    }
+  ],
+  "preparation_command": [
+    "<VENV>/bin/python",
+    "-B",
+    "<wt>/scratch/i23/vk_prep/logs/prepare_source.py"
+  ],
+  "script_sha256": "f0316edae944b8e63c029d01eb8261d923e599985966f69aa383fa4f07adfaaf",
+  "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "write_fences": [
+    "<wt>/scratch/i23/vk_prep/archive",
+    "<wt>/scratch/i23/vk_prep/logs",
+    "<wt>/a1-vk-target",
+    "<A1>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/vk_prep_05"
+  ],
+  "enforcement": "prompt scope on shared filesystem, not OS sandbox",
+  "counts": {
+    "read_only_git_archives": 4,
+    "Git_index_writes": 0,
+    "Rust": 0,
+    "tests": 0,
+    "examples": 0,
+    "solver": 0,
+    "new_collectors": 0,
+    "patches": 0,
+    "maintained_edits": 0,
+    "delegation": 0
+  },
+  "return_boundary_utc": "2026-10-01T13:58:21Z",
+  "elapsed_seconds": 300.5,
+  "prior_attempt": {
+    "same_two_archive_commands_repeated": true,
+    "failure": "Projection check initially required selected_precision literal key on Unresolved record, where records.rs intentionally omits it. No source was materialized before the stop.",
+    "correction": "Known nullable selected_precision projection normalized from selected literal/outcome; reviewed expected fields unchanged."
+  },
+  "seal_script": {
+    "path": "<wt>/scratch/i23/vk_prep/logs/seal_plan.py",
+    "sha256": "daf2ad4424c399d213b212e45674b6b181861c4fb6e1d52543f5f4069fa7f534"
+  },
+  "seal_command": [
+    "<VENV>/bin/python",
+    "-B",
+    "<wt>/scratch/i23/vk_prep/logs/seal_plan.py"
+  ]
+}

@@ -1,0 +1,1398 @@
+{
+  "method": "metadata counts from frozen JSONL model presence and source selectors; no execution/inference of results",
+  "families": [
+    {
+      "family": "RF-CHAIN",
+      "case_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_chain.jsonl",
+      "case_sha256": "0006e7a5ca4cf4d96c9284a5b09622902c3a71c07f24607924127062f10a1757",
+      "total_records": 30,
+      "embedded_cases_selected_by_not_is_large": 30,
+      "excluded_model_none": 0,
+      "case_entries": [
+        {
+          "id": "RF-CHAIN-T-n03-r1e-04",
+          "members": 3,
+          "nodes": 4,
+          "free_dofs": 19
+        },
+        {
+          "id": "RF-CHAIN-T-n03-r1e-06",
+          "members": 3,
+          "nodes": 4,
+          "free_dofs": 19
+        },
+        {
+          "id": "RF-CHAIN-T-n03-r1e-08",
+          "members": 3,
+          "nodes": 4,
+          "free_dofs": 19
+        },
+        {
+          "id": "RF-CHAIN-T-n03-r1e-10",
+          "members": 3,
+          "nodes": 4,
+          "free_dofs": 19
+        },
+        {
+          "id": "RF-CHAIN-T-n03-r1e-12",
+          "members": 3,
+          "nodes": 4,
+          "free_dofs": 19
+        },
+        {
+          "id": "RF-CHAIN-T-n05-r1e-04",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-CHAIN-T-n05-r1e-06",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-CHAIN-T-n05-r1e-08",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-CHAIN-T-n05-r1e-10",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-CHAIN-T-n05-r1e-12",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-CHAIN-T-n10-r1e-04",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        },
+        {
+          "id": "RF-CHAIN-T-n10-r1e-06",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        },
+        {
+          "id": "RF-CHAIN-T-n10-r1e-08",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        },
+        {
+          "id": "RF-CHAIN-T-n10-r1e-10",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        },
+        {
+          "id": "RF-CHAIN-T-n10-r1e-12",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        },
+        {
+          "id": "RF-CHAIN-A-n03-r1e-04",
+          "members": 3,
+          "nodes": 4,
+          "free_dofs": 19
+        },
+        {
+          "id": "RF-CHAIN-A-n03-r1e-06",
+          "members": 3,
+          "nodes": 4,
+          "free_dofs": 19
+        },
+        {
+          "id": "RF-CHAIN-A-n03-r1e-08",
+          "members": 3,
+          "nodes": 4,
+          "free_dofs": 19
+        },
+        {
+          "id": "RF-CHAIN-A-n03-r1e-10",
+          "members": 3,
+          "nodes": 4,
+          "free_dofs": 19
+        },
+        {
+          "id": "RF-CHAIN-A-n03-r1e-12",
+          "members": 3,
+          "nodes": 4,
+          "free_dofs": 19
+        },
+        {
+          "id": "RF-CHAIN-A-n05-r1e-04",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-CHAIN-A-n05-r1e-06",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-CHAIN-A-n05-r1e-08",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-CHAIN-A-n05-r1e-10",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-CHAIN-A-n05-r1e-12",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-CHAIN-A-n10-r1e-04",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        },
+        {
+          "id": "RF-CHAIN-A-n10-r1e-06",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        },
+        {
+          "id": "RF-CHAIN-A-n10-r1e-08",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        },
+        {
+          "id": "RF-CHAIN-A-n10-r1e-10",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        },
+        {
+          "id": "RF-CHAIN-A-n10-r1e-12",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        }
+      ]
+    },
+    {
+      "family": "RF-SKEW",
+      "case_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "case_sha256": "bcc795a4d4b4b88a89b421a09f6ec78a97b69a8d4b136be49b57a5e13d084ce0",
+      "total_records": 36,
+      "embedded_cases_selected_by_not_is_large": 36,
+      "excluded_model_none": 0,
+      "case_entries": [
+        {
+          "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-AX-345-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-AX-345-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-AX-122-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-AX-122-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-AX-122-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-OFF-345-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-OFF-345-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-OFF-345-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-OFF-122-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-OFF-122-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-PIN-OFF-122-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-SKEW-T-CANT-AX-345-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-AX-345-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-AX-122-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-AX-122-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-OFF-345-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-OFF-345-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-OFF-345-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-OFF-122-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-OFF-122-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-T-CANT-OFF-122-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-AX-345-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-AX-345-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-AX-345-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-AX-122-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-AX-122-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-AX-122-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-OFF-345-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-OFF-345-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-OFF-345-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        }
+      ]
+    },
+    {
+      "family": "RF-WEAK",
+      "case_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_weak.jsonl",
+      "case_sha256": "58228206b15c7dd571ad716940d1055ac20542e5dd1e7f03851aaf1d59a07ff1",
+      "total_records": 9,
+      "embedded_cases_selected_by_not_is_large": 9,
+      "excluded_model_none": 0,
+      "case_entries": [
+        {
+          "id": "RF-WEAK-W-AX-rho1e-04",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 24
+        },
+        {
+          "id": "RF-WEAK-W-AX-rho1e-08",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 24
+        },
+        {
+          "id": "RF-WEAK-W-AX-rho1e-12",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 24
+        },
+        {
+          "id": "RF-WEAK-W-L-r1e-04",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 13
+        },
+        {
+          "id": "RF-WEAK-W-L-r1e-08",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 13
+        },
+        {
+          "id": "RF-WEAK-W-L-r1e-12",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 13
+        },
+        {
+          "id": "RF-WEAK-W-3D-rho1e-04",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 24
+        },
+        {
+          "id": "RF-WEAK-W-3D-rho1e-08",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 24
+        },
+        {
+          "id": "RF-WEAK-W-3D-rho1e-12",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 24
+        }
+      ]
+    },
+    {
+      "family": "RF-LARGE",
+      "case_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_large.jsonl",
+      "case_sha256": "16357afa5efeaaac3ab5798bb6f632104bec1e2dfada288f5b0936bfe6188759",
+      "total_records": 24,
+      "embedded_cases_selected_by_not_is_large": 12,
+      "excluded_model_none": 12,
+      "case_entries": [
+        {
+          "id": "RF-LARGE-CHAIN-n00010-AX",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 60
+        },
+        {
+          "id": "RF-LARGE-CHAIN-n00010-ROT",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 60
+        },
+        {
+          "id": "RF-LARGE-TREE-n00010-AX",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 60
+        },
+        {
+          "id": "RF-LARGE-TREE-n00010-ROT",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 60
+        },
+        {
+          "id": "RF-LARGE-CONT-n00010-AX",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-LARGE-CONT-n00010-ROT",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-LARGE-CHAIN-n00100-AX",
+          "members": 100,
+          "nodes": 101,
+          "free_dofs": 600
+        },
+        {
+          "id": "RF-LARGE-CHAIN-n00100-ROT",
+          "members": 100,
+          "nodes": 101,
+          "free_dofs": 600
+        },
+        {
+          "id": "RF-LARGE-TREE-n00100-AX",
+          "members": 100,
+          "nodes": 101,
+          "free_dofs": 600
+        },
+        {
+          "id": "RF-LARGE-TREE-n00100-ROT",
+          "members": 100,
+          "nodes": 101,
+          "free_dofs": 600
+        },
+        {
+          "id": "RF-LARGE-CONT-n00100-AX",
+          "members": 100,
+          "nodes": 101,
+          "free_dofs": 450
+        },
+        {
+          "id": "RF-LARGE-CONT-n00100-ROT",
+          "members": 100,
+          "nodes": 101,
+          "free_dofs": 450
+        }
+      ]
+    },
+    {
+      "family": "RF-INVARIANCE",
+      "case_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_invariance.jsonl",
+      "case_sha256": "81094b99ebcf6054b925221c54b7ec5022348b69c4a36029715da7ea4328f082",
+      "total_records": 25,
+      "embedded_cases_selected_by_not_is_large": 25,
+      "excluded_model_none": 0,
+      "case_entries": [
+        {
+          "id": "RF-INVARIANCE-PINTOR-BASE",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 18
+        },
+        {
+          "id": "RF-INVARIANCE-PINTOR-ROT-Q3",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 18
+        },
+        {
+          "id": "RF-INVARIANCE-PINTOR-ROT-Q9",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 18
+        },
+        {
+          "id": "RF-INVARIANCE-PINTOR-OFF-1e3",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 18
+        },
+        {
+          "id": "RF-INVARIANCE-PINTOR-OFF-1e6",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 18
+        },
+        {
+          "id": "RF-INVARIANCE-PINTOR-RELABEL",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 18
+        },
+        {
+          "id": "RF-INVARIANCE-PINTOR-UNITS-mm",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 18
+        },
+        {
+          "id": "RF-INVARIANCE-LFRAME-BASE",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 15
+        },
+        {
+          "id": "RF-INVARIANCE-LFRAME-ROT-Q3",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 15
+        },
+        {
+          "id": "RF-INVARIANCE-LFRAME-ROT-Q9",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 15
+        },
+        {
+          "id": "RF-INVARIANCE-LFRAME-OFF-1e3",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 15
+        },
+        {
+          "id": "RF-INVARIANCE-LFRAME-OFF-1e6",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 15
+        },
+        {
+          "id": "RF-INVARIANCE-LFRAME-RELABEL",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 15
+        },
+        {
+          "id": "RF-INVARIANCE-LFRAME-UNITS-mm",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 15
+        },
+        {
+          "id": "RF-INVARIANCE-CONT4-BASE",
+          "members": 8,
+          "nodes": 9,
+          "free_dofs": 36
+        },
+        {
+          "id": "RF-INVARIANCE-CONT4-ROT-Q3",
+          "members": 8,
+          "nodes": 9,
+          "free_dofs": 36
+        },
+        {
+          "id": "RF-INVARIANCE-CONT4-ROT-Q9",
+          "members": 8,
+          "nodes": 9,
+          "free_dofs": 36
+        },
+        {
+          "id": "RF-INVARIANCE-CONT4-OFF-1e3",
+          "members": 8,
+          "nodes": 9,
+          "free_dofs": 36
+        },
+        {
+          "id": "RF-INVARIANCE-CONT4-OFF-1e6",
+          "members": 8,
+          "nodes": 9,
+          "free_dofs": 36
+        },
+        {
+          "id": "RF-INVARIANCE-CONT4-RELABEL",
+          "members": 8,
+          "nodes": 9,
+          "free_dofs": 36
+        },
+        {
+          "id": "RF-INVARIANCE-CONT4-UNITS-mm",
+          "members": 8,
+          "nodes": 9,
+          "free_dofs": 36
+        },
+        {
+          "id": "RF-INVARIANCE-TREE100-BASE",
+          "members": 100,
+          "nodes": 101,
+          "free_dofs": 600
+        },
+        {
+          "id": "RF-INVARIANCE-TREE100-OFF-1e3",
+          "members": 100,
+          "nodes": 101,
+          "free_dofs": 600
+        },
+        {
+          "id": "RF-INVARIANCE-TREE100-OFF-1e6",
+          "members": 100,
+          "nodes": 101,
+          "free_dofs": 600
+        },
+        {
+          "id": "RF-INVARIANCE-TREE100-RELABEL",
+          "members": 100,
+          "nodes": 101,
+          "free_dofs": 600
+        }
+      ]
+    },
+    {
+      "family": "RF-RANGE",
+      "case_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "case_sha256": "ae74938cdfc12a398f51728fee5304cf68e70acedd5df1b433e1f353db8a5a88",
+      "total_records": 32,
+      "embedded_cases_selected_by_not_is_large": 32,
+      "excluded_model_none": 0,
+      "case_entries": [
+        {
+          "id": "RF-RANGE-CHAIN-L-240",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-RANGE-CHAIN-L+240",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-RANGE-CHAIN-E-1000",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-RANGE-CHAIN-E+960",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-RANGE-CHAIN-F-960",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-RANGE-CHAIN-F+960",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-RANGE-CHAIN-LEF-small",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-RANGE-CHAIN-LEF-large",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-RANGE-CHAIN-SIM-a",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-RANGE-CHAIN-SIM-b",
+          "members": 5,
+          "nodes": 6,
+          "free_dofs": 31
+        },
+        {
+          "id": "RF-RANGE-SKEW-L-240",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-RANGE-SKEW-L+240",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-RANGE-SKEW-E-1000",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-RANGE-SKEW-E+960",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-RANGE-SKEW-F-960",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-RANGE-SKEW-F+960",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-RANGE-SKEW-LEF-small",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-RANGE-SKEW-LEF-large",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-RANGE-SKEW-SIM-a",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-RANGE-SKEW-SIM-b",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 9
+        },
+        {
+          "id": "RF-RANGE-CONT-L-240",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-RANGE-CONT-L+240",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-RANGE-CONT-E-1000",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-RANGE-CONT-E+960",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-RANGE-CONT-F-960",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-RANGE-CONT-F+960",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-RANGE-CONT-LEF-small",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-RANGE-CONT-LEF-large",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-RANGE-CONT-SIM-a",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-RANGE-CONT-SIM-b",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 45
+        },
+        {
+          "id": "RF-RANGE-THIN-A",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-RANGE-THIN-B",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        }
+      ]
+    },
+    {
+      "family": "RF-ZERO",
+      "case_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_zero.jsonl",
+      "case_sha256": "f38dc7b506bf966f834b2ec2f90a5b01f32d719c41f64b57eeda0555a5c9ca4b",
+      "total_records": 4,
+      "embedded_cases_selected_by_not_is_large": 4,
+      "excluded_model_none": 0,
+      "case_entries": [
+        {
+          "id": "RF-ZERO-SYM",
+          "members": 4,
+          "nodes": 5,
+          "free_dofs": 18
+        },
+        {
+          "id": "RF-ZERO-TORSION",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        },
+        {
+          "id": "RF-ZERO-PLANAR",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-ZERO-TINY",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 6
+        }
+      ]
+    },
+    {
+      "family": "RF-FINITE",
+      "case_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_finite.jsonl",
+      "case_sha256": "92a6ea403f4bb33efdfa43078386cc0befdb272b2ccf9d8fa2f7d1f231b1de98",
+      "total_records": 6,
+      "embedded_cases_selected_by_not_is_large": 6,
+      "excluded_model_none": 0,
+      "case_entries": [
+        {
+          "id": "RF-FINITE-THIRDS-O0",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 60
+        },
+        {
+          "id": "RF-FINITE-THIRDS-O1e3",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 60
+        },
+        {
+          "id": "RF-FINITE-THIRDS-O1e6",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 60
+        },
+        {
+          "id": "RF-FINITE-TENTHS-O1e6",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 60
+        },
+        {
+          "id": "RF-FINITE-THIRTIETHS-O1e6",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 60
+        },
+        {
+          "id": "RF-FINITE-ROT-Q9-NONMULT",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        }
+      ]
+    },
+    {
+      "family": "RF-MECH",
+      "case_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_mech.jsonl",
+      "case_sha256": "8f0d8723b44c95216fa72fae47ad452025f9c280f1874a46f0f680bd840c3079",
+      "total_records": 9,
+      "embedded_cases_selected_by_not_is_large": 9,
+      "excluded_model_none": 0,
+      "case_entries": [
+        {
+          "id": "RF-MECH-LINE122-TORQUE",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 33
+        },
+        {
+          "id": "RF-MECH-LINE122-PERP",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 33
+        },
+        {
+          "id": "RF-MECH-LINE122-UNLOADED",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 33
+        },
+        {
+          "id": "RF-MECH-LINE345-RZ",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 22
+        },
+        {
+          "id": "RF-MECH-K0",
+          "members": 10,
+          "nodes": 11,
+          "free_dofs": 61
+        },
+        {
+          "id": "RF-MECH-DISC-CHAIN100",
+          "members": 103,
+          "nodes": 105,
+          "free_dofs": 624
+        },
+        {
+          "id": "RF-MECH-DISC-CHAIN100-SPRING",
+          "members": 103,
+          "nodes": 105,
+          "free_dofs": 624
+        },
+        {
+          "id": "RF-MECH-LINE-IN-CHAIN1000",
+          "members": 1005,
+          "nodes": 1007,
+          "free_dofs": 6018
+        },
+        {
+          "id": "RF-MECH-LINE345-RX-COMPANION",
+          "members": 1,
+          "nodes": 2,
+          "free_dofs": 5
+        }
+      ]
+    },
+    {
+      "family": "RF-CANCEL",
+      "case_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_cancel.jsonl",
+      "case_sha256": "b8011780a15a498dad4065dc23d6dbe3464cce82251dbbebc2dc7fce7fb3f2f5",
+      "total_records": 38,
+      "embedded_cases_selected_by_not_is_large": 38,
+      "excluded_model_none": 0,
+      "case_entries": [
+        {
+          "id": "RF-CANCEL-F-G1e5-GnG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e5-GGn",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e5-nGG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e6-GnG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e6-GGn",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e6-nGG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e7-GnG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e7-GGn",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e7-nGG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e8-GnG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e8-GGn",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e8-nGG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e8-GnG-INPLANE",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e80-GnG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e80-GGn",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e80-nGG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-F-G1e80-GnG-INPLANE",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e5-GnG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e5-GGn",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e5-nGG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e6-GnG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e6-GGn",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e6-nGG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e7-GnG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e7-GGn",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e7-nGG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e8-GnG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e8-GGn",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e8-nGG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e8-GnG-ORTHO",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e8-GnG-INPLANE",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e80-GnG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e80-GGn",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e80-nGG",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        },
+        {
+          "id": "RF-CANCEL-M-G1e80-GnG-INPLANE",
+          "members": 2,
+          "nodes": 3,
+          "free_dofs": 12
+        }
+      ]
+    }
+  ],
+  "embedded_total": 201,
+  "source_bindings": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+      "sha256": "a732e02ee75c5069a4a85e3732d317ce360c23f413573df026eee9c350c27f11"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock",
+      "sha256": "b81994dca343ddca6eac599ed6586a6154c693ba07cfa73f731ed1af978a831b"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_records.rs",
+      "sha256": "a7117146b03200b17fef7a614b5a617dc24801c89fe8ccce82a6694c4ffc5cc3"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/parity.rs",
+      "sha256": "525e6993e37df919535004dc418439a6b919036b7ca4fe588d51a514a393fe01"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+      "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs",
+      "sha256": "6f52fcb93d7d0c355139ca584a9abd0b3c1c59dd5a6f140340a0ec0282b5841c"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+      "sha256": "ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+      "sha256": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88"
+    }
+  ],
+  "feature_and_lock_bindings": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "size": 173,
+      "mode": "0664",
+      "same_as40129": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc",
+      "size": 467,
+      "mode": "0664",
+      "same_as40129": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock",
+      "sha256": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36",
+      "size": 297,
+      "mode": "0664",
+      "same_as40129": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+      "sha256": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88",
+      "size": 290,
+      "mode": "0664",
+      "same_as40129": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock",
+      "sha256": "b81994dca343ddca6eac599ed6586a6154c693ba07cfa73f731ed1af978a831b",
+      "size": 2920,
+      "mode": "0664",
+      "same_as40129": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+      "sha256": "a732e02ee75c5069a4a85e3732d317ce360c23f413573df026eee9c350c27f11",
+      "size": 697,
+      "mode": "0664",
+      "same_as40129": true
+    }
+  ]
+}
