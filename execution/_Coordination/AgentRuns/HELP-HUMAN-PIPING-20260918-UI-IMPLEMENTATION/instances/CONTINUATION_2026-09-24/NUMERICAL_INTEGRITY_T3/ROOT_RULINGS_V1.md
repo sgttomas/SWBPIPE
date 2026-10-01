@@ -3849,3 +3849,27 @@ F17 RF-CANCEL family on this unchanged A1 source. It grants no unrun credit,
 no certificate bypass and no other fault amendment. ROOT separately releases
 the prepared remaining original schedule. Complete V-K/A1, final-head gates,
 merge, E_max, W1 and F2a acceptance remain open.
+
+
+## RF-CANCEL F17 prevention qualified; remaining V-K resumed (ROOT, 2026-10-01)
+
+ROOT read the complete RV29 vk_f17_cancel_37/REVIEW.md, verified its seal
+2201dba8973e050e1da1e4dfd0049332ae494d51ecc5353a73c3eb546c7431ee
+and every payload, and accepts its separate controlled RF-CANCEL observation
+under the owner's already adopted F17-only certificate-prevention rule. The
+report's “Actual release observation” and “Protected quantity distinctions”
+state the exact case/attempt figures and what was and was not observed.
+This applies the existing owner decision, without another amendment.
+
+P31 remains permanently unqualified with zero CLASS credit. P32's actual debug
+return is closed. The earlier different displacement row prevented whole-case
+publication; no protected displacement/station class, H or later predicate was
+observed. Normal frozen records and all original correspondence checks restore.
+Together with the earlier qualified RF-WEAK CLASS witness and RF-SKEW prevention,
+the registered F17 routes have their scoped dispositions and controls. No other
+fault criterion is changed and no final V-K/A1 acceptance follows.
+
+Close the stopped runtime06 and diagnostic windows. Release the remaining
+original P33-P53 schedule only under BRIEFS/A1_VK_REMAINDER_07.md's fresh bound.
+Final full candidate review and exact-head CI/dispatch/DEC-025/GEN-8 still apply;
+AUD-T3-01 and F2a reliance remain held until actual A1 closure.
