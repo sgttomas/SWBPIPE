@@ -3280,7 +3280,13 @@ the complete existing R7 error formulas and prerequisites. Absolute rows require
 H<=the unchanged b. Relative rows require the public decimal predicate and both
 the exact and current binary64 tighter allowances. An uncertifiable candidate
 escalates or refuses by name. Existing scale/class/bound bits and source domain
-are not widened. Private upward binary64 radii accompany the identical certified
+are not widened. [Correction (ROOT, 2026-10-01): the unchanged
+quantity is the construction at the same selected candidate/floor, not equality
+of old and new output bits. Escalation can activate the existing p512 floor and
+change scales/bounds. ROOT_REPAIRED_B_FIELD_COMPARISON.json under
+RESUME_2026-09-30/verification binds that effect to the old/new raw hashes;
+values/ranges/classes remain equal for these B cases. No new public formula or
+source-domain cutoff is selected.] Private upward binary64 radii accompany the identical certified
 publication; they are not a new public receipt radius. The addendum pins SI
 normalization/binding and later facade obligations.
 
