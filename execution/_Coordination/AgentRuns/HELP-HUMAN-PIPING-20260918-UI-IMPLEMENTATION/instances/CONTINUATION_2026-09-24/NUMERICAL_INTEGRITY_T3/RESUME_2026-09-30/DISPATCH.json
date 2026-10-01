@@ -1,0 +1,36 @@
+{
+  "mechanism": "collaboration.spawn_agent",
+  "parent": "/root",
+  "parent_role": "HELP_HUMAN Type 0 Agent 0",
+  "coordination_commit": "3446bdf51d90b8f1812d161cc638d85c97bbef16",
+  "product_basis": "d01ad98a754698631f927709d08284c272de85e8",
+  "enforcement": "prompt scopes on shared host; not per-agent OS sandbox",
+  "fork_turns": "none",
+  "model": "inherited; no override or model-diversity claim",
+  "agents": [
+    {
+      "task": "/root/t3_recovery_manager",
+      "role": "WORKING_ITEMS",
+      "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RECOVERY_MANAGER.md",
+      "brief_sha256": "70e2c8d3c9dff38789cd5e786e4367a5076d4b0b006c7b934e4d6b36aaabbb26",
+      "write_scope": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/manager/**",
+      "status_at_dispatch": "launched; pending return"
+    },
+    {
+      "task": "/root/a1_exact_oracle",
+      "role": "TASK",
+      "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_ORACLE.md",
+      "brief_sha256": "50bc6aeff48f235c70dc5775089b5668b787673333511a9b742c2b64cdd77eed",
+      "write_scope": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle/**",
+      "status_at_dispatch": "launched; pending return"
+    },
+    {
+      "task": "/root/audit_evidence_preservation",
+      "role": "TASK",
+      "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/EVIDENCE.md",
+      "brief_sha256": "4460e0ab2c8cd4af2f917e887ce036292e0248db4ce1f630f2152ec3ed23d961",
+      "write_scope": "<wt>/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/evidence/**; <wt>/preserved-evidence/t3-audit-20260930/**",
+      "status_at_dispatch": "launched; pending return"
+    }
+  ]
+}
