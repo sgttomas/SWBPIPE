@@ -1,0 +1,2207 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "id": "RF-WEAK-W-AX-rho1e-08",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_weak.jsonl",
+      "line": 2,
+      "nodes": 6,
+      "members": 5,
+      "D": 5,
+      "d_body": 2,
+      "a": 5,
+      "compliance": "80581796218400941876733577421717382365184/334845939257028055685776160730615234375",
+      "load_l1": "35250",
+      "truth_upper": "7574688844529688536412956277641433942327296/892922504685408148495403095281640625",
+      "u": 24,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 2,
+          "component": 0,
+          "normalized_magnitude": "32000"
+        },
+        {
+          "source": "l1",
+          "node": 2,
+          "component": 1,
+          "normalized_magnitude": "3200"
+        },
+        {
+          "source": "l2",
+          "node": 2,
+          "component": 3,
+          "normalized_magnitude": "50"
+        }
+      ],
+      "rows": [
+        {
+          "index": 67,
+          "key": "tw.C",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -6,
+          "retained_k_upper_exponent": -4,
+          "candidate_component_upper_exponent": 26,
+          "numerator_upper_exponent": 26,
+          "quotient_upper_exponent": 32
+        }
+      ]
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-12",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_weak.jsonl",
+      "line": 3,
+      "nodes": 6,
+      "members": 5,
+      "D": 5,
+      "d_body": 2,
+      "a": 5,
+      "compliance": "3347236725003094967775795469373616834602248039539066990011175236405775302656/1390895614797928496220854154326950543866918373805710244051592626953125",
+      "load_l1": "35250",
+      "truth_upper": "314640252150290926970924774121119982452611315716672297061050472222142878449664/3709054972794475989922277744871868116978448996815227317470913671875",
+      "u": 37,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 2,
+          "component": 0,
+          "normalized_magnitude": "32000"
+        },
+        {
+          "source": "l1",
+          "node": 2,
+          "component": 1,
+          "normalized_magnitude": "3200"
+        },
+        {
+          "source": "l2",
+          "node": 2,
+          "component": 3,
+          "normalized_magnitude": "50"
+        }
+      ],
+      "rows": [
+        {
+          "index": 67,
+          "key": "tw.C",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -19,
+          "retained_k_upper_exponent": -17,
+          "candidate_component_upper_exponent": 39,
+          "numerator_upper_exponent": 26,
+          "quotient_upper_exponent": 45
+        },
+        {
+          "index": 68,
+          "key": "ext.C",
+          "member_id": 3,
+          "component": "UX",
+          "lower_k_exponent": -11,
+          "retained_k_upper_exponent": -9,
+          "candidate_component_upper_exponent": 44,
+          "numerator_upper_exponent": 39,
+          "quotient_upper_exponent": 50
+        }
+      ]
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-08",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_weak.jsonl",
+      "line": 8,
+      "nodes": 6,
+      "members": 5,
+      "D": 6,
+      "d_body": 2,
+      "a": 6,
+      "compliance": "161163428089386571150681803295993033129984/334845939257028055685776160730615234375",
+      "load_l1": "645",
+      "truth_upper": "6930027407843622559479317541727700424589312/22323062617135203712385077382041015625",
+      "u": 19,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 2,
+          "component": 2,
+          "normalized_magnitude": "640"
+        },
+        {
+          "source": "l1",
+          "node": 2,
+          "component": 3,
+          "normalized_magnitude": "5"
+        }
+      ],
+      "rows": [
+        {
+          "index": 67,
+          "key": "tw.C",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -7,
+          "retained_k_upper_exponent": -5,
+          "candidate_component_upper_exponent": 21,
+          "numerator_upper_exponent": 20,
+          "quotient_upper_exponent": 27
+        }
+      ]
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-12",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_weak.jsonl",
+      "line": 9,
+      "nodes": 6,
+      "members": 5,
+      "D": 6,
+      "d_body": 2,
+      "a": 6,
+      "compliance": "6694466623281917089646915924478881607484394402496014143477580697982107385856/1390895614797928496220854154326950543866918373805710244051592626953125",
+      "load_l1": "645",
+      "truth_upper": "287862064801122434854817384752591909121828959307328608169535970013230617591808/92726374319861899748056943621796702924461224920380682936772841796875",
+      "u": 32,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 2,
+          "component": 2,
+          "normalized_magnitude": "640"
+        },
+        {
+          "source": "l1",
+          "node": 2,
+          "component": 3,
+          "normalized_magnitude": "5"
+        }
+      ],
+      "rows": [
+        {
+          "index": 67,
+          "key": "tw.C",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -20,
+          "retained_k_upper_exponent": -18,
+          "candidate_component_upper_exponent": 34,
+          "numerator_upper_exponent": 20,
+          "quotient_upper_exponent": 40
+        },
+        {
+          "index": 68,
+          "key": "ext.C",
+          "member_id": 3,
+          "component": "UX",
+          "lower_k_exponent": -12,
+          "retained_k_upper_exponent": -10,
+          "candidate_component_upper_exponent": 40,
+          "numerator_upper_exponent": 34,
+          "quotient_upper_exponent": 46
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-CHAIN-L-240",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 1,
+      "nodes": 6,
+      "members": 5,
+      "D": -235,
+      "d_body": -237,
+      "a": 4,
+      "compliance": "266165552645564023225615825021255490967311829962111504824627226314096872243404417257713975793451687113735542193814670882933907014909656231308185644392828048956490886994540093095727750369236290064961073793200459010012797628062557229283125595904871896663122560480733000892416/1042337927069205375510320294996014292391554813525390625",
+      "load_l1": "5100155801499217/4171849679533027504677776769862406473833407270227837441302815640277772901915313574263597826048",
+      "truth_upper": "325391826590565854684998262643687655516810939731851808439685024487796870098528636657786098935774369221705391222965459477398621369703344114354923558362853526213237197549747482510236288020029374464/1042337927069205375510320294996014292391554813525390625",
+      "u": 467,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 5,
+          "component": 3,
+          "normalized_magnitude": "5100155801499217/4171849679533027504677776769862406473833407270227837441302815640277772901915313574263597826048"
+        }
+      ],
+      "rows": [
+        {
+          "index": 49,
+          "key": "tw.M1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -700,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 469,
+          "numerator_upper_exponent": -225,
+          "quotient_upper_exponent": 475
+        },
+        {
+          "index": 50,
+          "key": "ext.M1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -212,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 234,
+          "numerator_upper_exponent": 28,
+          "quotient_upper_exponent": 240
+        },
+        {
+          "index": 56,
+          "key": "tw.M2",
+          "member_id": 2,
+          "component": "RX",
+          "lower_k_exponent": -699,
+          "retained_k_upper_exponent": -697,
+          "candidate_component_upper_exponent": 469,
+          "numerator_upper_exponent": -224,
+          "quotient_upper_exponent": 475
+        },
+        {
+          "index": 57,
+          "key": "ext.M2",
+          "member_id": 2,
+          "component": "UX",
+          "lower_k_exponent": -211,
+          "retained_k_upper_exponent": -209,
+          "candidate_component_upper_exponent": 234,
+          "numerator_upper_exponent": 29,
+          "quotient_upper_exponent": 240
+        },
+        {
+          "index": 63,
+          "key": "tw.M3",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 469,
+          "numerator_upper_exponent": -225,
+          "quotient_upper_exponent": 477
+        },
+        {
+          "index": 64,
+          "key": "ext.M3",
+          "member_id": 3,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 234,
+          "numerator_upper_exponent": 28,
+          "quotient_upper_exponent": 242
+        },
+        {
+          "index": 70,
+          "key": "tw.M4",
+          "member_id": 4,
+          "component": "RX",
+          "lower_k_exponent": -701,
+          "retained_k_upper_exponent": -697,
+          "candidate_component_upper_exponent": 469,
+          "numerator_upper_exponent": -224,
+          "quotient_upper_exponent": 477
+        },
+        {
+          "index": 71,
+          "key": "ext.M4",
+          "member_id": 4,
+          "component": "UX",
+          "lower_k_exponent": -213,
+          "retained_k_upper_exponent": -209,
+          "candidate_component_upper_exponent": 234,
+          "numerator_upper_exponent": 29,
+          "quotient_upper_exponent": 242
+        },
+        {
+          "index": 77,
+          "key": "tw.M5",
+          "member_id": 5,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 469,
+          "numerator_upper_exponent": -225,
+          "quotient_upper_exponent": 477
+        },
+        {
+          "index": 78,
+          "key": "ext.M5",
+          "member_id": 5,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 234,
+          "numerator_upper_exponent": 28,
+          "quotient_upper_exponent": 242
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-CHAIN-E-1000",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 3,
+      "nodes": 6,
+      "members": 5,
+      "D": 5,
+      "d_body": 3,
+      "a": 4,
+      "compliance": "517071539306606832624217653966110945586314269136558674492173086945472902742482630458679120785951330968892892805660341899487877279608491352910165533104384945619866827326100915179791468297497553535514207342914342146022290357956646920545677816875132324189178354787737688496888302009560863128366317408633873932606232900630996908547743529333954099334355108233216/1042337927069205375510320294996014292391554813525390625",
+      "load_l1": "5100155801499217/2361183241434822606848",
+      "truth_upper": "1116874524902270795522955003211428180376890393477110654859161352280736957027333411000931923623739947847026271757566668681819674830321241866006221048649565429861050250185842474814493194270125680149210467545475617443665158735841164188073149629229316212425017634795210563965620320753773129330564259398584468906875218232463745439487625254002629903084683264/1042337927069205375510320294996014292391554813525390625",
+      "u": 987,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 5,
+          "component": 3,
+          "normalized_magnitude": "5100155801499217/2361183241434822606848"
+        }
+      ],
+      "rows": [
+        {
+          "index": 49,
+          "key": "tw.M1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -980,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 989,
+          "numerator_upper_exponent": 15,
+          "quotient_upper_exponent": 995
+        },
+        {
+          "index": 50,
+          "key": "ext.M1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -972,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 994,
+          "numerator_upper_exponent": 28,
+          "quotient_upper_exponent": 1000
+        },
+        {
+          "index": 56,
+          "key": "tw.M2",
+          "member_id": 2,
+          "component": "RX",
+          "lower_k_exponent": -979,
+          "retained_k_upper_exponent": -977,
+          "candidate_component_upper_exponent": 989,
+          "numerator_upper_exponent": 16,
+          "quotient_upper_exponent": 995
+        },
+        {
+          "index": 57,
+          "key": "ext.M2",
+          "member_id": 2,
+          "component": "UX",
+          "lower_k_exponent": -971,
+          "retained_k_upper_exponent": -969,
+          "candidate_component_upper_exponent": 994,
+          "numerator_upper_exponent": 29,
+          "quotient_upper_exponent": 1000
+        },
+        {
+          "index": 63,
+          "key": "tw.M3",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 989,
+          "numerator_upper_exponent": 15,
+          "quotient_upper_exponent": 997
+        },
+        {
+          "index": 64,
+          "key": "ext.M3",
+          "member_id": 3,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 994,
+          "numerator_upper_exponent": 28,
+          "quotient_upper_exponent": 1002
+        },
+        {
+          "index": 70,
+          "key": "tw.M4",
+          "member_id": 4,
+          "component": "RX",
+          "lower_k_exponent": -981,
+          "retained_k_upper_exponent": -977,
+          "candidate_component_upper_exponent": 989,
+          "numerator_upper_exponent": 16,
+          "quotient_upper_exponent": 997
+        },
+        {
+          "index": 71,
+          "key": "ext.M4",
+          "member_id": 4,
+          "component": "UX",
+          "lower_k_exponent": -973,
+          "retained_k_upper_exponent": -969,
+          "candidate_component_upper_exponent": 994,
+          "numerator_upper_exponent": 29,
+          "quotient_upper_exponent": 1002
+        },
+        {
+          "index": 77,
+          "key": "tw.M5",
+          "member_id": 5,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 989,
+          "numerator_upper_exponent": 15,
+          "quotient_upper_exponent": 997
+        },
+        {
+          "index": 78,
+          "key": "ext.M5",
+          "member_id": 5,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 994,
+          "numerator_upper_exponent": 28,
+          "quotient_upper_exponent": 1002
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-CHAIN-LEF-small",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 7,
+      "nodes": 6,
+      "members": 5,
+      "D": -195,
+      "d_body": -197,
+      "a": 4,
+      "compliance": "407897522561431852892298610955565387568942046451273297795963294495089614606760384814479069028695197257753159618062914397056562665114805612588955345086916225328053539707470437734813445250946770571875774200622443685978305509435182125059389092872645892546087349820697940880389991609099823399487037131346395803680877337609519497216/1042337927069205375510320294996014292391554813525390625",
+      "load_l1": "5100155801499217/15744403932561434696684473303452629045213679255131528440951130063136634306810047014785327192773139116009306758441243430342744218096217082060889571263281690386187633395165356521866664817226721079737670210248565328244806179188238434160900023542852296724603729870848",
+      "truth_upper": "132132084835960932709079639831959806967773453791247091442734540440080690408587264/1042337927069205375510320294996014292391554813525390625",
+      "u": 87,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 5,
+          "component": 3,
+          "normalized_magnitude": "5100155801499217/15744403932561434696684473303452629045213679255131528440951130063136634306810047014785327192773139116009306758441243430342744218096217082060889571263281690386187633395165356521866664817226721079737670210248565328244806179188238434160900023542852296724603729870848"
+        }
+      ],
+      "rows": [
+        {
+          "index": 49,
+          "key": "tw.M1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -880,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 89,
+          "numerator_upper_exponent": -785,
+          "quotient_upper_exponent": 95
+        },
+        {
+          "index": 50,
+          "key": "ext.M1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -472,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -106,
+          "numerator_upper_exponent": -572,
+          "quotient_upper_exponent": -100
+        },
+        {
+          "index": 56,
+          "key": "tw.M2",
+          "member_id": 2,
+          "component": "RX",
+          "lower_k_exponent": -879,
+          "retained_k_upper_exponent": -877,
+          "candidate_component_upper_exponent": 89,
+          "numerator_upper_exponent": -784,
+          "quotient_upper_exponent": 95
+        },
+        {
+          "index": 57,
+          "key": "ext.M2",
+          "member_id": 2,
+          "component": "UX",
+          "lower_k_exponent": -471,
+          "retained_k_upper_exponent": -469,
+          "candidate_component_upper_exponent": -106,
+          "numerator_upper_exponent": -571,
+          "quotient_upper_exponent": -100
+        },
+        {
+          "index": 63,
+          "key": "tw.M3",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 89,
+          "numerator_upper_exponent": -785,
+          "quotient_upper_exponent": 97
+        },
+        {
+          "index": 64,
+          "key": "ext.M3",
+          "member_id": 3,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -106,
+          "numerator_upper_exponent": -572,
+          "quotient_upper_exponent": -98
+        },
+        {
+          "index": 70,
+          "key": "tw.M4",
+          "member_id": 4,
+          "component": "RX",
+          "lower_k_exponent": -881,
+          "retained_k_upper_exponent": -877,
+          "candidate_component_upper_exponent": 89,
+          "numerator_upper_exponent": -784,
+          "quotient_upper_exponent": 97
+        },
+        {
+          "index": 71,
+          "key": "ext.M4",
+          "member_id": 4,
+          "component": "UX",
+          "lower_k_exponent": -473,
+          "retained_k_upper_exponent": -469,
+          "candidate_component_upper_exponent": -106,
+          "numerator_upper_exponent": -571,
+          "quotient_upper_exponent": -98
+        },
+        {
+          "index": 77,
+          "key": "tw.M5",
+          "member_id": 5,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 89,
+          "numerator_upper_exponent": -785,
+          "quotient_upper_exponent": 97
+        },
+        {
+          "index": 78,
+          "key": "ext.M5",
+          "member_id": 5,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -106,
+          "numerator_upper_exponent": -572,
+          "quotient_upper_exponent": -98
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-CHAIN-SIM-b",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 10,
+      "nodes": 6,
+      "members": 5,
+      "D": 125,
+      "d_body": 123,
+      "a": 4,
+      "compliance": "67259612814548114001903061768349764114931191735246349087337228312541705467317826843426712627183616/1042337927069205375510320294996014292391554813525390625",
+      "load_l1": "5100155801499217/3291009114642412084309938365114701009965471731267159726697218048",
+      "truth_upper": "27980057311364808596257410004811522770399768537781946502759/279800456758916888532764061093309614760644346917683200000000000",
+      "u": -13,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 5,
+          "component": 3,
+          "normalized_magnitude": "5100155801499217/3291009114642412084309938365114701009965471731267159726697218048"
+        }
+      ],
+      "rows": [
+        {
+          "index": 49,
+          "key": "tw.M1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -120,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": -11,
+          "numerator_upper_exponent": -125,
+          "quotient_upper_exponent": -5
+        },
+        {
+          "index": 50,
+          "key": "ext.M1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -352,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 114,
+          "numerator_upper_exponent": -232,
+          "quotient_upper_exponent": 120
+        },
+        {
+          "index": 56,
+          "key": "tw.M2",
+          "member_id": 2,
+          "component": "RX",
+          "lower_k_exponent": -119,
+          "retained_k_upper_exponent": -117,
+          "candidate_component_upper_exponent": -11,
+          "numerator_upper_exponent": -124,
+          "quotient_upper_exponent": -5
+        },
+        {
+          "index": 57,
+          "key": "ext.M2",
+          "member_id": 2,
+          "component": "UX",
+          "lower_k_exponent": -351,
+          "retained_k_upper_exponent": -349,
+          "candidate_component_upper_exponent": 114,
+          "numerator_upper_exponent": -231,
+          "quotient_upper_exponent": 120
+        },
+        {
+          "index": 63,
+          "key": "tw.M3",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": -11,
+          "numerator_upper_exponent": -125,
+          "quotient_upper_exponent": -3
+        },
+        {
+          "index": 64,
+          "key": "ext.M3",
+          "member_id": 3,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 114,
+          "numerator_upper_exponent": -232,
+          "quotient_upper_exponent": 122
+        },
+        {
+          "index": 70,
+          "key": "tw.M4",
+          "member_id": 4,
+          "component": "RX",
+          "lower_k_exponent": -121,
+          "retained_k_upper_exponent": -117,
+          "candidate_component_upper_exponent": -11,
+          "numerator_upper_exponent": -124,
+          "quotient_upper_exponent": -3
+        },
+        {
+          "index": 71,
+          "key": "ext.M4",
+          "member_id": 4,
+          "component": "UX",
+          "lower_k_exponent": -353,
+          "retained_k_upper_exponent": -349,
+          "candidate_component_upper_exponent": 114,
+          "numerator_upper_exponent": -231,
+          "quotient_upper_exponent": 122
+        },
+        {
+          "index": 77,
+          "key": "tw.M5",
+          "member_id": 5,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": -11,
+          "numerator_upper_exponent": -125,
+          "quotient_upper_exponent": -3
+        },
+        {
+          "index": 78,
+          "key": "ext.M5",
+          "member_id": 5,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 114,
+          "numerator_upper_exponent": -232,
+          "quotient_upper_exponent": 122
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-SKEW-L-240",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 11,
+      "nodes": 2,
+      "members": 1,
+      "D": -237,
+      "d_body": -239,
+      "a": 4,
+      "compliance": "532330936148636028424117369768287765350543493192597006576566306246209425676248321959087331977206301239861902539722274167837553436176242890107976511177685166458464950144214984578286256112329462620375140353748583877937719560272890891398527984316971948398602472764045826981888/1389783902758940389065113974318667161263352841162109375",
+      "load_l1": "22667359117774295/16687398718132110018711107079449625895333629080911349765211262561111091607661254297054391304192",
+      "truth_upper": "144618543644803239556475204477403044465665359782192459496507066730045541578576254712791793272276343849064058523992231330635344679922297705433797860205756504097134190138037045930193866151927218176/277956780551788077813022794863733432252670568232421875",
+      "u": 468,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 1,
+          "component": 3,
+          "normalized_magnitude": "4533471823554859/16687398718132110018711107079449625895333629080911349765211262561111091607661254297054391304192"
+        },
+        {
+          "source": "l1",
+          "node": 1,
+          "component": 4,
+          "normalized_magnitude": "4533471823554859/8343699359066055009355553539724812947666814540455674882605631280555545803830627148527195652096"
+        },
+        {
+          "source": "l2",
+          "node": 1,
+          "component": 5,
+          "normalized_magnitude": "4533471823554859/8343699359066055009355553539724812947666814540455674882605631280555545803830627148527195652096"
+        }
+      ],
+      "rows": [
+        {
+          "index": 29,
+          "key": "tw.M1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 470,
+          "numerator_upper_exponent": -224,
+          "quotient_upper_exponent": 478
+        },
+        {
+          "index": 30,
+          "key": "ext.M1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 233,
+          "numerator_upper_exponent": 27,
+          "quotient_upper_exponent": 241
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-SKEW-E-1000",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 13,
+      "nodes": 2,
+      "members": 1,
+      "D": 3,
+      "d_body": 1,
+      "a": 4,
+      "compliance": "1034142750025356068288479606882757241803500794999010648874170718913966693594807484348737405699134557676322243323961534009962434150535725478681095434230716252283399491141620066778064420463609421695320857404520788163689286704355135551442376762058503490614975751810660284482862568779632070811155630436863758902137471528308334090101453794627448354673175233036288/1389783902758940389065113974318667161263352841162109375",
+      "load_l1": "22667359117774295/9444732965739290427392",
+      "truth_upper": "496388520012170868417127876908031148746011416944520805927532052669844138817359441034183223382468038174325486828984063099913463195186130649805197431767641368302288644701857780896158638830069468622119464420595496357695922517958411593124822382304089762293398896840656828973296677119771398682093226436339770725530890419084141132649575682631681125306597376/277956780551788077813022794863733432252670568232421875",
+      "u": 988,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 1,
+          "component": 3,
+          "normalized_magnitude": "4533471823554859/9444732965739290427392"
+        },
+        {
+          "source": "l1",
+          "node": 1,
+          "component": 4,
+          "normalized_magnitude": "4533471823554859/4722366482869645213696"
+        },
+        {
+          "source": "l2",
+          "node": 1,
+          "component": 5,
+          "normalized_magnitude": "4533471823554859/4722366482869645213696"
+        }
+      ],
+      "rows": [
+        {
+          "index": 29,
+          "key": "tw.M1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 990,
+          "numerator_upper_exponent": 16,
+          "quotient_upper_exponent": 998
+        },
+        {
+          "index": 30,
+          "key": "ext.M1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 993,
+          "numerator_upper_exponent": 27,
+          "quotient_upper_exponent": 1001
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-SKEW-LEF-small",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 17,
+      "nodes": 2,
+      "members": 1,
+      "D": -197,
+      "d_body": -199,
+      "a": 4,
+      "compliance": "815794785912748917213845674945251142121271436344531043489340295099934867360369437894235558980609936826175371201344936267618741266228450281775697621755309652730824404409972008583880161558953537737360280892939423961066359212834493746924940905642656890695202572764674812508936717612151391785833951157180698590500839419930149388288/1389783902758940389065113974318667161263352841162109375",
+      "load_l1": "22667359117774295/62977615730245738786737893213810516180854717020526113763804520252546537227240188059141308771092556464037227033764973721370976872384868328243558285053126761544750533580661426087466659268906884318950680840994261312979224716752953736643600094171409186898414919483392",
+      "truth_upper": "58725352378848854444162321349974792724781526330793994064178308449057056149733376/277956780551788077813022794863733432252670568232421875",
+      "u": 88,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 1,
+          "component": 3,
+          "normalized_magnitude": "4533471823554859/62977615730245738786737893213810516180854717020526113763804520252546537227240188059141308771092556464037227033764973721370976872384868328243558285053126761544750533580661426087466659268906884318950680840994261312979224716752953736643600094171409186898414919483392"
+        },
+        {
+          "source": "l1",
+          "node": 1,
+          "component": 4,
+          "normalized_magnitude": "4533471823554859/31488807865122869393368946606905258090427358510263056881902260126273268613620094029570654385546278232018613516882486860685488436192434164121779142526563380772375266790330713043733329634453442159475340420497130656489612358376476868321800047085704593449207459741696"
+        },
+        {
+          "source": "l2",
+          "node": 1,
+          "component": 5,
+          "normalized_magnitude": "4533471823554859/31488807865122869393368946606905258090427358510263056881902260126273268613620094029570654385546278232018613516882486860685488436192434164121779142526563380772375266790330713043733329634453442159475340420497130656489612358376476868321800047085704593449207459741696"
+        }
+      ],
+      "rows": [
+        {
+          "index": 29,
+          "key": "tw.M1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 90,
+          "numerator_upper_exponent": -784,
+          "quotient_upper_exponent": 98
+        },
+        {
+          "index": 30,
+          "key": "ext.M1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -107,
+          "numerator_upper_exponent": -573,
+          "quotient_upper_exponent": -99
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-SKEW-SIM-b",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 20,
+      "nodes": 2,
+      "members": 1,
+      "D": 123,
+      "d_body": 121,
+      "a": 4,
+      "compliance": "134519182887056882402930988413416255374080816719054849055070131531251985220863729734547662583103488/1389783902758940389065113974318667161263352841162109375",
+      "load_l1": "22667359117774295/13164036458569648337239753460458804039861886925068638906788872192",
+      "truth_upper": "14001215071403707133331852281087587529368764479349611774487092125190986669/84007282186503505129768872274628339367924472211227922122289153310720000000000",
+      "u": -12,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 1,
+          "component": 3,
+          "normalized_magnitude": "4533471823554859/13164036458569648337239753460458804039861886925068638906788872192"
+        },
+        {
+          "source": "l1",
+          "node": 1,
+          "component": 4,
+          "normalized_magnitude": "4533471823554859/6582018229284824168619876730229402019930943462534319453394436096"
+        },
+        {
+          "source": "l2",
+          "node": 1,
+          "component": 5,
+          "normalized_magnitude": "4533471823554859/6582018229284824168619876730229402019930943462534319453394436096"
+        }
+      ],
+      "rows": [
+        {
+          "index": 29,
+          "key": "tw.M1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": -10,
+          "numerator_upper_exponent": -124,
+          "quotient_upper_exponent": -2
+        },
+        {
+          "index": 30,
+          "key": "ext.M1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 113,
+          "numerator_upper_exponent": -233,
+          "quotient_upper_exponent": 121
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-CONT-L-240",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 21,
+      "nodes": 11,
+      "members": 10,
+      "D": -233,
+      "d_body": -236,
+      "a": 5,
+      "compliance": "17778423293857090828792930467881535205796547814738946836169857382416003537281524797805223276590934282835900992119251018210861191051048294677690981655953893488239001201884565607161374328854667994348528428172245328382403324148577210322306051062307487744/66969187851405611137155232146123046875",
+      "load_l1": "27/431359146674410236714672241392314090778194310760649159697657763987456",
+      "truth_upper": "370934083299933263812814647629881440120986770881367055978015643288461152078281479982232453547532247701966340023839482751887350046375441800161480808186741746151802090391358512788668416/22323062617135203712385077382041015625",
+      "u": 483,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 6,
+          "component": 1,
+          "normalized_magnitude": "3/431359146674410236714672241392314090778194310760649159697657763987456"
+        },
+        {
+          "source": "l1",
+          "node": 7,
+          "component": 2,
+          "normalized_magnitude": "3/431359146674410236714672241392314090778194310760649159697657763987456"
+        },
+        {
+          "source": "l2",
+          "node": 8,
+          "component": 1,
+          "normalized_magnitude": "3/431359146674410236714672241392314090778194310760649159697657763987456"
+        },
+        {
+          "source": "l3",
+          "node": 8,
+          "component": 2,
+          "normalized_magnitude": "3/431359146674410236714672241392314090778194310760649159697657763987456"
+        },
+        {
+          "source": "l4",
+          "node": 9,
+          "component": 1,
+          "normalized_magnitude": "3/215679573337205118357336120696157045389097155380324579848828881993728"
+        },
+        {
+          "source": "l5",
+          "node": 10,
+          "component": 1,
+          "normalized_magnitude": "3/215679573337205118357336120696157045389097155380324579848828881993728"
+        },
+        {
+          "source": "l6",
+          "node": 10,
+          "component": 2,
+          "normalized_magnitude": "3/431359146674410236714672241392314090778194310760649159697657763987456"
+        }
+      ],
+      "rows": [
+        {
+          "index": 92,
+          "key": "tw.A1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 485,
+          "numerator_upper_exponent": -209,
+          "quotient_upper_exponent": 493
+        },
+        {
+          "index": 93,
+          "key": "ext.A1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 252,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 260
+        },
+        {
+          "index": 99,
+          "key": "tw.B1",
+          "member_id": 2,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 485,
+          "numerator_upper_exponent": -209,
+          "quotient_upper_exponent": 493
+        },
+        {
+          "index": 100,
+          "key": "ext.B1",
+          "member_id": 2,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 252,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 260
+        },
+        {
+          "index": 106,
+          "key": "tw.A2",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 485,
+          "numerator_upper_exponent": -209,
+          "quotient_upper_exponent": 493
+        },
+        {
+          "index": 107,
+          "key": "ext.A2",
+          "member_id": 3,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 252,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 260
+        },
+        {
+          "index": 113,
+          "key": "tw.B2",
+          "member_id": 4,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 485,
+          "numerator_upper_exponent": -209,
+          "quotient_upper_exponent": 493
+        },
+        {
+          "index": 114,
+          "key": "ext.B2",
+          "member_id": 4,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 252,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 260
+        },
+        {
+          "index": 120,
+          "key": "tw.A3",
+          "member_id": 5,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 485,
+          "numerator_upper_exponent": -209,
+          "quotient_upper_exponent": 493
+        },
+        {
+          "index": 121,
+          "key": "ext.A3",
+          "member_id": 5,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 252,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 260
+        },
+        {
+          "index": 127,
+          "key": "tw.B3",
+          "member_id": 6,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 485,
+          "numerator_upper_exponent": -209,
+          "quotient_upper_exponent": 493
+        },
+        {
+          "index": 128,
+          "key": "ext.B3",
+          "member_id": 6,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 252,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 260
+        },
+        {
+          "index": 134,
+          "key": "tw.A4",
+          "member_id": 7,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 485,
+          "numerator_upper_exponent": -209,
+          "quotient_upper_exponent": 493
+        },
+        {
+          "index": 135,
+          "key": "ext.A4",
+          "member_id": 7,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 252,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 260
+        },
+        {
+          "index": 141,
+          "key": "tw.B4",
+          "member_id": 8,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 485,
+          "numerator_upper_exponent": -209,
+          "quotient_upper_exponent": 493
+        },
+        {
+          "index": 142,
+          "key": "ext.B4",
+          "member_id": 8,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 252,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 260
+        },
+        {
+          "index": 148,
+          "key": "tw.A5",
+          "member_id": 9,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 485,
+          "numerator_upper_exponent": -209,
+          "quotient_upper_exponent": 493
+        },
+        {
+          "index": 149,
+          "key": "ext.A5",
+          "member_id": 9,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 252,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 260
+        },
+        {
+          "index": 155,
+          "key": "tw.B5",
+          "member_id": 10,
+          "component": "RX",
+          "lower_k_exponent": -702,
+          "retained_k_upper_exponent": -698,
+          "candidate_component_upper_exponent": 485,
+          "numerator_upper_exponent": -209,
+          "quotient_upper_exponent": 493
+        },
+        {
+          "index": 156,
+          "key": "ext.B5",
+          "member_id": 10,
+          "component": "UX",
+          "lower_k_exponent": -214,
+          "retained_k_upper_exponent": -210,
+          "candidate_component_upper_exponent": 252,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 260
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-CONT-E-1000",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 23,
+      "nodes": 11,
+      "members": 10,
+      "D": 7,
+      "d_body": 4,
+      "a": 5,
+      "compliance": "34537589885797452019249804737246927540433491531392320325086758455911993569349974692848563550659590132394855115702927299601658239621369217585590896576821134431266835283189998513829842610170020516282121530012896734704281784247037832014626803553773693515299671122401901654798249975097514978016698869500003640342529629159872001065766354944/66969187851405611137155232146123046875",
+      "load_l1": "110592",
+      "truth_upper": "1273193713550037271237624801833870736850540231813246496463998263718739730940517467077169446731515130640603938985272711972515529345402154837075222811407934299674220615879516105213823317981307636312224128082395425228138643694482802639387202486206313437748007076256223702602482687081994792149607587125248134197587012249349521447288410908655616/22323062617135203712385077382041015625",
+      "u": 1003,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 6,
+          "component": 1,
+          "normalized_magnitude": "12288"
+        },
+        {
+          "source": "l1",
+          "node": 7,
+          "component": 2,
+          "normalized_magnitude": "12288"
+        },
+        {
+          "source": "l2",
+          "node": 8,
+          "component": 1,
+          "normalized_magnitude": "12288"
+        },
+        {
+          "source": "l3",
+          "node": 8,
+          "component": 2,
+          "normalized_magnitude": "12288"
+        },
+        {
+          "source": "l4",
+          "node": 9,
+          "component": 1,
+          "normalized_magnitude": "24576"
+        },
+        {
+          "source": "l5",
+          "node": 10,
+          "component": 1,
+          "normalized_magnitude": "24576"
+        },
+        {
+          "source": "l6",
+          "node": 10,
+          "component": 2,
+          "normalized_magnitude": "12288"
+        }
+      ],
+      "rows": [
+        {
+          "index": 92,
+          "key": "tw.A1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 1005,
+          "numerator_upper_exponent": 31,
+          "quotient_upper_exponent": 1013
+        },
+        {
+          "index": 93,
+          "key": "ext.A1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 1012,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 1020
+        },
+        {
+          "index": 99,
+          "key": "tw.B1",
+          "member_id": 2,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 1005,
+          "numerator_upper_exponent": 31,
+          "quotient_upper_exponent": 1013
+        },
+        {
+          "index": 100,
+          "key": "ext.B1",
+          "member_id": 2,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 1012,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 1020
+        },
+        {
+          "index": 106,
+          "key": "tw.A2",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 1005,
+          "numerator_upper_exponent": 31,
+          "quotient_upper_exponent": 1013
+        },
+        {
+          "index": 107,
+          "key": "ext.A2",
+          "member_id": 3,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 1012,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 1020
+        },
+        {
+          "index": 113,
+          "key": "tw.B2",
+          "member_id": 4,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 1005,
+          "numerator_upper_exponent": 31,
+          "quotient_upper_exponent": 1013
+        },
+        {
+          "index": 114,
+          "key": "ext.B2",
+          "member_id": 4,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 1012,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 1020
+        },
+        {
+          "index": 120,
+          "key": "tw.A3",
+          "member_id": 5,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 1005,
+          "numerator_upper_exponent": 31,
+          "quotient_upper_exponent": 1013
+        },
+        {
+          "index": 121,
+          "key": "ext.A3",
+          "member_id": 5,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 1012,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 1020
+        },
+        {
+          "index": 127,
+          "key": "tw.B3",
+          "member_id": 6,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 1005,
+          "numerator_upper_exponent": 31,
+          "quotient_upper_exponent": 1013
+        },
+        {
+          "index": 128,
+          "key": "ext.B3",
+          "member_id": 6,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 1012,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 1020
+        },
+        {
+          "index": 134,
+          "key": "tw.A4",
+          "member_id": 7,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 1005,
+          "numerator_upper_exponent": 31,
+          "quotient_upper_exponent": 1013
+        },
+        {
+          "index": 135,
+          "key": "ext.A4",
+          "member_id": 7,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 1012,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 1020
+        },
+        {
+          "index": 141,
+          "key": "tw.B4",
+          "member_id": 8,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 1005,
+          "numerator_upper_exponent": 31,
+          "quotient_upper_exponent": 1013
+        },
+        {
+          "index": 142,
+          "key": "ext.B4",
+          "member_id": 8,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 1012,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 1020
+        },
+        {
+          "index": 148,
+          "key": "tw.A5",
+          "member_id": 9,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 1005,
+          "numerator_upper_exponent": 31,
+          "quotient_upper_exponent": 1013
+        },
+        {
+          "index": 149,
+          "key": "ext.A5",
+          "member_id": 9,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 1012,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 1020
+        },
+        {
+          "index": 155,
+          "key": "tw.B5",
+          "member_id": 10,
+          "component": "RX",
+          "lower_k_exponent": -982,
+          "retained_k_upper_exponent": -978,
+          "candidate_component_upper_exponent": 1005,
+          "numerator_upper_exponent": 31,
+          "quotient_upper_exponent": 1013
+        },
+        {
+          "index": 156,
+          "key": "ext.B5",
+          "member_id": 10,
+          "component": "UX",
+          "lower_k_exponent": -974,
+          "retained_k_upper_exponent": -970,
+          "candidate_component_upper_exponent": 1012,
+          "numerator_upper_exponent": 46,
+          "quotient_upper_exponent": 1020
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-CONT-LEF-small",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 27,
+      "nodes": 11,
+      "members": 10,
+      "D": -193,
+      "d_body": -196,
+      "a": 5,
+      "compliance": "27245354421462239741829429453277846185238486767783517017853066165626590875063987257611918065624355924146030549639765251143213880117635305940328666653764474762842247145326856468728159503718597327750100585958201665415682690293492206791274730806372251447538533576170096643378163834347507725755087098891730944/66969187851405611137155232146123046875",
+      "load_l1": "27/1627933211152308172382776316094057079381044512284157265721742629825204403764070329961287158415906809263410622703474912218234570716337735615323084973713581554222450580936038710562274972146438970881094974642550439936936217782587026682413056",
+      "truth_upper": "150625460622916592770877870246293122004472308849087254839085672431616/22323062617135203712385077382041015625",
+      "u": 103,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 6,
+          "component": 1,
+          "normalized_magnitude": "3/1627933211152308172382776316094057079381044512284157265721742629825204403764070329961287158415906809263410622703474912218234570716337735615323084973713581554222450580936038710562274972146438970881094974642550439936936217782587026682413056"
+        },
+        {
+          "source": "l1",
+          "node": 7,
+          "component": 2,
+          "normalized_magnitude": "3/1627933211152308172382776316094057079381044512284157265721742629825204403764070329961287158415906809263410622703474912218234570716337735615323084973713581554222450580936038710562274972146438970881094974642550439936936217782587026682413056"
+        },
+        {
+          "source": "l2",
+          "node": 8,
+          "component": 1,
+          "normalized_magnitude": "3/1627933211152308172382776316094057079381044512284157265721742629825204403764070329961287158415906809263410622703474912218234570716337735615323084973713581554222450580936038710562274972146438970881094974642550439936936217782587026682413056"
+        },
+        {
+          "source": "l3",
+          "node": 8,
+          "component": 2,
+          "normalized_magnitude": "3/1627933211152308172382776316094057079381044512284157265721742629825204403764070329961287158415906809263410622703474912218234570716337735615323084973713581554222450580936038710562274972146438970881094974642550439936936217782587026682413056"
+        },
+        {
+          "source": "l4",
+          "node": 9,
+          "component": 1,
+          "normalized_magnitude": "3/813966605576154086191388158047028539690522256142078632860871314912602201882035164980643579207953404631705311351737456109117285358168867807661542486856790777111225290468019355281137486073219485440547487321275219968468108891293513341206528"
+        },
+        {
+          "source": "l5",
+          "node": 10,
+          "component": 1,
+          "normalized_magnitude": "3/813966605576154086191388158047028539690522256142078632860871314912602201882035164980643579207953404631705311351737456109117285358168867807661542486856790777111225290468019355281137486073219485440547487321275219968468108891293513341206528"
+        },
+        {
+          "source": "l6",
+          "node": 10,
+          "component": 2,
+          "normalized_magnitude": "3/1627933211152308172382776316094057079381044512284157265721742629825204403764070329961287158415906809263410622703474912218234570716337735615323084973713581554222450580936038710562274972146438970881094974642550439936936217782587026682413056"
+        }
+      ],
+      "rows": [
+        {
+          "index": 92,
+          "key": "tw.A1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 105,
+          "numerator_upper_exponent": -769,
+          "quotient_upper_exponent": 113
+        },
+        {
+          "index": 93,
+          "key": "ext.A1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -88,
+          "numerator_upper_exponent": -554,
+          "quotient_upper_exponent": -80
+        },
+        {
+          "index": 99,
+          "key": "tw.B1",
+          "member_id": 2,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 105,
+          "numerator_upper_exponent": -769,
+          "quotient_upper_exponent": 113
+        },
+        {
+          "index": 100,
+          "key": "ext.B1",
+          "member_id": 2,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -88,
+          "numerator_upper_exponent": -554,
+          "quotient_upper_exponent": -80
+        },
+        {
+          "index": 106,
+          "key": "tw.A2",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 105,
+          "numerator_upper_exponent": -769,
+          "quotient_upper_exponent": 113
+        },
+        {
+          "index": 107,
+          "key": "ext.A2",
+          "member_id": 3,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -88,
+          "numerator_upper_exponent": -554,
+          "quotient_upper_exponent": -80
+        },
+        {
+          "index": 113,
+          "key": "tw.B2",
+          "member_id": 4,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 105,
+          "numerator_upper_exponent": -769,
+          "quotient_upper_exponent": 113
+        },
+        {
+          "index": 114,
+          "key": "ext.B2",
+          "member_id": 4,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -88,
+          "numerator_upper_exponent": -554,
+          "quotient_upper_exponent": -80
+        },
+        {
+          "index": 120,
+          "key": "tw.A3",
+          "member_id": 5,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 105,
+          "numerator_upper_exponent": -769,
+          "quotient_upper_exponent": 113
+        },
+        {
+          "index": 121,
+          "key": "ext.A3",
+          "member_id": 5,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -88,
+          "numerator_upper_exponent": -554,
+          "quotient_upper_exponent": -80
+        },
+        {
+          "index": 127,
+          "key": "tw.B3",
+          "member_id": 6,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 105,
+          "numerator_upper_exponent": -769,
+          "quotient_upper_exponent": 113
+        },
+        {
+          "index": 128,
+          "key": "ext.B3",
+          "member_id": 6,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -88,
+          "numerator_upper_exponent": -554,
+          "quotient_upper_exponent": -80
+        },
+        {
+          "index": 134,
+          "key": "tw.A4",
+          "member_id": 7,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 105,
+          "numerator_upper_exponent": -769,
+          "quotient_upper_exponent": 113
+        },
+        {
+          "index": 135,
+          "key": "ext.A4",
+          "member_id": 7,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -88,
+          "numerator_upper_exponent": -554,
+          "quotient_upper_exponent": -80
+        },
+        {
+          "index": 141,
+          "key": "tw.B4",
+          "member_id": 8,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 105,
+          "numerator_upper_exponent": -769,
+          "quotient_upper_exponent": 113
+        },
+        {
+          "index": 142,
+          "key": "ext.B4",
+          "member_id": 8,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -88,
+          "numerator_upper_exponent": -554,
+          "quotient_upper_exponent": -80
+        },
+        {
+          "index": 148,
+          "key": "tw.A5",
+          "member_id": 9,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 105,
+          "numerator_upper_exponent": -769,
+          "quotient_upper_exponent": 113
+        },
+        {
+          "index": 149,
+          "key": "ext.A5",
+          "member_id": 9,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -88,
+          "numerator_upper_exponent": -554,
+          "quotient_upper_exponent": -80
+        },
+        {
+          "index": 155,
+          "key": "tw.B5",
+          "member_id": 10,
+          "component": "RX",
+          "lower_k_exponent": -882,
+          "retained_k_upper_exponent": -878,
+          "candidate_component_upper_exponent": 105,
+          "numerator_upper_exponent": -769,
+          "quotient_upper_exponent": 113
+        },
+        {
+          "index": 156,
+          "key": "ext.B5",
+          "member_id": 10,
+          "component": "UX",
+          "lower_k_exponent": -474,
+          "retained_k_upper_exponent": -470,
+          "candidate_component_upper_exponent": -88,
+          "numerator_upper_exponent": -554,
+          "quotient_upper_exponent": -80
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-CONT-SIM-b",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 30,
+      "nodes": 11,
+      "members": 10,
+      "D": 127,
+      "d_body": 124,
+      "a": 5,
+      "compliance": "4492579356391406625601878291096947390548239807253063604057574344694163308544/66969187851405611137155232146123046875",
+      "load_l1": "27/340282366920938463463374607431768211456",
+      "truth_upper": "118822537216325852105995199697037295616/22323062617135203712385077382041015625",
+      "u": 3,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 6,
+          "component": 1,
+          "normalized_magnitude": "3/340282366920938463463374607431768211456"
+        },
+        {
+          "source": "l1",
+          "node": 7,
+          "component": 2,
+          "normalized_magnitude": "3/340282366920938463463374607431768211456"
+        },
+        {
+          "source": "l2",
+          "node": 8,
+          "component": 1,
+          "normalized_magnitude": "3/340282366920938463463374607431768211456"
+        },
+        {
+          "source": "l3",
+          "node": 8,
+          "component": 2,
+          "normalized_magnitude": "3/340282366920938463463374607431768211456"
+        },
+        {
+          "source": "l4",
+          "node": 9,
+          "component": 1,
+          "normalized_magnitude": "3/170141183460469231731687303715884105728"
+        },
+        {
+          "source": "l5",
+          "node": 10,
+          "component": 1,
+          "normalized_magnitude": "3/170141183460469231731687303715884105728"
+        },
+        {
+          "source": "l6",
+          "node": 10,
+          "component": 2,
+          "normalized_magnitude": "3/340282366920938463463374607431768211456"
+        }
+      ],
+      "rows": [
+        {
+          "index": 92,
+          "key": "tw.A1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": 5,
+          "numerator_upper_exponent": -109,
+          "quotient_upper_exponent": 13
+        },
+        {
+          "index": 93,
+          "key": "ext.A1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 132,
+          "numerator_upper_exponent": -214,
+          "quotient_upper_exponent": 140
+        },
+        {
+          "index": 99,
+          "key": "tw.B1",
+          "member_id": 2,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": 5,
+          "numerator_upper_exponent": -109,
+          "quotient_upper_exponent": 13
+        },
+        {
+          "index": 100,
+          "key": "ext.B1",
+          "member_id": 2,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 132,
+          "numerator_upper_exponent": -214,
+          "quotient_upper_exponent": 140
+        },
+        {
+          "index": 106,
+          "key": "tw.A2",
+          "member_id": 3,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": 5,
+          "numerator_upper_exponent": -109,
+          "quotient_upper_exponent": 13
+        },
+        {
+          "index": 107,
+          "key": "ext.A2",
+          "member_id": 3,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 132,
+          "numerator_upper_exponent": -214,
+          "quotient_upper_exponent": 140
+        },
+        {
+          "index": 113,
+          "key": "tw.B2",
+          "member_id": 4,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": 5,
+          "numerator_upper_exponent": -109,
+          "quotient_upper_exponent": 13
+        },
+        {
+          "index": 114,
+          "key": "ext.B2",
+          "member_id": 4,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 132,
+          "numerator_upper_exponent": -214,
+          "quotient_upper_exponent": 140
+        },
+        {
+          "index": 120,
+          "key": "tw.A3",
+          "member_id": 5,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": 5,
+          "numerator_upper_exponent": -109,
+          "quotient_upper_exponent": 13
+        },
+        {
+          "index": 121,
+          "key": "ext.A3",
+          "member_id": 5,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 132,
+          "numerator_upper_exponent": -214,
+          "quotient_upper_exponent": 140
+        },
+        {
+          "index": 127,
+          "key": "tw.B3",
+          "member_id": 6,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": 5,
+          "numerator_upper_exponent": -109,
+          "quotient_upper_exponent": 13
+        },
+        {
+          "index": 128,
+          "key": "ext.B3",
+          "member_id": 6,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 132,
+          "numerator_upper_exponent": -214,
+          "quotient_upper_exponent": 140
+        },
+        {
+          "index": 134,
+          "key": "tw.A4",
+          "member_id": 7,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": 5,
+          "numerator_upper_exponent": -109,
+          "quotient_upper_exponent": 13
+        },
+        {
+          "index": 135,
+          "key": "ext.A4",
+          "member_id": 7,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 132,
+          "numerator_upper_exponent": -214,
+          "quotient_upper_exponent": 140
+        },
+        {
+          "index": 141,
+          "key": "tw.B4",
+          "member_id": 8,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": 5,
+          "numerator_upper_exponent": -109,
+          "quotient_upper_exponent": 13
+        },
+        {
+          "index": 142,
+          "key": "ext.B4",
+          "member_id": 8,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 132,
+          "numerator_upper_exponent": -214,
+          "quotient_upper_exponent": 140
+        },
+        {
+          "index": 148,
+          "key": "tw.A5",
+          "member_id": 9,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": 5,
+          "numerator_upper_exponent": -109,
+          "quotient_upper_exponent": 13
+        },
+        {
+          "index": 149,
+          "key": "ext.A5",
+          "member_id": 9,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 132,
+          "numerator_upper_exponent": -214,
+          "quotient_upper_exponent": 140
+        },
+        {
+          "index": 155,
+          "key": "tw.B5",
+          "member_id": 10,
+          "component": "RX",
+          "lower_k_exponent": -122,
+          "retained_k_upper_exponent": -118,
+          "candidate_component_upper_exponent": 5,
+          "numerator_upper_exponent": -109,
+          "quotient_upper_exponent": 13
+        },
+        {
+          "index": 156,
+          "key": "ext.B5",
+          "member_id": 10,
+          "component": "UX",
+          "lower_k_exponent": -354,
+          "retained_k_upper_exponent": -350,
+          "candidate_component_upper_exponent": 132,
+          "numerator_upper_exponent": -214,
+          "quotient_upper_exponent": 140
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-THIN-A",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 31,
+      "nodes": 2,
+      "members": 1,
+      "D": 2,
+      "d_body": 0,
+      "a": 4,
+      "compliance": "710761189938312722308937544337493297680220698840419965653640582936273637999889544219880522548737012465365526791994339241487042072622162380524352237273540370415092826278864880694157466462246209010276864295762842817219014420644938311992969544222950002880732121498577904745117451648136224488554496/10851313079670740665520800727919216885603317013",
+      "load_l1": "126398593875232399/515912628062173092140956821207535748553561841832149923953086629908861232965551620580485601452790222553392963860602664725471042538576841344971229471155214430574596371092778402508526872730885196340843977449424988675925808879640197010584371971452184059071815020407947264",
+      "truth_upper": "153012707792901541496990923776809162928602339220518765775002601576076334814091422296026203758045963415626855913451615381193438863807947519335580640066215155774741683384708455759811937780032165019525732141/9534984785749552767955098003820678705791440731851058038706591718840286922890046277425230024454912693186471740494644474444066178218881451790099405688074390431791413610705470463290355213546424606754422652928",
+      "u": -5,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 1,
+          "component": 1,
+          "normalized_magnitude": "1225292491647661/8061134813471454564702450331367746071149403778627342561766978592325956765086744071570087522699847227396765060321916636335485039665263146015175460486800225477728068298324662539195732386420081192825687147647265448061340763744378078290380812053940375922997109693874176"
+        },
+        {
+          "source": "l1",
+          "node": 1,
+          "component": 2,
+          "normalized_magnitude": "1225292491647661/16122269626942909129404900662735492142298807557254685123533957184651913530173488143140175045399694454793530120643833272670970079330526292030350920973600450955456136596649325078391464772840162385651374295294530896122681527488756156580761624107880751845994219387748352"
+        },
+        {
+          "source": "l2",
+          "node": 1,
+          "component": 3,
+          "normalized_magnitude": "8770514677056943/515912628062173092140956821207535748553561841832149923953086629908861232965551620580485601452790222553392963860602664725471042538576841344971229471155214430574596371092778402508526872730885196340843977449424988675925808879640197010584371971452184059071815020407947264"
+        }
+      ],
+      "rows": [
+        {
+          "index": 23,
+          "key": "tw.M1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -821,
+          "retained_k_upper_exponent": -819,
+          "candidate_component_upper_exponent": -3,
+          "numerator_upper_exponent": -818,
+          "quotient_upper_exponent": 3
+        },
+        {
+          "index": 24,
+          "key": "ext.M1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -309,
+          "retained_k_upper_exponent": -307,
+          "candidate_component_upper_exponent": -1,
+          "numerator_upper_exponent": -304,
+          "quotient_upper_exponent": 5
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-THIN-B",
+      "fixture": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "line": 32,
+      "nodes": 2,
+      "members": 1,
+      "D": 2,
+      "d_body": 0,
+      "a": 4,
+      "compliance": "1142149196494664963074095727856507576467055140169313106781498376096902005451517791866851371221439678755853715325566309964299611099330328116376853092667890446507720343459941950457233051600874855980862059164886221231236325605263499702788659505541919839277288396815621932715318728750698306150719254426682731429401373264872379377886138796307229767298759786496/10851313079670740665520800727919216885603317013",
+      "load_l1": "30160286025302205/6032057205060440848842124543157735677050252251748505781796615064961622344493727293370973578138265743708225425014400837164813540499979063179105919597766951022193355091707896034850684039059079180396788349106095584290087446076413771468940477241550670753145517602931224392424029547429993824129889235158145614364972941312",
+      "truth_upper": "12170248869211462975937421529413885170641502504764168210718507273638514873920050017263038394963793163053330255235487909266239456542887871301234650301795340522469582961826174353995956690244957516882402365/23125381717665860118856406197836328418613607286657638514847571590120513484216756666198562075090285830050492805929981779491611761765868509222489970096101728345072026933740975954400965355905220608",
+      "u": 29,
+      "load_terms": [
+        {
+          "source": "l0",
+          "node": 1,
+          "component": 1,
+          "normalized_magnitude": "6032057205060441/1508014301265110212210531135789433919262563062937126445449153766240405586123431823342743394534566435927056356253600209291203385124994765794776479899441737755548338772926974008712671009764769795099197087276523896072521861519103442867235119310387667688286379400732806098106007386857498456032472308789536403591243235328"
+        },
+        {
+          "source": "l1",
+          "node": 1,
+          "component": 3,
+          "normalized_magnitude": "6032057205060441/6032057205060440848842124543157735677050252251748505781796615064961622344493727293370973578138265743708225425014400837164813540499979063179105919597766951022193355091707896034850684039059079180396788349106095584290087446076413771468940477241550670753145517602931224392424029547429993824129889235158145614364972941312"
+        }
+      ],
+      "rows": [
+        {
+          "index": 23,
+          "key": "tw.M1",
+          "member_id": 1,
+          "component": "RX",
+          "lower_k_exponent": -1021,
+          "retained_k_upper_exponent": -1019,
+          "candidate_component_upper_exponent": 31,
+          "numerator_upper_exponent": -984,
+          "quotient_upper_exponent": 37
+        },
+        {
+          "index": 24,
+          "key": "ext.M1",
+          "member_id": 1,
+          "component": "UX",
+          "lower_k_exponent": -509,
+          "retained_k_upper_exponent": -507,
+          "candidate_component_upper_exponent": 33,
+          "numerator_upper_exponent": -470,
+          "quotient_upper_exponent": 39
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "cases": 18,
+    "rows": 138,
+    "worst_quotient_exponent": 1020
+  },
+  "method": "Exact integer bit decode and Fraction compliance/exponent proof; no solver, source emulation, norms, reference values or designer-script import."
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/sparse_13/RETURN.md",
+    "sha256": "75c0e91887974eafd037c84e9d7d742f56971e2046e2dd0ccdb9a1c0cce39952",
+    "read": "full sealed return"
+  },
+  {
+    "origin": "parent ROOT in-turn5-minute grant",
+    "read": "scope authorizes only additive RV30-SP13-F1 correction; no further programme"
+  },
+  {
+    "origin": "<K6C> git 40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/sparse_direct/src/structural.rs",
+    "sha256": "44ed44fa41c0a4270c697d5ba742f73c6cc3a7e3e46a6af5eb443097866791a3",
+    "bytes": 8947,
+    "read": "70-85",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "canonical_argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/sparse_direct/src/structural.rs"
+    ]
+  },
+  {
+    "origin": "<K6C> git 40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+    "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6",
+    "bytes": 75482,
+    "read": "1085-1104,1620-1628,1743-1765",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "canonical_argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs"
+    ]
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_04_sparse/DERIVATION.md",
+    "sha256": "d6b3f258d21634cf876c4d05e313f64dfe8f786cb61003b8a1a88eae06dc7c89",
+    "read": "own inherited sealed context; no body amendment"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_06_closure_assessment/ASSESSMENT.md",
+    "sha256": "62606a71a50cb169e579484d62299f25e891f968215a77cbe2ff36b0b6f2d1ad",
+    "read": "own inherited sealed context; no body amendment"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_01/SOURCES.json",
+    "sha256": "9afc3b3e4f198e44ed9792afd98192eb9f2fecb8ff326eb5e09abfef122eb034",
+    "read": "own inherited sealed context; no body amendment"
+  }
+]

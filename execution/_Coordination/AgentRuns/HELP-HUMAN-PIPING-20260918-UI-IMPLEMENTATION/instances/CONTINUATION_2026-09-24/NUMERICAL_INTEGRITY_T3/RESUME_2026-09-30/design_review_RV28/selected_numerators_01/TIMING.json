@@ -1,0 +1,8 @@
+{
+  "actual_start_utc": "2026-10-01 17:27:21 UTC",
+  "deadline_utc": "2026-10-01 17:52:21 UTC",
+  "review_completed_utc": "2026-10-01 17:33:30 UTC",
+  "within_25_minutes": true,
+  "source_only": true,
+  "solver_or_runtime_experiments": 0
+}

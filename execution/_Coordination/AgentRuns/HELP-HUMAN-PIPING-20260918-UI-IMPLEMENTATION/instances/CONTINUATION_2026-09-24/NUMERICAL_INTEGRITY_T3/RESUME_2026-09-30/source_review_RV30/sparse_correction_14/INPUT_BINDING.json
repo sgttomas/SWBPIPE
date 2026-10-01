@@ -1,0 +1,55 @@
+{
+  "packet_seal": "05c3014de2066ae58801ef316c4b2b258ca948178192f0ab2994f23b91227d0a",
+  "payloads": [
+    {
+      "path": "CHECKS.json",
+      "sha256": "0d3b7336e0c42412daadd7c1a3f915e3fec598d999bc10995f0f1672781686a9"
+    },
+    {
+      "path": "COMMANDS.md",
+      "sha256": "510a2d9417d8b6860e7d6e00ff1a247e2047e2ddbe0fc640334e24b6fc781a4c"
+    },
+    {
+      "path": "CORRECTION.md",
+      "sha256": "5a838757e181dac627a9936725749990e1759f47b54b7e0297c10476e63a3075"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "ae08e7e9bde24497bcdc7a58b9549199e888421cdb0a9e3f0491d1925d00fdf3"
+    },
+    {
+      "path": "RUN.json",
+      "sha256": "c3a65c47fa98edafcc08bd0070b4931c9ad0886b7c8fee41354da70ab0640160"
+    },
+    {
+      "path": "SOURCES.json",
+      "sha256": "6655b23be2a88db13777b85d4c9d28bff16d3349e7a692009f45eafe4076ded8"
+    }
+  ],
+  "frozen_sources": [
+    {
+      "product_path": "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs",
+      "read_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/sparse_direct/src/structural.rs",
+      "sha256": "44ed44fa41c0a4270c697d5ba742f73c6cc3a7e3e46a6af5eb443097866791a3",
+      "current_different_hash": null
+    },
+    {
+      "product_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "read_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6",
+      "current_different_hash": null
+    }
+  ],
+  "prior": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_04_sparse",
+      "seal": "6bb5f803a7ff00f6ae67a09788895ccd3bd6359650d509f5582cf4d956b4c514",
+      "payloads_unchanged": 10
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/sparse_13",
+      "seal": "741f58e90f19aaee0c7e2e00027e71487019460e43424d6d0a488b2487083fed",
+      "payloads_unchanged": 9
+    }
+  ]
+}
