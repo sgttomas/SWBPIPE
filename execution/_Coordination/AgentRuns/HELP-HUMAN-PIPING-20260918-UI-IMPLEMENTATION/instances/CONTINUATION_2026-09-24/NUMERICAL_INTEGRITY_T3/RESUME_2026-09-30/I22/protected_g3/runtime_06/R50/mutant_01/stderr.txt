@@ -1,0 +1,24 @@
+
+thread 'site_table_is_exactly_the_accumulations_of_the_scanned_files' (26319347) panicked at tests/s11_site_table.rs:623:5:
+site table mismatch:
+("FK/structural/retained/ledger.rs", "from_source"): 1 unlisted accumulation(s)
+("FK/structural/retained/ledger.rs", "from_source"): exact site now accumulates 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.23 real         0.22 user         0.00 sys
+             5767168  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 686  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  10  involuntary context switches
+          3076976532  instructions retired
+           670440793  cycles elapsed
+             3146064  peak memory footprint

@@ -1,0 +1,3 @@
+PASS complete116 mutant+116 E1 source sets, exact3151195b postimage, original tests/corpus/locks, paths/inodes, existingff8dbe mutant+cd5967 baseline/raw fingerprints, original focused control unrun, external logs/guard5387. No rebuild.
+Original focused control filter structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988
+Restored historical filter structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit; only original96/set19 row20 bound2 versus3 qualifies.

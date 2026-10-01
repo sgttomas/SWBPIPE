@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::method_tests::the_sas_norm_is_the_larger_of_the_one_and_infinity_norms' (26309270) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1948:17:
+assertion `left == right` failed
+  left: Less
+ right: Equal
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.02 real         0.01 user         0.00 sys
+             9256960  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 922  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  20  involuntary context switches
+           236623861  instructions retired
+            71870426  cycles elapsed
+             2785616  peak memory footprint
