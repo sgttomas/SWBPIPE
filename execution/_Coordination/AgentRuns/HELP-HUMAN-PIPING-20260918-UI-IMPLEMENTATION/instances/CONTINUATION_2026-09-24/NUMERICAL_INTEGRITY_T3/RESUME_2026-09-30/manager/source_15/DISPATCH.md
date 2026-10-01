@@ -1,0 +1,7 @@
+# Source15 dispatch
+
+Full ROOT grant NUM1b5a4b59afa784c5fa0449353b58667c5d932a72 R/BRIEFS/I21_SOURCE_15_SERIALIZER.md read, SHA2dce3cb7eda9aafbf70b37ef2d009515cb75dd6bc514401f48b9910b9ea636a2. Existing I21 actually resumed via collaboration.followup_task approximately17:13:40 UTC2026-10-01. Actual start/end to follow;20-minute source-only V-JBUILD finite grammar task.
+
+Immutable40129/source11/reviewed serde/layout04 basis; distinct record1/record2/serialized3, live partial builders, actual clone constructor capacities, fixed finite counts and sample/lifetime edges. Seven private request cells symbolic; formatting/runtime gaps explicit; no broader library audit or numerator-gap duplication (separate designer owns those). No Rust/probe/runtime/generation/tool/dependency/maintained/API/record/Git/index/delegation. Child only source_15 and this manager subtree. A1 runtime priority; no complete E_max/admission acceptance.
+Child actual start17:13:48 UTC; fixed end17:33:48. Source-only, no host runtime slot.
+ROOT native sequencing17:23: finish this task, then idle pending separate canonical K0 integration after active reviews. No automatic extra library/tool proof legs or contract alternative. Residual cells/numeric impact stay explicit; coarse SD profile upper may defer large VR under the existing rule, not imply observed memory excess or justify tightening with measured peaks/W1h. H staged bound remains separate. This does not expand source15.
