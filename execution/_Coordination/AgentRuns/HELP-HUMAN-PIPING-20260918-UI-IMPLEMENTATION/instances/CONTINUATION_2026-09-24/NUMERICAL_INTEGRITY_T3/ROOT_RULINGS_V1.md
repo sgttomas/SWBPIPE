@@ -3337,3 +3337,13 @@ H/validation only. The legacy product solver uses unchanged retained arithmetic
 and seeded hooks, not the changed adaptive route. Accordingly T9/both-entry
 are not triggered by this slice alone; all other standing exact-candidate gates
 remain. Reassess if the source/write set gains product reach.
+
+## Independent ledger span correction (ROOT, 2026-10-01)
+
+RV29's candidate ledger understated the successful b=2 algebra route's aggregate
+max_span_bits by one. ROOT and the manager independently checked the frozen
+source: the comparison term span is 1-(-1074)+1=1076, while H alone spans1075.
+The priced work and budgets do not change. The original sealed ledger stays
+unchanged; RV29 provides an additive correction. The C span brief permits only
+the warranted new-test expectation/rationale repair before the next bounded
+run. This is no production defect closure or blanket permission to rebaseline.
