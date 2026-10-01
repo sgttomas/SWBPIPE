@@ -719,10 +719,11 @@ fn pc13_16_thresholds_membership_and_original_operand_coupling() {
 
 #[test]
 fn pc17_20_exact_prescription_and_magnitude_term() {
-    // Exact cancellation exposes a tail below the retained p value's spacing;
-    // the prescribed publisher must not replace this with a p-rounded source.
-    let terms = [(1.0, 1.0), (1.0, pow2(-100)), (-1.0, 1.0)];
-    assert_eq!(exact_publication(&terms).value().unwrap(), pow2(-100));
+    // At 1, tail 2^-600 is below half-ulp 2^-p for p=128,256,512.
+    // Exact (1+tail)-1 retains tail; intermediate rounding at any of those
+    // candidate precisions loses it. This is the one-round prescription.
+    let terms = [(1.0, 1.0), (1.0, pow2(-600)), (-1.0, 1.0)];
+    assert_eq!(exact_publication(&terms).value().unwrap(), pow2(-600));
     assert!(matches!(
         exact_publication(&[(f64::from_bits(1), 0.5)]),
         Binary64Outcome::Underflow { .. }

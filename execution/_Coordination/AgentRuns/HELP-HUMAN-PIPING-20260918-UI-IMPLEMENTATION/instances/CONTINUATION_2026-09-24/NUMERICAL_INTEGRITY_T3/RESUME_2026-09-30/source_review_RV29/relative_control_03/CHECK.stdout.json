@@ -1,0 +1,16 @@
+{
+  "five_step_bits": [
+    "3bf0000000000401",
+    "3bf0000080000401",
+    "3ca0000000000401",
+    "3ca0000000000401",
+    "3ca0020000100402"
+  ],
+  "H_significant_bits": 85,
+  "RN64_H_bits": "3ca0020000100402",
+  "RU64_H_bits": "3ca0020000100402",
+  "ordering": "prev < H < H+h < A_f64 = RU64(H)",
+  "relative_and_public": "pass",
+  "optional_consistent_magnitude_radius_bits": "3000000000000401",
+  "production_execution": false
+}

@@ -1,0 +1,23 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<S>/source/projects/chirality-piping/core/solver/frame_kernel)
+     Running `<HOME>/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc --crate-name open_pipe_stress_frame_kernel --edition=2021 <S>/source/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type lib --emit=dep-info,metadata,link -C panic=abort -C embed-bitcode=no -C codegen-units=1 --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("mutation-controls"))' -C metadata=7631df87703bcb62 -C extra-filename=-68dc2a2c4126b66c --out-dir <TARGET>/debug/deps -C strip=debuginfo -L dependency=<TARGET>/debug/deps`
+   Compiling a1_public_probe v0.1.0 (<S>/probe)
+     Running `<HOME>/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc --crate-name a1_public_probe --edition=2021 src/main.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C panic=abort -C embed-bitcode=no -C codegen-units=1 --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=59b2b6abbcdb40d2 -C extra-filename=-389444f4a07efcc3 --out-dir <TARGET>/debug/deps -C strip=debuginfo -L dependency=<TARGET>/debug/deps --extern open_pipe_stress_frame_kernel=<TARGET>/debug/deps/libopen_pipe_stress_frame_kernel-68dc2a2c4126b66c.rlib`
+    Finished `dev` profile [unoptimized] target(s) in 3.34s
+        3.36 real         3.15 user         0.16 sys
+           441368576  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               50663  page reclaims
+                2269  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   3  signals received
+                 130  voluntary context switches
+                2049  involuntary context switches
+           171891136  instructions retired
+            65725755  cycles elapsed
+             6390240  peak memory footprint

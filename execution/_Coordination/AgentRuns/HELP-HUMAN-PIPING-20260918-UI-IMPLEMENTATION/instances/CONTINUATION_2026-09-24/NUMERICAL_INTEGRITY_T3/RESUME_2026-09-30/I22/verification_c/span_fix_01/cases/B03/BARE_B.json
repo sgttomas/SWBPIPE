@@ -1,0 +1,681 @@
+{
+  "schema": "a1-bare-b-comparison-v1",
+  "case": "B03",
+  "status": "Selected",
+  "raw_sha256": "c0b8df64af9cf26a063be7a88c148fdc5ac7501b5fe4bf06948f0053cb64c998",
+  "source_commit_as_reported": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1",
+  "limits_as_reported": [
+    "100000000",
+    "100000000"
+  ],
+  "required_policy": "M03-INTEGRITY-MP-v2",
+  "numeric_accuracy_pass": true,
+  "failures": [],
+  "rows": [
+    {
+      "key": "D:0",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "D:1",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "D:2",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "D:3",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "D:4",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "D:5",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "D:6",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "D:7",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "D:8",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "D:9",
+      "truth": {
+        "significand": "5",
+        "exponent2": -1076
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "1",
+        "exponent2": -1076
+      },
+      "bare_b": {
+        "significand": "3",
+        "exponent2": -1074
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "D:10",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "D:11",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "InputDerived",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "exact_prescription_pass": true
+    },
+    {
+      "key": "M:0",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "M:1",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:I:0",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:I:1",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:I:2",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:I:3",
+      "truth": {
+        "significand": "-5",
+        "exponent2": -1074
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "3",
+        "exponent2": -1074
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:I:4",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:I:5",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:J:0",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:J:1",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:J:2",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:J:3",
+      "truth": {
+        "significand": "5",
+        "exponent2": -1074
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "3",
+        "exponent2": -1074
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:J:4",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "E:1:J:5",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:0",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:1",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:2",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:3",
+      "truth": {
+        "significand": "-5",
+        "exponent2": -1074
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "3",
+        "exponent2": -1074
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:4",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:5",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:6",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:7",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:8",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:10",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    },
+    {
+      "key": "R:11",
+      "truth": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "class": "AbsoluteVerified",
+      "outcome": "Value",
+      "direct_truth_rounding_matches": true,
+      "error": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "bare_b": {
+        "significand": "1",
+        "exponent2": -1073
+      },
+      "bare_b_pass": true
+    }
+  ],
+  "truth_file": "TRUTH.json",
+  "truth_sha256": "1772d703e032a71587b922a2f6d825718f777c9dae78d1041fbd874210ee87ea",
+  "claim_boundary": "Exact truth versus reported selected claims; no bound construction, certificate H, private radius, G5a, floor formation, execution or admission certification.",
+  "source_binding_exact": true,
+  "selected_precision": 128,
+  "comparator_sha256": "eeac3a5d827633eeeddbe87f7cb604474304aa5360082e3d5c083a2016c1b289"
+}
