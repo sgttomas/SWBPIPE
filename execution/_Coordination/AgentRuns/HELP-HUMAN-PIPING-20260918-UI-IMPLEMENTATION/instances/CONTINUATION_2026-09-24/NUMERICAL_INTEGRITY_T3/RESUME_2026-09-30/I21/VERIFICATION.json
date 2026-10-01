@@ -1,0 +1,101 @@
+{
+  "status": "finite_checkpoint_checked_not_full_K0",
+  "checks": {
+    "initial_source_clean": true,
+    "brief_hashes_match": true,
+    "source_subtrees_unchanged": true,
+    "absolute_host_paths_search": "no match (rg exit 1)",
+    "principal_arithmetic_rows": 99,
+    "tree1024_delta": 10799688,
+    "no_build_or_experiment_started": true
+  },
+  "command_results": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "GIT_OPTIONAL_LOCKS=0 git status --short",
+          "workdir": "<K6C_WT>",
+          "max_output_tokens": 2500
+        },
+        "result": {
+          "chunk_id": "d2e3df",
+          "wall_time_seconds": 0.255595667,
+          "exit_code": 0,
+          "original_token_count": 46,
+          "output": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "rg -n '/Users/|/private/|/tmp/' .",
+          "workdir": "<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21",
+          "max_output_tokens": 1500
+        },
+        "result": {
+          "chunk_id": "17392e",
+          "wall_time_seconds": 0.0000055,
+          "exit_code": 1,
+          "original_token_count": 0,
+          "output": ""
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "shasum -a 256 CHECKPOINT_0.md RAW_COMMANDS.json SOURCE_HASHES.txt LEGACY_TERM_DELTAS.json derive_deltas.js BINARY_FIXED_TERMS.json",
+          "workdir": "<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21",
+          "max_output_tokens": 1500
+        },
+        "result": {
+          "chunk_id": "57d425",
+          "wall_time_seconds": 0.000006708,
+          "exit_code": 0,
+          "original_token_count": 129,
+          "output": "56252a04ef1cff473348291fa5c4d29ad10c962d98f6c18c95113ca32c3b4e00  CHECKPOINT_0.md\nbf915556bc1eff32001d487809f30ad2327ec620b611b7b553f30adc4ca3a819  RAW_COMMANDS.json\ncb0d9e9651f24baa1e007aba59d23d08fba5d283a3dee45392e3591f913e0128  SOURCE_HASHES.txt\n9636f77eeed1e5dffa3c1a70a5ea594e40b6c42426991d9b618590d6db34700f  LEGACY_TERM_DELTAS.json\n6cda734fde8b933d4b2ca36759f5721950dfd1022bbe490f755ad9d8fbea3e20  derive_deltas.js\nfc324747282b911a2558dadcca71f8a46515a9bec4725f9808feeaf1e536a544  BINARY_FIXED_TERMS.json\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "wc -c CHECKPOINT_0.md RAW_COMMANDS.json SOURCE_HASHES.txt LEGACY_TERM_DELTAS.json derive_deltas.js BINARY_FIXED_TERMS.json",
+          "workdir": "<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21",
+          "max_output_tokens": 1000
+        },
+        "result": {
+          "chunk_id": "f599fe",
+          "wall_time_seconds": 0.000007166,
+          "exit_code": 0,
+          "original_token_count": 47,
+          "output": "   25659 CHECKPOINT_0.md\n  609635 RAW_COMMANDS.json\n    8305 SOURCE_HASHES.txt\n   49332 LEGACY_TERM_DELTAS.json\n     922 derive_deltas.js\n    4755 BINARY_FIXED_TERMS.json\n  698608 total\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --exit-code -- projects/chirality-piping/core/solver/frame_kernel projects/chirality-piping/core/solver/performance_harness projects/chirality-piping/validation/benchmarks/numerical_robustness",
+          "workdir": "<K6C_WT>",
+          "max_output_tokens": 1000
+        },
+        "result": {
+          "chunk_id": "10fb47",
+          "wall_time_seconds": 0.000006208,
+          "exit_code": 0,
+          "original_token_count": 0,
+          "output": ""
+        }
+      }
+    }
+  ],
+  "write_inventory_note": "OWNED_FILES.sha256 hashes all packet files except itself; its own hash is returned separately. No scratch files written. RAW_COMMANDS contains tool-returned text; some discovery-search outputs are truncated, as recorded."
+}
+

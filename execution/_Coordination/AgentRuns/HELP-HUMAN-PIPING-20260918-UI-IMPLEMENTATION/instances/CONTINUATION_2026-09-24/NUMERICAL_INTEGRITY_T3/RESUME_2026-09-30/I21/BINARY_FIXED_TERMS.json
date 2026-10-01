@@ -1,0 +1,230 @@
+{
+  "status": "Historical modeled fixed terms; source-derived formulas are in CHECKPOINT_0. Not accepted actual live-byte bounds.",
+  "h": [
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "fixed": 52844
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "fixed": 52844
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "fixed": 497090
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "fixed": 497090
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "fixed": 4939496
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "fixed": 4939496
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "fixed": 49363502
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "fixed": 49363502
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "fixed": 52416
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "fixed": 54128
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "fixed": 505038
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "fixed": 523514
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "fixed": 5030570
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "fixed": 5215310
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "fixed": 50291470
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "fixed": 52150010
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "fixed": 54093
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "fixed": 55591
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "fixed": 521845
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "fixed": 533670
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "fixed": 5200028
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "fixed": 5315588
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "fixed": 51988461
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "fixed": 53146156
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "fixed": 41902
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "fixed": 120879
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "fixed": 239343
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "fixed": 77368
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "fixed": 349737
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "fixed": 412291
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "fixed": 174311
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "fixed": 160367
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "fixed": 211935
+    }
+  ],
+  "vk": [
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "fixed": 761654,
+      "model_term": 292748
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "fixed": 761654,
+      "model_term": 292748
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "fixed": 771270,
+      "model_term": 295116
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "fixed": 793659,
+      "model_term": 300620
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "fixed": 808020,
+      "model_term": 315636
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "fixed": 822348,
+      "model_term": 319156
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "fixed": 7569254,
+      "model_term": 2909948
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "fixed": 7569254,
+      "model_term": 2909948
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "fixed": 7679298,
+      "model_term": 2936956
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "fixed": 7902998,
+      "model_term": 2991740
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "fixed": 8048403,
+      "model_term": 3142476
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "fixed": 8188306,
+      "model_term": 3176716
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "fixed": 75645254,
+      "model_term": 29081948
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "fixed": 75645254,
+      "model_term": 29081948
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "fixed": 76765522,
+      "model_term": 29355868
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "fixed": 79014244,
+      "model_term": 29904476
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "fixed": 80458836,
+      "model_term": 31410876
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "fixed": 81859274,
+      "model_term": 31752316
+    }
+  ]
+}
+

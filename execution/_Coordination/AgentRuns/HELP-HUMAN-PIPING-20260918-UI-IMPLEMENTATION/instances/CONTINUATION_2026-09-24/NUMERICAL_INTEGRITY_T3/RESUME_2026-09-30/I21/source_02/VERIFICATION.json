@@ -1,0 +1,130 @@
+{
+  "status": "finite priority source-contract packet verified; not universal Emax",
+  "command_results": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "GIT_OPTIONAL_LOCKS=0 git rev-parse HEAD",
+          "workdir": "<K6C_WT>",
+          "max_output_tokens": 250
+        },
+        "result": {
+          "chunk_id": "73fc46",
+          "wall_time_seconds": 0.000006916,
+          "exit_code": 0,
+          "original_token_count": 11,
+          "output": "d01ad98a754698631f927709d08284c272de85e8\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --exit-code -- projects/chirality-piping/core/solver projects/chirality-piping/validation/benchmarks/numerical_robustness",
+          "workdir": "<K6C_WT>",
+          "max_output_tokens": 500
+        },
+        "result": {
+          "chunk_id": "8657cd",
+          "wall_time_seconds": 0.00000425,
+          "exit_code": 0,
+          "original_token_count": 0,
+          "output": ""
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "shasum -a 256 -c SHA256SUMS",
+          "workdir": "<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_01",
+          "max_output_tokens": 700
+        },
+        "result": {
+          "chunk_id": "eb8ce6",
+          "wall_time_seconds": 0.00000425,
+          "exit_code": 0,
+          "original_token_count": 39,
+          "output": "FORMULAS.md: OK\nLAYOUT_AND_CAPACITY_GAPS.md: OK\nDEPENDENCY_PROPOSAL.md: OK\nRETURN.md: OK\nRAW_COMMANDS.json: OK\nSOURCE_HASHES.txt: OK\nVERIFICATION.json: OK\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "shasum -a 256 -c OWNED_FILES.sha256",
+          "workdir": "<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21",
+          "max_output_tokens": 700
+        },
+        "result": {
+          "chunk_id": "fe6496",
+          "wall_time_seconds": 0.00000425,
+          "exit_code": 0,
+          "original_token_count": 41,
+          "output": "CHECKPOINT_0.md: OK\nRAW_COMMANDS.json: OK\nSOURCE_HASHES.txt: OK\nLEGACY_TERM_DELTAS.json: OK\nderive_deltas.js: OK\nBINARY_FIXED_TERMS.json: OK\nVERIFICATION.json: OK\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "rg -n '/Users/|/private/|/tmp/' --glob '!VERIFICATION.json' --glob '!decoded/**' .",
+          "workdir": "<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02",
+          "max_output_tokens": 1000
+        },
+        "result": {
+          "chunk_id": "f144c4",
+          "wall_time_seconds": 0.000005583,
+          "exit_code": 1,
+          "original_token_count": 0,
+          "output": ""
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "spec": {
+          "cmd": "shasum -a 256 RETURN.md LIBRARY_CONTRACTS.md",
+          "workdir": "<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02",
+          "max_output_tokens": 450
+        },
+        "result": {
+          "chunk_id": "261011",
+          "wall_time_seconds": 0.000005375,
+          "exit_code": 0,
+          "original_token_count": 41,
+          "output": "be33664695ad1d5a0993ca7ed5b8569c8107825e8afdebc1d87bf8ce96d10ff9  RETURN.md\nf1b8264e388f9d9dd3fa73f5280bf558459a2ad1a757977557a8fc24a19a59a4  LIBRARY_CONTRACTS.md\n"
+        }
+      }
+    }
+  ],
+  "page_and_inventory_validation": {
+    "spec": {
+      "cmd": "<VENV>/bin/python -B - <<'PY'\nfrom pathlib import Path\nimport json,hashlib\nroot=Path(\"<TOOLCHAIN>\")\nout=Path(\"<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02\")\npages=[]\nfor name in ['DOC_BINDING.json','DOC_BINDING_EXTRA.json']:\n pages += json.loads((out/name).read_text())['pages']\nfor p in pages:\n original=root/p['origin'].split('<TOOLCHAIN>/')[1]\n decoded=out/p['decoded_path']\n assert hashlib.sha256(original.read_bytes()).hexdigest()==p['html_sha256'],p['origin']\n assert hashlib.sha256(decoded.read_bytes()).hexdigest()==p['decoded_sha256'],p['decoded_path']\nv=json.loads((out/'VERSION_BINDING.json').read_text())\nfor record in v['records']:\n assert hashlib.sha256((root/record['origin'].split('<TOOLCHAIN>/')[1]).read_bytes()).hexdigest()==record['sha256']\nc=json.loads((out/'CAPACITY_ROWS.json').read_text())\nassert len(c['rows'])==33\nassert all(x['fallible_return_capacity']>=x['free_dofs'] for x in c['rows'])\nprint(json.dumps({'original_html_hashes_verified':len(pages),'decoded_hashes_verified':len(pages),'version_files_verified':len(v['records']),'historical_matches':sum(x['historical_byte_match'] for x in pages),'historical_not_available':sum(x['historical_source_sha256'] is None for x in pages),'capacity_rows':len(c['rows']),'payload_files_before_verification':len([x for x in out.rglob('*') if x.is_file()])}))\n\nPY",
+      "workdir": "<K6C_WT>",
+      "max_output_tokens": 1300
+    },
+    "result": {
+      "chunk_id": "8252cd",
+      "wall_time_seconds": 0.000006417,
+      "exit_code": 0,
+      "original_token_count": 55,
+      "output": "{\"original_html_hashes_verified\": 20, \"decoded_hashes_verified\": 20, \"version_files_verified\": 3, \"historical_matches\": 17, \"historical_not_available\": 3, \"capacity_rows\": 33, \"payload_files_before_verification\": 28}\n"
+    }
+  },
+  "scope": {
+    "prior_packets_preserved": true,
+    "no_compiler_or_probe": true,
+    "no_network_or_install": true,
+    "no_implementation": true,
+    "no_running_experiment": true
+  },
+  "inventory_note": "SHA256SUMS lists all 29 payload files including this verification; it excludes itself. Thirty files written total, only under source_02. Final checksum command and manifest hash returned in native tool transcript and parent return."
+}
+
