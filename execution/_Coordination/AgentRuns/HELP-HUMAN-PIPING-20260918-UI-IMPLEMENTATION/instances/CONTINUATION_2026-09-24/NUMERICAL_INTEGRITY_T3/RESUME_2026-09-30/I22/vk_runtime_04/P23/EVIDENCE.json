@@ -1,0 +1,81 @@
+{
+  "process_id": "P23",
+  "phase": "FAULT_TEST",
+  "registered_id": "VK-F10",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/adapter-9707c21df3a9f00d",
+    "--exact",
+    "permuting_every_list_changes_no_canonical_byte",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "VK-F10"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P23.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P23.stderr",
+  "qualifying_condition": "Exact original versus reversed PrimitiveSource canonical byte assertion; no solver/publication prerequisite.",
+  "actual_scope": {
+    "route": "all201 embedded cases through PrimitiveSource::new(original/reversed) and canonical encoding; no solve_case",
+    "cases": 201,
+    "source_constructions_planned": 402,
+    "retained_solves": 0,
+    "parity_calls": 0,
+    "max_members": 1005
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "test_source": {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/adapter.rs",
+    "sha256": "53d8a3b2046b2bb55c26fef7d4d1a9f2e1f255a08ddb7a231f2e827538cba66d"
+  },
+  "registered_kind": "bit",
+  "registered_target": "the canonical bytes and the list-permutation checks",
+  "qualification": null,
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=VK-F10 '<wt>/a1-vk-target/debug/deps/adapter-9707c21df3a9f00d' '--exact' 'permuting_every_list_changes_no_canonical_byte' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P23.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P23.stderr'",
+  "binary": {
+    "key": "adapter",
+    "path": "<wt>/a1-vk-target/debug/deps/adapter-9707c21df3a9f00d",
+    "sha256": "dfd771acb65db91b7358f9c101b3c175dc8dd11594be4d9ab45b610a420d7b1f",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-9707c21df3a9f00d/test-integration-test-adapter.json",
+    "fingerprint_sha256": "3db748e52330d5605951c5d28588eb1d681d8270bc7fa5fac04320a144db59f2"
+  },
+  "guard_before": " 5387     1 03-18:38:48 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "launch_utc": "2026-10-01T20:15:07.325Z",
+  "tool_initial": {
+    "chunk_id": "339062",
+    "wall_time_seconds": 8.375e-06,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "QUALIFYING_FAILURE_WITH_PASSING_CONTROL",
+  "semantic_review": "F10 exact canonical byte original/reversed comparison failed at adapter.rs73 for RF-CHAIN-T-n03-r1e-04; differing full byte arrays retained,exactly1failed test, no solver premise.",
+  "completed_utc": "2026-10-01T20:15:43.220Z",
+  "raw_hashes": {
+    "stdout": "d52685121ddbee4336c9d929f2530dac9f4423c4251e695deb471793f04bd098",
+    "stderr": "43657ce43bcdbf55f3281def8f7ece7019c2e3339124c644efbcd352326ab7ab"
+  },
+  "runtime_authority": {
+    "at": "2026-10-01T20:12:01Z",
+    "sha256": "d3ee1079e66a22e81dc10e993f96ca83fa4d6a1db2da16a109262e49aa6ad5bc"
+  },
+  "hard_end": "2026-10-01T20:30:30Z",
+  "returned_control": "P24"
+}
