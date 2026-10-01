@@ -1,0 +1,24 @@
+{
+  "checked_utc": "2026-10-01T21:52:19.327039+00:00",
+  "source_basis": "immutable numerical40129 bytes in A1; no K6C product substitution",
+  "read_files": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs",
+      "sha256": "8df1d6de492de1ec8c16c47f2dc9aae22ca213757f98e89071e852f339fd1edb"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
+      "sha256": "bd6242ff6a7ab8b7528bd483bc60e6a5ccb51b5476b08bcceaae45f725f0a40b"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+      "sha256": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511"
+    }
+  ],
+  "facts": [
+    "tests/scale.rs retains all factored CI cases and asserts count193 plus storage identities and model<fixed<sel128<=max.",
+    "src/scale.rs Counts contains aggregate springs but no axis/directional split or caller/context/string/capacity inputs; Sizes is current public sizeof only.",
+    "examples/vk_scale.rs398\u2013430 drops source before estimate, emits all five fields, then counts-only and same half-cap branches."
+  ],
+  "boundary": "Manager observations for minimal compatibility review; no new formulas, runtime, code, test weakening or global-proof extension."
+}
