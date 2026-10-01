@@ -3387,3 +3387,19 @@ The ten generated family JSONs and kernel_lane/SHA256SUMS may be refreshed to
 include the new certificate work. No other observation or criterion is granted.
 The failed preflight and original hashes remain evidence. Same-reviewer
 backcheck and an affected-suite rerun are required; this is not A1 closure.
+
+## A1 historical fault mappings selected for bounded replay (ROOT, 2026-10-01)
+
+ROOT read I23's exact patches and RV29 protected_06. The precise selected subset
+and runtime fences are in RESUME_2026-09-30/BRIEFS/A1_G1_PROTECTED.md. Reconstructed
+A2 patches retain original IDs without claiming missing original bytes. D4u's
+current underflow-only variant preserves both old overflow assertions and must
+reach the old underflow criterion. This selects a faithful finite discriminator,
+not a weakened expectation or an executed kill.
+
+The historically optional RV23C-N1 cache probe remains optional: independent
+source comparison confirms its failure path unchanged. R7 derivation/retired
+and RV23-N4 reachable-path qualifications remain their sourced dispositions.
+All other unreviewed or masked mappings remain open; the new certificate's mere
+refusal is not evidence that an intended old numerical assertion was exercised.
+No design contract, availability claim or A1 closure is accepted here.
