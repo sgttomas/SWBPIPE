@@ -1,0 +1,25 @@
+{
+  "evidence_root": "<K6C_WT>/<R>/I21/layout_04",
+  "evidence_hashes": "SHA256SUMS (self excluded)",
+  "auxiliary_hashes": "AUXILIARY_FILES.sha256",
+  "groups": [
+    {
+      "root": "<I21_LAYOUT_SCRATCH>/layout_04_cb13fcf_20261001",
+      "files": 192,
+      "bytes": 54988257
+    },
+    {
+      "root": "<I21_LAYOUT_SCRATCH>/layout_04_h_cb13fcf_20261001",
+      "files": 230,
+      "bytes": 52017299
+    },
+    {
+      "root": "<LAYOUT_TARGET>",
+      "files": 193,
+      "bytes": 52559732
+    }
+  ],
+  "maintained_files_written": [],
+  "compiler_repairs": 0,
+  "normal_target_artifacts_only": true
+}

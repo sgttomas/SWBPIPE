@@ -1,0 +1,19 @@
+{
+  "transformation": "Python stdlib HTMLParser(convert_charrefs=True); retain text only inside pre.rust/code; omit data-nosnippet line-number anchors; preserve all other code text/whitespace; UTF-8 output. Original HTML untouched. Decode command preserved in RAW_COMMANDS.json.",
+  "pages": [
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/alloc/sync.rs.html",
+      "html_sha256": "54358a7bb6d99a9d61dbd1eb4da68efe9228a3d5f949a8c6cfbaeb7f85e22b49",
+      "html_bytes": 479094,
+      "rustdoc_version": "1.97.1 (8bab26f4f 2026-07-14)",
+      "channel": "1.97.1",
+      "decoded_path": "decoded/alloc__sync.rs",
+      "decoded_sha256": "768776d4a37cfeb28c71a0c6d8b2ad33332d11ceaef7e47cb01463bd71b9048a",
+      "decoded_bytes": 177276,
+      "source_lines": 4971,
+      "line_anchors_contiguous": true,
+      "historical_source_sha256": "768776d4a37cfeb28c71a0c6d8b2ad33332d11ceaef7e47cb01463bd71b9048a",
+      "historical_byte_match": true
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "records": [
+    {
+      "run": "VR",
+      "original_path": "<I21_LAYOUT_SCRATCH>/layout_04_cb13fcf_20261001/raw/BUILD_VR.original.log",
+      "original_sha256": "5fd6e8cd93fb0fbf916dcb7a493f269f41c4366fa6d1abbdfb36a95bde6098c5",
+      "portable_path": "BUILD_VR.log",
+      "portable_sha256": "d4a9c38e99eb0f069aad280f909f5e9d79cc0f8e76fe7837691294433d568af0",
+      "original_log_open_utc": "2026-10-01T08:24:35.014827+00:00",
+      "original_last_write_utc": "2026-10-01T08:24:46.571192+00:00",
+      "transformation": "Only deterministic literal replacement of dispatch-bound path prefixes with aliases; original bytes preserved, no line-ending rewrite."
+    },
+    {
+      "run": "H",
+      "original_path": "<I21_LAYOUT_SCRATCH>/layout_04_h_cb13fcf_20261001/raw/BUILD_H.original.log",
+      "original_sha256": "65876ccfe41ce17fe21693bd7966fbbd9c3f4c08c402a298d42e165d6e8274bc",
+      "portable_path": "BUILD_H.log",
+      "portable_sha256": "e09d2b3983dcd882b0be8c268d9286b891b0ff4e9cbbd11ed7357a5eab6e7705",
+      "original_log_open_utc": "2026-10-01T08:28:41.461360+00:00",
+      "original_last_write_utc": "2026-10-01T08:28:54.442295+00:00",
+      "transformation": "Only deterministic literal replacement of dispatch-bound path prefixes with aliases; original bytes preserved, no line-ending rewrite."
+    }
+  ],
+  "mapping_aliases": [
+    "<CARGO_HOME>",
+    "<COORD>",
+    "<H_ARCHIVE>",
+    "<I21_LAYOUT_SCRATCH>/layout_04_cb13fcf_20261001",
+    "<I21_LAYOUT_SCRATCH>/layout_04_h_cb13fcf_20261001",
+    "<K6C_WT>",
+    "<LAYOUT_TARGET>",
+    "<TOOLCHAIN>",
+    "<VENV>",
+    "<VR_ARCHIVE>"
+  ],
+  "physical_prefixes": "Exact dispatch/build bindings preserved in native transcript; portable paths identify scratch originals. No other bytes changed."
+}

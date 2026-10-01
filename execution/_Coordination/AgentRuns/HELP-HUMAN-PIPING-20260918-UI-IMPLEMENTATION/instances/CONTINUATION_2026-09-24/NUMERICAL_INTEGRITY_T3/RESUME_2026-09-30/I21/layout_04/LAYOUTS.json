@@ -1,0 +1,2749 @@
+{
+  "basis": "cb13fcf3ea560c0d07ad9ac02dac78e9d2e06e00",
+  "target": "aarch64-apple-darwin",
+  "profile": "release",
+  "rows": [
+    {
+      "label": "FK.CasePrep",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::CasePrep",
+      "size": 416,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.CasePrep",
+        "type": "CasePrep",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct CasePrep",
+        "purpose": "Arc payload",
+        "report_group": "adaptive",
+        "source_line": 889,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.GroupPrep",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::GroupPrep",
+      "size": 352,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.GroupPrep",
+        "type": "GroupPrep",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct GroupPrep",
+        "purpose": "Arc payload",
+        "report_group": "adaptive",
+        "source_line": 1054,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.GroupEntry",
+      "actual_type": "(alloc::vec::Vec<u8>, core::result::Result<alloc::sync::Arc<open_pipe_stress_frame_kernel::structural::retained::adaptive::GroupPrep>, (open_pipe_stress_frame_kernel::structural::retained::adaptive::Refusal, alloc::vec::Vec<open_pipe_stress_frame_kernel::structural::retained::factor::BodyGeometry>)>, open_pipe_stress_frame_kernel::structural::retained::adaptive::GroupCache)",
+      "size": 1464,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.GroupEntry",
+        "type": "(Vec<u8>, Result<Arc<GroupPrep>, (Refusal, Vec<BodyGeometry>)>, GroupCache)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "let mut groups: Vec<",
+        "purpose": "groups Vec element",
+        "report_group": "adaptive",
+        "source_line": 4347,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.GroupCache",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::GroupCache",
+      "size": 1360,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.GroupCache",
+        "type": "GroupCache",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct GroupCache",
+        "purpose": "component of GroupEntry and RetainedSolve",
+        "report_group": "adaptive",
+        "source_line": 3582,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.AttemptStop",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::AttemptStop",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.AttemptStop",
+        "type": "AttemptStop",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub enum AttemptStop",
+        "purpose": "changed enum component",
+        "report_group": "adaptive",
+        "source_line": 145,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.AttemptReason",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::AttemptReason",
+      "size": 32,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.AttemptReason",
+        "type": "AttemptReason",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub enum AttemptReason",
+        "purpose": "changed enum component",
+        "report_group": "adaptive",
+        "source_line": 2477,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.AttemptOutcome",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::AttemptOutcome",
+      "size": 40,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.AttemptOutcome",
+        "type": "AttemptOutcome",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub enum AttemptOutcome",
+        "purpose": "changed enum component",
+        "report_group": "adaptive",
+        "source_line": 2519,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.AttemptRecord",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::AttemptRecord",
+      "size": 832,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.AttemptRecord",
+        "type": "AttemptRecord",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub struct AttemptRecord",
+        "purpose": "attempt Vec element",
+        "report_group": "adaptive",
+        "source_line": 2539,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.UnresolvedReason",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::UnresolvedReason",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.UnresolvedReason",
+        "type": "UnresolvedReason",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub enum UnresolvedReason",
+        "purpose": "changed terminal enum",
+        "report_group": "adaptive",
+        "source_line": 2605,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.CaseOutcome",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::CaseOutcome",
+      "size": 80,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.CaseOutcome",
+        "type": "CaseOutcome",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub enum CaseOutcome",
+        "purpose": "outcome Vec element",
+        "report_group": "adaptive",
+        "source_line": 3556,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.RetainedSolve",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::RetainedSolve",
+      "size": 1976,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.RetainedSolve",
+        "type": "RetainedSolve",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub struct RetainedSolve",
+        "purpose": "Box payload",
+        "report_group": "adaptive",
+        "source_line": 3423,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.PublishedRow",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow",
+      "size": 64,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.PublishedRow",
+        "type": "PublishedRow",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub struct PublishedRow",
+        "purpose": "publication Vec and map value",
+        "report_group": "adaptive",
+        "source_line": 2634,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.PrecisionState",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::PrecisionState",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.PrecisionState",
+        "type": "PrecisionState",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "enum PrecisionState",
+        "purpose": "states Vec element",
+        "report_group": "adaptive",
+        "source_line": 2308,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.BoundedExtremeTracker",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker",
+      "size": 88,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BoundedExtremeTracker",
+        "type": "BoundedExtremeTracker",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct BoundedExtremeTracker",
+        "purpose": "actual tracker map value component",
+        "report_group": "adaptive",
+        "source_line": 661,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Evaluated",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::Evaluated",
+      "size": 32,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Evaluated",
+        "type": "Evaluated",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "enum Evaluated",
+        "purpose": "tracker table component",
+        "report_group": "adaptive",
+        "source_line": 617,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.TrackerTableEntry",
+      "actual_type": "(u64, open_pipe_stress_frame_kernel::structural::retained::adaptive::Evaluated)",
+      "size": 40,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.TrackerTableEntry",
+        "type": "(u64, Evaluated)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "table: Vec<(u64, Evaluated)>",
+        "purpose": "tracker table Vec element",
+        "report_group": "adaptive",
+        "source_line": 669,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.TrackerKey",
+      "actual_type": "(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)",
+      "size": 8,
+      "align": 4,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.TrackerKey",
+        "type": "(RuleTest, u32, Kind)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "TrackerSet<(RuleTest, u32, Kind)>",
+        "purpose": "actual tracker map and holding set key",
+        "report_group": "adaptive",
+        "source_line": 2136,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.LazyRow",
+      "actual_type": "(open_pipe_stress_frame_kernel::structural::retained::wide_sum::ExactWideSum, open_pipe_stress_frame_kernel::structural::retained::wide_sum::ExactWideSum, u64, u64)",
+      "size": 4304,
+      "align": 16,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.LazyRow",
+        "type": "(ExactWideSum, ExactWideSum, u64, u64)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "lazy: Vec<(ExactWideSum, ExactWideSum, u64, u64)>",
+        "purpose": "tracker lazy Vec element",
+        "report_group": "adaptive",
+        "source_line": 667,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.FallbackRow",
+      "actual_type": "(open_pipe_stress_frame_kernel::structural::retained::wide_sum::ExactWideSum, open_pipe_stress_frame_kernel::structural::retained::wide_sum::ExactWideSum, f64)",
+      "size": 4304,
+      "align": 16,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.FallbackRow",
+        "type": "(ExactWideSum, ExactWideSum, f64)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "let mut rows: Vec<(ExactWideSum, ExactWideSum, f64)>",
+        "purpose": "fallback row Vec element",
+        "report_group": "adaptive",
+        "source_line": 1624,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.WorstGateOption",
+      "actual_type": "core::option::Option<core::option::Option<(open_pipe_stress_frame_kernel::structural::retained::wide_sum::ExactWideSum, open_pipe_stress_frame_kernel::structural::retained::wide_sum::ExactWideSum)>>",
+      "size": 4288,
+      "align": 16,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.WorstGateOption",
+        "type": "Option<Option<GateRatio>>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "Vec<Option<Option<GateRatio>>>",
+        "purpose": "fallback worsts Vec element",
+        "report_group": "adaptive",
+        "source_line": 1613,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.FallbackTrackerOption",
+      "actual_type": "core::option::Option<(bool, open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker)>",
+      "size": 96,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.FallbackTrackerOption",
+        "type": "Option<(bool, BoundedExtremeTracker)>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "Vec<Option<(bool, BoundedExtremeTracker)>>",
+        "purpose": "fallback states Vec element",
+        "report_group": "adaptive",
+        "source_line": 1614,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Shared_L4_R4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::Shared<4, 4>",
+      "size": 704,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Shared_L4_R4",
+        "type": "Shared<4, 4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct Shared",
+        "purpose": "Arc payload",
+        "report_group": "adaptive",
+        "source_line": 1212,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Shared_L4_R8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::Shared<4, 8>",
+      "size": 704,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Shared_L4_R8",
+        "type": "Shared<4, 8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct Shared",
+        "purpose": "Arc payload",
+        "report_group": "adaptive",
+        "source_line": 1212,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Shared_L8_R16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::Shared<8, 16>",
+      "size": 704,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Shared_L8_R16",
+        "type": "Shared<8, 16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct Shared",
+        "purpose": "Arc payload",
+        "report_group": "adaptive",
+        "source_line": 1212,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Shared_L16_R16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::Shared<16, 16>",
+      "size": 704,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Shared_L16_R16",
+        "type": "Shared<16, 16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct Shared",
+        "purpose": "Arc payload",
+        "report_group": "adaptive",
+        "source_line": 1212,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Solved_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::Solved<4>",
+      "size": 88,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Solved_L4",
+        "type": "Solved<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct Solved",
+        "purpose": "Arc payload",
+        "report_group": "adaptive",
+        "source_line": 1242,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Solved_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::Solved<8>",
+      "size": 88,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Solved_L8",
+        "type": "Solved<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct Solved",
+        "purpose": "Arc payload",
+        "report_group": "adaptive",
+        "source_line": 1242,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Solved_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::Solved<16>",
+      "size": 88,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Solved_L16",
+        "type": "Solved<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "struct Solved",
+        "purpose": "Arc payload",
+        "report_group": "adaptive",
+        "source_line": 1242,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Wide_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::wide::Wide<4>",
+      "size": 48,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Wide_L4",
+        "type": "wide::Wide<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+        "anchor": "struct Wide<",
+        "purpose": "numeric element",
+        "report_group": "root",
+        "source_line": 200,
+        "source_sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad"
+      }
+    },
+    {
+      "label": "FK.OptionWide_L4",
+      "actual_type": "core::option::Option<open_pipe_stress_frame_kernel::structural::retained::wide::Wide<4>>",
+      "size": 48,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.OptionWide_L4",
+        "type": "Option<wide::Wide<4>>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "pub(crate) e_rows: Vec<Option<Wide<L>>>",
+        "purpose": "actual report/radius-option element",
+        "report_group": "root",
+        "source_line": 607,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.MemberOperators_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::assemble::MemberOperators<4>",
+      "size": 7888,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.MemberOperators_L4",
+        "type": "assemble::MemberOperators<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "struct MemberOperators",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 65,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.BoundedCoefficients_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::assemble::BoundedCoefficients<4>",
+      "size": 248,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BoundedCoefficients_L4",
+        "type": "assemble::BoundedCoefficients<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "struct BoundedCoefficients",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 89,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.DirectionalBlock_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::assemble::DirectionalBlock<4>",
+      "size": 440,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.DirectionalBlock_L4",
+        "type": "assemble::DirectionalBlock<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "struct DirectionalBlock",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 155,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.PivotScreen_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::factor::PivotScreen<4>",
+      "size": 104,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.PivotScreen_L4",
+        "type": "factor::PivotScreen<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+        "anchor": "struct PivotScreen",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 408,
+        "source_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc"
+      }
+    },
+    {
+      "label": "FK.BlockBound_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::BlockBound<4>",
+      "size": 208,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BlockBound_L4",
+        "type": "bound::BlockBound<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct BlockBound",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 582,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.ShiftResult_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::ShiftResult<4>",
+      "size": 264,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ShiftResult_L4",
+        "type": "bound::ShiftResult<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct ShiftResult",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 928,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.BlockCertificate_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::BlockCertificate<4>",
+      "size": 592,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BlockCertificate_L4",
+        "type": "bound::BlockCertificate<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct BlockCertificate",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 1170,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.BlockNorms_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::BlockNorms<4>",
+      "size": 336,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BlockNorms_L4",
+        "type": "verify::BlockNorms<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct BlockNorms",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 562,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.BodyReport_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::BodyReport<4>",
+      "size": 624,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BodyReport_L4",
+        "type": "verify::BodyReport<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct BodyReport",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 581,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.VerificationReport_L4",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::VerificationReport<4>",
+      "size": 328,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.VerificationReport_L4",
+        "type": "verify::VerificationReport<4>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct VerificationReport",
+        "purpose": "Arc payload",
+        "report_group": "root",
+        "source_line": 597,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.ShiftStart_L4",
+      "actual_type": "(usize, open_pipe_stress_frame_kernel::structural::retained::wide::Wide<4>, usize)",
+      "size": 64,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ShiftStart_L4",
+        "type": "(usize, wide::Wide<4>, usize)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "start: &[(usize, Wide<L>, usize)]",
+        "purpose": "shift Vec element",
+        "report_group": "root",
+        "source_line": 1017,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.ShiftResultTuple_L4",
+      "actual_type": "(usize, open_pipe_stress_frame_kernel::structural::retained::bound::ShiftResult<4>)",
+      "size": 272,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ShiftResultTuple_L4",
+        "type": "(usize, bound::ShiftResult<4>)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "Vec<(usize, ShiftResult<L>)>",
+        "purpose": "shift result Vec element",
+        "report_group": "root",
+        "source_line": 1019,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.ResidualTuple_L4",
+      "actual_type": "(bool, f64, open_pipe_stress_frame_kernel::structural::retained::wide::Wide<4>)",
+      "size": 64,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ResidualTuple_L4",
+        "type": "(bool, f64, wide::Wide<4>)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "Result<Vec<(bool, f64, Wide<L>)>",
+        "purpose": "residual Vec element",
+        "report_group": "root",
+        "source_line": 1462,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Wide_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::wide::Wide<8>",
+      "size": 80,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Wide_L8",
+        "type": "wide::Wide<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+        "anchor": "struct Wide<",
+        "purpose": "numeric element",
+        "report_group": "root",
+        "source_line": 200,
+        "source_sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad"
+      }
+    },
+    {
+      "label": "FK.OptionWide_L8",
+      "actual_type": "core::option::Option<open_pipe_stress_frame_kernel::structural::retained::wide::Wide<8>>",
+      "size": 80,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.OptionWide_L8",
+        "type": "Option<wide::Wide<8>>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "pub(crate) e_rows: Vec<Option<Wide<L>>>",
+        "purpose": "actual report/radius-option element",
+        "report_group": "root",
+        "source_line": 607,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.MemberOperators_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::assemble::MemberOperators<8>",
+      "size": 13136,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.MemberOperators_L8",
+        "type": "assemble::MemberOperators<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "struct MemberOperators",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 65,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.BoundedCoefficients_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::assemble::BoundedCoefficients<8>",
+      "size": 408,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BoundedCoefficients_L8",
+        "type": "assemble::BoundedCoefficients<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "struct BoundedCoefficients",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 89,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.DirectionalBlock_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::assemble::DirectionalBlock<8>",
+      "size": 728,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.DirectionalBlock_L8",
+        "type": "assemble::DirectionalBlock<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "struct DirectionalBlock",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 155,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.PivotScreen_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::factor::PivotScreen<8>",
+      "size": 168,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.PivotScreen_L8",
+        "type": "factor::PivotScreen<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+        "anchor": "struct PivotScreen",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 408,
+        "source_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc"
+      }
+    },
+    {
+      "label": "FK.BlockBound_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::BlockBound<8>",
+      "size": 336,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BlockBound_L8",
+        "type": "bound::BlockBound<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct BlockBound",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 582,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.ShiftResult_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::ShiftResult<8>",
+      "size": 424,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ShiftResult_L8",
+        "type": "bound::ShiftResult<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct ShiftResult",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 928,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.BlockCertificate_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::BlockCertificate<8>",
+      "size": 944,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BlockCertificate_L8",
+        "type": "bound::BlockCertificate<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct BlockCertificate",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 1170,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.BlockNorms_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::BlockNorms<8>",
+      "size": 560,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BlockNorms_L8",
+        "type": "verify::BlockNorms<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct BlockNorms",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 562,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.BodyReport_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::BodyReport<8>",
+      "size": 1040,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BodyReport_L8",
+        "type": "verify::BodyReport<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct BodyReport",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 581,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.VerificationReport_L8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::VerificationReport<8>",
+      "size": 328,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.VerificationReport_L8",
+        "type": "verify::VerificationReport<8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct VerificationReport",
+        "purpose": "Arc payload",
+        "report_group": "root",
+        "source_line": 597,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.ShiftStart_L8",
+      "actual_type": "(usize, open_pipe_stress_frame_kernel::structural::retained::wide::Wide<8>, usize)",
+      "size": 96,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ShiftStart_L8",
+        "type": "(usize, wide::Wide<8>, usize)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "start: &[(usize, Wide<L>, usize)]",
+        "purpose": "shift Vec element",
+        "report_group": "root",
+        "source_line": 1017,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.ShiftResultTuple_L8",
+      "actual_type": "(usize, open_pipe_stress_frame_kernel::structural::retained::bound::ShiftResult<8>)",
+      "size": 432,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ShiftResultTuple_L8",
+        "type": "(usize, bound::ShiftResult<8>)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "Vec<(usize, ShiftResult<L>)>",
+        "purpose": "shift result Vec element",
+        "report_group": "root",
+        "source_line": 1019,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.ResidualTuple_L8",
+      "actual_type": "(bool, f64, open_pipe_stress_frame_kernel::structural::retained::wide::Wide<8>)",
+      "size": 96,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ResidualTuple_L8",
+        "type": "(bool, f64, wide::Wide<8>)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "Result<Vec<(bool, f64, Wide<L>)>",
+        "purpose": "residual Vec element",
+        "report_group": "root",
+        "source_line": 1462,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Wide_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::wide::Wide<16>",
+      "size": 144,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Wide_L16",
+        "type": "wide::Wide<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+        "anchor": "struct Wide<",
+        "purpose": "numeric element",
+        "report_group": "root",
+        "source_line": 200,
+        "source_sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad"
+      }
+    },
+    {
+      "label": "FK.OptionWide_L16",
+      "actual_type": "core::option::Option<open_pipe_stress_frame_kernel::structural::retained::wide::Wide<16>>",
+      "size": 144,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.OptionWide_L16",
+        "type": "Option<wide::Wide<16>>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "pub(crate) e_rows: Vec<Option<Wide<L>>>",
+        "purpose": "actual report/radius-option element",
+        "report_group": "root",
+        "source_line": 607,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.MemberOperators_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::assemble::MemberOperators<16>",
+      "size": 23632,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.MemberOperators_L16",
+        "type": "assemble::MemberOperators<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "struct MemberOperators",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 65,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.BoundedCoefficients_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::assemble::BoundedCoefficients<16>",
+      "size": 728,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BoundedCoefficients_L16",
+        "type": "assemble::BoundedCoefficients<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "struct BoundedCoefficients",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 89,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.DirectionalBlock_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::assemble::DirectionalBlock<16>",
+      "size": 1304,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.DirectionalBlock_L16",
+        "type": "assemble::DirectionalBlock<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "struct DirectionalBlock",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 155,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.PivotScreen_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::factor::PivotScreen<16>",
+      "size": 296,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.PivotScreen_L16",
+        "type": "factor::PivotScreen<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+        "anchor": "struct PivotScreen",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 408,
+        "source_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc"
+      }
+    },
+    {
+      "label": "FK.BlockBound_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::BlockBound<16>",
+      "size": 592,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BlockBound_L16",
+        "type": "bound::BlockBound<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct BlockBound",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 582,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.ShiftResult_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::ShiftResult<16>",
+      "size": 744,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ShiftResult_L16",
+        "type": "bound::ShiftResult<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct ShiftResult",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 928,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.BlockCertificate_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::BlockCertificate<16>",
+      "size": 1648,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BlockCertificate_L16",
+        "type": "bound::BlockCertificate<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct BlockCertificate",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 1170,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.BlockNorms_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::BlockNorms<16>",
+      "size": 1008,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BlockNorms_L16",
+        "type": "verify::BlockNorms<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct BlockNorms",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 562,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.BodyReport_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::BodyReport<16>",
+      "size": 1872,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BodyReport_L16",
+        "type": "verify::BodyReport<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct BodyReport",
+        "purpose": "Vec element or exact component",
+        "report_group": "root",
+        "source_line": 581,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.VerificationReport_L16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::VerificationReport<16>",
+      "size": 328,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.VerificationReport_L16",
+        "type": "verify::VerificationReport<16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct VerificationReport",
+        "purpose": "Arc payload",
+        "report_group": "root",
+        "source_line": 597,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.ShiftStart_L16",
+      "actual_type": "(usize, open_pipe_stress_frame_kernel::structural::retained::wide::Wide<16>, usize)",
+      "size": 160,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ShiftStart_L16",
+        "type": "(usize, wide::Wide<16>, usize)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "start: &[(usize, Wide<L>, usize)]",
+        "purpose": "shift Vec element",
+        "report_group": "root",
+        "source_line": 1017,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.ShiftResultTuple_L16",
+      "actual_type": "(usize, open_pipe_stress_frame_kernel::structural::retained::bound::ShiftResult<16>)",
+      "size": 752,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ShiftResultTuple_L16",
+        "type": "(usize, bound::ShiftResult<16>)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "Vec<(usize, ShiftResult<L>)>",
+        "purpose": "shift result Vec element",
+        "report_group": "root",
+        "source_line": 1019,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.ResidualTuple_L16",
+      "actual_type": "(bool, f64, open_pipe_stress_frame_kernel::structural::retained::wide::Wide<16>)",
+      "size": 160,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ResidualTuple_L16",
+        "type": "(bool, f64, wide::Wide<16>)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "Result<Vec<(bool, f64, Wide<L>)>",
+        "purpose": "residual Vec element",
+        "report_group": "root",
+        "source_line": 1462,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.VerifyShared_L4_W8",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::VerifyShared<4, 8>",
+      "size": 544,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.VerifyShared_L4_W8",
+        "type": "verify::VerifyShared<4, 8>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct VerifyShared",
+        "purpose": "Arc payload",
+        "report_group": "root",
+        "source_line": 388,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.VerifyShared_L8_W16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::VerifyShared<8, 16>",
+      "size": 576,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.VerifyShared_L8_W16",
+        "type": "verify::VerifyShared<8, 16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct VerifyShared",
+        "purpose": "Arc payload",
+        "report_group": "root",
+        "source_line": 388,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.VerifyShared_L16_W16",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::verify::VerifyShared<16, 16>",
+      "size": 640,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.VerifyShared_L16_W16",
+        "type": "verify::VerifyShared<16, 16>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "anchor": "struct VerifyShared",
+        "purpose": "Arc payload",
+        "report_group": "root",
+        "source_line": 388,
+        "source_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+      }
+    },
+    {
+      "label": "FK.Contribution",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::assemble::Contribution",
+      "size": 8,
+      "align": 4,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Contribution",
+        "type": "assemble::Contribution",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "enum Contribution",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 530,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.LedgerNet",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::ledger::LedgerNet",
+      "size": 40,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.LedgerNet",
+        "type": "ledger::LedgerNet",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+        "anchor": "struct LedgerNet",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 25,
+        "source_sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e"
+      }
+    },
+    {
+      "label": "FK.BodyGeometry",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::factor::BodyGeometry",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BodyGeometry",
+        "type": "factor::BodyGeometry",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+        "anchor": "enum BodyGeometry",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 60,
+        "source_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc"
+      }
+    },
+    {
+      "label": "FK.QuantityMeta",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::recover::QuantityMeta",
+      "size": 20,
+      "align": 4,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.QuantityMeta",
+        "type": "recover::QuantityMeta",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+        "anchor": "struct QuantityMeta",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 80,
+        "source_sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+      }
+    },
+    {
+      "label": "FK.QuantityId",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId",
+      "size": 12,
+      "align": 4,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.QuantityId",
+        "type": "recover::QuantityId",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+        "anchor": "enum QuantityId",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 53,
+        "source_sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+      }
+    },
+    {
+      "label": "FK.Kind",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::recover::Kind",
+      "size": 1,
+      "align": 1,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Kind",
+        "type": "recover::Kind",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+        "anchor": "enum Kind",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 30,
+        "source_sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+      }
+    },
+    {
+      "label": "FK.BoundRefusal",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::BoundRefusal",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BoundRefusal",
+        "type": "bound::BoundRefusal",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct BoundRefusal",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 259,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.BlockRefusal",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::bound::BlockRefusal",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BlockRefusal",
+        "type": "bound::BlockRefusal",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "struct BlockRefusal",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 286,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.StraightMember",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::source::StraightMember",
+      "size": 88,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.StraightMember",
+        "type": "source::StraightMember",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+        "anchor": "struct StraightMember",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 82,
+        "source_sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+      }
+    },
+    {
+      "label": "FK.Spring",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::source::Spring",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Spring",
+        "type": "source::Spring",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+        "anchor": "struct Spring",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 97,
+        "source_sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+      }
+    },
+    {
+      "label": "FK.DirectionalSpring",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::source::DirectionalSpring",
+      "size": 48,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.DirectionalSpring",
+        "type": "source::DirectionalSpring",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+        "anchor": "struct DirectionalSpring",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 122,
+        "source_sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+      }
+    },
+    {
+      "label": "FK.Constraint",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::source::Constraint",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Constraint",
+        "type": "source::Constraint",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+        "anchor": "struct Constraint",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 132,
+        "source_sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+      }
+    },
+    {
+      "label": "FK.NodalLoad",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::source::NodalLoad",
+      "size": 40,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.NodalLoad",
+        "type": "source::NodalLoad",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+        "anchor": "struct NodalLoad",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 139,
+        "source_sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+      }
+    },
+    {
+      "label": "FK.Station",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::source::Station",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Station",
+        "type": "source::Station",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+        "anchor": "struct Station",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 147,
+        "source_sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+      }
+    },
+    {
+      "label": "FK.SupportGroup",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::source::SupportGroup",
+      "size": 64,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.SupportGroup",
+        "type": "source::SupportGroup",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+        "anchor": "struct SupportGroup",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 156,
+        "source_sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+      }
+    },
+    {
+      "label": "FK.OptionBoundRefusal",
+      "actual_type": "core::option::Option<open_pipe_stress_frame_kernel::structural::retained::bound::BoundRefusal>",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.OptionBoundRefusal",
+        "type": "Option<bound::BoundRefusal>",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "anchor": "refused: &mut [Option<BoundRefusal>]",
+        "purpose": "per-block refusal Vec element",
+        "report_group": "root",
+        "source_line": 371,
+        "source_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+      }
+    },
+    {
+      "label": "FK.TaggedContribution",
+      "actual_type": "(usize, open_pipe_stress_frame_kernel::structural::retained::assemble::Contribution)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.TaggedContribution",
+        "type": "(usize, assemble::Contribution)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "anchor": "Vec<(usize, Contribution)>",
+        "purpose": "tagged Vec element",
+        "report_group": "root",
+        "source_line": 584,
+        "source_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+      }
+    },
+    {
+      "label": "FK.LedgerEntry",
+      "actual_type": "(usize, open_pipe_stress_frame_kernel::structural::retained::ledger::LedgerNet)",
+      "size": 48,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.LedgerEntry",
+        "type": "(usize, ledger::LedgerNet)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+        "anchor": "entries: Vec<(usize, LedgerNet)>",
+        "purpose": "ledger Vec element",
+        "report_group": "root",
+        "source_line": 80,
+        "source_sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e"
+      }
+    },
+    {
+      "label": "FK.LedgerBuildingEntry",
+      "actual_type": "(usize, open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator, bool)",
+      "size": 1104,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.LedgerBuildingEntry",
+        "type": "(usize, crate::exact_sum::ExactAccumulator, bool)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+        "anchor": "Vec<(usize, ExactAccumulator, bool)>",
+        "purpose": "ledger build Vec element",
+        "report_group": "root",
+        "source_line": 93,
+        "source_sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e"
+      }
+    },
+    {
+      "label": "FK.ExactWideSum",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::wide_sum::ExactWideSum",
+      "size": 2144,
+      "align": 16,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ExactWideSum",
+        "type": "wide_sum::ExactWideSum",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+        "anchor": "struct ExactWideSum",
+        "purpose": "actual lazy/fallback inline component",
+        "report_group": "root",
+        "source_line": 112,
+        "source_sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188"
+      }
+    },
+    {
+      "label": "FK.ExactAccumulator",
+      "actual_type": "open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator",
+      "size": 1088,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ExactAccumulator",
+        "type": "crate::exact_sum::ExactAccumulator",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+        "anchor": "pub struct ExactAccumulator",
+        "purpose": "ledger build component",
+        "report_group": "root",
+        "source_line": 45,
+        "source_sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67"
+      }
+    },
+    {
+      "label": "FK.Expansion",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::Expansion",
+      "size": 32,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Expansion",
+        "type": "super::Expansion",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+        "anchor": "struct Expansion",
+        "purpose": "geometry and sparse audit Vec element",
+        "report_group": "root",
+        "source_line": 707,
+        "source_sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d"
+      }
+    },
+    {
+      "label": "FK.ExpansionArray6",
+      "actual_type": "[open_pipe_stress_frame_kernel::structural::Expansion; 6]",
+      "size": 192,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.ExpansionArray6",
+        "type": "[super::Expansion; 6]",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+        "anchor": "let mut exact_motions",
+        "purpose": "geometry Vec element",
+        "report_group": "root",
+        "source_line": 203,
+        "source_sha256": "3e5b9be185428f1652775f60cbb98b9d30e08bff4ce2a9b2bb83ccf662d30a1b"
+      }
+    },
+    {
+      "label": "FK.BodyScaleRow",
+      "actual_type": "(u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind, u64)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.BodyScaleRow",
+        "type": "(u32, recover::Kind, u64)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub body_scales: Vec<(u32, Kind, u64)>",
+        "purpose": "publication body scales Vec element",
+        "report_group": "root",
+        "source_line": 2646,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.SummaryRow",
+      "actual_type": "(u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind, f64)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.SummaryRow",
+        "type": "(u32, recover::Kind, f64)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "summary: Vec<(u32, Kind, f64)>",
+        "purpose": "decision/evidence summary Vec element",
+        "report_group": "root",
+        "source_line": 1902,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.QuantityBitsRow",
+      "actual_type": "(open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, u64)",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.QuantityBitsRow",
+        "type": "(recover::QuantityId, u64)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub absolute_verified: Vec<(QuantityId, u64)>",
+        "purpose": "filtered evidence Vec element",
+        "report_group": "root",
+        "source_line": 3393,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.UnpublishableRow",
+      "actual_type": "(open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::wide::multi::Binary64Outcome)",
+      "size": 40,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.UnpublishableRow",
+        "type": "(recover::QuantityId, wide::multi::Binary64Outcome)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub unpublishable: Vec<(QuantityId, Binary64Outcome)>",
+        "purpose": "filtered evidence Vec element",
+        "report_group": "root",
+        "source_line": 3395,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Binary64Outcome",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::wide::multi::Binary64Outcome",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Binary64Outcome",
+        "type": "wide::multi::Binary64Outcome",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+        "anchor": "pub enum Binary64Outcome",
+        "purpose": "published values Vec element",
+        "report_group": "root",
+        "source_line": 666,
+        "source_sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17"
+      }
+    },
+    {
+      "label": "FK.PrescribedEntry",
+      "actual_type": "(usize, alloc::vec::Vec<(f64, f64)>)",
+      "size": 32,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.PrescribedEntry",
+        "type": "(usize, Vec<(f64, f64)>)",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub(crate) prescribed: Vec<(usize, Vec<(f64, f64)>)>",
+        "purpose": "prescription Vec element",
+        "report_group": "root",
+        "source_line": 897,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "VR.Row",
+      "actual_type": "piping_numerical_robustness::cases::Row",
+      "size": 96,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.Row",
+        "type": "vr::cases::Row",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+        "anchor": "pub struct Row",
+        "purpose": "actual VR parsed/caller component",
+        "report_group": "consumer",
+        "source_line": 42,
+        "source_sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+      }
+    },
+    {
+      "label": "VR.Control",
+      "actual_type": "piping_numerical_robustness::cases::Control",
+      "size": 64,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.Control",
+        "type": "vr::cases::Control",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+        "anchor": "pub struct Control",
+        "purpose": "actual VR parsed/caller component",
+        "report_group": "consumer",
+        "source_line": 66,
+        "source_sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+      }
+    },
+    {
+      "label": "VR.ControlKind",
+      "actual_type": "piping_numerical_robustness::cases::ControlKind",
+      "size": 32,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.ControlKind",
+        "type": "vr::cases::ControlKind",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+        "anchor": "pub enum ControlKind",
+        "purpose": "actual VR parsed/caller component",
+        "report_group": "consumer",
+        "source_line": 58,
+        "source_sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+      }
+    },
+    {
+      "label": "VR.Member",
+      "actual_type": "piping_numerical_robustness::cases::Member",
+      "size": 112,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.Member",
+        "type": "vr::cases::Member",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+        "anchor": "pub struct Member",
+        "purpose": "actual VR parsed/caller component",
+        "report_group": "consumer",
+        "source_line": 73,
+        "source_sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+      }
+    },
+    {
+      "label": "VR.SpringSpec",
+      "actual_type": "piping_numerical_robustness::cases::SpringSpec",
+      "size": 88,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.SpringSpec",
+        "type": "vr::cases::SpringSpec",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+        "anchor": "pub struct SpringSpec",
+        "purpose": "actual VR parsed/caller component",
+        "report_group": "consumer",
+        "source_line": 88,
+        "source_sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+      }
+    },
+    {
+      "label": "VR.Model",
+      "actual_type": "piping_numerical_robustness::cases::Model",
+      "size": 192,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.Model",
+        "type": "vr::cases::Model",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+        "anchor": "pub struct Model",
+        "purpose": "actual VR parsed/caller component",
+        "report_group": "consumer",
+        "source_line": 102,
+        "source_sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+      }
+    },
+    {
+      "label": "VR.Case",
+      "actual_type": "piping_numerical_robustness::cases::Case",
+      "size": 472,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.Case",
+        "type": "vr::cases::Case",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+        "anchor": "pub struct Case",
+        "purpose": "actual VR parsed/caller component",
+        "report_group": "consumer",
+        "source_line": 115,
+        "source_sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+      }
+    },
+    {
+      "label": "VR.CaseRun",
+      "actual_type": "piping_numerical_robustness::lane::CaseRun",
+      "size": 352,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.CaseRun",
+        "type": "vr::lane::CaseRun",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+        "anchor": "pub struct CaseRun",
+        "purpose": "consumer owner header",
+        "report_group": "consumer",
+        "source_line": 21,
+        "source_sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990"
+      }
+    },
+    {
+      "label": "VR.ControlTally",
+      "actual_type": "piping_numerical_robustness::compare::ControlTally",
+      "size": 64,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.ControlTally",
+        "type": "vr::compare::ControlTally",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/compare.rs",
+        "anchor": "pub struct ControlTally",
+        "purpose": "consumer owner header",
+        "report_group": "consumer",
+        "source_line": 136,
+        "source_sha256": "54843240c5f1f3cb2894e67f05bfae84a31ef8d3e96b3d7b1895591b163680e4"
+      }
+    },
+    {
+      "label": "FK.Binary64.StiffnessContribution",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::StiffnessContribution",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Binary64.StiffnessContribution",
+        "type": "fk::structural::StiffnessContribution",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+        "anchor": "pub struct StiffnessContribution",
+        "purpose": "sparse tail Vec element",
+        "report_group": "consumer",
+        "source_line": 64,
+        "source_sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d"
+      }
+    },
+    {
+      "label": "FK.Binary64.PivotEvidence",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::PivotEvidence",
+      "size": 48,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Binary64.PivotEvidence",
+        "type": "fk::structural::PivotEvidence",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+        "anchor": "pub struct PivotEvidence",
+        "purpose": "sparse tail Vec element",
+        "report_group": "consumer",
+        "source_line": 288,
+        "source_sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d"
+      }
+    },
+    {
+      "label": "FK.Binary64.ResidualRow",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::ResidualRow",
+      "size": 104,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Binary64.ResidualRow",
+        "type": "fk::structural::ResidualRow",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+        "anchor": "pub struct ResidualRow",
+        "purpose": "sparse tail Vec element",
+        "report_group": "consumer",
+        "source_line": 297,
+        "source_sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d"
+      }
+    },
+    {
+      "label": "FK.Binary64.ContributionRounding",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::ContributionRounding",
+      "size": 96,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.Binary64.ContributionRounding",
+        "type": "fk::structural::ContributionRounding",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+        "anchor": "pub struct ContributionRounding",
+        "purpose": "sparse tail Vec element",
+        "report_group": "consumer",
+        "source_line": 315,
+        "source_sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d"
+      }
+    },
+    {
+      "label": "FK.FrameNode",
+      "actual_type": "open_pipe_stress_frame_kernel::FrameNode",
+      "size": 32,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.FrameNode",
+        "type": "fk::FrameNode",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+        "anchor": "pub struct FrameNode",
+        "purpose": "binary64 adapter Vec element",
+        "report_group": "consumer",
+        "source_line": 429,
+        "source_sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b"
+      }
+    },
+    {
+      "label": "FK.FrameElement",
+      "actual_type": "open_pipe_stress_frame_kernel::FrameElement",
+      "size": 136,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.FrameElement",
+        "type": "fk::FrameElement",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+        "anchor": "pub struct FrameElement",
+        "purpose": "binary64 adapter Vec element",
+        "report_group": "consumer",
+        "source_line": 555,
+        "source_sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b"
+      }
+    },
+    {
+      "label": "SD.SymmetricMatrixEntry",
+      "actual_type": "open_pipe_stress_sparse_direct::SymmetricMatrixEntry",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "SD.SymmetricMatrixEntry",
+        "type": "open_pipe_stress_sparse_direct::SymmetricMatrixEntry",
+        "origin": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+        "anchor": "pub struct SymmetricMatrixEntry",
+        "purpose": "sparse tail Vec element",
+        "report_group": "consumer",
+        "source_line": 98,
+        "source_sha256": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12"
+      }
+    },
+    {
+      "label": "H.Tuple.NodeFloat",
+      "actual_type": "(alloc::string::String, [f64; 3])",
+      "size": 48,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "H.Tuple.NodeFloat",
+        "type": "(String, [f64; 3])",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+        "anchor": "pub nodes: Vec<(String, [f64; 3])>",
+        "purpose": "exact tuple field type, not H aggregate",
+        "report_group": "consumer",
+        "source_line": 65,
+        "source_sha256": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f"
+      }
+    },
+    {
+      "label": "H.Tuple.NodeInteger",
+      "actual_type": "(alloc::string::String, [i64; 3])",
+      "size": 48,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "H.Tuple.NodeInteger",
+        "type": "(String, [i64; 3])",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+        "anchor": "points: Vec<(String, [i64; 3])>",
+        "purpose": "exact tuple field type, not H aggregate",
+        "report_group": "consumer",
+        "source_line": 354,
+        "source_sha256": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f"
+      }
+    },
+    {
+      "label": "H.Tuple.Member",
+      "actual_type": "(alloc::string::String, usize, usize, [f64; 3])",
+      "size": 64,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "H.Tuple.Member",
+        "type": "(String, usize, usize, [f64; 3])",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+        "anchor": "pub members: Vec<(String, usize, usize, [f64; 3])>",
+        "purpose": "exact tuple field type, not H aggregate",
+        "report_group": "consumer",
+        "source_line": 67,
+        "source_sha256": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f"
+      }
+    },
+    {
+      "label": "H.Tuple.BuilderMember",
+      "actual_type": "(alloc::string::String, usize, usize)",
+      "size": 40,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "H.Tuple.BuilderMember",
+        "type": "(String, usize, usize)",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+        "anchor": "members: Vec<(String, usize, usize)>",
+        "purpose": "exact tuple field type, not H aggregate",
+        "report_group": "consumer",
+        "source_line": 355,
+        "source_sha256": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f"
+      }
+    },
+    {
+      "label": "H.Tuple.Restraint",
+      "actual_type": "(usize, [bool; 6])",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "H.Tuple.Restraint",
+        "type": "(usize, [bool; 6])",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+        "anchor": "pub restraints: Vec<(usize, [bool; 6])>",
+        "purpose": "exact tuple field type, not H aggregate",
+        "report_group": "consumer",
+        "source_line": 69,
+        "source_sha256": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f"
+      }
+    },
+    {
+      "label": "H.Tuple.Load",
+      "actual_type": "(usize, f64)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "H.Tuple.Load",
+        "type": "(usize, f64)",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+        "anchor": "pub loads: Vec<(usize, f64)>",
+        "purpose": "exact tuple field type, not H aggregate",
+        "report_group": "consumer",
+        "source_line": 71,
+        "source_sha256": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f"
+      }
+    },
+    {
+      "label": "H.Tuple.PrefixLimit",
+      "actual_type": "(alloc::string::String, u64)",
+      "size": 32,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "H.Tuple.PrefixLimit",
+        "type": "(String, u64)",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs",
+        "anchor": "Vec<(String, u64)>",
+        "purpose": "actual prefix tuple, not Segment",
+        "report_group": "consumer",
+        "source_line": 346,
+        "source_sha256": "fd3e00c06aff970c44cd147f255fe371b16729fe0a80b62b32a09bc0afddc337"
+      }
+    },
+    {
+      "label": "VR.LoadTuple",
+      "actual_type": "(u32, usize, f64, alloc::string::String)",
+      "size": 48,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.LoadTuple",
+        "type": "(u32, usize, f64, String)",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+        "anchor": "pub loads: Vec<(u32, usize, f64, String)>",
+        "purpose": "parsed model Vec element",
+        "report_group": "consumer",
+        "source_line": 110,
+        "source_sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+      }
+    },
+    {
+      "label": "VR.StationTuple",
+      "actual_type": "(u32, u32, f64)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.StationTuple",
+        "type": "(u32, u32, f64)",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+        "anchor": "pub stations: Vec<(u32, u32, f64)>",
+        "purpose": "parsed model Vec element",
+        "report_group": "consumer",
+        "source_line": 111,
+        "source_sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+      }
+    },
+    {
+      "label": "VR.BorrowedRowReference",
+      "actual_type": "&piping_numerical_robustness::cases::Row",
+      "size": 8,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.BorrowedRowReference",
+        "type": "&'static vr::cases::Row",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+        "anchor": "BTreeMap<&str, &crate::cases::Row>",
+        "purpose": "actual borrowed map value reference, lifetime does not change layout",
+        "report_group": "consumer",
+        "source_line": 49,
+        "source_sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990"
+      }
+    },
+    {
+      "label": "STD.usize",
+      "actual_type": "usize",
+      "size": 8,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.usize",
+        "type": "usize",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "primitive/pointer-size component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.u32",
+      "actual_type": "u32",
+      "size": 4,
+      "align": 4,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.u32",
+        "type": "u32",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "primitive component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.u64",
+      "actual_type": "u64",
+      "size": 8,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.u64",
+        "type": "u64",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "radius/limb component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.f64",
+      "actual_type": "f64",
+      "size": 8,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.f64",
+        "type": "f64",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "numeric component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.bool",
+      "actual_type": "bool",
+      "size": 1,
+      "align": 1,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.bool",
+        "type": "bool",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "flag Vec element",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.OptionF64",
+      "actual_type": "core::option::Option<f64>",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.OptionF64",
+        "type": "Option<f64>",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "source constrained and report component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.OptionUsize",
+      "actual_type": "core::option::Option<usize>",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.OptionUsize",
+        "type": "Option<usize>",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "enum/option component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.String",
+      "actual_type": "alloc::string::String",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.String",
+        "type": "String",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "actual key/value and Vec element",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.StrRef",
+      "actual_type": "&str",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.StrRef",
+        "type": "&'static str",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "borrowed map key",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.VecUsize",
+      "actual_type": "alloc::vec::Vec<usize>",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.VecUsize",
+        "type": "Vec<usize>",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "actual row-vector header",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.BoxU64Slice",
+      "actual_type": "alloc::boxed::Box<[u64]>",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.BoxU64Slice",
+        "type": "Box<[u64]>",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "actual radius owner handle, not payload size",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.AtomicUsize",
+      "actual_type": "core::sync::atomic::Atomic<usize>",
+      "size": 8,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.AtomicUsize",
+        "type": "std::sync::atomic::AtomicUsize",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "actual Arc header component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.ThinPointer",
+      "actual_type": "core::ptr::non_null::NonNull<u8>",
+      "size": 8,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.ThinPointer",
+        "type": "std::ptr::NonNull<u8>",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "thin node/header pointer component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.UsizePair",
+      "actual_type": "(usize, usize)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.UsizePair",
+        "type": "(usize, usize)",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "sparse map key and index Vec element",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.F64UsizePair",
+      "actual_type": "(f64, usize)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.F64UsizePair",
+        "type": "(f64, usize)",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "sparse map value",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.F64Pair",
+      "actual_type": "(f64, f64)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.F64Pair",
+        "type": "(f64, f64)",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "floor map value/prescribed term",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.StringPair",
+      "actual_type": "(alloc::string::String, alloc::string::String)",
+      "size": 48,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.StringPair",
+        "type": "(String, String)",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "control value-pair Vec element",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.JsonValue",
+      "actual_type": "serde_json::value::Value",
+      "size": 32,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.JsonValue",
+        "type": "serde_json::Value",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "actual JSON array/map value component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.JsonNumber",
+      "actual_type": "serde_json::number::Number",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.JsonNumber",
+        "type": "serde_json::Number",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "actual JSON scalar component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.JsonMap",
+      "actual_type": "serde_json::map::Map<alloc::string::String, serde_json::value::Value>",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.JsonMap",
+        "type": "serde_json::Map<String, serde_json::Value>",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "actual JSON object wrapper, not private nodes",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "H.K6Model",
+      "actual_type": "open_pipe_stress_solver_performance_harness::k6::models::K6Model",
+      "size": 200,
+      "align": 8,
+      "package_run": "H",
+      "source_map": {
+        "label": "H.K6Model",
+        "type": "h::k6::models::K6Model",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+        "anchor": "pub struct K6Model",
+        "purpose": "actual nominal owner, not separate child heap",
+        "source_line": 59,
+        "source_sha256": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f"
+      }
+    },
+    {
+      "label": "H.Family",
+      "actual_type": "open_pipe_stress_solver_performance_harness::k6::models::Family",
+      "size": 1,
+      "align": 1,
+      "package_run": "H",
+      "source_map": {
+        "label": "H.Family",
+        "type": "h::k6::models::Family",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+        "anchor": "pub enum Family",
+        "purpose": "actual nominal model component",
+        "source_line": 36,
+        "source_sha256": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f"
+      }
+    },
+    {
+      "label": "H.PrecisionWork",
+      "actual_type": "open_pipe_stress_solver_performance_harness::k6::w1::staged::PrecisionWork",
+      "size": 336,
+      "align": 8,
+      "package_run": "H",
+      "source_map": {
+        "label": "H.PrecisionWork",
+        "type": "h::k6::w1::staged::PrecisionWork",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs",
+        "anchor": "pub struct PrecisionWork",
+        "purpose": "work_by_precision Vec element",
+        "source_line": 222,
+        "source_sha256": "fd3e00c06aff970c44cd147f255fe371b16729fe0a80b62b32a09bc0afddc337"
+      }
+    },
+    {
+      "label": "H.Segment",
+      "actual_type": "open_pipe_stress_solver_performance_harness::k6::w1::staged::Segment",
+      "size": 32,
+      "align": 8,
+      "package_run": "H",
+      "source_map": {
+        "label": "H.Segment",
+        "type": "h::k6::w1::staged::Segment",
+        "origin": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs",
+        "anchor": "pub struct Segment",
+        "purpose": "segments Vec element",
+        "source_line": 286,
+        "source_sha256": "fd3e00c06aff970c44cd147f255fe371b16729fe0a80b62b32a09bc0afddc337"
+      }
+    },
+    {
+      "label": "STD.OsString",
+      "actual_type": "std::ffi::os_str::OsString",
+      "size": 24,
+      "align": 8,
+      "package_run": "H",
+      "source_map": {
+        "label": "STD.OsString",
+        "type": "std::ffi::OsString",
+        "origin": "installed Rust1.97.1 standard type",
+        "anchor": null,
+        "purpose": "argv Vec element"
+      }
+    },
+    {
+      "label": "FK.Crosscheck.RetainedSolve",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::RetainedSolve",
+      "size": 1976,
+      "align": 8,
+      "package_run": "H",
+      "source_map": {
+        "label": "FK.Crosscheck.RetainedSolve",
+        "type": "r::RetainedSolve",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub struct RetainedSolve",
+        "purpose": "normal-package crosscheck",
+        "source_line": 3423,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Crosscheck.AttemptRecord",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::AttemptRecord",
+      "size": 832,
+      "align": 8,
+      "package_run": "H",
+      "source_map": {
+        "label": "FK.Crosscheck.AttemptRecord",
+        "type": "r::AttemptRecord",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub struct AttemptRecord",
+        "purpose": "normal-package crosscheck",
+        "source_line": 2539,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.Crosscheck.PublishedRow",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow",
+      "size": 64,
+      "align": 8,
+      "package_run": "H",
+      "source_map": {
+        "label": "FK.Crosscheck.PublishedRow",
+        "type": "r::PublishedRow",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub struct PublishedRow",
+        "purpose": "normal-package crosscheck",
+        "source_line": 2634,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "run": "VR",
+      "meta": {
+        "source": "cb13fcf3ea560c0d07ad9ac02dac78e9d2e06e00",
+        "arch": "aarch64",
+        "os": "macos",
+        "debug_assertions": "false",
+        "cfg_test": "false",
+        "seeded_faults": "false"
+      },
+      "layouts": 151,
+      "result": "exit0 per supervised exec",
+      "compiler_repairs": 0
+    },
+    {
+      "run": "H",
+      "meta": {
+        "source": "cb13fcf3ea560c0d07ad9ac02dac78e9d2e06e00",
+        "arch": "aarch64",
+        "os": "macos",
+        "debug_assertions": "false",
+        "cfg_test": "false"
+      },
+      "layouts": 8,
+      "result": "exit0 per supervised exec",
+      "compiler_repairs": 0
+    }
+  ],
+  "nominal_crosschecks": [
+    {
+      "type": "RetainedSolve",
+      "size": 1976,
+      "align": 8,
+      "equal": true
+    },
+    {
+      "type": "AttemptRecord",
+      "size": 832,
+      "align": 8,
+      "equal": true
+    },
+    {
+      "type": "PublishedRow",
+      "size": 64,
+      "align": 8,
+      "equal": true
+    }
+  ]
+}

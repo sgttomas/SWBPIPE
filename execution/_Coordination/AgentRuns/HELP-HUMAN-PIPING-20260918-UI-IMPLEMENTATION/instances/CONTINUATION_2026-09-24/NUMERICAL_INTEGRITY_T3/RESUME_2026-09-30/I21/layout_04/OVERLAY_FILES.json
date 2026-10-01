@@ -1,0 +1,33 @@
+{
+  "basis": "cb13fcf3ea560c0d07ad9ac02dac78e9d2e06e00",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "original_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "overlay_sha256": "0a69adba8c994c2c1bea3ad692bbf10c8af66c9912fb14f661d7301211df2310",
+      "change": "report/export hook only"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs",
+      "original_sha256": "78bb76773dd4fd4d799b5668f21a679f0ebf9c088ec5fff655e13a0453d6dc2a",
+      "overlay_sha256": "fd991cff171ea2fd006f802c845653d2a2ad396fdf4675460e88600e0acd7a9d",
+      "change": "report/export hook only"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "original_sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d",
+      "overlay_sha256": "73acfd4f2e26b1a5c6271d5dbcdb16e54964eeb9440114cd570eeb4aff790dca",
+      "change": "report/export hook only"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/i21_layout_04.rs",
+      "original_sha256": null,
+      "overlay_sha256": "bce38cd06ab2dceece57e901165f0205be2684fc00ba7e2f8869a6572aff24ef",
+      "change": "new diagnostic example"
+    }
+  ],
+  "manifest_or_lock_changes": false,
+  "data_definition_changes": false,
+  "numeric_flow_changes": false,
+  "cfg_feature_changes": false
+}

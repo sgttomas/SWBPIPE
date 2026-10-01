@@ -1,0 +1,220 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -4523,3 +4523,41 @@
+ #[cfg(test)]
+ #[path = "../../../tests/retained_k4/publication_tests.rs"]
+ mod publication_tests;
++
++// One-off I21 actual-type layout diagnostic; archive overlay only.
++pub(crate) fn __i21_layout_04_adaptive(report: &mut dyn FnMut(&'static str, &'static str, usize, usize)) {
++    macro_rules! row {
++        ($label:literal, $ty:ty) => {
++            report($label, ::std::any::type_name::<$ty>(),
++                ::std::mem::size_of::<$ty>(), ::std::mem::align_of::<$ty>());
++        };
++    }
++    row!("FK.CasePrep", CasePrep);
++    row!("FK.GroupPrep", GroupPrep);
++    row!("FK.GroupEntry", (Vec<u8>, Result<Arc<GroupPrep>, (Refusal, Vec<BodyGeometry>)>, GroupCache));
++    row!("FK.GroupCache", GroupCache);
++    row!("FK.AttemptStop", AttemptStop);
++    row!("FK.AttemptReason", AttemptReason);
++    row!("FK.AttemptOutcome", AttemptOutcome);
++    row!("FK.AttemptRecord", AttemptRecord);
++    row!("FK.UnresolvedReason", UnresolvedReason);
++    row!("FK.CaseOutcome", CaseOutcome);
++    row!("FK.RetainedSolve", RetainedSolve);
++    row!("FK.PublishedRow", PublishedRow);
++    row!("FK.PrecisionState", PrecisionState);
++    row!("FK.BoundedExtremeTracker", BoundedExtremeTracker);
++    row!("FK.Evaluated", Evaluated);
++    row!("FK.TrackerTableEntry", (u64, Evaluated));
++    row!("FK.TrackerKey", (RuleTest, u32, Kind));
++    row!("FK.LazyRow", (ExactWideSum, ExactWideSum, u64, u64));
++    row!("FK.FallbackRow", (ExactWideSum, ExactWideSum, f64));
++    row!("FK.WorstGateOption", Option<Option<GateRatio>>);
++    row!("FK.FallbackTrackerOption", Option<(bool, BoundedExtremeTracker)>);
++    row!("FK.Shared_L4_R4", Shared<4, 4>);
++    row!("FK.Shared_L4_R8", Shared<4, 8>);
++    row!("FK.Shared_L8_R16", Shared<8, 16>);
++    row!("FK.Shared_L16_R16", Shared<16, 16>);
++    row!("FK.Solved_L4", Solved<4>);
++    row!("FK.Solved_L8", Solved<8>);
++    row!("FK.Solved_L16", Solved<16>);
++}
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs
+@@ -47,3 +47,92 @@
+ pub(crate) mod source;
+ pub(crate) mod verify;
+ pub(crate) mod wide_sum;
++
++// One-off I21 actual-type layout diagnostic; archive overlay only.
++#[doc(hidden)]
++pub fn __i21_layout_04_report(report: &mut dyn FnMut(&'static str, &'static str, usize, usize)) {
++    adaptive::__i21_layout_04_adaptive(report);
++    macro_rules! row {
++        ($label:literal, $ty:ty) => {
++            report($label, ::std::any::type_name::<$ty>(),
++                ::std::mem::size_of::<$ty>(), ::std::mem::align_of::<$ty>());
++        };
++    }
++    row!("FK.Wide_L4", wide::Wide<4>);
++    row!("FK.OptionWide_L4", Option<wide::Wide<4>>);
++    row!("FK.MemberOperators_L4", assemble::MemberOperators<4>);
++    row!("FK.BoundedCoefficients_L4", assemble::BoundedCoefficients<4>);
++    row!("FK.DirectionalBlock_L4", assemble::DirectionalBlock<4>);
++    row!("FK.PivotScreen_L4", factor::PivotScreen<4>);
++    row!("FK.BlockBound_L4", bound::BlockBound<4>);
++    row!("FK.ShiftResult_L4", bound::ShiftResult<4>);
++    row!("FK.BlockCertificate_L4", bound::BlockCertificate<4>);
++    row!("FK.BlockNorms_L4", verify::BlockNorms<4>);
++    row!("FK.BodyReport_L4", verify::BodyReport<4>);
++    row!("FK.VerificationReport_L4", verify::VerificationReport<4>);
++    row!("FK.ShiftStart_L4", (usize, wide::Wide<4>, usize));
++    row!("FK.ShiftResultTuple_L4", (usize, bound::ShiftResult<4>));
++    row!("FK.ResidualTuple_L4", (bool, f64, wide::Wide<4>));
++    row!("FK.Wide_L8", wide::Wide<8>);
++    row!("FK.OptionWide_L8", Option<wide::Wide<8>>);
++    row!("FK.MemberOperators_L8", assemble::MemberOperators<8>);
++    row!("FK.BoundedCoefficients_L8", assemble::BoundedCoefficients<8>);
++    row!("FK.DirectionalBlock_L8", assemble::DirectionalBlock<8>);
++    row!("FK.PivotScreen_L8", factor::PivotScreen<8>);
++    row!("FK.BlockBound_L8", bound::BlockBound<8>);
++    row!("FK.ShiftResult_L8", bound::ShiftResult<8>);
++    row!("FK.BlockCertificate_L8", bound::BlockCertificate<8>);
++    row!("FK.BlockNorms_L8", verify::BlockNorms<8>);
++    row!("FK.BodyReport_L8", verify::BodyReport<8>);
++    row!("FK.VerificationReport_L8", verify::VerificationReport<8>);
++    row!("FK.ShiftStart_L8", (usize, wide::Wide<8>, usize));
++    row!("FK.ShiftResultTuple_L8", (usize, bound::ShiftResult<8>));
++    row!("FK.ResidualTuple_L8", (bool, f64, wide::Wide<8>));
++    row!("FK.Wide_L16", wide::Wide<16>);
++    row!("FK.OptionWide_L16", Option<wide::Wide<16>>);
++    row!("FK.MemberOperators_L16", assemble::MemberOperators<16>);
++    row!("FK.BoundedCoefficients_L16", assemble::BoundedCoefficients<16>);
++    row!("FK.DirectionalBlock_L16", assemble::DirectionalBlock<16>);
++    row!("FK.PivotScreen_L16", factor::PivotScreen<16>);
++    row!("FK.BlockBound_L16", bound::BlockBound<16>);
++    row!("FK.ShiftResult_L16", bound::ShiftResult<16>);
++    row!("FK.BlockCertificate_L16", bound::BlockCertificate<16>);
++    row!("FK.BlockNorms_L16", verify::BlockNorms<16>);
++    row!("FK.BodyReport_L16", verify::BodyReport<16>);
++    row!("FK.VerificationReport_L16", verify::VerificationReport<16>);
++    row!("FK.ShiftStart_L16", (usize, wide::Wide<16>, usize));
++    row!("FK.ShiftResultTuple_L16", (usize, bound::ShiftResult<16>));
++    row!("FK.ResidualTuple_L16", (bool, f64, wide::Wide<16>));
++    row!("FK.VerifyShared_L4_W8", verify::VerifyShared<4, 8>);
++    row!("FK.VerifyShared_L8_W16", verify::VerifyShared<8, 16>);
++    row!("FK.VerifyShared_L16_W16", verify::VerifyShared<16, 16>);
++    row!("FK.Contribution", assemble::Contribution);
++    row!("FK.LedgerNet", ledger::LedgerNet);
++    row!("FK.BodyGeometry", factor::BodyGeometry);
++    row!("FK.QuantityMeta", recover::QuantityMeta);
++    row!("FK.QuantityId", recover::QuantityId);
++    row!("FK.Kind", recover::Kind);
++    row!("FK.BoundRefusal", bound::BoundRefusal);
++    row!("FK.BlockRefusal", bound::BlockRefusal);
++    row!("FK.StraightMember", source::StraightMember);
++    row!("FK.Spring", source::Spring);
++    row!("FK.DirectionalSpring", source::DirectionalSpring);
++    row!("FK.Constraint", source::Constraint);
++    row!("FK.NodalLoad", source::NodalLoad);
++    row!("FK.Station", source::Station);
++    row!("FK.SupportGroup", source::SupportGroup);
++    row!("FK.OptionBoundRefusal", Option<bound::BoundRefusal>);
++    row!("FK.TaggedContribution", (usize, assemble::Contribution));
++    row!("FK.LedgerEntry", (usize, ledger::LedgerNet));
++    row!("FK.LedgerBuildingEntry", (usize, crate::exact_sum::ExactAccumulator, bool));
++    row!("FK.ExactWideSum", wide_sum::ExactWideSum);
++    row!("FK.ExactAccumulator", crate::exact_sum::ExactAccumulator);
++    row!("FK.Expansion", super::Expansion);
++    row!("FK.ExpansionArray6", [super::Expansion; 6]);
++    row!("FK.BodyScaleRow", (u32, recover::Kind, u64));
++    row!("FK.SummaryRow", (u32, recover::Kind, f64));
++    row!("FK.QuantityBitsRow", (recover::QuantityId, u64));
++    row!("FK.UnpublishableRow", (recover::QuantityId, wide::multi::Binary64Outcome));
++    row!("FK.Binary64Outcome", wide::multi::Binary64Outcome);
++    row!("FK.PrescribedEntry", (usize, Vec<(f64, f64)>));
++}
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+@@ -8,6 +8,8 @@
+ /// crate names this module. `PrecisionState` and `RetainedSolve::state` stay
+ /// crate-private (ROOT's ruling C-2).
+ pub mod retained_api {
++    // One-off I21 archive-only layout export.
++    pub use super::retained::__i21_layout_04_report;
+     pub use super::retained::adaptive::{
+         absolute_bound, body_extent, classify, classify_rows, classify_rows_floored,
+         coupled_scales, intensified_k, solve_case, solve_cases, stress_scale, threshold,
+--- /dev/null
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/i21_layout_04.rs
+@@ -0,0 +1,67 @@
++// One-off I21 actual layout caller. No model or numerical entry is constructed/run.
++use open_pipe_stress_frame_kernel as fk;
++use piping_numerical_robustness as vr;
++fn main() {
++    println!("meta\tsource\tcb13fcf3ea560c0d07ad9ac02dac78e9d2e06e00");
++    println!("meta\tarch\t{}", std::env::consts::ARCH);
++    println!("meta\tos\t{}", std::env::consts::OS);
++    println!("meta\tdebug_assertions\t{}", cfg!(debug_assertions));
++    println!("meta\tcfg_test\t{}", cfg!(test));
++    println!("meta\tseeded_faults\t{}", cfg!(feature = "seeded-faults"));
++    let mut report = |label: &'static str, actual: &'static str, size: usize, align: usize| {
++        println!("layout\t{label}\t{actual}\t{size}\t{align}");
++    };
++    fk::structural::retained_api::__i21_layout_04_report(&mut report);
++    macro_rules! row {
++        ($label:literal, $ty:ty) => {
++            report($label, ::std::any::type_name::<$ty>(),
++                ::std::mem::size_of::<$ty>(), ::std::mem::align_of::<$ty>());
++        };
++    }
++    row!("VR.Row", vr::cases::Row);
++    row!("VR.Control", vr::cases::Control);
++    row!("VR.ControlKind", vr::cases::ControlKind);
++    row!("VR.Member", vr::cases::Member);
++    row!("VR.SpringSpec", vr::cases::SpringSpec);
++    row!("VR.Model", vr::cases::Model);
++    row!("VR.Case", vr::cases::Case);
++    row!("VR.CaseRun", vr::lane::CaseRun);
++    row!("VR.ControlTally", vr::compare::ControlTally);
++    row!("FK.Binary64.StiffnessContribution", fk::structural::StiffnessContribution);
++    row!("FK.Binary64.PivotEvidence", fk::structural::PivotEvidence);
++    row!("FK.Binary64.ResidualRow", fk::structural::ResidualRow);
++    row!("FK.Binary64.ContributionRounding", fk::structural::ContributionRounding);
++    row!("FK.FrameNode", fk::FrameNode);
++    row!("FK.FrameElement", fk::FrameElement);
++    row!("SD.SymmetricMatrixEntry", open_pipe_stress_sparse_direct::SymmetricMatrixEntry);
++    row!("H.Tuple.NodeFloat", (String, [f64; 3]));
++    row!("H.Tuple.NodeInteger", (String, [i64; 3]));
++    row!("H.Tuple.Member", (String, usize, usize, [f64; 3]));
++    row!("H.Tuple.BuilderMember", (String, usize, usize));
++    row!("H.Tuple.Restraint", (usize, [bool; 6]));
++    row!("H.Tuple.Load", (usize, f64));
++    row!("H.Tuple.PrefixLimit", (String, u64));
++    row!("VR.LoadTuple", (u32, usize, f64, String));
++    row!("VR.StationTuple", (u32, u32, f64));
++    row!("VR.BorrowedRowReference", &'static vr::cases::Row);
++    row!("STD.usize", usize);
++    row!("STD.u32", u32);
++    row!("STD.u64", u64);
++    row!("STD.f64", f64);
++    row!("STD.bool", bool);
++    row!("STD.OptionF64", Option<f64>);
++    row!("STD.OptionUsize", Option<usize>);
++    row!("STD.String", String);
++    row!("STD.StrRef", &'static str);
++    row!("STD.VecUsize", Vec<usize>);
++    row!("STD.BoxU64Slice", Box<[u64]>);
++    row!("STD.AtomicUsize", std::sync::atomic::AtomicUsize);
++    row!("STD.ThinPointer", std::ptr::NonNull<u8>);
++    row!("STD.UsizePair", (usize, usize));
++    row!("STD.F64UsizePair", (f64, usize));
++    row!("STD.F64Pair", (f64, f64));
++    row!("STD.StringPair", (String, String));
++    row!("STD.JsonValue", serde_json::Value);
++    row!("STD.JsonNumber", serde_json::Number);
++    row!("STD.JsonMap", serde_json::Map<String, serde_json::Value>);
++}

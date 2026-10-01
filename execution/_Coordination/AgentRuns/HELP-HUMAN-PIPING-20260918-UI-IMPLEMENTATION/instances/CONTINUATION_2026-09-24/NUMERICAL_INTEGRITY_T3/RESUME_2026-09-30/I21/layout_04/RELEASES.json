@@ -1,0 +1,28 @@
+{
+  "role": "TASK",
+  "task": "/root/t3_recovery_manager/i21_k6c",
+  "parent": "/root/t3_recovery_manager",
+  "basis": "cb13fcf3ea560c0d07ad9ac02dac78e9d2e06e00",
+  "vr": {
+    "released": "2026-10-01 08:23:11 UTC",
+    "verified_diff_sha256": "71e685730f745cbfe816850d76d67cbcd39ddd19e25d5ac451eefa32281c9157",
+    "session": 21772,
+    "result": "exit 0",
+    "launch_time_note": "filesystem log-open proxy only; direct prelaunch clock absent",
+    "guard_pid_before": 5387
+  },
+  "h": {
+    "released": "2026-10-01 08:28:02 UTC",
+    "verified_diff_sha256": "c379d941e9543ca635eca1d06ba9fc8d6666d9a201a6064149a0ca9b8fef3c76",
+    "prelaunch_utc": {
+      "current_time": "2026-10-01 08:28:41 UTC"
+    },
+    "session": 31638,
+    "result": "exit 0",
+    "guard_pid_before": 5387
+  },
+  "compiler_fixes": 0,
+  "maximum_compiler_fixes": 2,
+  "authority_note": "Manager's explicit native release messages followed independent complete overlay/archive fence checks. No compile occurred before the respective release."
+}
+
