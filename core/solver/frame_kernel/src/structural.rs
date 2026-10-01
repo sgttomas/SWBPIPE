@@ -12,10 +12,10 @@ pub mod retained_api {
         absolute_bound, body_extent, classify, classify_rows, classify_rows_floored,
         coupled_scales, intensified_k, solve_case, solve_cases, stress_scale, threshold,
         AttemptOutcome, AttemptReason, AttemptRecord, AttemptRole, AttemptStop, BudgetScope,
-        CaseLimit, CaseOutcome, GateTest, InvocationMeter, Publication, PublishedRow, Refusal,
-        RetainedEvidence, RetainedSolve, RowClass, StageWork, StorageCounts, UnresolvedReason,
-        VerificationSummary, FLOOR_RATIO_BITS, K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN,
-        POLICY, PRECISIONS, RCOND_LABEL,
+        CaseLimit, CaseOutcome, CertificateIssue, GateTest, InvocationMeter, Publication,
+        PublicationPredicate, PublishedRow, Refusal, RetainedEvidence, RetainedSolve, RowClass,
+        StageWork, StorageCounts, UnresolvedReason, VerificationSummary, FLOOR_RATIO_BITS,
+        K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN, POLICY, PRECISIONS, RCOND_LABEL,
     };
     pub use super::retained::bound::{
         BlockRefusal, BoundPass, BoundRefusal, CertifiedBound, RefusalKind,

@@ -53,8 +53,9 @@ use std::sync::Arc;
 
 /// Proposed method token (a placeholder for ROOT, D1 §4.1).
 pub const METHOD_TOKEN: &str = "contribution_preserving_multiprecision_v1";
-/// Proposed policy (a placeholder for ROOT).
-pub const POLICY: &str = "M03-INTEGRITY-MP-v1";
+/// ROOT's corrected SI publication policy: all R7 gates, then exact H admission.
+/// Historical v1 evidence is not certified by this policy retroactively.
+pub const POLICY: &str = "M03-INTEGRITY-MP-v2";
 /// The label D1 §4.1.3 gives the published condition estimate.
 pub const RCOND_LABEL: &str =
     "sensitivity to matrix-entry perturbation, not to authored parameters";
@@ -116,6 +117,29 @@ pub enum BudgetScope {
     Invocation,
 }
 
+/// The promised radius that failed after all standing R7 gates passed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PublicationPredicate {
+    AbsoluteBound,
+    PublicRelative,
+    SharperExact,
+    SharperBinary64,
+}
+
+/// Malformed certificate data is a terminal error, never an absent zero.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CertificateIssue {
+    Shape,
+    PairIdentity,
+    Precision,
+    RowIdentity,
+    MissingField,
+    NegativeField,
+    NonFinite,
+    NonCanonicalZero,
+    RadiusClassMismatch,
+}
+
 /// Why an attempt stopped.
 #[derive(Debug, Clone, PartialEq)]
 pub enum AttemptStop {
@@ -152,6 +176,11 @@ pub enum AttemptStop {
     ResolutionScale {
         body: u32,
         kind: Kind,
+    },
+    /// The new publication certificate cannot be interpreted (terminal).
+    PublicationCertificate {
+        index: Option<usize>,
+        issue: CertificateIssue,
     },
 }
 
@@ -410,19 +439,23 @@ pub(crate) fn row_bound(value: f64, s_star: f64) -> f64 {
 /// |q| < fl(R·S\*), and always when S\* < 2^-988, with the bound of
 /// `row_bound` (amendment A1).
 pub fn classify(value: f64, s_star: f64) -> RowClass {
-    // V-K seeded fault VK-F17 (§7.3-17): every scaled row relative_verified.
-    #[cfg(any(test, feature = "mutation-controls"))]
-    if super::seeded::active(super::seeded::Fault::F17) {
-        return RowClass::RelativeVerified;
-    }
-    let small = f64::from_bits(0x0230_0000_0000_0000); // 2^-988
-    if s_star < small || value.abs() < threshold(s_star) {
+    if relative_class(value, s_star) {
+        RowClass::RelativeVerified
+    } else {
         RowClass::AbsoluteVerified {
             bound_bits: row_bound(value, s_star).to_bits(),
         }
-    } else {
-        RowClass::RelativeVerified
     }
+}
+
+fn relative_class(value: f64, s_star: f64) -> bool {
+    // V-K seeded fault VK-F17 (§7.3-17): every scaled row relative_verified.
+    #[cfg(any(test, feature = "mutation-controls"))]
+    if super::seeded::active(super::seeded::Fault::F17) {
+        return true;
+    }
+    let small = f64::from_bits(0x0230_0000_0000_0000); // 2^-988
+    !(s_star < small || value.abs() < threshold(s_star))
 }
 
 // ------------------------------------------------------------ directed ratios
@@ -2323,6 +2356,25 @@ pub(crate) enum VerificationState {
     V1024(Arc<VerificationReport<16>>),
 }
 
+/// The report is valid only for the prep and verification Arc that produced it.
+/// These references are transient; no report is retained by RetainedSolve.
+struct BoundVerification {
+    prep: Arc<CasePrep>,
+    state: PrecisionState,
+    report: VerificationState,
+}
+
+impl PrecisionState {
+    fn same_state(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::P128(a), Self::P128(b)) | (Self::P256(a), Self::P256(b)) => Arc::ptr_eq(a, b),
+            (Self::P512(a), Self::P512(b)) => Arc::ptr_eq(a, b),
+            (Self::P1024(a), Self::P1024(b)) => Arc::ptr_eq(a, b),
+            _ => false,
+        }
+    }
+}
+
 /// A verification's report in binary64 (the attempt's evidence).
 #[derive(Debug, Clone, PartialEq)]
 pub struct VerificationSummary {
@@ -2430,6 +2482,13 @@ pub enum AttemptReason {
         kind: Kind,
     },
     VerificationFailed,
+    /// Exact H did not fit this row's published promise (escalates).
+    PublicationEnclosure {
+        quantity: QuantityId,
+        body: u32,
+        kind: Kind,
+        predicate: PublicationPredicate,
+    },
     /// D1 revision 5a.3 (R7 §4.1.6.3 item 13): `verification_estimate`.
     VerificationEstimate {
         quantity: QuantityId,
@@ -2564,6 +2623,10 @@ pub enum UnresolvedReason {
     CertifiedBoundUnencodable {
         body: u32,
     },
+    PublicationCertificate {
+        index: Option<usize>,
+        issue: CertificateIssue,
+    },
 }
 
 /// A published row and its class.
@@ -2601,6 +2664,19 @@ pub fn classify_rows_floored(
     extents: &[f64],
     floor: Option<&[[f64; 2]]>,
 ) -> Publication {
+    publication_with(layout, values, extents, floor, |x, s| Ok(classify(x, s)))
+        .expect("the public classification closure is infallible")
+}
+
+/// One publication algorithm for both the public pure helper and the metered
+/// production gate. Shape and finite metadata are checked by the latter's caller.
+fn publication_with(
+    layout: &[QuantityMeta],
+    values: &[Binary64Outcome],
+    extents: &[f64],
+    floor: Option<&[[f64; 2]]>,
+    mut classify_row: impl FnMut(f64, f64) -> Result<RowClass, AttemptStop>,
+) -> Result<Publication, AttemptStop> {
     let mut s = vec![[0.0f64; 4]; extents.len()];
     for (meta, v) in layout.iter().zip(values) {
         if meta.input_derived {
@@ -2631,19 +2707,19 @@ pub fn classify_rows_floored(
             let class = if meta.input_derived {
                 RowClass::InputDerived
             } else if let Some(x) = v.value() {
-                classify(x, scales[meta.body as usize][meta.kind.index()])
+                classify_row(x, scales[meta.body as usize][meta.kind.index()])?
             } else {
                 RowClass::Unpublishable
             };
-            PublishedRow {
+            Ok(PublishedRow {
                 id: meta.id,
                 kind: meta.kind,
                 body: meta.body,
                 value: *v,
                 class,
-            }
+            })
         })
-        .collect();
+        .collect::<Result<Vec<_>, AttemptStop>>()?;
     let body_scales = scales
         .iter()
         .enumerate()
@@ -2653,7 +2729,653 @@ pub fn classify_rows_floored(
                 .map(move |&k| (b as u32, k, s[k.index()].to_bits()))
         })
         .collect();
-    Publication { rows, body_scales }
+    Ok(Publication { rows, body_scales })
+}
+
+// ------------------------------------------------------------ SI publication certificate
+
+const ABSENT_RADIUS_BITS: u64 = 0x7ff0_0000_0000_0000;
+
+fn certificate_error(index: Option<usize>, issue: CertificateIssue) -> AttemptStop {
+    AttemptStop::PublicationCertificate { index, issue }
+}
+
+fn finite_nonnegative(value: f64) -> Result<(), CertificateIssue> {
+    if !value.is_finite() {
+        Err(CertificateIssue::NonFinite)
+    } else if value.to_bits() == 1u64 << 63 {
+        Err(CertificateIssue::NonCanonicalZero)
+    } else if value < 0.0 {
+        Err(CertificateIssue::NegativeField)
+    } else {
+        Ok(())
+    }
+}
+
+/// Only newly incurred clone work is charged. max_span is evidence, not a price.
+fn sum_work_delta(after: SumWork, before: SumWork) -> SumWork {
+    SumWork {
+        term_limbs: after.term_limbs - before.term_limbs,
+        shift_limbs: after.shift_limbs - before.shift_limbs,
+        net_limbs: after.net_limbs - before.net_limbs,
+        rounded_limbs: after.rounded_limbs - before.rounded_limbs,
+        max_span_bits: after.max_span_bits,
+    }
+}
+
+/// The candidate's new work, with no shared/cache charge. Every local sum is
+/// collected even when an operation refuses. The legacy ExactAccumulator used
+/// for exact prescriptions remains outside this inherited LME instrumentation.
+struct CertificateMeter {
+    ctx: WideContext<16>,
+    sums: SumWork,
+    guard: StageGuard,
+}
+
+impl CertificateMeter {
+    fn new(guard: StageGuard) -> Self {
+        Self {
+            ctx: WideContext::new(1024).expect("supported precision"),
+            sums: SumWork::default(),
+            guard,
+        }
+    }
+
+    fn total(&self) -> u64 {
+        lme(&self.ctx).saturating_add(self.sums.limb_multiply_equivalents())
+    }
+
+    fn checked<T>(&self, result: Result<T, AttemptStop>) -> Result<T, AttemptStop> {
+        // Keep an arithmetic refusal's existing precedence; charge its work in
+        // the caller before returning it. Case wins over Invocation in test().
+        match result {
+            Ok(value) => {
+                self.guard.test(self.total())?;
+                Ok(value)
+            }
+            Err(stop) => Err(stop),
+        }
+    }
+
+    fn collect<T>(
+        &mut self,
+        sum: &ExactWideSum,
+        result: Result<T, AttemptStop>,
+    ) -> Result<T, AttemptStop> {
+        self.sums.merge(&sum.work());
+        self.checked(result)
+    }
+
+    fn clone_delta<T>(
+        &mut self,
+        sum: &ExactWideSum,
+        before: SumWork,
+        result: Result<T, AttemptStop>,
+    ) -> Result<T, AttemptStop> {
+        self.sums.merge(&sum_work_delta(sum.work(), before));
+        self.checked(result)
+    }
+
+    fn reaches(
+        &mut self,
+        c: f64,
+        den: &ExactWideSum,
+        num: &ExactWideSum,
+    ) -> Result<bool, AttemptStop> {
+        let mut scratch = ExactWideSum::new();
+        let result = (|| {
+            if c != 0.0 {
+                let bits = c.to_bits();
+                let biased = ((bits >> 52) & 0x7ff) as i64;
+                let fraction = bits & ((1u64 << 52) - 1);
+                let (significand, lsb) = if biased == 0 {
+                    (fraction, -1074)
+                } else {
+                    (fraction | (1u64 << 52), biased - 1075)
+                };
+                scratch.add_scaled(den, false, significand, lsb)?;
+            }
+            scratch.add_scaled(num, true, 1, 0)?;
+            Ok(scratch.signum() >= 0)
+        })();
+        self.collect(&scratch, result)
+    }
+
+    /// Accounting-aware upward H/1 conversion. Same exact correction as
+    /// directed_ratio(Up); the old R7 helper and its work contract are unchanged.
+    fn round_up(&mut self, num: &ExactWideSum) -> Result<f64, AttemptStop> {
+        let mut n = num.clone();
+        let before = n.work();
+        let sign = n.signum();
+        self.clone_delta(
+            &n,
+            before,
+            if sign < 0 {
+                Err(certificate_error(None, CertificateIssue::NegativeField))
+            } else {
+                Ok(())
+            },
+        )?;
+        if sign == 0 {
+            return Ok(0.0);
+        }
+        let before = n.work();
+        let nv = n.round(&mut self.ctx).map_err(AttemptStop::from);
+        let nv = self.clone_delta(&n, before, nv)?;
+        let mut den = ExactWideSum::new();
+        let formed = den.add_binary64(1.0, false).map_err(AttemptStop::from);
+        self.collect(&den, formed)?;
+        let mut d = den.clone();
+        let before = d.work();
+        let dv = d.round(&mut self.ctx).map_err(AttemptStop::from);
+        let dv = self.clone_delta(&d, before, dv)?;
+        let quotient = self.ctx.div(&nv, &dv).map_err(AttemptStop::from);
+        let quotient = self.checked(quotient)?;
+        let mut c = match quotient.to_binary64() {
+            Binary64Outcome::Normal(v) => v.abs(),
+            Binary64Outcome::Subnormal { value, .. } => value.abs(),
+            Binary64Outcome::Underflow { .. } => 0.0,
+            Binary64Outcome::Overflow { .. } => f64::MAX,
+        };
+        while !self.reaches(c, &den, num)? {
+            if c == f64::MAX {
+                return Ok(f64::INFINITY);
+            }
+            c = next_up(c);
+        }
+        while c > 0.0 && self.reaches(next_down(c), &den, num)? {
+            c = next_down(c);
+        }
+        self.checked(Ok(c))
+    }
+
+    fn row_bound(&mut self, value: f64, scale: f64) -> Result<f64, AttemptStop> {
+        finite_nonnegative(scale).map_err(|e| certificate_error(None, e))?;
+        if !value.is_finite() {
+            return Err(certificate_error(None, CertificateIssue::NonFinite));
+        }
+        let b = absolute_bound(scale);
+        if scale == 0.0 || scale >= f64::from_bits(0x0230_0000_0000_0000) {
+            return self.checked(Ok(b));
+        }
+        let q = value.abs();
+        let two53 = 9_007_199_254_740_992.0;
+        let nearest = q / two53;
+        let rounding = if nearest * two53 < q {
+            next_up(nearest)
+        } else {
+            nearest
+        };
+        let mut num = ExactWideSum::new();
+        let formed = (|| {
+            num.add_binary64(b, false)?;
+            num.add_binary64(rounding, false)?;
+            num.add_binary64(f64::from_bits(1), false)?;
+            Ok(())
+        })();
+        self.collect(&num, formed)?;
+        self.round_up(&num)
+    }
+}
+
+fn required_error<const L: usize>(
+    rows: &[Option<Wide<L>>],
+    index: usize,
+) -> Result<&Wide<L>, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let value = rows
+        .get(index)
+        .and_then(Option::as_ref)
+        .ok_or_else(|| certificate_error(Some(index), CertificateIssue::MissingField))?;
+    if value.is_sign_negative() {
+        return Err(certificate_error(
+            Some(index),
+            CertificateIssue::NegativeField,
+        ));
+    }
+    Ok(value)
+}
+
+/// Full R7 verification-error theorem, never its disputed scale-transfer corollary.
+fn publication_h<const L: usize>(
+    index: usize,
+    meta: &QuantityMeta,
+    x: f64,
+    v: &Wide<L>,
+    report: &VerificationReport<L>,
+    meter: &mut CertificateMeter,
+) -> Result<ExactWideSum, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let p = i64::from(report.precision);
+    let mut h = ExactWideSum::new();
+    let formed = (|| {
+        h.add_binary64(x, false)?;
+        h.add_wide(v, true)?;
+        h.make_absolute();
+        match meta.kind {
+            Kind::Force | Kind::Moment => {
+                h.add_wide_scaled(required_error(&report.e_rows, index)?, false, 69, -p)?;
+                let w = required_error(&report.w, index)?;
+                h.add_wide(w, false)?;
+                h.add_wide_scaled(w, false, 1, -p)?;
+                h.add_wide(required_error(&report.charge, index)?, false)?;
+            }
+            Kind::Translation | Kind::Rotation => {
+                h.add_wide(required_error(&report.w_plus, index)?, false)?;
+                if matches!(meta.id, QuantityId::DisplacementMagnitude(_)) {
+                    h.add_wide_scaled(&v.abs(), false, 1, 1 - p)?;
+                }
+            }
+        }
+        Ok(())
+    })();
+    meter.collect(&h, formed)?;
+    Ok(h)
+}
+
+/// The protected binary64 allowance, with both branches rounded separately.
+fn sharper_binary64(x: f64, scale: f64) -> Result<f64, CertificateIssue> {
+    finite_nonnegative(scale)?;
+    if !x.is_finite() {
+        return Err(CertificateIssue::NonFinite);
+    }
+    let a0 = f64::from_bits(0x3bf0_0000_0000_0000) * x.abs().max(scale);
+    let a1 = a0 * f64::from_bits(0x3ff0_0000_8000_0000);
+    let u0 = f64::from_bits(0x3ca0_0000_0000_0000) * x.abs();
+    let u1 = u0 + f64::from_bits(1);
+    let a2 = a1 + u1;
+    for value in [a0, a1, u0, u1, a2] {
+        finite_nonnegative(value)?;
+    }
+    Ok(a2)
+}
+
+fn publication_predicate(
+    h: &ExactWideSum,
+    row: &PublishedRow,
+    scale: f64,
+    meter: &mut CertificateMeter,
+) -> Result<Option<PublicationPredicate>, AttemptStop> {
+    let x = row
+        .value
+        .value()
+        .ok_or_else(|| certificate_error(None, CertificateIssue::RadiusClassMismatch))?;
+    if !x.is_finite() {
+        return Err(certificate_error(None, CertificateIssue::NonFinite));
+    }
+    if x.to_bits() == 1u64 << 63 {
+        return Err(certificate_error(None, CertificateIssue::NonCanonicalZero));
+    }
+    finite_nonnegative(scale).map_err(|e| certificate_error(None, e))?;
+    let mut compare =
+        |predicate, build: &mut dyn FnMut(&mut ExactWideSum) -> Result<(), AttemptStop>| {
+            let mut difference = ExactWideSum::new();
+            let result = (|| {
+                build(&mut difference)?;
+                Ok(difference.signum() >= 0)
+            })();
+            let passed = meter.collect(&difference, result)?;
+            Ok::<_, AttemptStop>((!passed).then_some(predicate))
+        };
+    match row.class {
+        RowClass::AbsoluteVerified { bound_bits } => {
+            let b = f64::from_bits(bound_bits);
+            finite_nonnegative(b).map_err(|e| certificate_error(None, e))?;
+            compare(PublicationPredicate::AbsoluteBound, &mut |s| {
+                s.add_binary64(b, false)?;
+                s.add_scaled(h, true, 1, 0)?;
+                Ok(())
+            })
+        }
+        RowClass::RelativeVerified => {
+            // Validate the entire finite allowance before its use, even if the
+            // earlier public predicate would reject this row.
+            let a64 = sharper_binary64(x, scale).map_err(|e| certificate_error(None, e))?;
+            if let Some(failed) = compare(PublicationPredicate::PublicRelative, &mut |s| {
+                s.add_binary64(x.abs(), false)?;
+                s.add_scaled(h, true, 1_000_000_000, 0)?;
+                Ok(())
+            })? {
+                return Ok(Some(failed));
+            }
+            let m = Wide::<4>::from_f64(x.abs().max(scale))?;
+            let abs_x = Wide::<4>::from_f64(x.abs())?;
+            if let Some(failed) = compare(PublicationPredicate::SharperExact, &mut |s| {
+                s.add_wide_scaled(&m, false, 1, -64)?;
+                s.add_wide_scaled(&m, false, 1, -85)?;
+                s.add_wide_scaled(&abs_x, false, 1, -53)?;
+                s.add_binary64(f64::from_bits(1), false)?;
+                s.add_scaled(h, true, 1, 0)?;
+                Ok(())
+            })? {
+                return Ok(Some(failed));
+            }
+            compare(PublicationPredicate::SharperBinary64, &mut |s| {
+                s.add_binary64(a64, false)?;
+                s.add_scaled(h, true, 1, 0)?;
+                Ok(())
+            })
+        }
+        _ => Err(certificate_error(
+            None,
+            CertificateIssue::RadiusClassMismatch,
+        )),
+    }
+}
+
+struct CertifiedPublication {
+    publication: Publication,
+    radii: Box<[u64]>,
+    prep: Arc<CasePrep>,
+    precision: u32,
+}
+
+enum PublicationDecision {
+    Accepted(CertifiedPublication),
+    Rejected {
+        index: usize,
+        predicate: PublicationPredicate,
+    },
+}
+
+struct PublicationSpent {
+    result: Result<PublicationDecision, AttemptStop>,
+    work: AttemptWork,
+    sums: SumWork,
+    total: u64,
+}
+
+fn report_shape<const L: usize>(
+    prep: &CasePrep,
+    candidate_len: usize,
+    verification_len: usize,
+    candidate_p: u32,
+    verification_p: u32,
+    report: &VerificationReport<L>,
+) -> Result<(), AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let q = prep.layout.len();
+    let b = prep.source.body_count() as usize;
+    if verification_p != 2 * candidate_p || report.precision != verification_p {
+        return Err(certificate_error(None, CertificateIssue::Precision));
+    }
+    if candidate_len != q
+        || verification_len != q
+        || prep.extents.len() != b
+        || report.resolution.len() != b
+        || report.bodies.len() != b
+        || [&report.e_rows, &report.w, &report.charge, &report.w_plus]
+            .iter()
+            .any(|rows| rows.len() != q)
+    {
+        return Err(certificate_error(None, CertificateIssue::Shape));
+    }
+    // A transient canonical layout is released before the publication draft.
+    if prep.layout != layout(&prep.source) {
+        return Err(certificate_error(None, CertificateIssue::RowIdentity));
+    }
+    for &extent in &prep.extents {
+        finite_nonnegative(extent).map_err(|e| certificate_error(None, e))?;
+    }
+    for value in report.resolution.iter().flatten() {
+        finite_nonnegative(*value).map_err(|e| certificate_error(None, e))?;
+    }
+    for (index, meta) in prep.layout.iter().enumerate() {
+        if meta.body as usize >= b {
+            return Err(certificate_error(
+                Some(index),
+                CertificateIssue::RowIdentity,
+            ));
+        }
+        if meta.input_derived {
+            let QuantityId::Displacement(dof) = meta.id else {
+                return Err(certificate_error(
+                    Some(index),
+                    CertificateIssue::RowIdentity,
+                ));
+            };
+            if prep
+                .prescribed
+                .binary_search_by_key(&dof.global(), |t| t.0)
+                .is_err()
+            {
+                return Err(certificate_error(
+                    Some(index),
+                    CertificateIssue::MissingField,
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
+fn validate_publication_pair(
+    prep: &Arc<CasePrep>,
+    candidate: &PrecisionState,
+    verification: &PrecisionState,
+    bound: &BoundVerification,
+) -> Result<(), AttemptStop> {
+    if !Arc::ptr_eq(prep, &bound.prep) || !verification.same_state(&bound.state) {
+        return Err(certificate_error(None, CertificateIssue::PairIdentity));
+    }
+    match (candidate, verification, &bound.report) {
+        (PrecisionState::P128(a), PrecisionState::P256(b), VerificationState::V256(r))
+            if a.p == 128 && b.p == 256 =>
+        {
+            report_shape(
+                prep,
+                a.recovered.values.len(),
+                b.recovered.values.len(),
+                a.p,
+                b.p,
+                r,
+            )
+        }
+        (PrecisionState::P256(a), PrecisionState::P512(b), VerificationState::V512(r))
+            if a.p == 256 && b.p == 512 =>
+        {
+            report_shape(
+                prep,
+                a.recovered.values.len(),
+                b.recovered.values.len(),
+                a.p,
+                b.p,
+                r,
+            )
+        }
+        (PrecisionState::P512(a), PrecisionState::P1024(b), VerificationState::V1024(r))
+            if a.p == 512 && b.p == 1024 =>
+        {
+            report_shape(
+                prep,
+                a.recovered.values.len(),
+                b.recovered.values.len(),
+                a.p,
+                b.p,
+                r,
+            )
+        }
+        _ => Err(certificate_error(None, CertificateIssue::Precision)),
+    }
+}
+
+fn certify_rows<const L: usize>(
+    prep: &Arc<CasePrep>,
+    precision: u32,
+    publication: Publication,
+    verification: &[Wide<L>],
+    report: &VerificationReport<L>,
+    meter: &mut CertificateMeter,
+) -> Result<PublicationDecision, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let q = prep.layout.len();
+    if publication.rows.len() != q || verification.len() != q {
+        return Err(certificate_error(None, CertificateIssue::Shape));
+    }
+    let mut radii = vec![ABSENT_RADIUS_BITS; q].into_boxed_slice();
+    for (index, ((row, meta), v)) in publication
+        .rows
+        .iter()
+        .zip(&prep.layout)
+        .zip(verification)
+        .enumerate()
+    {
+        if (row.id, row.body, row.kind) != (meta.id, meta.body, meta.kind) {
+            return Err(certificate_error(
+                Some(index),
+                CertificateIssue::RowIdentity,
+            ));
+        }
+        if meta.input_derived {
+            if row.class != RowClass::InputDerived {
+                return Err(certificate_error(
+                    Some(index),
+                    CertificateIssue::RadiusClassMismatch,
+                ));
+            }
+            continue;
+        }
+        let Some(x) = row.value.value() else {
+            if row.class != RowClass::Unpublishable {
+                return Err(certificate_error(
+                    Some(index),
+                    CertificateIssue::RadiusClassMismatch,
+                ));
+            }
+            continue;
+        };
+        if !x.is_finite() {
+            return Err(certificate_error(Some(index), CertificateIssue::NonFinite));
+        }
+        if x.to_bits() == 1u64 << 63 {
+            return Err(certificate_error(
+                Some(index),
+                CertificateIssue::NonCanonicalZero,
+            ));
+        }
+        let scale = publication
+            .body_scales
+            .get(meta.body as usize * 4 + meta.kind.index())
+            .filter(|&&(body, kind, _)| body == meta.body && kind == meta.kind)
+            .map(|&(_, _, bits)| f64::from_bits(bits))
+            .ok_or_else(|| certificate_error(Some(index), CertificateIssue::Shape))?;
+        let h = publication_h(index, meta, x, v, report, meter)?;
+        if let Some(predicate) = publication_predicate(&h, row, scale, meter)? {
+            return Ok(PublicationDecision::Rejected { index, predicate });
+        }
+        let radius = meter.round_up(&h)?;
+        finite_nonnegative(radius).map_err(|e| certificate_error(Some(index), e))?;
+        let ceiling = match row.class {
+            RowClass::AbsoluteVerified { bound_bits } => f64::from_bits(bound_bits),
+            RowClass::RelativeVerified => {
+                sharper_binary64(x, scale).map_err(|e| certificate_error(Some(index), e))?
+            }
+            _ => {
+                return Err(certificate_error(
+                    Some(index),
+                    CertificateIssue::RadiusClassMismatch,
+                ))
+            }
+        };
+        if radius > ceiling {
+            return Err(certificate_error(
+                Some(index),
+                CertificateIssue::RadiusClassMismatch,
+            ));
+        }
+        radii[index] = radius.to_bits();
+    }
+    meter.checked(Ok(PublicationDecision::Accepted(CertifiedPublication {
+        publication,
+        radii,
+        prep: prep.clone(),
+        precision,
+    })))
+}
+
+fn certify_publication(
+    prep: &Arc<CasePrep>,
+    candidate: &PrecisionState,
+    verification: &PrecisionState,
+    report: &BoundVerification,
+    floor: Option<&[[f64; 2]]>,
+    guard: StageGuard,
+) -> PublicationSpent {
+    let mut meter = CertificateMeter::new(guard);
+    let result = (|| {
+        validate_publication_pair(prep, candidate, verification, report)?;
+        if (candidate.precision() == 512) != floor.is_some()
+            || floor.is_some_and(|f| f.len() != prep.extents.len())
+        {
+            return Err(certificate_error(None, CertificateIssue::Shape));
+        }
+        for value in floor.into_iter().flatten().flatten() {
+            finite_nonnegative(*value).map_err(|e| certificate_error(None, e))?;
+        }
+        let mut values = candidate.published();
+        // ExactAccumulator is the inherited, explicitly unmetered legacy
+        // boundary. This happens once for each candidate reaching the new gate,
+        // including rejected candidates; finalization does not repeat it.
+        prep.publish_prescribed(&mut values);
+        let publication =
+            publication_with(&prep.layout, &values, &prep.extents, floor, |x, scale| {
+                finite_nonnegative(scale).map_err(|e| certificate_error(None, e))?;
+                if relative_class(x, scale) {
+                    Ok(RowClass::RelativeVerified)
+                } else {
+                    Ok(RowClass::AbsoluteVerified {
+                        bound_bits: meter.row_bound(x, scale)?.to_bits(),
+                    })
+                }
+            })?;
+        for &(_, _, bits) in &publication.body_scales {
+            finite_nonnegative(f64::from_bits(bits)).map_err(|e| certificate_error(None, e))?;
+        }
+        drop(values);
+        match (verification, &report.report) {
+            (PrecisionState::P256(v), VerificationState::V256(r)) => certify_rows(
+                prep,
+                candidate.precision(),
+                publication,
+                &v.recovered.values,
+                r,
+                &mut meter,
+            ),
+            (PrecisionState::P512(v), VerificationState::V512(r)) => certify_rows(
+                prep,
+                candidate.precision(),
+                publication,
+                &v.recovered.values,
+                r,
+                &mut meter,
+            ),
+            (PrecisionState::P1024(v), VerificationState::V1024(r)) => certify_rows(
+                prep,
+                candidate.precision(),
+                publication,
+                &v.recovered.values,
+                r,
+                &mut meter,
+            ),
+            _ => Err(certificate_error(None, CertificateIssue::Precision)),
+        }
+    })();
+    let mut work = AttemptWork::default();
+    work.record(&meter.ctx);
+    PublicationSpent {
+        total: meter.total(),
+        sums: meter.sums,
+        work,
+        result,
+    }
 }
 
 /// The evidence F2a's receipt needs (D1 §5 item 1), as kernel types.
@@ -2708,6 +3430,9 @@ pub struct RetainedSolve {
     selected: u32,
     evidence: RetainedEvidence,
     publication: Publication,
+    /// Private RU64(H), in the row kind's SI unit, parallel to publication.
+    /// +infinity is a tagged absence only for InputDerived/Unpublishable.
+    publication_radius_bits: Box<[u64]>,
 }
 
 impl RetainedSolve {
@@ -2728,6 +3453,102 @@ impl RetainedSolve {
     pub(crate) fn state(&self, precision: u32) -> Option<&PrecisionState> {
         self.states.iter().find(|s| s.precision() == precision)
     }
+
+    /// Private producer integration only; no report borrow or public radius API.
+    /// Kind names its SI coordinate (m, rad, N, N·m). Absence is never zero.
+    #[allow(dead_code)] // future bounded F2a integration; tested here
+    fn publication_radius(
+        &self,
+        index: usize,
+        expected: QuantityMeta,
+        source_identity: &[u8],
+        precision: u32,
+    ) -> Result<Option<SiRadius>, CertificateIssue> {
+        if precision != self.selected
+            || self.evidence.selected_precision != precision
+            || self.evidence.policy != POLICY
+        {
+            return Err(CertificateIssue::Precision);
+        }
+        if self.prep.identity != source_identity || self.evidence.source_encoding != source_identity
+        {
+            return Err(CertificateIssue::PairIdentity);
+        }
+        if self.publication_radius_bits.len() != self.publication.rows.len()
+            || self.publication.rows.len() != self.prep.layout.len()
+        {
+            return Err(CertificateIssue::Shape);
+        }
+        let row = self
+            .publication
+            .rows
+            .get(index)
+            .ok_or(CertificateIssue::Shape)?;
+        let meta = self.prep.layout.get(index).ok_or(CertificateIssue::Shape)?;
+        if *meta != expected || (row.id, row.body, row.kind) != (meta.id, meta.body, meta.kind) {
+            return Err(CertificateIssue::RowIdentity);
+        }
+        if meta.input_derived != matches!(row.class, RowClass::InputDerived)
+            || (!meta.input_derived
+                && (row.value.value().is_none() != matches!(row.class, RowClass::Unpublishable)))
+        {
+            return Err(CertificateIssue::RadiusClassMismatch);
+        }
+        let bits = self.publication_radius_bits[index];
+        match row.class {
+            RowClass::InputDerived | RowClass::Unpublishable => {
+                if bits == ABSENT_RADIUS_BITS {
+                    Ok(None)
+                } else {
+                    Err(CertificateIssue::RadiusClassMismatch)
+                }
+            }
+            RowClass::AbsoluteVerified { .. } | RowClass::RelativeVerified => {
+                if bits == ABSENT_RADIUS_BITS {
+                    return Err(CertificateIssue::RadiusClassMismatch);
+                }
+                finite_nonnegative(f64::from_bits(bits))?;
+                let ceiling = match row.class {
+                    RowClass::AbsoluteVerified { bound_bits } => f64::from_bits(bound_bits),
+                    RowClass::RelativeVerified => {
+                        let &(body, kind, scale_bits) = self
+                            .publication
+                            .body_scales
+                            .get(row.body as usize * 4 + row.kind.index())
+                            .ok_or(CertificateIssue::Shape)?;
+                        if (body, kind) != (row.body, row.kind) {
+                            return Err(CertificateIssue::RowIdentity);
+                        }
+                        sharper_binary64(
+                            row.value
+                                .value()
+                                .ok_or(CertificateIssue::RadiusClassMismatch)?,
+                            f64::from_bits(scale_bits),
+                        )?
+                    }
+                    _ => unreachable!("eligible class matched above"),
+                };
+                finite_nonnegative(ceiling)?;
+                if f64::from_bits(bits) > ceiling {
+                    return Err(CertificateIssue::RadiusClassMismatch);
+                }
+                Ok(Some(SiRadius {
+                    id: row.id,
+                    body: row.body,
+                    kind: row.kind,
+                    bits,
+                }))
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct SiRadius {
+    id: QuantityId,
+    body: u32,
+    kind: Kind,
+    bits: u64,
 }
 
 /// A case's outcome.
@@ -3022,7 +3843,7 @@ fn verify_precision(
     budget: &mut CaseBudget,
     meter: &mut InvocationMeter,
     record: &mut AttemptRecord,
-) -> Result<VerificationState, AttemptStop> {
+) -> Result<BoundVerification, AttemptStop> {
     let case_room = budget.limit.saturating_sub(budget.used);
     let invocation_room = meter.room();
     let guard = StageGuard {
@@ -3068,9 +3889,13 @@ fn verify_precision(
             record.bound_refusals.extend(spent.refusals.iter().copied());
             budget.used = budget.used.saturating_add(spent.total);
             meter.charge(spent.total);
-            let state = VerificationState::$variant(Arc::new(spent.result?));
-            record.verification = Some(state.summary()?);
-            Ok(state)
+            let report_state = VerificationState::$variant(Arc::new(spent.result?));
+            record.verification = Some(report_state.summary()?);
+            Ok(BoundVerification {
+                prep: prep.clone(),
+                state: (*state).clone(),
+                report: report_state,
+            })
         }};
     }
     match state {
@@ -3094,6 +3919,12 @@ fn terminal(stop: &AttemptStop) -> Result<UnresolvedReason, Refusal> {
             Ok(UnresolvedReason::ResolutionScaleUnencodable {
                 body: *body,
                 kind: *kind,
+            })
+        }
+        AttemptStop::PublicationCertificate { index, issue } => {
+            Ok(UnresolvedReason::PublicationCertificate {
+                index: *index,
+                issue: *issue,
             })
         }
         AttemptStop::NegativeEnergy { i, j } => Err(Refusal::NegativeEnergy { i: *i, j: *j }),
@@ -3193,12 +4024,17 @@ pub(crate) fn run_schedule(
             case_room: budget.limit.saturating_sub(budget.used),
             invocation_room: meter.room(),
         };
+        if let Err(stop) = validate_publication_pair(&prep, &candidate, &verification, &report) {
+            attempts[candidate_index].outcome =
+                AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));
+            return finish_terminal(&stop, attempts, geometry);
+        }
         let decision = compare_states(
             &prep.layout,
             &prep.extents,
             &candidate,
             &verification,
-            &report,
+            &report.report,
             guard,
         );
         // V-K seeded fault VK-F06 (§7.3-6): the candidate accepted whatever the
@@ -3230,20 +4066,73 @@ pub(crate) fn run_schedule(
                 return finish_terminal(&stop, attempts, geometry);
             }
             Ok(true) => {
-                attempts[candidate_index].outcome = AttemptOutcome::Accepted;
-                attempts[v_index].outcome = AttemptOutcome::Verified;
-                return finish_selected(
-                    prep,
-                    group,
-                    cache.clone(),
-                    states,
+                let publication_guard = StageGuard {
+                    base: 0,
+                    case_room: budget.limit.saturating_sub(budget.used),
+                    invocation_room: meter.room(),
+                };
+                let certificate = certify_publication(
+                    &prep,
                     &candidate,
-                    verification_p,
-                    attempts,
-                    &decision,
+                    &verification,
                     &report,
-                    geometry,
+                    decision.floor.as_deref(),
+                    publication_guard,
                 );
+                let record = &mut attempts[candidate_index];
+                record.stop_rule_work = record.stop_rule_work.saturating_add(certificate.total);
+                record.stages.stop_rule = record.stages.stop_rule.saturating_add(certificate.total);
+                record.work.merge(&certificate.work);
+                record.k4_work.merge(&certificate.sums);
+                budget.used = budget.used.saturating_add(certificate.total);
+                meter.charge(certificate.total);
+                match certificate.result {
+                    Err(stop) => {
+                        attempts[candidate_index].outcome =
+                            AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));
+                        return finish_terminal(&stop, attempts, geometry);
+                    }
+                    Ok(PublicationDecision::Accepted(publication)) => {
+                        attempts[candidate_index].outcome = AttemptOutcome::Accepted;
+                        attempts[v_index].outcome = AttemptOutcome::Verified;
+                        return finish_selected(
+                            prep,
+                            group,
+                            cache.clone(),
+                            states,
+                            &candidate,
+                            verification_p,
+                            attempts,
+                            &decision,
+                            &report.report,
+                            publication,
+                            geometry,
+                        );
+                    }
+                    Ok(PublicationDecision::Rejected { index, predicate }) => {
+                        let row = prep.layout[index];
+                        attempts[candidate_index].outcome =
+                            AttemptOutcome::Rejected(AttemptReason::PublicationEnclosure {
+                                quantity: row.id,
+                                body: row.body,
+                                kind: row.kind,
+                                predicate,
+                            });
+                        #[cfg(any(test, feature = "mutation-controls"))]
+                        if super::seeded::active(super::seeded::Fault::F05) {
+                            return CaseOutcome::Unresolved {
+                                reason: UnresolvedReason::Ceiling,
+                                attempts,
+                                geometry,
+                            };
+                        }
+                        if c + 1 < 3 {
+                            attempts[v_index].role = AttemptRole::VerificationThenCandidate;
+                            pending = Some((verification, v_index));
+                        }
+                        c += 1;
+                    }
+                }
             }
             Ok(false) => {
                 attempts[candidate_index].outcome = AttemptOutcome::Rejected(rejection_reason(
@@ -3299,20 +4188,25 @@ fn finish_selected(
     states: Vec<PrecisionState>,
     selected: &PrecisionState,
     verification_precision: u32,
-    attempts: Vec<AttemptRecord>,
+    mut attempts: Vec<AttemptRecord>,
     decision: &StopDecision,
     report: &VerificationState,
+    certified: CertifiedPublication,
     geometry: Vec<BodyGeometry>,
 ) -> CaseOutcome {
-    let mut values = selected.published();
-    prep.publish_prescribed(&mut values);
-    // Item 6a: Φ at a selected 512, the stop rule's bits.
-    let publication = classify_rows_floored(
-        &prep.layout,
-        &values,
-        &prep.extents,
-        decision.floor.as_deref(),
-    );
+    if !Arc::ptr_eq(&prep, &certified.prep) || selected.precision() != certified.precision {
+        let stop = certificate_error(None, CertificateIssue::PairIdentity);
+        if let Some(record) = attempts
+            .iter_mut()
+            .find(|a| a.precision == selected.precision() && a.outcome == AttemptOutcome::Accepted)
+        {
+            record.outcome = AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));
+        }
+        return finish_terminal(&stop, attempts, geometry);
+    }
+    // The certified bytes are moved, never re-rounded/reclassified here.
+    let publication = certified.publication;
+    let publication_radius_bits = certified.radii;
     let verification = match report.summary() {
         Ok(v) => v,
         Err(stop) => return finish_terminal(&stop, attempts, geometry),
@@ -3408,6 +4302,7 @@ fn finish_selected(
         selected: selected.precision(),
         evidence,
         publication,
+        publication_radius_bits,
     }))
 }
 
@@ -3624,3 +4519,7 @@ mod method_tests;
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/scale_tests.rs"]
 mod scale_tests;
+
+#[cfg(test)]
+#[path = "../../../tests/retained_k4/publication_tests.rs"]
+mod publication_tests;

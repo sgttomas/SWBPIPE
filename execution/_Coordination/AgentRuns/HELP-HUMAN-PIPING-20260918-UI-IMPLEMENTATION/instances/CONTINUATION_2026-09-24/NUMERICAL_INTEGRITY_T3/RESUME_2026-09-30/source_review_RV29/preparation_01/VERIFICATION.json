@@ -1,0 +1,11 @@
+{
+  "ledger_rerun_exit": 0,
+  "ledger_rerun_identical": true,
+  "stdout_identical": true,
+  "stderr_empty": true,
+  "python": "3.13.14",
+  "source_seals_verified": 5,
+  "original_primitive_files_equal_to_audit_pin": 4,
+  "new_candidate_reviewed": false,
+  "rust_solver_mutants_run": false
+}

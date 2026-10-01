@@ -1,0 +1,21 @@
+{
+  "claim": "The native tool transcript retains initial exploration; this is a portable command inventory, not fabricated complete raw capture of those early commands.",
+  "read_only_queries": [
+    "git show 74b2f8f9704fec67cce2608d48ae9c1d60c96170:<Root/TASK/Piping/COMMON/RV29/PLAN>",
+    "git show d01ad98a754698631f927709d08284c272de85e8:<four primitive paths in BASIS.json>",
+    "git show 3bddc2b05f:<same four primitive paths>",
+    "git rev-parse --show-toplevel",
+    "git rev-parse HEAD",
+    "rg --files <A1_WT>/<R>",
+    "sed/rg bounded reads of original primitive scratch and selected design/review records"
+  ],
+  "first_command_deviation": "Initial orientation pwd && git status --short && rg --files ... lacked GIT_OPTIONAL_LOCKS=0; no explicit mutating Git command. Possible status index metadata refresh cannot be ruled out retrospectively.",
+  "failed_queries": [
+    "git rev-parse d01ad98 3bdd: short 3bdd ambiguous (128); resolved to known 3bddc2b05f6106e969c7cf43373b230845c7cc66",
+    "design_review_RV28/backcheck_addendum_01/REVIEW.md missing; read actual BACKCHECK.md"
+  ],
+  "ledger_first_run": "<VENV>/bin/python -B <WT>/scratch/rv29-a1/ledger_checks.py <A1_WT>/<R>/source_review_RV29/preparation_01 > <WT>/scratch/rv29-a1/ledger.stdout.json 2> <WT>/scratch/rv29-a1/ledger.stderr.txt",
+  "ledger_rerun": "<VENV>/bin/python -B <A1_WT>/<R>/source_review_RV29/preparation_01/ledger_checks.py <WT>/scratch/rv29-a1/rerun",
+  "read_environment": "All Git queries after initial orientation used GIT_OPTIONAL_LOCKS=0; VENV Python -B; standard-library only.",
+  "writes": "Only RV29 canonical preparation_01 subtree and <WT>/scratch/rv29-a1 were intentionally written."
+}
