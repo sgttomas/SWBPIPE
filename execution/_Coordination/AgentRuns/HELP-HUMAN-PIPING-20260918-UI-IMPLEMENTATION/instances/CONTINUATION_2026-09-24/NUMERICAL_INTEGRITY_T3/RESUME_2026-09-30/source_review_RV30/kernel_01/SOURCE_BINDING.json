@@ -1,0 +1,107 @@
+{
+  "source": [
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "bytes": 160870
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "bytes": 24432
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+      "bytes": 29280
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "bytes": 29088
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+      "bytes": 46099
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+      "bytes": 47344
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+      "bytes": 17973
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+      "bytes": 8977
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+      "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1",
+      "bytes": 6203
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "sha256": "3e5b9be185428f1652775f60cbb98b9d30e08bff4ce2a9b2bb83ccf662d30a1b",
+      "bytes": 51441
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6",
+      "bytes": 75482
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+      "sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67",
+      "bytes": 10875
+    },
+    {
+      "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d",
+      "bytes": 117294
+    }
+  ],
+  "seals": [
+    {
+      "packet": "source_02",
+      "seal": "1d75c56c26e0167b36d161e887fd8a709c6ef408523c43c7d4c5df2d86b63c92",
+      "mismatches": []
+    },
+    {
+      "packet": "source_03",
+      "seal": "01dc0ff6ff1bab8ca6a3f74f236e6381bbb347db4902dd7a808fb95b8b694d46",
+      "mismatches": []
+    },
+    {
+      "packet": "layout_04",
+      "seal": "c2e198a9b71fb573e356dadb0b646b99487f23bcd8b69e82b5af2a3d74ea0103",
+      "mismatches": []
+    },
+    {
+      "packet": "source_05",
+      "seal": "948978b8eaad1feacfb0fa1165d8418f0fa78cb52d308796bde7e6b4723cdf7a",
+      "mismatches": []
+    }
+  ],
+  "retained_diff": "",
+  "read_mode": "Immutable git show with GIT_OPTIONAL_LOCKS=0; source copies only in owned scratch",
+  "initial_failed_read": "retained/sparse.rs nonexistent; corrected to structural/sparse.rs; no product write"
+}

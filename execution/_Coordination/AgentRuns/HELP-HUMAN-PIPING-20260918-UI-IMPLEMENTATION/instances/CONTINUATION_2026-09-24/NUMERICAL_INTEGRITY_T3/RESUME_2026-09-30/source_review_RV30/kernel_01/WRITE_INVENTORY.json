@@ -1,0 +1,42 @@
+{
+  "write_root": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/kernel_01",
+  "scratch": "<WT>/scratch/rv30-k6c-kernel_01",
+  "files": [
+    {
+      "path": "INPUT_BINDING.json",
+      "sha256": "27383f681a526f5de0f51028d21014afd49251df20a29b2c63db501379a97999",
+      "bytes": 5600
+    },
+    {
+      "path": "INSTRUCTION_BINDING.json",
+      "sha256": "73add1e67bb2631831aec3d3afbc0ee4e33eed8af8e223086096deb4c08801ea",
+      "bytes": 3120
+    },
+    {
+      "path": "RAW_VERIFICATION.json",
+      "sha256": "4c825d5f00b25522769c2b81578cb33ef0a778bca7f238dbef39858976264962",
+      "bytes": 53591
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "f7405fc511307b1f6066524c0822002d21a7d960c7d69e7bedb29dd423f3dfbc",
+      "bytes": 15628
+    },
+    {
+      "path": "SOURCE_BINDING.json",
+      "sha256": "243dcafda57d5b0520ba8194c636cfdd0de4b49a0fe424b57d0689a37b089273",
+      "bytes": 4435
+    },
+    {
+      "path": "SOURCE_EXCERPTS.json",
+      "sha256": "782883119b130e89f83877addeb26bd84267808b7d27f2a5e233b6e481776356",
+      "bytes": 20099
+    },
+    {
+      "path": "VERIFICATION.json",
+      "sha256": "c2c2a71685830dfd7b28dc781346bf8f6098b4bc339c6542437888a2ca4475c0",
+      "bytes": 1115
+    }
+  ],
+  "inventory_note": "SHA256SUMS includes this inventory and all packet files except itself. Owned scratch contains immutable source/instruction copies, no tooling or builds."
+}
