@@ -4471,3 +4471,34 @@ scope and release checker. The unchanged full runner, normal control, all
 registered IDs and UNKNOWN are required; any timeout or bad result stops the
 owned process group. No new tool, source change or scale run is granted.
 The owner historical-publication comparison question remains pending.
+
+
+## Row139 qualified; semantic wording confirmed (ROOT, 2026-10-02 UTC)
+
+ROOT read RV36 input_qualification_03 in full and verified its12 payloads
+under sealcf88a684bf31e1b48484f87d320a26006462dc9beeeb282a339bb06941e1276f.
+Accept I26's finite row139 input/count/context correspondence only. RV36's
+Independent result table establishes the complete consumed-field/invariant and
+actual-context checks; its Actual execution scope distinguishes the successful
+short process from an RSS-watchdog intervention witness. No normal solve,
+admission, rho, performance or full E_max acceptance follows. Other seeds and
+all staged measurements remain outstanding.
+
+ROOT also read RV37 vk_semantics_02 and verified its4 payloads under
+seal9cda91957521bb68f8aee48401a48084cbaa144e9c512fa07171c7c46adc554c.
+The same reviewer confirms the additive RF-WEAK correction resolves RV37-N1.
+Original sealed author evidence remains intact; no numerical rerun is needed.
+
+I26's later read-only preparation identifies fourteen remaining first-pass
+small-tier model acquisitions under the existing sealed launch manifest. It
+also identifies inherited H run_tier limits: full catalogue schedule enumeration
+occurs before tier filtering, the tier baseline is not rejected on classification,
+and the binding helper itself checks a positive estimate rather than complete
+seed correspondence. ROOT read these source paths and their base diff. Fresh
+RV38 confirms the catalogue/no-op behavior is inherited; the repaired eligibility
+contract concerns model-specific subprocesses. Complete seed correspondence
+remains an external qualification prerequisite, not a commissioned new tool.
+No automatic T1 grant or runner repair follows from this preparation. A later
+grant must explicitly account catalogue preparation, successful same-artifact
+baseline, full small-seed qualification and truthful stop/measurement boundaries.
+I27's independent mechanical work and RV38's composite source review continue.
