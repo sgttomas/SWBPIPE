@@ -111,6 +111,19 @@ reviews/code work. K6c's conditional composition is verified; its shared checked
 kernel module is in bounded implementation, with caller integration, actual-code
 review, artifact qualification, admission and measurements still open.
 
+**A1 merged (ROOT, 2026-10-02 UTC):** [PR1070](https://github.com/sgttomas/chirality/pull/1070)
+merged at3a0251874d6ab38008173a22ef09d651a0f20d9e after independent source/records
+and external-gate confirmations, full-SHA hosted CI, clean exact-head GEN-8 and the
+standing Mac DEC-025 comparison. AUD-T3-01 is closed on the corrected retained
+publication route under M03-INTEGRITY-MP-v2. This lifts that audit-specific bound
+hold; F2a still waits for K6c/ROOT W1 limits and its own adoption/qualification.
+Merge record: T3/IMPLEMENTATION/A1_MERGE/RECORD.md. K6c's shared kernel is
+independently reviewed; H and VR caller integrations have returned with author
+checks and now need ROOT/independent review, required mutants, final artifact
+qualification, admission replay and measurements. Then W1 limits, F2a/S-I/F2b/F3
+and the existing owner/T3-close decisions continue. No broader T3 completion or
+product release is claimed.
+
 ## Predecessor and recovery
 
 The immutable predecessor is [WORK_GRAPH.json at 44a30112](https://github.com/sgttomas/chirality/blob/44a30112a2d4af21768a9eef822ad1974a3869ec/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json), branch `codex/swbpipe-continuation-20260919`. Its directory and historical graph files remain preserved. Its old pauses, worker assignments, provisional mappings and intermediate statuses are historical.

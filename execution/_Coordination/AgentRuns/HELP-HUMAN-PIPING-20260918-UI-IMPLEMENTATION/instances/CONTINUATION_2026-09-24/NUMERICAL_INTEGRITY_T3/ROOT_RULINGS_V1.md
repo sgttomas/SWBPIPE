@@ -4148,3 +4148,26 @@ placement correction. I21 H and I24 VR implementation grants own disjoint caller
 fences, with the narrowly notified raw-H helper extraction separately requiring
 RV33 backcheck. Complete adapters, protected tests/mutants, final ordinary-source/
 request/type/input/launch qualification, admission replay and measurements remain.
+
+
+## A1 merged; AUD-T3-01 publication correction closed (ROOT, 2026-10-02 UTC)
+
+A1 merged as PR1070 at3a0251874d6ab38008173a22ef09d651a0f20d9e from the exact
+reviewed/gated headcb13dcd9fcc8c252fa9610b1c6fef0c5b2c3c20c. ROOT fetched and
+verified unchanged main546e05a159a58f5ceffe1d315373bc2f31982ea8 immediately before
+--merge --match-head-commit. The merge's parents match both bindings.
+IMPLEMENTATION/A1_MERGE/RECORD.md carries the same-pass merge record and links
+RV31's source/records and external-gate confirmations plus preserved gate evidence.
+
+Close AUD-T3-01 for the reviewed retained publication route under the independently
+derived, owner-selected M03-INTEGRITY-MP-v2 replacement. This does not vindicate the
+old A1 proof assumption or edit the audit/counterexample history. The audit-specific
+hold on relying on that corrected published guarantee is discharged on this basis.
+F2a still waits for K6c/ROOT W1 limits and its own contract adoption/qualification;
+no product receipt, native route or engineering release is implied.
+
+K6c H and VR integration candidates have returned with author tests. ROOT full-
+diff verification, independent actual-candidate review/helper backcheck, complete
+mutation obligations, final ordinary-artifact/input/launch qualification,
+chronological admission and required measurements remain before its acceptance.
+All other T3 successors and owner decisions stay as recorded in the work graph.
