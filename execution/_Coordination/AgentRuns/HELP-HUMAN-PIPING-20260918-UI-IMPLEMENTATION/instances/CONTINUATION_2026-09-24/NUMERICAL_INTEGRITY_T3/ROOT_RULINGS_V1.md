@@ -4117,3 +4117,34 @@ candidate confirmation, full-SHA hosted dispatch/CI, clean exact-head GEN-8 and
 Mac DEC-025 comparison before merge. The source-reach check remains H/validation
 only unless the final diff establishes otherwise. AUD-T3-01 and F2a reliance stay
 held until actual closure; K6c implementation/qualification is a separate path.
+
+
+## K6c shared implementation and caller contract (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV33 kernel_01 RETURN/REVIEW and verified its25 payloads
+under sealf50f48bfdaa4874a556b7660285ed0328bba57ee0f7bf099892ad2bdf4e7d919
+(run from packet root; manifest is under _run_records). Accept bounded kernel
+fan-in for exact4a6cb3402f95d98c6f46f702055fe4b0c5245c56 under its declared
+reference premises. The review's Independent compiled checks reports the actual
+clean-archive tests and full reference comparisons. This does not cover later
+H helper/adapter edits, current-artifact qualification or a complete admission
+estimate. Those changes need their own exact-candidate review/backcheck.
+
+ROOT also read and verified RV32 h_context_01 (seal8ca1f20ce41d85c513b2443990780983f8463a3dc24e91e80bcc3fe7a938e89f)
+and selects its reviewed H1/H2/H3 caller contract, as concretely recorded in the
+review and ROOT_CLARIFICATION. Explicit OriginalK6bPair is reference-only; actual
+normal and counts-continuation contexts carry their actual known arguments.
+Runner pre-admission must be rebound before using a numeric estimate or ratio
+denominator. The source-refused variant retains raw-input construction bounds,
+normal staged refusal and positive source-window totals; explicit zero components
+mean unexecuted kernel phases only. Actual repeat digits enter outer-prefix
+formatting. No flags, policy thresholds, stale fallback or unbounded future-path
+allowance is introduced.
+
+The implementation and review packets were relocated intact into their existing
+_run_records evidence roles; old-location pointers and the complete blob/mode
+ledger preserve custody. No source/evidence/checker bytes were changed by that
+placement correction. I21 H and I24 VR implementation grants own disjoint caller
+fences, with the narrowly notified raw-H helper extraction separately requiring
+RV33 backcheck. Complete adapters, protected tests/mutants, final ordinary-source/
+request/type/input/launch qualification, admission replay and measurements remain.
