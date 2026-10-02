@@ -1,6 +1,6 @@
 # T3 current checkpoint
 
-ROOT / HELP_HUMAN execution state, 2026-10-02 05:39 UTC. This is a revisable
+ROOT / HELP_HUMAN execution state, 2026-10-02 UTC. This is a revisable
 recovery index, not a new instruction, accepted numerical result or release.
 The owner resumed after the graceful halt. Continue under the standing bounded
 delegation/Git/host rules and append-only ROOT_RULINGS_V1.md.
@@ -28,9 +28,10 @@ in numerics for missing evidence on the K6c branch.
   REVIEW_RV36/ordinary_artifacts_01, FINAL_SHA256SUMS.
 - V-K semantic coverage: REVIEW_RV37/vk_semantics_01 and02. The RF-WEAK summary
   correction is additive and confirmed; sealed author evidence is unchanged.
-- First small ordinary input/count/context acquisition: I26/input_qualification_04
-  and REVIEW_RV36/input_qualification_03. Only that finite context is qualified;
-  no normal solve, admission, performance or rho result follows.
+- Small-tier ordinary input/count/context acquisition: I26/input_qualification_04
+  and REVIEW_RV36/input_qualification_03, then I26/t1_inputs_05 and ROOT raw-field
+  checks. All fifteen finite T1 contexts are qualified; these counts-only records
+  supply no normal solve, admission, performance or rho result.
 
 ## Current bounded assignments
 
@@ -58,7 +59,7 @@ ROOT ruling. The explicit T1 grant accounts for that inherited catalogue work an
 actual baseline validation, repeated field checks and truthful stops. This index
 itself supplies no authority and grants no source repair or new host tool.
 
-Then acquire fresh W1-T1, T2 and T3 chronology/calibration/prefix evidence before
+Complete fresh W1-T1, T2 and T3 chronology/calibration/prefix evidence before
 ROOT considers T4. Preserve all numeric admission holds and the VR largest-size
 backstop; do not force a deferred run. Required W1-T4, complete K6c return and
 independent final review, full-SHA hosted CI, exact-final-head Mac DEC-025 and
