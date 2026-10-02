@@ -1,0 +1,13 @@
+{
+  "route": "VK-F17-rf_weak",
+  "complete": true,
+  "control_exits": [
+    0,
+    0
+  ],
+  "fault_exit": 101,
+  "criterion": "Explicit CLASS failure on original not-covered rows only. The 51 rows are46+2+3 in these families; rf_zero has0 and is not the selected class witness. If publication is withheld before CLASS, no class kill.",
+  "accepted_limits": "Owner-adopted F17-only route; P29/P31zero CLASS; protected/unreached rows never falsely credited",
+  "normal_tests_complete": true,
+  "end_utc": "2026-10-02T04:32:58.011523+00:00"
+}

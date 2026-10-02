@@ -1,0 +1,13 @@
+{
+  "route": "VK-F13-rf_cancel",
+  "complete": true,
+  "control_exits": [
+    0,
+    0
+  ],
+  "fault_exit": 101,
+  "criterion": "Named G1e80 RF-CANCEL net-governed numeric predicate failure, not work totals.",
+  "accepted_limits": "58named numerical failures across8G1e80 cases;38cases remain selected",
+  "normal_tests_complete": true,
+  "end_utc": "2026-10-02T04:32:28.872726+00:00"
+}

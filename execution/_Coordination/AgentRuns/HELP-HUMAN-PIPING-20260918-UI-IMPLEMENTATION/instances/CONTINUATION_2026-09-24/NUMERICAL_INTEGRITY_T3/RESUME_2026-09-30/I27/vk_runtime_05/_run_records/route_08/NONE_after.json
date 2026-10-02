@@ -1,0 +1,39 @@
+{
+  "route": "VK-S2-rf_finite",
+  "stage": "NONE_after",
+  "argv": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/debug/deps/lane-c0018e928abe63e4",
+    "--exact",
+    "rf_finite",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-runtime-04/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "environment": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "NONE"
+  },
+  "unset_environment": [
+    "RUSTFLAGS",
+    "CARGO_ENCODED_RUSTFLAGS",
+    "RUSTC_WRAPPER",
+    "RUSTC_WORKSPACE_WRAPPER"
+  ],
+  "fresh_process": true,
+  "start_utc": "2026-10-02T04:33:37.791667+00:00",
+  "end_utc": "2026-10-02T04:33:38.965834+00:00",
+  "wall_seconds": 1.1741748750209808,
+  "exit_code": 0,
+  "binary_sha256": "fc2db95dd412d34aa529fe0a36eb7ab3241c08696be8a5fa55fbf75a0a270ae4",
+  "test_source_sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794",
+  "archive_files_verified_before": 632,
+  "fingerprints_verified_before": 24,
+  "stdout_sha256": "057a23c854aeb0255d48e6879f9d5e37449dd7a31926c5988e76a43dbc400dd6",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "semantic_result": "complete original selected test passed"
+}

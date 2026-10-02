@@ -1,0 +1,8 @@
+{
+  "checked_utc": "2026-10-02T04:32:07.460793+00:00",
+  "packet_payloads": 133,
+  "source_files": 299,
+  "artifact_identities": 3,
+  "failures": [],
+  "review_conclusion": "no actionable findings; scoped correspondence sufficient for next explicitly bound run preparation; final input/launch/prepass/admission/measurement remains unqualified"
+}

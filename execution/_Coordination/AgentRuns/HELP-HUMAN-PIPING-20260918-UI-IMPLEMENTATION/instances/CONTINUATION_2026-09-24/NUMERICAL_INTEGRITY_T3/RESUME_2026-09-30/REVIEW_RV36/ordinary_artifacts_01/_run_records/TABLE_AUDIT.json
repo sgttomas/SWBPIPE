@@ -1,0 +1,811 @@
+{
+  "method": "Reviewer-authored explicit transfer table matched to freshly captured native ranges; nominal and branch interpretation separately reviewed. No author checker executed.",
+  "direct_rows": [
+    {
+      "range": "h_geometry_root",
+      "nominal_header": "00000001001543cc <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry>:",
+      "required_nominal_fragment": "VacantEntry<u32, usize>",
+      "nominal_matches": true,
+      "size": 144,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100154444",
+          "context": [
+            "10015443c: 52801200    \tmov\tw0, #0x90               ; =144",
+            "100154440: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100154444: 97fabe8d    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "h_geometry_split",
+      "nominal_header": "0000000100158090 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "u32, usize, alloc::collections::btree::node::marker::Leaf",
+      "nominal_matches": true,
+      "size": 240,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100158330",
+          "context": [
+            "100158328: 52801e00    \tmov\tw0, #0xf0               ; =240",
+            "10015832c: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100158330: 97faaed2    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "100158504",
+          "context": [
+            "1001584fc: 52801e00    \tmov\tw0, #0xf0               ; =240",
+            "100158500: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100158504: 97faae5d    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "h_tracker_root",
+      "nominal_header": "0000000100153440 <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>>:",
+      "required_nominal_fragment": "BoundedExtremeTracker",
+      "nominal_matches": true,
+      "size": 1072,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100153508",
+          "context": [
+            "100153500: 52808600    \tmov\tw0, #0x430              ; =1072",
+            "100153504: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100153508: 97fac25c    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "h_tracker_split",
+      "nominal_header": "0000000100156fa0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "BoundedExtremeTracker",
+      "nominal_matches": true,
+      "size": 1168,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100157504",
+          "context": [
+            "1001574fc: 52809200    \tmov\tw0, #0x490              ; =1168",
+            "100157500: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100157504: 97fab25d    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "100157818",
+          "context": [
+            "100157810: 52809200    \tmov\tw0, #0x490              ; =1168",
+            "100157814: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100157818: 97fab198    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "h_holding_split",
+      "nominal_header": "0000000100157a70 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "SetValZST",
+      "nominal_matches": true,
+      "size": 104,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100157b4c",
+          "context": [
+            "100157b44: 52800d00    \tmov\tw0, #0x68               ; =104",
+            "100157b48: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100157b4c: 97fab0cb    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "h_holding_split",
+      "nominal_header": "0000000100157a70 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "SetValZST",
+      "nominal_matches": true,
+      "size": 200,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100157d30",
+          "context": [
+            "100157d28: 52801900    \tmov\tw0, #0xc8               ; =200",
+            "100157d2c: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100157d30: 97fab052    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "100157ed8",
+          "context": [
+            "100157ed0: 52801900    \tmov\tw0, #0xc8               ; =200",
+            "100157ed4: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100157ed8: 97faafe8    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "h_mutex",
+      "nominal_header": "00000001001d5de0 <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>>:",
+      "required_nominal_fragment": "OnceBox<std::sys::pal::unix::sync::mutex::Mutex>",
+      "nominal_matches": true,
+      "size": 64,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "1001d5e28",
+          "context": [
+            "1001d5e20: 52800800    \tmov\tw0, #0x40               ; =64",
+            "1001d5e24: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1001d5e28: 97f8b814    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "h_registry",
+      "nominal_header": "00000001001b6c70 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info>:",
+      "required_nominal_fragment": "thread_info::set_current_info",
+      "nominal_matches": true,
+      "size": 544,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "1001b6f44",
+          "context": [
+            "1001b6f3c: 52804400    \tmov\tw0, #0x220              ; =544",
+            "1001b6f40: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1001b6f44: 97f933cd    \tbl\t0x100003e78 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_geometry_root",
+      "nominal_header": "00000001001526a8 <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry>:",
+      "required_nominal_fragment": "VacantEntry<u32, usize>",
+      "nominal_matches": true,
+      "size": 144,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100152720",
+          "context": [
+            "100152718: 52801200    \tmov\tw0, #0x90               ; =144",
+            "10015271c: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100152720: 97fae83d    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_geometry_split",
+      "nominal_header": "000000010015636c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "u32, usize, alloc::collections::btree::node::marker::Leaf",
+      "nominal_matches": true,
+      "size": 240,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "10015660c",
+          "context": [
+            "100156604: 52801e00    \tmov\tw0, #0xf0               ; =240",
+            "100156608: 52800101    \tmov\tw1, #0x8                ; =8",
+            "10015660c: 97fad882    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "1001567e0",
+          "context": [
+            "1001567d8: 52801e00    \tmov\tw0, #0xf0               ; =240",
+            "1001567dc: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1001567e0: 97fad80d    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_tracker_root",
+      "nominal_header": "0000000100151f2c <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>>:",
+      "required_nominal_fragment": "BoundedExtremeTracker",
+      "nominal_matches": true,
+      "size": 1072,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100151ff4",
+          "context": [
+            "100151fec: 52808600    \tmov\tw0, #0x430              ; =1072",
+            "100151ff0: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100151ff4: 97faea08    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_tracker_split",
+      "nominal_header": "000000010015527c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "BoundedExtremeTracker",
+      "nominal_matches": true,
+      "size": 1168,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "1001557e0",
+          "context": [
+            "1001557d8: 52809200    \tmov\tw0, #0x490              ; =1168",
+            "1001557dc: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1001557e0: 97fadc0d    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "100155af4",
+          "context": [
+            "100155aec: 52809200    \tmov\tw0, #0x490              ; =1168",
+            "100155af0: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100155af4: 97fadb48    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_holding_split",
+      "nominal_header": "0000000100155d4c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "SetValZST",
+      "nominal_matches": true,
+      "size": 104,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100155e28",
+          "context": [
+            "100155e20: 52800d00    \tmov\tw0, #0x68               ; =104",
+            "100155e24: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100155e28: 97fada7b    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_holding_split",
+      "nominal_header": "0000000100155d4c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "SetValZST",
+      "nominal_matches": true,
+      "size": 200,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "10015600c",
+          "context": [
+            "100156004: 52801900    \tmov\tw0, #0xc8               ; =200",
+            "100156008: 52800101    \tmov\tw1, #0x8                ; =8",
+            "10015600c: 97fada02    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "1001561b4",
+          "context": [
+            "1001561ac: 52801900    \tmov\tw0, #0xc8               ; =200",
+            "1001561b0: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1001561b4: 97fad998    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_mutex",
+      "nominal_header": "00000001001d44a0 <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>>:",
+      "required_nominal_fragment": "OnceBox<std::sys::pal::unix::sync::mutex::Mutex>",
+      "nominal_matches": true,
+      "size": 64,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "1001d44e8",
+          "context": [
+            "1001d44e0: 52800800    \tmov\tw0, #0x40               ; =64",
+            "1001d44e4: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1001d44e8: 97f8e0cb    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_registry",
+      "nominal_header": "00000001001b3f7c <std::sys::pal::unix::stack_overflow::thread_info::set_current_info>:",
+      "required_nominal_fragment": "thread_info::set_current_info",
+      "nominal_matches": true,
+      "size": 544,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "1001b4250",
+          "context": [
+            "1001b4248: 52804400    \tmov\tw0, #0x220              ; =544",
+            "1001b424c: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1001b4250: 97f96171    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_json_root",
+      "nominal_header": "000000010006b018 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry>:",
+      "required_nominal_fragment": "VacantEntry<alloc::string::String, serde_json::value::Value>",
+      "nominal_matches": true,
+      "size": 632,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "10006b0a0",
+          "context": [
+            "10006b098: 52804f00    \tmov\tw0, #0x278              ; =632",
+            "10006b09c: 52800101    \tmov\tw1, #0x8                ; =8",
+            "10006b0a0: 97fe85dd    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_controls_bulk",
+      "nominal_header": "000000010002e580 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>>:",
+      "required_nominal_fragment": "BTreeMap<&str, &piping_numerical_robustness::cases::Row>",
+      "nominal_matches": true,
+      "size": 280,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "10002e684",
+          "context": [
+            "10002e67c: 52802300    \tmov\tw0, #0x118              ; =280",
+            "10002e680: 52800101    \tmov\tw1, #0x8                ; =8",
+            "10002e684: 97ff7864    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_publication_split",
+      "nominal_header": "0000000100014b10 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow",
+      "nominal_matches": true,
+      "size": 848,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100014bd4",
+          "context": [
+            "100014bcc: 52806a00    \tmov\tw0, #0x350              ; =848",
+            "100014bd0: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100014bd4: 97ffdf10    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_publication_split",
+      "nominal_header": "0000000100014b10 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow",
+      "nominal_matches": true,
+      "size": 944,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100014eb8",
+          "context": [
+            "100014eb0: 52807600    \tmov\tw0, #0x3b0              ; =944",
+            "100014eb4: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100014eb8: 97ffde57    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "1000152bc",
+          "context": [
+            "1000152b4: 52807600    \tmov\tw0, #0x3b0              ; =944",
+            "1000152b8: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1000152bc: 97ffdd56    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_floor_bulk",
+      "nominal_header": "000000010002e440 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>>:",
+      "required_nominal_fragment": "BTreeMap<alloc::string::String, (f64, f64)>",
+      "nominal_matches": true,
+      "size": 456,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "10002e490",
+          "context": [
+            "10002e488: 52803900    \tmov\tw0, #0x1c8              ; =456",
+            "10002e48c: 52800101    \tmov\tw1, #0x8                ; =8",
+            "10002e490: 97ff78e1    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_allowance_split",
+      "nominal_header": "000000010001549c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (usize, usize), (f64, usize), alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(usize, usize), (f64, usize)>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "(usize, usize), (f64, usize)",
+      "nominal_matches": true,
+      "size": 368,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "1000155cc",
+          "context": [
+            "1000155c4: 52802e00    \tmov\tw0, #0x170              ; =368",
+            "1000155c8: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1000155cc: 97ffdc92    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_allowance_split",
+      "nominal_header": "000000010001549c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (usize, usize), (f64, usize), alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(usize, usize), (f64, usize)>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "(usize, usize), (f64, usize)",
+      "nominal_matches": true,
+      "size": 464,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100015784",
+          "context": [
+            "10001577c: 52803a00    \tmov\tw0, #0x1d0              ; =464",
+            "100015780: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100015784: 97ffdc24    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "100015988",
+          "context": [
+            "100015980: 52803a00    \tmov\tw0, #0x1d0              ; =464",
+            "100015984: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100015988: 97ffdba3    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_case_bulk",
+      "nominal_header": "000000010002e2f0 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>>:",
+      "required_nominal_fragment": "BTreeMap<alloc::string::String, alloc::string::String>",
+      "nominal_matches": true,
+      "size": 544,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "10002e35c",
+          "context": [
+            "10002e354: 52804400    \tmov\tw0, #0x220              ; =544",
+            "10002e358: 52800101    \tmov\tw1, #0x8                ; =8",
+            "10002e35c: 97ff792e    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_usize_set_split",
+      "nominal_header": "00000001000168e0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, usize, alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<usize, alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "Mut, usize, alloc::collections::btree::set_val::SetValZST",
+      "nominal_matches": true,
+      "size": 104,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "1000169b4",
+          "context": [
+            "1000169ac: 52800d00    \tmov\tw0, #0x68               ; =104",
+            "1000169b0: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1000169b4: 97ffd798    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_usize_set_split",
+      "nominal_header": "00000001000168e0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, usize, alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<usize, alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "Mut, usize, alloc::collections::btree::set_val::SetValZST",
+      "nominal_matches": true,
+      "size": 200,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100016ae8",
+          "context": [
+            "100016ae0: 52801900    \tmov\tw0, #0xc8               ; =200",
+            "100016ae4: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100016ae8: 97ffd74b    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "100016c7c",
+          "context": [
+            "100016c74: 52801900    \tmov\tw0, #0xc8               ; =200",
+            "100016c78: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100016c7c: 97ffd6e6    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_pair_set_split",
+      "nominal_header": "00000001000162bc <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (u32, u32), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(u32, u32), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "(u32, u32), alloc::collections::btree::set_val::SetValZST",
+      "nominal_matches": true,
+      "size": 104,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100016398",
+          "context": [
+            "100016390: 52800d00    \tmov\tw0, #0x68               ; =104",
+            "100016394: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100016398: 97ffd91f    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_pair_set_split",
+      "nominal_header": "00000001000162bc <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (u32, u32), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(u32, u32), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "required_nominal_fragment": "(u32, u32), alloc::collections::btree::set_val::SetValZST",
+      "nominal_matches": true,
+      "size": 200,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "1000164e4",
+          "context": [
+            "1000164dc: 52801900    \tmov\tw0, #0xc8               ; =200",
+            "1000164e0: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1000164e4: 97ffd8cc    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "10001667c",
+          "context": [
+            "100016674: 52801900    \tmov\tw0, #0xc8               ; =200",
+            "100016678: 52800101    \tmov\tw1, #0x8                ; =8",
+            "10001667c: 97ffd866    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_io_new_str",
+      "nominal_header": "00000001001966c4 <<std::io::error::Error>::new::<&str>>:",
+      "required_nominal_fragment": "Error>::new::<&str>",
+      "nominal_matches": true,
+      "size": 24,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100196714",
+          "context": [
+            "10019670c: 52800300    \tmov\tw0, #0x18               ; =24",
+            "100196710: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100196714: 97f9d840    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        },
+        {
+          "address": "100196770",
+          "context": [
+            "100196768: 52800300    \tmov\tw0, #0x18               ; =24",
+            "10019676c: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100196770: 97f9d829    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_io_new_str",
+      "nominal_header": "00000001001966c4 <<std::io::error::Error>::new::<&str>>:",
+      "required_nominal_fragment": "Error>::new::<&str>",
+      "nominal_matches": true,
+      "size": 24,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "100196734",
+          "context": [
+            "10019672c: 52800300    \tmov\tw0, #0x18               ; =24",
+            "100196730: 52800101    \tmov\tw1, #0x8                ; =8",
+            "100196734: 97f9d838    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    },
+    {
+      "range": "vr_json_error_io",
+      "nominal_header": "00000001001ce400 <<serde_json::error::Error>::io>:",
+      "required_nominal_fragment": "serde_json::error::Error>::io",
+      "nominal_matches": true,
+      "size": 40,
+      "alignment": 8,
+      "calls": [
+        {
+          "address": "1001ce428",
+          "context": [
+            "1001ce420: 52800500    \tmov\tw0, #0x28               ; =40",
+            "1001ce424: 52800101    \tmov\tw1, #0x8                ; =8",
+            "1001ce428: 97f8f8fb    \tbl\t0x10000c814 <__rustc::__rust_alloc>"
+          ],
+          "size_matches": true,
+          "alignment_matches": true,
+          "allocator_call_matches": true
+        }
+      ]
+    }
+  ],
+  "source_composed_internal_rows": [
+    {
+      "type": "String,Value",
+      "leaf": 632,
+      "alignment": 8,
+      "internal": 728,
+      "basis": "I23/vr_nodes_source_16/DERIVATION.md and source_review_RV30/vr_nodes_17/RETURN.md; actual repr(C) InternalNode contains actual leaf then twelve thin edges; current leaf alignment directly observed",
+      "direct_internal_observation": false
+    },
+    {
+      "type": "&str,&Row",
+      "leaf": 280,
+      "alignment": 8,
+      "internal": 376,
+      "basis": "I23/vr_nodes_source_16/DERIVATION.md and source_review_RV30/vr_nodes_17/RETURN.md; actual repr(C) InternalNode contains actual leaf then twelve thin edges; current leaf alignment directly observed",
+      "direct_internal_observation": false
+    },
+    {
+      "type": "String,(f64,f64)",
+      "leaf": 456,
+      "alignment": 8,
+      "internal": 552,
+      "basis": "I23/vr_nodes_source_16/DERIVATION.md and source_review_RV30/vr_nodes_17/RETURN.md; actual repr(C) InternalNode contains actual leaf then twelve thin edges; current leaf alignment directly observed",
+      "direct_internal_observation": false
+    },
+    {
+      "type": "String,String",
+      "leaf": 544,
+      "alignment": 8,
+      "internal": 640,
+      "basis": "I23/vr_nodes_source_16/DERIVATION.md and source_review_RV30/vr_nodes_17/RETURN.md; actual repr(C) InternalNode contains actual leaf then twelve thin edges; current leaf alignment directly observed",
+      "direct_internal_observation": false
+    }
+  ]
+}

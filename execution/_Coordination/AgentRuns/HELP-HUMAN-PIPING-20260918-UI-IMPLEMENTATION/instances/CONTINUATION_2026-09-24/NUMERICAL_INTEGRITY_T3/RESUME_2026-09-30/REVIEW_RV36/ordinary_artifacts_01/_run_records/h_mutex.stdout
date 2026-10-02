@@ -1,0 +1,63 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+00000001001d5de0 <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>>:
+1001d5de0: d102c3ff    	sub	sp, sp, #0xb0
+1001d5de4: a90857f6    	stp	x22, x21, [sp, #0x80]
+1001d5de8: a9094ff4    	stp	x20, x19, [sp, #0x90]
+1001d5dec: a90a7bfd    	stp	x29, x30, [sp, #0xa0]
+1001d5df0: 910283fd    	add	x29, sp, #0xa0
+1001d5df4: aa0003f4    	mov	x20, x0
+1001d5df8: b00000a8    	adrp	x8, 0x1001ea000 <_anon.63c3053ccb84fd5e3175c9dafc123c0a.38+0x118>
+1001d5dfc: 9124c108    	add	x8, x8, #0x930
+1001d5e00: ad400900    	ldp	q0, q2, [x8]
+1001d5e04: ad0183e0    	stp	q0, q0, [sp, #0x30]
+1001d5e08: 3d800be2    	str	q2, [sp, #0x20]
+1001d5e0c: ad410500    	ldp	q0, q1, [x8, #0x20]
+1001d5e10: ad0003e1    	stp	q1, q0, [sp]
+1001d5e14: ad0283e2    	stp	q2, q0, [sp, #0x50]
+1001d5e18: 3d801fe1    	str	q1, [sp, #0x70]
+1001d5e1c: 97f92d34    	bl	0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+1001d5e20: 52800800    	mov	w0, #0x40               ; =64
+1001d5e24: 52800101    	mov	w1, #0x8                ; =8
+1001d5e28: 97f8b814    	bl	0x100003e78 <__rustc::__rust_alloc>
+1001d5e2c: b4000300    	cbz	x0, 0x1001d5e8c <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>+0xac>
+1001d5e30: aa0003f3    	mov	x19, x0
+1001d5e34: ad4107e0    	ldp	q0, q1, [sp, #0x20]
+1001d5e38: ad000001    	stp	q1, q0, [x0]
+1001d5e3c: ad4007e0    	ldp	q0, q1, [sp]
+1001d5e40: ad010001    	stp	q1, q0, [x0, #0x20]
+1001d5e44: 97ff462b    	bl	0x1001a76f0 <<std::sys::pal::unix::sync::mutex::Mutex>::init>
+1001d5e48: d2800015    	mov	x21, #0x0               ; =0
+1001d5e4c: c8f5fe93    	casal	x21, x19, [x20]
+1001d5e50: f10002bf    	cmp	x21, #0x0
+1001d5e54: 54000100    	b.eq	0x1001d5e74 <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>+0x94>
+1001d5e58: aa1303e0    	mov	x0, x19
+1001d5e5c: 94000671    	bl	0x1001d7820 <dyld_stub_binder+0x1001d7820>
+1001d5e60: aa1303e0    	mov	x0, x19
+1001d5e64: 52800801    	mov	w1, #0x40               ; =64
+1001d5e68: 52800102    	mov	w2, #0x8                ; =8
+1001d5e6c: 97f8b849    	bl	0x100003f90 <__rustc::__rust_dealloc>
+1001d5e70: aa1503f3    	mov	x19, x21
+1001d5e74: aa1303e0    	mov	x0, x19
+1001d5e78: a94a7bfd    	ldp	x29, x30, [sp, #0xa0]
+1001d5e7c: a9494ff4    	ldp	x20, x19, [sp, #0x90]
+1001d5e80: a94857f6    	ldp	x22, x21, [sp, #0x80]
+1001d5e84: 9102c3ff    	add	sp, sp, #0xb0
+1001d5e88: d65f03c0    	ret
+1001d5e8c: 52800100    	mov	w0, #0x8                ; =8
+1001d5e90: 52800801    	mov	w1, #0x40               ; =64
+1001d5e94: 9400049b    	bl	0x1001d7100 <alloc::alloc::handle_alloc_error>
+1001d5e98: d4200020    	brk	#0x1
+1001d5e9c: aa0003f4    	mov	x20, x0
+1001d5ea0: aa1303e0    	mov	x0, x19
+1001d5ea4: 97ff1183    	bl	0x10019a4b0 <core::ptr::drop_glue::<core::pin::Pin<alloc::boxed::Box<std::sys::pal::unix::sync::mutex::Mutex>>>>
+1001d5ea8: aa1403e0    	mov	x0, x20
+1001d5eac: 940005d3    	bl	0x1001d75f8 <dyld_stub_binder+0x1001d75f8>
+1001d5eb0: aa0003f4    	mov	x20, x0
+1001d5eb4: 910103e0    	add	x0, sp, #0x40
+1001d5eb8: 9400065a    	bl	0x1001d7820 <dyld_stub_binder+0x1001d7820>
+1001d5ebc: aa1403e0    	mov	x0, x20
+1001d5ec0: 940005ce    	bl	0x1001d75f8 <dyld_stub_binder+0x1001d75f8>

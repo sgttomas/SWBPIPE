@@ -1,0 +1,82 @@
+{
+  "process_id": "P21",
+  "phase": "FAULT_TEST",
+  "registered_id": "VK-F08",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/parity-ce8cf2272dfb2c0a",
+    "--exact",
+    "rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "VK-F08"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P21.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P21.stderr",
+  "qualifying_condition": "Named bitwise K equality at parity.rs21 fails because only sparse member coupling block is omitted; not later delta/unwrap failure.",
+  "actual_scope": {
+    "route": "whole RF-LARGE embedded family; parity(model,true)",
+    "family": "RF-LARGE",
+    "cases": 12,
+    "parity_calls": 12,
+    "sparse_parity_cases": 12,
+    "dense_parity_cases": 12,
+    "max_members": 100
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "test_source": {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/parity.rs",
+    "sha256": "622ccacd0e9fde5c732b6f60fe68f1a445b6386abc569cbd8d9e2cc9cfb7b0f0"
+  },
+  "registered_kind": "parity",
+  "registered_target": "bitwise K, sparse against dense",
+  "qualification": null,
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=VK-F08 '<wt>/a1-vk-target/debug/deps/parity-ce8cf2272dfb2c0a' '--exact' 'rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P21.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P21.stderr'",
+  "binary": {
+    "key": "parity",
+    "path": "<wt>/a1-vk-target/debug/deps/parity-ce8cf2272dfb2c0a",
+    "sha256": "646e4276acbba7cdb039ca9a1f93eb161977570f9adb6fd8657d32cec9ac6b65",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-ce8cf2272dfb2c0a/test-integration-test-parity.json",
+    "fingerprint_sha256": "11cd0f0a4405b01e12154ed660ac34700cec0b09dad3775ea397f2f8b1e46bb1"
+  },
+  "guard_before": " 5387     1 03-18:37:34 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "launch_utc": "2026-10-01T20:13:53.382Z",
+  "tool_initial": {
+    "chunk_id": "d13f46",
+    "wall_time_seconds": 1.15e-05,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "QUALIFYING_FAILURE_WITH_PASSING_CONTROL",
+  "semantic_review": "F08 intended exact bitwiseK assertion parity.rs21:RF-LARGE-CHAIN-n00010-AX (0,6) patternSome(0.0) vs dense -3.9793506945470715e8; exactly1test failed, no downstream delta/unwrap credit.",
+  "completed_utc": "2026-10-01T20:14:28.273Z",
+  "raw_hashes": {
+    "stdout": "a820a35eb8c0c7f230761fba22af1d884e27faebca6aba2c8714d7c47d2355fd",
+    "stderr": "2c6f0f161a05eadd983c49696d4e4669c43f1e729faff3aeb8304a054c83659c"
+  },
+  "runtime_authority": {
+    "at": "2026-10-01T20:12:01Z",
+    "sha256": "d3ee1079e66a22e81dc10e993f96ca83fa4d6a1db2da16a109262e49aa6ad5bc"
+  },
+  "hard_end": "2026-10-01T20:30:30Z",
+  "returned_control": "P22"
+}

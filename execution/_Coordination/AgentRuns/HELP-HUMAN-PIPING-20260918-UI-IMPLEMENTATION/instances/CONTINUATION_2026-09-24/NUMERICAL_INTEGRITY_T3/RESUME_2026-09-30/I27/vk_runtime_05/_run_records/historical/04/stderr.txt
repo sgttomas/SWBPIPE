@@ -1,0 +1,24 @@
+
+thread 'rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis' (26815426) panicked at tests/parity.rs:21:9:
+assertion `left == right` failed: RF-LARGE-CHAIN-n00010-AX: bitwise K
+  left: Some(Some("(0, 6): pattern Some(0.0), dense -3.9793506945470715e8"))
+ right: Some(None)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.05 real         0.05 user         0.00 sys
+             8519680  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 856  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  10  involuntary context switches
+           633136833  instructions retired
+           156155535  cycles elapsed
+             6570320  peak memory footprint

@@ -1,0 +1,16 @@
+{
+  "normal_report_or_parity_lines_before": [
+    "RF-INVARIANCE: rows 7096: passes 7056, absolute-range passes 0, not covered 0 | structural zeros 40, expected unresolved 0, failures 0",
+    "RF-INVARIANCE: outcomes {\"selected\": 25}",
+    "RF-INVARIANCE: controls discriminated 47, non-discriminating 7"
+  ],
+  "normal_report_or_parity_lines_after": [
+    "RF-INVARIANCE: rows 7096: passes 7056, absolute-range passes 0, not covered 0 | structural zeros 40, expected unresolved 0, failures 0",
+    "RF-INVARIANCE: outcomes {\"selected\": 25}",
+    "RF-INVARIANCE: controls discriminated 47, non-discriminating 7"
+  ],
+  "exact_report_or_parity_line_restoration": true,
+  "both_complete_original_tests_passed": true,
+  "sensitive_statuses_preserved": false,
+  "not_a_claim_all_parity_classes_are_Passed": false
+}

@@ -1,0 +1,123 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+000000010002e580 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>>:
+10002e580: d10283ff    	sub	sp, sp, #0xa0
+10002e584: a9065ff8    	stp	x24, x23, [sp, #0x60]
+10002e588: a90757f6    	stp	x22, x21, [sp, #0x70]
+10002e58c: a9084ff4    	stp	x20, x19, [sp, #0x80]
+10002e590: a9097bfd    	stp	x29, x30, [sp, #0x90]
+10002e594: 910243fd    	add	x29, sp, #0x90
+10002e598: aa0803f3    	mov	x19, x8
+10002e59c: eb000038    	subs	x24, x1, x0
+10002e5a0: 54000240    	b.eq	0x10002e5e8 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x68>
+10002e5a4: aa0003f7    	mov	x23, x0
+10002e5a8: b201f3e8    	mov	x8, #-0x5555555555555556 ; =-6148914691236517206
+10002e5ac: f2955568    	movk	x8, #0xaaab
+10002e5b0: 9bc87f08    	umulh	x8, x24, x8
+10002e5b4: d346fd16    	lsr	x22, x8, #6
+10002e5b8: 8b1606c8    	add	x8, x22, x22, lsl #1
+10002e5bc: d37df114    	lsl	x20, x8, #3
+10002e5c0: 97ff92d2    	bl	0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+10002e5c4: aa1403e0    	mov	x0, x20
+10002e5c8: 52800101    	mov	w1, #0x8                ; =8
+10002e5cc: 97ff7892    	bl	0x10000c814 <__rustc::__rust_alloc>
+10002e5d0: b4000a20    	cbz	x0, 0x10002e714 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x194>
+10002e5d4: aa0003f5    	mov	x21, x0
+10002e5d8: f103031f    	cmp	x24, #0xc0
+10002e5dc: 540000c2    	b.hs	0x10002e5f4 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x74>
+10002e5e0: d2800008    	mov	x8, #0x0                ; =0
+10002e5e4: 14000014    	b	0x10002e634 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0xb4>
+10002e5e8: f900027f    	str	xzr, [x19]
+10002e5ec: f9000a7f    	str	xzr, [x19, #0x10]
+10002e5f0: 14000037    	b	0x10002e6cc <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x14c>
+10002e5f4: 927fe2c8    	and	x8, x22, #0x3fffffffffffffe
+10002e5f8: 910182e9    	add	x9, x23, #0x60
+10002e5fc: 910062aa    	add	x10, x21, #0x18
+10002e600: 927fe2cb    	and	x11, x22, #0x3fffffffffffffe
+10002e604: d101812c    	sub	x12, x9, #0x60
+10002e608: a97ab92d    	ldp	x13, x14, [x9, #-0x58]
+10002e60c: a940c12f    	ldp	x15, x16, [x9, #0x8]
+10002e610: a93eb94d    	stp	x13, x14, [x10, #-0x18]
+10002e614: a93fbd4c    	stp	x12, x15, [x10, #-0x8]
+10002e618: a900a550    	stp	x16, x9, [x10, #0x8]
+10002e61c: 91030129    	add	x9, x9, #0xc0
+10002e620: 9100c14a    	add	x10, x10, #0x30
+10002e624: f100096b    	subs	x11, x11, #0x2
+10002e628: 54fffee1    	b.ne	0x10002e604 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x84>
+10002e62c: eb0802df    	cmp	x22, x8
+10002e630: 540001c0    	b.eq	0x10002e668 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0xe8>
+10002e634: cb0802c9    	sub	x9, x22, x8
+10002e638: 52800c0a    	mov	w10, #0x60              ; =96
+10002e63c: 9b0a5d0a    	madd	x10, x8, x10, x23
+10002e640: 5280030b    	mov	w11, #0x18              ; =24
+10002e644: 9b0b5508    	madd	x8, x8, x11, x21
+10002e648: 91002108    	add	x8, x8, #0x8
+10002e64c: a940b14b    	ldp	x11, x12, [x10, #0x8]
+10002e650: a93fb10b    	stp	x11, x12, [x8, #-0x8]
+10002e654: f900050a    	str	x10, [x8, #0x8]
+10002e658: 9101814a    	add	x10, x10, #0x60
+10002e65c: 91006108    	add	x8, x8, #0x18
+10002e660: f1000529    	subs	x9, x9, #0x1
+10002e664: 54ffff41    	b.ne	0x10002e64c <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0xcc>
+10002e668: d100c7a8    	sub	x8, x29, #0x31
+10002e66c: f9000fe8    	str	x8, [sp, #0x18]
+10002e670: f101831f    	cmp	x24, #0x60
+10002e674: 54000381    	b.ne	0x10002e6e4 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x164>
+10002e678: 97ff92a4    	bl	0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+10002e67c: 52802300    	mov	w0, #0x118              ; =280
+10002e680: 52800101    	mov	w1, #0x8                ; =8
+10002e684: 97ff7864    	bl	0x10000c814 <__rustc::__rust_alloc>
+10002e688: b40003e0    	cbz	x0, 0x10002e704 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x184>
+10002e68c: f900581f    	str	xzr, [x0, #0xb0]
+10002e690: 7902241f    	strh	wzr, [x0, #0x112]
+10002e694: a9007fe0    	stp	x0, xzr, [sp]
+10002e698: a9017fff    	stp	xzr, xzr, [sp, #0x10]
+10002e69c: 52800308    	mov	w8, #0x18               ; =24
+10002e6a0: 9b0856c8    	madd	x8, x22, x8, x21
+10002e6a4: a903d7f5    	stp	x21, x21, [sp, #0x38]
+10002e6a8: a904a3f6    	stp	x22, x8, [sp, #0x48]
+10002e6ac: 910003e0    	mov	x0, sp
+10002e6b0: 910063e1    	add	x1, sp, #0x18
+10002e6b4: 910043e2    	add	x2, sp, #0x10
+10002e6b8: 97ff958f    	bl	0x100013cf4 <<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Owned, &str, &piping_numerical_robustness::cases::Row, alloc::collections::btree::node::marker::LeafOrInternal>>::bulk_push::<alloc::collections::btree::dedup_sorted_iter::DedupSortedIter<&str, &piping_numerical_robustness::cases::Row, alloc::vec::into_iter::IntoIter<(&str, &piping_numerical_robustness::cases::Row)>>, alloc::alloc::Global>>
+10002e6bc: a94027e8    	ldp	x8, x9, [sp]
+10002e6c0: f9400bea    	ldr	x10, [sp, #0x10]
+10002e6c4: a9002668    	stp	x8, x9, [x19]
+10002e6c8: f9000a6a    	str	x10, [x19, #0x10]
+10002e6cc: a9497bfd    	ldp	x29, x30, [sp, #0x90]
+10002e6d0: a9484ff4    	ldp	x20, x19, [sp, #0x80]
+10002e6d4: a94757f6    	ldp	x22, x21, [sp, #0x70]
+10002e6d8: a9465ff8    	ldp	x24, x23, [sp, #0x60]
+10002e6dc: 910283ff    	add	sp, sp, #0xa0
+10002e6e0: d65f03c0    	ret
+10002e6e4: f11f831f    	cmp	x24, #0x7e0
+10002e6e8: 540001c2    	b.hs	0x10002e720 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x1a0>
+10002e6ec: 910063e3    	add	x3, sp, #0x18
+10002e6f0: aa1503e0    	mov	x0, x21
+10002e6f4: aa1603e1    	mov	x1, x22
+10002e6f8: 52800022    	mov	w2, #0x1                ; =1
+10002e6fc: 940020c6    	bl	0x100036a14 <core::slice::sort::shared::smallsort::insertion_sort_shift_left::<(&str, &piping_numerical_robustness::cases::Row), <[(&str, &piping_numerical_robustness::cases::Row)]>::sort_by<<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>::{closure#0}>::{closure#0}>>
+10002e700: 17ffffde    	b	0x10002e678 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0xf8>
+10002e704: 52800100    	mov	w0, #0x8                ; =8
+10002e708: 52802301    	mov	w1, #0x118              ; =280
+10002e70c: 94069c2d    	bl	0x1001d57c0 <alloc::alloc::handle_alloc_error>
+10002e710: d4200020    	brk	#0x1
+10002e714: 52800100    	mov	w0, #0x8                ; =8
+10002e718: aa1403e1    	mov	x1, x20
+10002e71c: 94069c2f    	bl	0x1001d57d8 <alloc::raw_vec::handle_error>
+10002e720: 910063e2    	add	x2, sp, #0x18
+10002e724: aa1503e0    	mov	x0, x21
+10002e728: aa1603e1    	mov	x1, x22
+10002e72c: 9400400e    	bl	0x10003e764 <core::slice::sort::stable::driftsort_main::<(&str, &piping_numerical_robustness::cases::Row), <[(&str, &piping_numerical_robustness::cases::Row)]>::sort_by<<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>::{closure#0}>::{closure#0}, alloc::vec::Vec<(&str, &piping_numerical_robustness::cases::Row)>>>
+10002e730: 17ffffd2    	b	0x10002e678 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0xf8>
+10002e734: 14000001    	b	0x10002e738 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x1b8>
+10002e738: aa0003f3    	mov	x19, x0
+10002e73c: aa1503e0    	mov	x0, x21
+10002e740: aa1403e1    	mov	x1, x20
+10002e744: 52800102    	mov	w2, #0x8                ; =8
+10002e748: 97ff7875    	bl	0x10000c91c <__rustc::__rust_dealloc>
+10002e74c: aa1303e0    	mov	x0, x19
+10002e750: 94069d5a    	bl	0x1001d5cb8 <dyld_stub_binder+0x1001d5cb8>

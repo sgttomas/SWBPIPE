@@ -1,0 +1,7 @@
+{
+  "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/sync.rs.html",
+  "actual_sha256": "54358a7bb6d99a9d61dbd1eb4da68efe9228a3d5f949a8c6cfbaeb7f85e22b49",
+  "matches_current_binding": true,
+  "matches_original_ArcInner_source": true,
+  "new_layout_derivation": false
+}

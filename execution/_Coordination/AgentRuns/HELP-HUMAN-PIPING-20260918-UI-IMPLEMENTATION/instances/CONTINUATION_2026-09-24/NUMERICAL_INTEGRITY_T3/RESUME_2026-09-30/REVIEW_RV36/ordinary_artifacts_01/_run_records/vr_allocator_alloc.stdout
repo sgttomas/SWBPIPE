@@ -1,0 +1,72 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+000000010000c814 <__rustc::__rust_alloc>:
+10000c814: d10103ff    	sub	sp, sp, #0x40
+10000c818: a90157f6    	stp	x22, x21, [sp, #0x10]
+10000c81c: a9024ff4    	stp	x20, x19, [sp, #0x20]
+10000c820: a9037bfd    	stp	x29, x30, [sp, #0x30]
+10000c824: 9100c3fd    	add	x29, sp, #0x30
+10000c828: 90001108    	adrp	x8, 0x10022c000 <dyld_stub_binder+0x10022c000>
+10000c82c: 91098108    	add	x8, x8, #0x260
+10000c830: c8dffd08    	ldar	x8, [x8]
+10000c834: 90001114    	adrp	x20, 0x10022c000 <dyld_stub_binder+0x10022c000>
+10000c838: 91352294    	add	x20, x20, #0xd48
+10000c83c: c8dffe89    	ldar	x9, [x20]
+10000c840: ab000135    	adds	x21, x9, x0
+10000c844: 54000382    	b.hs	0x10000c8b4 <__rustc::__rust_alloc+0xa0>
+10000c848: eb0802bf    	cmp	x21, x8
+10000c84c: 54000348    	b.hi	0x10000c8b4 <__rustc::__rust_alloc+0xa0>
+10000c850: aa0903ea    	mov	x10, x9
+10000c854: c8eafe95    	casal	x10, x21, [x20]
+10000c858: eb09015f    	cmp	x10, x9
+10000c85c: aa0a03e9    	mov	x9, x10
+10000c860: 54ffff01    	b.ne	0x10000c840 <__rustc::__rust_alloc+0x2c>
+10000c864: f100403f    	cmp	x1, #0x10
+10000c868: 54000348    	b.hi	0x10000c8d0 <__rustc::__rust_alloc+0xbc>
+10000c86c: eb00003f    	cmp	x1, x0
+10000c870: 54000308    	b.hi	0x10000c8d0 <__rustc::__rust_alloc+0xbc>
+10000c874: aa0003f3    	mov	x19, x0
+10000c878: 94072564    	bl	0x1001d5e08 <dyld_stub_binder+0x1001d5e08>
+10000c87c: b4000420    	cbz	x0, 0x10000c900 <__rustc::__rust_alloc+0xec>
+10000c880: 90001108    	adrp	x8, 0x10022c000 <dyld_stub_binder+0x10022c000>
+10000c884: 91350108    	add	x8, x8, #0xd40
+10000c888: f8f56108    	ldumaxal	x21, x8, [x8]
+10000c88c: 90001108    	adrp	x8, 0x10022c000 <dyld_stub_binder+0x10022c000>
+10000c890: 9134c108    	add	x8, x8, #0xd30
+10000c894: f8f56108    	ldumaxal	x21, x8, [x8]
+10000c898: 90001108    	adrp	x8, 0x10022c000 <dyld_stub_binder+0x10022c000>
+10000c89c: 91354108    	add	x8, x8, #0xd50
+10000c8a0: f8f56108    	ldumaxal	x21, x8, [x8]
+10000c8a4: 90001108    	adrp	x8, 0x10022c000 <dyld_stub_binder+0x10022c000>
+10000c8a8: 9134e108    	add	x8, x8, #0xd38
+10000c8ac: f8f56108    	ldumaxal	x21, x8, [x8]
+10000c8b0: 14000003    	b	0x10000c8bc <__rustc::__rust_alloc+0xa8>
+10000c8b4: 9400131f    	bl	0x100011530 <vk_scale::alloc::refuse>
+10000c8b8: d2800000    	mov	x0, #0x0                ; =0
+10000c8bc: a9437bfd    	ldp	x29, x30, [sp, #0x30]
+10000c8c0: a9424ff4    	ldp	x20, x19, [sp, #0x20]
+10000c8c4: a94157f6    	ldp	x22, x21, [sp, #0x10]
+10000c8c8: 910103ff    	add	sp, sp, #0x40
+10000c8cc: d65f03c0    	ret
+10000c8d0: aa0003f3    	mov	x19, x0
+10000c8d4: 52b00008    	mov	w8, #-0x80000000        ; =-2147483648
+10000c8d8: eb08003f    	cmp	x1, x8
+10000c8dc: 54000128    	b.hi	0x10000c900 <__rustc::__rust_alloc+0xec>
+10000c8e0: f90007ff    	str	xzr, [sp, #0x8]
+10000c8e4: 52800108    	mov	w8, #0x8                ; =8
+10000c8e8: f100203f    	cmp	x1, #0x8
+10000c8ec: 9a888021    	csel	x1, x1, x8, hi
+10000c8f0: 910023e0    	add	x0, sp, #0x8
+10000c8f4: aa1303e2    	mov	x2, x19
+10000c8f8: 94072568    	bl	0x1001d5e98 <dyld_stub_binder+0x1001d5e98>
+10000c8fc: 340000a0    	cbz	w0, 0x10000c910 <__rustc::__rust_alloc+0xfc>
+10000c900: d2800000    	mov	x0, #0x0                ; =0
+10000c904: cb1303e8    	neg	x8, x19
+10000c908: f8e80288    	ldaddal	x8, x8, [x20]
+10000c90c: 17ffffec    	b	0x10000c8bc <__rustc::__rust_alloc+0xa8>
+10000c910: f94007e0    	ldr	x0, [sp, #0x8]
+10000c914: b5fffb60    	cbnz	x0, 0x10000c880 <__rustc::__rust_alloc+0x6c>
+10000c918: 17fffffa    	b	0x10000c900 <__rustc::__rust_alloc+0xec>

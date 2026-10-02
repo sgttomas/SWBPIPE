@@ -1,0 +1,20 @@
+{
+  "identity": "I27 /root/i27_vr_phase_witness",
+  "role": "TASK Type2",
+  "parent": "ROOT HELP_HUMAN Agent0 /root",
+  "mechanism": "delegated-harness-native direct followup",
+  "receipt_utc": "2026-10-02T04:27:35Z",
+  "new_triplet_cutoff_utc": "2026-10-02T04:52:35Z",
+  "hard_return_utc": "2026-10-02T04:57:35Z",
+  "grant_NUM_commit": "5d7a01068cd62db508c9431fd907bedd35ca3777",
+  "brief_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I27_VK_DEBUG_05.md",
+  "brief_sha256": "d092f2cf3384cb0f26e3ed8e9ab009b7d82d504b09b60f33f2ce7521118b4e02",
+  "frozen_maintained": "81c03849033f3ce745668f581f446530789397b8",
+  "authorized": "B2_LANE_PARITY then eight listed debug triplets only",
+  "C_D_authorized": false,
+  "maintained_edits": false,
+  "new_driver_or_overlay": false,
+  "git_index_mutations": false,
+  "delegation": false,
+  "enforcement": "prompt-scoped shared host; no OS sandbox asserted"
+}

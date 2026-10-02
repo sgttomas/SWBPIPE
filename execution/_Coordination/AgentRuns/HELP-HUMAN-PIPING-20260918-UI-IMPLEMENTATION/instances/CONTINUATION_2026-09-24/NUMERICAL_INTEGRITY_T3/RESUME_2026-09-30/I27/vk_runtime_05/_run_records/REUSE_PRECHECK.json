@@ -1,0 +1,14 @@
+{
+  "prior_packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I27/vk_runtime_04",
+  "prior_seal": "91c7602386af0ee890296cc8634762b864f81f66b027e1602c0a4ba85e4e4132",
+  "prior_payloads_verified": 81,
+  "plan_packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I27/vk_execution_plan_03",
+  "plan_seal": "41fe834ae3ef144754a9396a002aca17bd8defbc772002963c0a1ad5c107035c",
+  "plan_payloads_verified": 36,
+  "archive_files_verified": 632,
+  "prior_binary_unchanged": true,
+  "prior_fingerprints_verified": 22,
+  "archive": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-runtime-04/archive",
+  "target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target",
+  "overlay": []
+}

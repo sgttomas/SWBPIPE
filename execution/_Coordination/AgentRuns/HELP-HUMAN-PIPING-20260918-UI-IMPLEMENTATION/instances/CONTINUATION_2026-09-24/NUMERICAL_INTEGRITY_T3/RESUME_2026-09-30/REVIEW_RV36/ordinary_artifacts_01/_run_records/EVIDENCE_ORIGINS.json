@@ -1,0 +1,167 @@
+[
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_artifacts_02/RETURN.md",
+    "relative_to_R": "I28/ordinary_artifacts_02/RETURN.md",
+    "sha256": "45b068a4439f0dd026cfce2fa8b4452f12730f414d8da89be04a4bd87ac112ef",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_artifacts_02/TRANSFER.md",
+    "relative_to_R": "I28/ordinary_artifacts_02/TRANSFER.md",
+    "sha256": "9e9150e04baf81df8215982f256bd5d38bfc674e009dbb7a1b8154168dc03e2b",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_qualification_preflight_01/RETURN.md",
+    "relative_to_R": "I28/ordinary_qualification_preflight_01/RETURN.md",
+    "sha256": "4e7b61a5d1e2be6cb9aac7936a520c0f130c819111afb12e0ca62511b2447249",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_qualification_preflight_01/PLAN.md",
+    "relative_to_R": "I28/ordinary_qualification_preflight_01/PLAN.md",
+    "sha256": "1ed5343a203ffbb57c8fc8f61c7452dbd702f9f23f7f82c6d8a7973a5abcfa8b",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_qualification_preflight_01/SOURCE_BINDING.md",
+    "relative_to_R": "I28/ordinary_qualification_preflight_01/SOURCE_BINDING.md",
+    "sha256": "95b2a2fb59871b6866d287e35e6c289580234920a0f35dd876b0ae8f3e5a9994",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout_04/RETURN.md",
+    "relative_to_R": "I21/layout_04/RETURN.md",
+    "sha256": "e025ca49bf689b1712722c3455833b68cb5d21a030883fe2b9628ba11a4fd892",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout_04/LABEL_TYPE_MAP.json",
+    "relative_to_R": "I21/layout_04/LABEL_TYPE_MAP.json",
+    "sha256": "71a969143465dc04bc27ab56a8140847e860c7c20347851702997be5acb69395",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout_04/H_LABEL_TYPE_MAP.json",
+    "relative_to_R": "I21/layout_04/H_LABEL_TYPE_MAP.json",
+    "sha256": "0c84a3ef08c136ff4fe2a2f7c690169895a3d54b36f9a3663f0a03e570cd44c4",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout_04/ARC_SOURCE_BINDING.json",
+    "relative_to_R": "I21/layout_04/ARC_SOURCE_BINDING.json",
+    "sha256": "0b667c5ab70587e6c42dac64ca3ef884a67ea8d7de8c010feba2a0f96edcfb43",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_run/RETURN.md",
+    "relative_to_R": "I21/layout08_run/RETURN.md",
+    "sha256": "133b856f83340979dd63192a8abeb8ff438b1ecfb1df2e2561838d699f6f7811",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_run/PREFLIGHT.json",
+    "relative_to_R": "I21/layout08_run/PREFLIGHT.json",
+    "sha256": "6153f344470490f420fe90ceb749c71d4478cc47b8c7501dc7656b74d540af3d",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_prep/LABEL_TYPE_MAP.json",
+    "relative_to_R": "I21/layout08_prep/LABEL_TYPE_MAP.json",
+    "sha256": "563f64f75ee978936b057f6c9e0cff02190386c68795cb082c64a7fdc9918d54",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/layout08_03/backcheck_run/RETURN.md",
+    "relative_to_R": "source_review_RV30/layout08_03/backcheck_run/RETURN.md",
+    "sha256": "11912c7c3fb6702611f111730f9eec82d4d61d653c6aeaa5fe352def5044124f",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/vr_nodes_source_16/RETURN.md",
+    "relative_to_R": "I23/vr_nodes_source_16/RETURN.md",
+    "sha256": "a58efd0f2b8a998fea1ec33e71245f9dc58f95bd7801dba0a2aeb0cca4658219",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/vr_nodes_source_16/DERIVATION.md",
+    "relative_to_R": "I23/vr_nodes_source_16/DERIVATION.md",
+    "sha256": "56c82c44e9ea11f7ca9fb18b345a18e0ef9d619e8ffb1e80c231cb533bbfcb00",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/vr_nodes_source_16/_run_records/SOURCE_EXCERPTS.txt",
+    "relative_to_R": "I23/vr_nodes_source_16/_run_records/SOURCE_EXCERPTS.txt",
+    "sha256": "151da4fe173bd679432a42e48cb681e8a4361256c0dad8192938c69d15952df9",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/vr_nodes_source_16/_run_records/BINDING.json",
+    "relative_to_R": "I23/vr_nodes_source_16/_run_records/BINDING.json",
+    "sha256": "c13a7c3b4f99649e8704b16d0643c1292e5adafced131c333aac769a585926a8",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_nodes_17/RETURN.md",
+    "relative_to_R": "source_review_RV30/vr_nodes_17/RETURN.md",
+    "sha256": "00ded626e11303c6c035976a4c2bf2ecc667041a26d0dcaf7407ab0f11de90cd",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/private_request_artifacts_08/SOURCE_ATTRIBUTION.json",
+    "relative_to_R": "I23/private_request_artifacts_08/SOURCE_ATTRIBUTION.json",
+    "sha256": "d6b4eb7d13e3d6c4a6ad71f393dd2192d3eb60d43235289a25413da6f32bcd7a",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__pal__unix__stack_overflow__thread_info.rs",
+    "relative_to_R": "I21/source_12/decoded/std__sys__pal__unix__stack_overflow__thread_info.rs",
+    "sha256": "96744c68778f452bd0a3bd447acb1448bc2493eb68637f7371f55e57acf190fe",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__sync__once_box.rs",
+    "relative_to_R": "I21/source_12/decoded/std__sys__sync__once_box.rs",
+    "sha256": "395ab1241ab919abedd060b790527a605763b5a94260e51e702ba2df5852ad6c",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/decoded/alloc__collections__btree__node.rs",
+    "relative_to_R": "I21/source_02/decoded/alloc__collections__btree__node.rs",
+    "sha256": "2200ca0a4fe38592c314dc7f5f40bbb160e06b6f9e4abd1eb5bc40701540ab25",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/wrapped_error_artifacts_18/_run_records/SOURCE_EXCERPTS.txt",
+    "relative_to_R": "I23/wrapped_error_artifacts_18/_run_records/SOURCE_EXCERPTS.txt",
+    "sha256": "2939442fbfd98777123d1acbf75d864a737b177a5e9b25ab60ff37fd5f8918d2",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/wrapped_errors_19/RETURN.md",
+    "relative_to_R": "source_review_RV30/wrapped_errors_19/RETURN.md",
+    "sha256": "11c934aff9068d19121258a5d29c4282c04c6224bfeff63fd2736d7338331cbb",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/public_layout_20/_run_records/public_layout.rs",
+    "relative_to_R": "verification/public_layout_20/_run_records/public_layout.rs",
+    "sha256": "7f4e0aa8a7a05f50bd325f015a81c1f70c291355ec09193010877f386a601dc6",
+    "use": "full return/map or selected source/body interpretation; exact ranges retained in tool transcript and review narrative"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+    "sha256": "e72cb08ee2ad27b3f291d1303330f0cc4099a1ea8ff770cde5225fa3c9995df2",
+    "use": "selected allocator registrations/accounting source; current maintained freeze verified"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/alloc.rs",
+    "sha256": "0bb07a2346d0fedf9411ec9e93ab427b4fc4eafbb9de01c412067e3fbe7e4ba0",
+    "use": "selected allocator registrations/accounting source; current maintained freeze verified"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+    "sha256": "60fce121b6d7101297b3b3581a77dfa8ff08b88bcba45e47fdaf89b5bac48710",
+    "use": "selected allocator registrations/accounting source; current maintained freeze verified"
+  }
+]
