@@ -4324,3 +4324,16 @@ mutation brief, R/BRIEFS/I26_KERNEL_REMAINDER_02.md, on the same maintained81c03
 basis. The Cargo lane is free and reserved to that TASK; no other runtime grant
 is implied. Stop on the first survivor/normal failure or compile-only failure.
 No production/test repair is included in that archive-only assignment.
+
+
+## Remaining VR mutation execution grant (ROOT, 2026-10-02 UTC)
+
+I26 reports completed M06–M12 executions without a survivor or compile-only
+failure and has released the Cargo lane; its full sealed return still awaits
+ROOT verification and independent review. ROOT confirms no cargo/rustc process.
+Dispatch I27 for the prepared25-minute remaining VR estimate mutation block,
+R/BRIEFS/I27_VR_MUTANTS_REMAINDER_02.md, on maintained81c038. Only archive/evidence
+writes are authorized; stop rules and no criterion/source weakening remain.
+This grant is execution of required validation, not acceptance of I26's unreviewed
+return or any artifact/measurement qualification. No scale or V-K matrix slot
+is implied.
