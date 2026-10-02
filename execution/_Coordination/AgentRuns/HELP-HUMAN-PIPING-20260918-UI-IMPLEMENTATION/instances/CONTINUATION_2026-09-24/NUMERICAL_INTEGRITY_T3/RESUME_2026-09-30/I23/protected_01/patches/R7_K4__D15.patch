@@ -1,0 +1,14 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -4050,6 +4050,11 @@
+         } else {
+             decision
+         };
++        let decision = if !prep.factors.is_empty() && matches!(decision.result, Ok(false)) {
++            StopDecision { result: Ok(true), ..decision }
++        } else {
++            decision
++        };
+         {
+             let record = &mut attempts[candidate_index];
+             record.stop_rule_work += decision.total;

@@ -1,0 +1,19 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
+@@ -985,15 +985,7 @@
+         let est_blocks: &[Wide<L>] = &hooked;
+         #[cfg(not(test))]
+         let est_blocks: &[Wide<L>] = &shared.est_blocks;
+-        let start = shift_start(
+-            &mut ctx,
+-            &mut sum,
+-            blocks,
+-            &vs.uc,
+-            est_blocks,
+-            &data,
+-            &mut s_refused,
+-        )?;
++        let start: Vec<(usize, Wide<L>, usize)> = Vec::new();
+         let t4 = spent(&ctx, &ctx_w, &sum);
+         stages.bound = t4 - t3;
+         current = Stage::Shift;

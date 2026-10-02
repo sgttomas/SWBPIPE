@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2836,11 +2836,11 @@
+                 scratch.add_scaled(den, false, significand, lsb)?;
+             }
+             scratch.add_scaled(num, true, 1, 0)?;
+             Ok(scratch.signum() >= 0)
+         })();
+-        self.collect(&scratch, result)
++        self.checked(result) // PM16c: omit only reaches scratch aggregation
+     }
+ 
+     /// Accounting-aware upward H/1 conversion. Same exact correction as
+     /// directed_ratio(Up); the old R7 helper and its work contract are unchanged.
+     fn round_up(&mut self, num: &ExactWideSum) -> Result<f64, AttemptStop> {

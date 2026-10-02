@@ -1,0 +1,87 @@
+{
+  "process_id": "P11",
+  "phase": "FAULT_TEST",
+  "registered_id": "VK-F02",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "--exact",
+    "rf_chain",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "VK-F02"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P11.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P11.stderr",
+  "qualifying_condition": "Named RF-CHAIN-T/A r1e-10/12 T/N/tw/ext predicate failure or typed numerical unavailability from rounding u before recovery.",
+  "actual_scope": {
+    "route": "whole existing lane family, one run_case per case; final record comparison retained",
+    "family": "RF-CHAIN",
+    "cases": 30,
+    "max_members": 10,
+    "parity_calls": 0
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "test_source": {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+    "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+  },
+  "registered_kind": "value or outcome",
+  "registered_target": "RF-CHAIN-T/A r1e-10/12 T, N, tw, ext (NC-SUBTRACT-ROUNDED)",
+  "qualification": null,
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=VK-F02 '<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5' '--exact' 'rf_chain' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P11.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P11.stderr'",
+  "binary": {
+    "key": "lane",
+    "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+    "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+  },
+  "guard_before": " 5387     1 03-17:13:55 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "launch_utc": "2026-10-01T18:50:14.885Z",
+  "tool_initial": {
+    "chunk_id": "83eda4",
+    "wall_time_seconds": 1.001952375,
+    "session_id": 32895,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "2cbb96",
+    "wall_time_seconds": 9.167e-06,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "QUALIFYING_FAILURE_WITH_PASSING_CONTROL",
+  "semantic_review": "Exactly one failed rf_chain test at lane.rs75 with176 named numerical predicate failures and all30 cases selected. Registered r1e-10/12 T/tw and N/ext rows fail (e.g.T-n03-r1e-10 T.M1/tw.M1 and A-n03-r1e-10 N.M1/ext.M1). This is direct named value evidence, not Ceiling/certificate/record drift. Full176 lines preserved.",
+  "completed_utc": "2026-10-01T18:50:42.941Z",
+  "raw_hashes": {
+    "stdout": "921f48271db907fdab1f24263e4485b369777634f28e26784704f85a91955520",
+    "stderr": "2624bb1c023f96f670f3a7627996f1afc9f612d15d1988f4c28642ef34f11500"
+  },
+  "runtime_authority": {
+    "at": "2026-10-01T18:49:23Z",
+    "sha256": "77375ab7933beeea3ddcc507032fc450bd90b23886132c4e2a65cb08e07468ec"
+  },
+  "hard_end": "2026-10-01T19:23:13.000Z",
+  "returned_control": "P12"
+}

@@ -1,0 +1,38 @@
+{
+  "confidence": "HIGH for missing nonzero-reaction witness in scoped mapping; no prediction of retargeted fault behavior.",
+  "earliest_divergence": "The selected RF-CHAIN corpus places the loaded coordinate on an unconstrained spring DOF and pins every constrained reaction to exactzero. S2 reaches reactions but the registered nonzero-reaction discriminator has no input instance.",
+  "alternatives": [
+    {
+      "hypothesis": "Fault branch never reached",
+      "status": "Not supported forS2:5actual constrainedDOFs percase; distinguish priorS1emptyloop."
+    },
+    {
+      "hypothesis": "Model unloaded",
+      "status": "False: allcases carry nonzero axial/torsional loads. Those load-bearing quantities are SpringAction, not the constrained Reaction branch mutated byS2."
+    },
+    {
+      "hypothesis": "Nonzero reaction exists but not observed",
+      "status": "No nonzero reaction reference is registered in RF-CHAIN; all150actual Reaction targets are observed numerically againstzero. Tiny computed residual sign remains invisible to the exact predicate; no internalzero premise required."
+    },
+    {
+      "hypothesis": "Publication refusal masks failure",
+      "status": "Not P35:30Selected andalloriginalassertionspass. Remains uncertainty for a later nonzero-reaction retarget."
+    },
+    {
+      "hypothesis": "Wrong binary/feature/environment/zero-test run",
+      "status": "Both sealed records andcurrentbinary/fingerprint corroborate explicitVK-S2,featureenabled,freshprocess,exact1test. No contrary evidence."
+    }
+  ],
+  "affected_surfaces": [
+    "Frozen VK-S2 rf_chain mapping andderivedP35/P36routing",
+    "RF-CHAIN reaction-vs-spring target selection",
+    "Potential correction to existingrf_finite only afterROOTreview",
+    "OriginalP35survivor andP36+heldhistory remainunchanged"
+  ],
+  "production_algorithm_repair_warranted": false,
+  "remaining_unknowns": [
+    "RetargetedS2maybe blocked by current publicationcertificate before numericvalues; no kill predicted.",
+    "P35logs do not include per-row/internalreactionbits, so exactinternalzero is not claimed.",
+    "Freshretarget baseline/fault/return andindependentreview requireseparateROOTgrant."
+  ]
+}

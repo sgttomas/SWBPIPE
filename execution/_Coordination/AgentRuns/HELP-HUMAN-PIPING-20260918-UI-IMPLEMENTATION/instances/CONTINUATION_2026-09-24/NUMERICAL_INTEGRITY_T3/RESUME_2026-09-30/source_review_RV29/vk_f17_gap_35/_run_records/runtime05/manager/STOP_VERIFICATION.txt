@@ -1,0 +1,2 @@
+PASS13sealedpayloads;2exactfreshargv/env/cwd/exit/raw/portable bindings;4existingartifacts/rawfingerprints and189source files unchanged. P28one-test PASS incl46notcovered;P29one-test FAIL/36Ceilings/zeroCLASS/twoFLOOR. P30-P53absent/unrun; no substitutecredit.
+RETURN 565c1c4e9550b7e76536df0da74feabec525690ed24e03b042346b2fb897b41e

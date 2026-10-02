@@ -1,0 +1,981 @@
+{
+  "status": "SOURCE_JUSTIFIED_MAPPING_OPTION_NOT_AUTHORIZED_OR_RUN",
+  "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_finite.jsonl",
+  "sha256": "92a6ea403f4bb33efdfa43078386cc0befdb272b2ccf9d8fa2f7d1f231b1de98",
+  "existing_target": "--test lane / exact rf_finite",
+  "cases": [
+    {
+      "id": "RF-FINITE-THIRDS-O0",
+      "line": 1,
+      "line_sha256": "718a4abe04c8d8d7564a6e79ca0e6987f5f971e264c7f4fa1271f89cfa548bcb",
+      "k4src_sha256": "c6fffd6e12c0b481d5cc4e826980fa7d2d5b45217cb908397432ee6c6d2cb7d5",
+      "constraints": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "loads": [
+        [
+          10,
+          0,
+          "4024000000000000",
+          "l0"
+        ],
+        [
+          10,
+          1,
+          "4014000000000000",
+          "l1"
+        ],
+        [
+          10,
+          2,
+          "c008000000000000",
+          "l2"
+        ],
+        [
+          10,
+          3,
+          "4000000000000000",
+          "l3"
+        ]
+      ],
+      "reaction_rows": [
+        {
+          "row": [
+            "R.N0.UX",
+            "-1.000000000000000000000000000000000000000e+1",
+            "force",
+            null
+          ],
+          "exact_rational": "-10",
+          "mapped_dof": [
+            0,
+            0
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UY",
+            "-5.000000000000000000000000000000000000000e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "-5",
+          "mapped_dof": [
+            0,
+            1
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UZ",
+            "3.000000000000000000000000000000000000000e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "3",
+          "mapped_dof": [
+            0,
+            2
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RX",
+            "-2.000000000000000000000000000000000000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "-2",
+          "mapped_dof": [
+            0,
+            3
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RY",
+            "-1.000000000000000000000000000000000000000e+1",
+            "moment",
+            null
+          ],
+          "exact_rational": "-10",
+          "mapped_dof": [
+            0,
+            4
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RZ",
+            "-1.666666666666666666666666666666666666667e+1",
+            "moment",
+            null
+          ],
+          "exact_rational": "-1666666666666666666666666666666666666667/100000000000000000000000000000000000000",
+          "mapped_dof": [
+            0,
+            5
+          ]
+        }
+      ],
+      "existing_NC_SIGN": [
+        "NC-SIGN",
+        true,
+        "value",
+        {
+          "R.N0.RX": "2.000000000000000000000000e+0",
+          "R.N0.RY": "1.000000000000000000000000e+1",
+          "R.N0.RZ": "1.666666666666666666666667e+1",
+          "R.N0.UX": "1.000000000000000000000000e+1",
+          "R.N0.UY": "5.000000000000000000000000e+0",
+          "R.N0.UZ": "-3.000000000000000000000000e+0"
+        }
+      ],
+      "scales": {
+        "extension": "2.792191984068339224015505e-9",
+        "force": "1.157583690279022547355581e+1",
+        "moment": "1.953913451967046000402041e+1",
+        "rotation": "6.191978611105822664824582e-6",
+        "translation": "1.332610835202067828578427e-5",
+        "twist": "1.542647505010132167964367e-7"
+      }
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O1e3",
+      "line": 2,
+      "line_sha256": "bcda1e5955677fe7cb01d6c2ae1e6ce1d33268f354ee0fe337ddac3ab9a56397",
+      "k4src_sha256": "34358c55bac3bb38032951b1d06c87cc8f977c9584d7b385872792e1f61aedd7",
+      "constraints": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "loads": [
+        [
+          10,
+          0,
+          "4024000000000000",
+          "l0"
+        ],
+        [
+          10,
+          1,
+          "4014000000000000",
+          "l1"
+        ],
+        [
+          10,
+          2,
+          "c008000000000000",
+          "l2"
+        ],
+        [
+          10,
+          3,
+          "4000000000000000",
+          "l3"
+        ]
+      ],
+      "reaction_rows": [
+        {
+          "row": [
+            "R.N0.UX",
+            "-1.000000000000000000000000000000000000000e+1",
+            "force",
+            null
+          ],
+          "exact_rational": "-10",
+          "mapped_dof": [
+            0,
+            0
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UY",
+            "-5.000000000000000000000000000000000000000e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "-5",
+          "mapped_dof": [
+            0,
+            1
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UZ",
+            "3.000000000000000000000000000000000000000e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "3",
+          "mapped_dof": [
+            0,
+            2
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RX",
+            "-2.000000000000000000000000000000000000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "-2",
+          "mapped_dof": [
+            0,
+            3
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RY",
+            "-1.000000000000000000000000000000000000000e+1",
+            "moment",
+            null
+          ],
+          "exact_rational": "-10",
+          "mapped_dof": [
+            0,
+            4
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RZ",
+            "-1.666666666666666666666666666666666666667e+1",
+            "moment",
+            null
+          ],
+          "exact_rational": "-1666666666666666666666666666666666666667/100000000000000000000000000000000000000",
+          "mapped_dof": [
+            0,
+            5
+          ]
+        }
+      ],
+      "existing_NC_SIGN": [
+        "NC-SIGN",
+        true,
+        "value",
+        {
+          "R.N0.RX": "2.000000000000000000000000e+0",
+          "R.N0.RY": "1.000000000000000000000000e+1",
+          "R.N0.RZ": "1.666666666666666666666667e+1",
+          "R.N0.UX": "1.000000000000000000000000e+1",
+          "R.N0.UY": "5.000000000000000000000000e+0",
+          "R.N0.UZ": "-3.000000000000000000000000e+0"
+        }
+      ],
+      "scales": {
+        "extension": "2.792191984068339224015505e-9",
+        "force": "1.157583690279022547355581e+1",
+        "moment": "1.953913451967046000402041e+1",
+        "rotation": "6.191978611105822664824582e-6",
+        "translation": "1.332610835202067828578427e-5",
+        "twist": "1.542647505010132167964367e-7"
+      }
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O1e6",
+      "line": 3,
+      "line_sha256": "45f2d8c13c2771a48829c9f5b8a32cc7a5bf45b81f9e88cef0cb4a9a393994a3",
+      "k4src_sha256": "04ac31145f488b64e8789a0dc59384ea8c40c88fef6762f16ca54c672ff28ac1",
+      "constraints": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "loads": [
+        [
+          10,
+          0,
+          "4024000000000000",
+          "l0"
+        ],
+        [
+          10,
+          1,
+          "4014000000000000",
+          "l1"
+        ],
+        [
+          10,
+          2,
+          "c008000000000000",
+          "l2"
+        ],
+        [
+          10,
+          3,
+          "4000000000000000",
+          "l3"
+        ]
+      ],
+      "reaction_rows": [
+        {
+          "row": [
+            "R.N0.UX",
+            "-1.000000000000000000000000000000000000000e+1",
+            "force",
+            null
+          ],
+          "exact_rational": "-10",
+          "mapped_dof": [
+            0,
+            0
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UY",
+            "-5.000000000000000000000000000000000000000e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "-5",
+          "mapped_dof": [
+            0,
+            1
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UZ",
+            "3.000000000000000000000000000000000000000e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "3",
+          "mapped_dof": [
+            0,
+            2
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RX",
+            "-2.000000000000000000000000000000000000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "-2",
+          "mapped_dof": [
+            0,
+            3
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RY",
+            "-1.000000000000000000000000000000000000000e+1",
+            "moment",
+            null
+          ],
+          "exact_rational": "-10",
+          "mapped_dof": [
+            0,
+            4
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RZ",
+            "-1.666666666666666666666666666666666666667e+1",
+            "moment",
+            null
+          ],
+          "exact_rational": "-1666666666666666666666666666666666666667/100000000000000000000000000000000000000",
+          "mapped_dof": [
+            0,
+            5
+          ]
+        }
+      ],
+      "existing_NC_SIGN": [
+        "NC-SIGN",
+        true,
+        "value",
+        {
+          "R.N0.RX": "2.000000000000000000000000e+0",
+          "R.N0.RY": "1.000000000000000000000000e+1",
+          "R.N0.RZ": "1.666666666666666666666667e+1",
+          "R.N0.UX": "1.000000000000000000000000e+1",
+          "R.N0.UY": "5.000000000000000000000000e+0",
+          "R.N0.UZ": "-3.000000000000000000000000e+0"
+        }
+      ],
+      "scales": {
+        "extension": "2.792191984068339224015505e-9",
+        "force": "1.157583690279022547355581e+1",
+        "moment": "1.953913451967046000402041e+1",
+        "rotation": "6.191978611105822664824582e-6",
+        "translation": "1.332610835202067828578427e-5",
+        "twist": "1.542647505010132167964367e-7"
+      }
+    },
+    {
+      "id": "RF-FINITE-TENTHS-O1e6",
+      "line": 4,
+      "line_sha256": "e70fe484fe5f9ba065376181e324d8ebcd22a4ff5375e6b6d921af4abf49be8f",
+      "k4src_sha256": "ec07e528135eb5829a0c7f0a2ef921fa5b7853b00e24fb9ffdc01567826b8646",
+      "constraints": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "loads": [
+        [
+          10,
+          0,
+          "4024000000000000",
+          "l0"
+        ],
+        [
+          10,
+          1,
+          "4014000000000000",
+          "l1"
+        ],
+        [
+          10,
+          2,
+          "c008000000000000",
+          "l2"
+        ],
+        [
+          10,
+          3,
+          "4000000000000000",
+          "l3"
+        ]
+      ],
+      "reaction_rows": [
+        {
+          "row": [
+            "R.N0.UX",
+            "-1.000000000000000000000000000000000000000e+1",
+            "force",
+            null
+          ],
+          "exact_rational": "-10",
+          "mapped_dof": [
+            0,
+            0
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UY",
+            "-5.000000000000000000000000000000000000000e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "-5",
+          "mapped_dof": [
+            0,
+            1
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UZ",
+            "3.000000000000000000000000000000000000000e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "3",
+          "mapped_dof": [
+            0,
+            2
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RX",
+            "-2.000000000000000000000000000000000000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "-2",
+          "mapped_dof": [
+            0,
+            3
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RY",
+            "-3.000000000000000000000000000000000000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "-3",
+          "mapped_dof": [
+            0,
+            4
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RZ",
+            "-5.000000000000000000000000000000000000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "-5",
+          "mapped_dof": [
+            0,
+            5
+          ]
+        }
+      ],
+      "existing_NC_SIGN": [
+        "NC-SIGN",
+        true,
+        "value",
+        {
+          "R.N0.RX": "2.000000000000000000000000e+0",
+          "R.N0.RY": "3.000000000000000000000000e+0",
+          "R.N0.RZ": "5.000000000000000000000000e+0",
+          "R.N0.UX": "1.000000000000000000000000e+1",
+          "R.N0.UY": "5.000000000000000000000000e+0",
+          "R.N0.UZ": "-3.000000000000000000000000e+0"
+        }
+      ],
+      "scales": {
+        "extension": "8.376575952205017672046514e-10",
+        "force": "1.157583690279022547355581e+1",
+        "moment": "6.164414002968976450250192e+0",
+        "rotation": "7.109580194141216477429939e-7",
+        "translation": "3.599016297394662872930444e-7",
+        "twist": "4.627942515030396503893102e-8"
+      }
+    },
+    {
+      "id": "RF-FINITE-THIRTIETHS-O1e6",
+      "line": 5,
+      "line_sha256": "e7806527923f876c683ff87691f784bffcd45cf11bf7f941534391199abb627d",
+      "k4src_sha256": "e5c14ee1eb5c107700ff7ec38e2cb2012af972f18a9d0777d892fba5dd0597b5",
+      "constraints": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "loads": [
+        [
+          10,
+          0,
+          "4024000000000000",
+          "l0"
+        ],
+        [
+          10,
+          1,
+          "4014000000000000",
+          "l1"
+        ],
+        [
+          10,
+          2,
+          "c008000000000000",
+          "l2"
+        ],
+        [
+          10,
+          3,
+          "4000000000000000",
+          "l3"
+        ]
+      ],
+      "reaction_rows": [
+        {
+          "row": [
+            "R.N0.UX",
+            "-1.000000000000000000000000000000000000000e+1",
+            "force",
+            null
+          ],
+          "exact_rational": "-10",
+          "mapped_dof": [
+            0,
+            0
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UY",
+            "-5.000000000000000000000000000000000000000e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "-5",
+          "mapped_dof": [
+            0,
+            1
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UZ",
+            "3.000000000000000000000000000000000000000e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "3",
+          "mapped_dof": [
+            0,
+            2
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RX",
+            "-2.000000000000000000000000000000000000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "-2",
+          "mapped_dof": [
+            0,
+            3
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RY",
+            "-1.000000000116415321826934814453125000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "-8589934593/8589934592",
+          "mapped_dof": [
+            0,
+            4
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RZ",
+            "-1.666666666860692203044891357421875000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "-14316557655/8589934592",
+          "mapped_dof": [
+            0,
+            5
+          ]
+        }
+      ],
+      "existing_NC_SIGN": [
+        "NC-SIGN",
+        true,
+        "value",
+        {
+          "R.N0.RX": "2.000000000000000000000000e+0",
+          "R.N0.RY": "1.000000000000000000000000e+0",
+          "R.N0.RZ": "1.666666666666666666666667e+0",
+          "R.N0.UX": "1.000000000000000000000000e+1",
+          "R.N0.UY": "5.000000000000000000000000e+0",
+          "R.N0.UZ": "-3.000000000000000000000000e+0"
+        }
+      ],
+      "scales": {
+        "extension": "2.792191984068339224015505e-10",
+        "force": "1.157583690279022547355581e+1",
+        "moment": "2.788866755113585159927240e+0",
+        "rotation": "1.655104136503430354921838e-7",
+        "translation": "1.361545887041943134053638e-8",
+        "twist": "1.542647505010132167964367e-8"
+      }
+    },
+    {
+      "id": "RF-FINITE-ROT-Q9-NONMULT",
+      "line": 6,
+      "line_sha256": "e11a7601f87a086921dadd3e5e276cb448bc6fb3c5fc20e80ed690de5ea679a9",
+      "k4src_sha256": "84151f16f2758c7df7ef4cf00f83edad9f27222724b78ce67ff43f6df5b7071e",
+      "constraints": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "loads": [
+        [
+          2,
+          0,
+          "4021c71c71c71c72",
+          "l0"
+        ],
+        [
+          2,
+          1,
+          "3ff1c71c71c71c72",
+          "l1"
+        ],
+        [
+          2,
+          2,
+          "4011c71c71c71c72",
+          "l2"
+        ],
+        [
+          2,
+          3,
+          "3fd5555555555555",
+          "l3"
+        ],
+        [
+          2,
+          4,
+          "4005555555555555",
+          "l4"
+        ],
+        [
+          2,
+          5,
+          "bff5555555555555",
+          "l5"
+        ]
+      ],
+      "reaction_rows": [
+        {
+          "row": [
+            "R.N0.UX",
+            "-8.888888888888888888888888888888888888889e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "-8888888888888888888888888888888888888889/1000000000000000000000000000000000000000",
+          "mapped_dof": [
+            0,
+            0
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UY",
+            "-1.111111111111111111111111111111111111111e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "-1111111111111111111111111111111111111111/1000000000000000000000000000000000000000",
+          "mapped_dof": [
+            0,
+            1
+          ]
+        },
+        {
+          "row": [
+            "R.N0.UZ",
+            "-4.444444444444444444444444444444444444444e+0",
+            "force",
+            null
+          ],
+          "exact_rational": "-1111111111111111111111111111111111111111/250000000000000000000000000000000000000",
+          "mapped_dof": [
+            0,
+            2
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RX",
+            "-7.000000000000000000000000000000000000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "-7",
+          "mapped_dof": [
+            0,
+            3
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RY",
+            "2.400000000000000000000000000000000000000e+1",
+            "moment",
+            null
+          ],
+          "exact_rational": "24",
+          "mapped_dof": [
+            0,
+            4
+          ]
+        },
+        {
+          "row": [
+            "R.N0.RZ",
+            "8.000000000000000000000000000000000000000e+0",
+            "moment",
+            null
+          ],
+          "exact_rational": "8",
+          "mapped_dof": [
+            0,
+            5
+          ]
+        }
+      ],
+      "existing_NC_SIGN": [
+        "NC-SIGN",
+        true,
+        "value",
+        {
+          "R.N0.RX": "7.000000000000000000000000e+0",
+          "R.N0.RY": "-2.400000000000000000000000e+1",
+          "R.N0.RZ": "-8.000000000000000000000000e+0",
+          "R.N0.UX": "8.888888888888888888888889e+0",
+          "R.N0.UY": "1.111111111111111111111111e+0",
+          "R.N0.UZ": "4.444444444444444444444444e+0"
+        }
+      ],
+      "scales": {
+        "extension": "1.675315190441003534409303e-8",
+        "force": "1.000000000000000000000000e+1",
+        "moment": "2.624880949681337452637319e+1",
+        "rotation": "1.109510007658042445415990e-5",
+        "translation": "2.449724237956089882727415e-5",
+        "twist": "7.867502275551674056618273e-6"
+      }
+    }
+  ],
+  "nonzero_reaction_row_count": 36,
+  "smallest_change": "ROOT-reviewed additive correction/supersession of S2 scoped target from rf_chain to existing rf_finite, preserving P35 and originalmap history. No source/fault/test/fixture/oracle/tolerance changes.",
+  "concrete_witness": "RF-FINITE-THIRDS-O0: all6 N0 DOFs constrained, no spring; terminal Fx=10/Fy=5/Fz=-3/Mx=2. Existing R.N0.UX=-10,UY=-5,UZ=3,RX=-2 and other nonzero moment references are directly observed as Reaction. Existing NC-SIGN explicitly supplies sign-reversed references as a discriminating value control.",
+  "criterion_unchanged": "Named NONZERO REACTION numerical predicate failure from S2 sign reversal. Generic unavailability, certificate failure, record/work drift or any other class of failure does not qualify.",
+  "later_regression_if_granted": "Matching fresh NONE / VK-S2 / returned NONE on the existing exact filter and pinned feature-enabled artifact; inspect explicit named R.N0 numeric failure against original oracle. Full six-case test pins remain748rows/6Selected for NONE. Do not infer P36 from another control.",
+  "no_prediction": "Current publication admission could withhold a faulted result; no kill, final runtime behavior or acceptance predicted.",
+  "new_fixture": "None needed for source reach/observability: existing corpus has36nonzero reaction references."
+}

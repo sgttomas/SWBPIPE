@@ -1,0 +1,4 @@
+PASS:159 layout and15 derived Arc rows are exact matches to sealed layout04; report block coefficients976/1584/2800 and body coefficients640/1056/1888 independently recomputed.
+PASS: retained source diff cb13→40129 empty; sampled actual source confirms in-place u_free correction and post-fallback chosen clone.
+Manager read consolidated ledger; requested explicit tracker high-waters, now present. Full allocation-identity completeness/estimator/E_max acceptance is not established.
+No host-path literals detected in child packet; no runtime/source mutation performed by manager.

@@ -1,0 +1,808 @@
+[
+  {
+    "group": "R7_K4",
+    "id": "D3",
+    "patch": "patches/R7_K4__D3.patch",
+    "patch_sha256": "0335560acba9af1f7ec1cc0dfc7dae7386d3f979c0323789826b63f75d3d5be9",
+    "filters": [
+      "structural::retained::assemble::tests::the_reduced_rhs_enters_prescribed_columns_exactly_and_rounds_once"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+      "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5",
+      "assertion_lines": [
+        717
+      ]
+    },
+    "qualifying_semantic_assertion": "PRESCRIBED reduced rhs equals separately formed exact -sum(K_ic*u_c); omitted prescribed columns violate row equality.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D3.patch",
+    "runtime_id": "R34",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "before_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+        "after_sha256": "69658eb86e67695eb756bbb77974465013de06385f289afe9c50b1d6e1d2f513"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R34",
+    "target_root": "<wt>/a1-protected-target/g3/R34",
+    "scan_status": "NO_EARLIER_CASE",
+    "control_flow_assessment": "Single PRESCRIBED source, assembled/setup unaffected by reduced_rhs-only fault. Any row717 numeric mismatch meets the existing per-row criterion."
+  },
+  {
+    "group": "R7_K4",
+    "id": "D5",
+    "patch": "patches/R7_K4__D5.patch",
+    "patch_sha256": "b26b7c52ca017556b0a4dd0625d59ad976375ccfa7c33f94d04e669fa5a194f2",
+    "filters": [
+      "structural::retained::adaptive::tests::a_ceiling_case_is_unresolved_with_its_attempts"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14",
+      "assertion_lines": [
+        193,
+        196
+      ]
+    },
+    "qualifying_semantic_assertion": "SKEW-K1E-300 records exactly candidate precisions[128,256,512]; loop capped at1 records only128. No selected publication prerequisite.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D5.patch",
+    "runtime_id": "R35",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "9dd3b64bc54697f40fca9f71b974c239c280c5a318256a139e997997b9bdee25"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R35",
+    "target_root": "<wt>/a1-protected-target/g3/R35",
+    "scan_status": "NO_EARLIER_CASE",
+    "control_flow_assessment": "Single SKEW-K1E-300. Prior geometry190 is unaffected by candidate-loop cap. Candidate precision list191-193 is first changed assertion."
+  },
+  {
+    "group": "R7_K4",
+    "id": "D6",
+    "patch": "patches/R7_K4__D6.patch",
+    "patch_sha256": "df36980e707c7285021262babf5439756d9779f39cd0b164b3c0b4f195bd71f3",
+    "filters": [
+      "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+      "assertion_lines": [
+        1522,
+        1524
+      ]
+    },
+    "qualifying_semantic_assertion": "Fixed above-boundary row must reject StopRule index0; screen-only acceptance returnsNone.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D6.patch",
+    "runtime_id": "R36",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "90cb5e201b011c891ff1eb13eeaea745da0696e2a65fccd49b2ba490a6a9eb4a"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R36",
+    "target_root": "<wt>/a1-protected-target/g3/R36",
+    "scan_status": "NO_EARLIER_WITNESS_IDENTIFIED",
+    "control_flow_assessment": "Synthetic boundary fixture. Earlier equality verdictNone at1520 is preserved by screen-only acceptance; above-boundary1522 is required first rejection."
+  },
+  {
+    "group": "R7_K4",
+    "id": "D10",
+    "patch": "patches/R7_K4__D10.patch",
+    "patch_sha256": "04936cab74395135e6f9514b89d93680600686fabd977d326879e440ba25e697",
+    "filters": [
+      "structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+      "assertion_lines": [
+        547
+      ]
+    },
+    "qualifying_semantic_assertion": "Fixed BOUNDS per-model L/D encoding includes actual order_free mapping; list order must not replace RCM.",
+    "mapping_note": "Rerouted from RCM helper-only test, which does not reach mutation. Credit fixed factor-bit mismatch, not arbitrary build failure or parity-only coincidence.",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D10.patch",
+    "runtime_id": "R37",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+        "before_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+        "after_sha256": "e573cb596385529a60dcacdcdebb92b4e2f70a589b4049b94726f39a1e9b9b14"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R37",
+    "target_root": "<wt>/a1-protected-target/g3/R37",
+    "scan_status": "GENERIC_FIXED_FACTOR_CRITERION",
+    "control_flow_assessment": "Loop spans models/precisions but criterion accepts any fixed BOUNDS factor-bit mismatch547, not one strictly later model. Shared-build stop/unwrap/parity failures are still excluded; source scan is not proof all setups succeed."
+  },
+  {
+    "group": "R7_K4",
+    "id": "D14",
+    "patch": "patches/R7_K4__D14.patch",
+    "patch_sha256": "48eb60010611d447a67b98bcdb2b68f91e2e582418ae7372d5b1baf3bf28518f",
+    "filters": [
+      "structural::retained::ledger::tests::canonical_encodings_equal_the_generators_independent_bytes"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+      "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922",
+      "assertion_lines": [
+        370
+      ]
+    },
+    "qualifying_semantic_assertion": "Fixed cled B1-C canonical bytes encode net1e-8; sequential binary64 product fold yields zero. No operand solving/publication.",
+    "mapping_note": "Replaces selected combination prerequisite with existing RetainedLedger::combined corpus equality.",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D14.patch",
+    "runtime_id": "R38",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+        "before_sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+        "after_sha256": "2b77809fa20ef56d47e84d570a4516bc023eff224fc706c9921450b334509a1f"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R38",
+    "target_root": "<wt>/a1-protected-target/g3/R38",
+    "scan_status": "NO_EARLIER_AFFECTED_CASE",
+    "control_flow_assessment": "encodings.txt1-24 are src/stf/led; combined-only mutation cannot affect them. First cled is B1-C at25, exercised at ledger_tests366 and compared370. Exact required witness is first affected branch."
+  },
+  {
+    "group": "R7_K4",
+    "id": "D16b",
+    "patch": "patches/R7_K4__D16b.patch",
+    "patch_sha256": "2070e735346f61d22c7ca409a5bc10b475e1686e7aba4043069bc5bfd6201850",
+    "filters": [
+      "structural::retained::recover::tests::a_recovered_action_is_one_exact_expansion_where_a_sequential_fold_loses_a_term"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+      "sha256": "1540a9675c873ed1922e685302c7ea8302d3117844aa10895b9e21e447c251f7",
+      "assertion_lines": [
+        254,
+        256
+      ]
+    },
+    "qualifying_semantic_assertion": "Direct recover axial action remains nonzero and within1e-12 of -(EA/L)*(2/3)*2^-200; code-order fold loses term.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D16b.patch",
+    "runtime_id": "R39",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+        "before_sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+        "after_sha256": "f9ac982ae25d60e1b882acf9a5579e300b1b69c1436cc5c33b46617652ac61f4"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R39",
+    "target_root": "<wt>/a1-protected-target/g3/R39",
+    "scan_status": "NO_EARLIER_CASE",
+    "control_flow_assessment": "Single direct recovered-action fixture. Existing setup/preconditions precede254/256; no earlier model loop or publication certificate."
+  },
+  {
+    "group": "R7_K4",
+    "id": "D20",
+    "patch": "patches/R7_K4__D20.patch",
+    "patch_sha256": "473365a9b511a9d2b3ea5cd50f1943f09cae303815d19fd4c943a1d3d42b93d2",
+    "filters": [
+      "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "assertion_lines": [
+        120
+      ]
+    },
+    "qualifying_semantic_assertion": "threshold(1) equals fixed FLOOR_RATIO_BITS, not rounded1e9*2^-64.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D20.patch",
+    "runtime_id": "R40",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "f5aad009c3c9388df6758a6a4d6f9f80f8aa7488fd6c73fc28c3e65a8e1b6309"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R40",
+    "target_root": "<wt>/a1-protected-target/g3/R40",
+    "scan_status": "FIRST_ASSERTION_IS_WITNESS",
+    "control_flow_assessment": "threshold(1) is immediately compared against FLOOR_RATIO_BITS at classification_tests120."
+  },
+  {
+    "group": "R7_K4",
+    "id": "D25",
+    "patch": "patches/R7_K4__D25.patch",
+    "patch_sha256": "ba64121e73cc18f3620085c7014210d262d13930bbbb2589ac7d5ec3ad3384eb",
+    "filters": [
+      "structural::retained::adaptive::classification_tests::stress_scales_and_intensified_factors_match_bit_for_bit"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "assertion_lines": [
+        195,
+        198
+      ]
+    },
+    "qualifying_semantic_assertion": "Fixed kint corpus numeric bits retain sqrt2 factor; substituting1 changes them.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D25.patch",
+    "runtime_id": "R41",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "6d03c7ad32d4a6c333ebe4301a50bd9feb955a716621e4391552f54a9efc735a"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R41",
+    "target_root": "<wt>/a1-protected-target/g3/R41",
+    "scan_status": "GENERIC_FIXED_KINT_CRITERION",
+    "control_flow_assessment": "Initial constant checks188-189 are unchanged; first affected kint195-198 is covered by fixed-corpus criterion, not a later named vector."
+  },
+  {
+    "group": "RV19",
+    "id": "RV19-1R",
+    "patch": "patches/RV19__RV19-1R.patch",
+    "patch_sha256": "848113a0babff91c5f4d96978222cb80a0b93ff659793b2b0943a2e703799a02",
+    "filters": [
+      "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+      "assertion_lines": [
+        1643,
+        1649
+      ]
+    },
+    "qualifying_semantic_assertion": "Candidate overflow membership determines first straddle StopRule index1 and opposite straddleNone; skip-all or verifier membership flips required verdict.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-1R.patch",
+    "runtime_id": "R42",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "ff631b1d4ffb062e0ccb8095696bf538e70bb140f29df706f1a8f86e1a667d97"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R42",
+    "target_root": "<wt>/a1-protected-target/g3/R42",
+    "scan_status": "FIRST_STRADDLE_IS_WITNESS",
+    "control_flow_assessment": "Synthetic overflow construction/conversion checks1634-1637 are unaffected. Required first straddle verdict1643 follows directly."
+  },
+  {
+    "group": "RV19",
+    "id": "RV19-D4",
+    "patch": "patches/RV19__RV19-D4.patch",
+    "patch_sha256": "686472406176677f4b7ccaaa0e16bd823d484ece3acde47795de13daab3a528d",
+    "filters": [
+      "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+      "assertion_lines": [
+        1643,
+        1649
+      ]
+    },
+    "qualifying_semantic_assertion": "Candidate overflow membership determines first straddle StopRule index1 and opposite straddleNone; skip-all or verifier membership flips required verdict.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-D4.patch",
+    "runtime_id": "R43",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "17cecaafcd06c6b44727dd1d5fb70724a40a3294b32ce8dc4d7348f2b7d3c60a"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R43",
+    "target_root": "<wt>/a1-protected-target/g3/R43",
+    "scan_status": "FIRST_STRADDLE_IS_WITNESS",
+    "control_flow_assessment": "Verification-membership mutation affects first straddle1643; no earlier model. Original conversion checks unaffected."
+  },
+  {
+    "group": "RV19",
+    "id": "A1R",
+    "patch": "patches/RV19__A1R.patch",
+    "patch_sha256": "441541fe3317832251eae3bd34c0aab4d9d027992e83f7be320910589ce79055",
+    "filters": [
+      "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "assertion_lines": [
+        153,
+        178
+      ]
+    },
+    "qualifying_semantic_assertion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__A1R.patch",
+    "runtime_id": "R44",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "5df66c8c3d7c5fdcff0f4a9d0b558bb69aab18863b59bafbfe4769d2978f6008"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R44",
+    "target_root": "<wt>/a1-protected-target/g3/R44",
+    "scan_status": "FIRST_CLASSIFICATION_IS_WITNESS",
+    "control_flow_assessment": "row_bound153 remains unchanged, first classify155-159 drops row radius and is inside fixed small-row class criterion."
+  },
+  {
+    "group": "RV19",
+    "id": "RV19-D1",
+    "patch": "patches/RV19__RV19-D1.patch",
+    "patch_sha256": "cfb7d35e1d94a80b1cf98ee09e661925221b8c30191f40925403a27281cd3f7a",
+    "filters": [
+      "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "assertion_lines": [
+        153,
+        178
+      ]
+    },
+    "qualifying_semantic_assertion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-D1.patch",
+    "runtime_id": "R45",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "4af5934d5750534dade4fcd9fba422b58545ed31bf1b16c64dd570a1a1e1cc99"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R45",
+    "target_root": "<wt>/a1-protected-target/g3/R45",
+    "scan_status": "FIRST_BOUND_IS_WITNESS",
+    "control_flow_assessment": "Removing h changes first fixed row_bound153; no prior numerical assertion."
+  },
+  {
+    "group": "RV19",
+    "id": "RV19-D2",
+    "patch": "patches/RV19__RV19-D2.patch",
+    "patch_sha256": "1017231c7a4f3a1b9986a9d07264de215411ceafb503b21c33572cc582387c21",
+    "filters": [
+      "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "assertion_lines": [
+        153,
+        178
+      ]
+    },
+    "qualifying_semantic_assertion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-D2.patch",
+    "runtime_id": "R46",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "3151195bd41cd8b6b22a960521954fc2295ec006f2e200ce21312485582fc095"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R46",
+    "target_root": "<wt>/a1-protected-target/g3/R46",
+    "scan_status": "NO_NAMED_CASE_PREEMPTION",
+    "control_flow_assessment": "Small-row test is synthetic, not a model loop. Exact-power first bound153 is unaffected by nearest-versus-upward rounding; subsequent row-bound assertions remain within the original small-row/upward-rounding criterion. No generalized failure credit."
+  },
+  {
+    "group": "RV19",
+    "id": "RV19-D3",
+    "patch": "patches/RV19__RV19-D3.patch",
+    "patch_sha256": "e2569efd5781f5008ebf4f05bfbcc08c196b58f23f4e6f1a06d15d7a36e7169e",
+    "filters": [
+      "structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+      "sha256": "a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5",
+      "assertion_lines": [
+        544,
+        557
+      ]
+    },
+    "qualifying_semantic_assertion": "A+C have identical station/stiffness/layout ids but different spring membership; require immediate OperandsDiffer and empty attempts at that named combination.",
+    "mapping_note": "Generic invalid_combinations test did not supply support-only witness; existing adjacent specialized test does. No setup/certificate failure counts.",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-D3.patch",
+    "runtime_id": "R47",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+        "before_sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1",
+        "after_sha256": "54c1dbeda7fc8f08cf829d480e77f7b75153723a831508bd3a84313d63ddded3"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R47",
+    "target_root": "<wt>/a1-protected-target/g3/R47",
+    "scan_status": "NO_EARLIER_AFFECTED_COMBINATION",
+    "control_flow_assessment": "A/B/C selected_source540-542 uses solve_case, outside supports-comparison-only fault. Earlier A+B550-553 still differs by stations, retained check combine99-102. A+C555-557 is first support-only case. Its named immediate-rejection/empty-attempt requirement remains; later certificate failure alone cannot count."
+  },
+  {
+    "group": "RV19",
+    "id": "RV19-M2",
+    "patch": "patches/RV19__RV19-M2.patch",
+    "patch_sha256": "860cadc15b0506899cfb7b26898558881485197b57f490571a3685689332393d",
+    "filters": [
+      "structural::retained::adaptive::method_tests::the_sas_norm_is_the_larger_of_the_one_and_infinity_norms"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+      "assertion_lines": [
+        1946,
+        1953
+      ]
+    },
+    "qualifying_semantic_assertion": "Transposed-entry perturbation creates one-norm > infinity-norm; r.norms.sas must equal larger, with found>0 control.",
+    "mapping_note": "",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-M2.patch",
+    "runtime_id": "R48",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+        "after_sha256": "871728d5f80c1961b4a5530b4565b9964e4a82b35a9ec97e2df8b02135caebfc"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R48",
+    "target_root": "<wt>/a1-protected-target/g3/R48",
+    "scan_status": "GENERIC_LARGER_NORM_CRITERION",
+    "control_flow_assessment": "Single N05 fixture with transposed-entry loop. All earlier one<=infinity iterations satisfy original equality; first one>infinity equality1948 is the same required larger-norm discriminator. verify_state setup unwrap1943 remains excluded."
+  },
+  {
+    "group": "RV19",
+    "id": "RV19-M6",
+    "patch": "patches/RV19__RV19-M6.patch",
+    "patch_sha256": "00dfe1e856abf04cdf0bd3f85f2ed4401c1aa6ed293023401fd66d37f9f21865",
+    "filters": [
+      "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+      "assertion_lines": [
+        185,
+        208
+      ]
+    },
+    "qualifying_semantic_assertion": "Fixed SCALE GROUP-DIR/GROUP-DIR-X E-row tokens include directional contributors in support E.",
+    "mapping_note": "Rerouted to direct formation_scale shared producer; avoids relying on a downstream ratio that may not expose omitted E.",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-M6.patch",
+    "runtime_id": "R49",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+        "after_sha256": "dd998d77d3a1dcad54b7282267fd4ae135f9006aadc6998ee436e9674c489341"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R49",
+    "target_root": "<wt>/a1-protected-target/g3/R49",
+    "scan_status": "NO_EARLIER_AFFECTED_MODEL",
+    "control_flow_assessment": "Only GROUP-DIR and GROUP-DIR-X have directional_springs in support rows; every earlier model lacks the mutated contributor. solve_case_at/bounded_fallback use residual_rows/assemble_bounded, not formation_scale, so preceding solve/correction checks are unaffected. In GROUP-DIR first changed record is Erows, after unchanged g/abar. No publication certificate is invoked."
+  },
+  {
+    "group": "R7_K4",
+    "id": "K4-M31",
+    "patch": "patches/R7_K4__K4-M31.patch",
+    "patch_sha256": "3878c159079b45c7de97f822d0714ea81d45f5654061aa1542ff193d1f0096c8",
+    "filters": [
+      "site_table_is_exactly_the_accumulations_of_the_scanned_files"
+    ],
+    "target": "--test s11_site_table",
+    "archive_scope": "projects/chirality-piping/core",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "sha256": "143f50af64cbfa3ad60f38cdab06bfde9c89dff1918cb5ff8ff2378e69cf5c26",
+      "assertion_lines": [
+        259,
+        625
+      ]
+    },
+    "qualifying_semantic_assertion": "Registered static-policy exact site ledger.rs/from_source count0 becomes1 by newly inserted folded += load.value; named exact-site mismatch required.",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M31.patch",
+    "runtime_id": "R50",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+        "before_sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+        "after_sha256": "638da25162c5fd8cec3c7e55f4f84e5d126312289ce1fec12476e2d9282c3839"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/s11_site_table-c8ba14d9f767e011",
+      "sha256": "ffed9c0f948b771acfd3de71242f38a41dda478839afe7d54de2020f21f9165a"
+    },
+    "source_scope": "projects/chirality-piping/core",
+    "source_root": "<wt>/scratch/i22/protected_g3/R50",
+    "target_root": "<wt>/a1-protected-target/g3/R50",
+    "scan_status": "AGGREGATED_SITE_ASSERTION",
+    "control_flow_assessment": "Test aggregates scanner differences into problems before623-626; earlier file ordering cannot stop at another mismatch. Named ledger/from_source exact-site0->1 must appear; compile/parser failures excluded."
+  },
+  {
+    "group": "R7_K4",
+    "id": "R7-M12",
+    "patch": "patches/R7_K4__R7-M12.patch",
+    "patch_sha256": "ae0e46f8504f3d6a639490fe08d582cf3e920e1eabee9a91f097f52bc93a195a",
+    "filters": [
+      "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_source": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+      "assertion_lines": [
+        121
+      ]
+    },
+    "qualifying_semantic_assertion": "LOADONLY-y345 p128 must form the fixed SCALE state with3 corrections; specifically reported ResidualGate instead of that state is the registered loss of bounded fallback. No certificate is called on this direct solve path.",
+    "mapping_note": "Accepted PLAN_A3_5A3 lines587/611 explicitly identify this bounded-fallback availability discriminator. This exact typed failure is the test subject, not a generic helper/setup failure.",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__R7-M12.patch",
+    "runtime_id": "R51",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "ea4014ea6b761948d66891e05cce1f6f07c6b0af011e7783667ba5bb5b7c6e02"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R51",
+    "target_root": "<wt>/a1-protected-target/g3/R51",
+    "scan_status": "REACH_NOT_PROVED_FROM_CORRECTION_COUNTS",
+    "control_flow_assessment": "Shared e_unit visits all earlier models at128/256/512/1024. Removing chosen bounded fallback can make an earlier solved state fail at scale_tests122 before LOADONLY-y345. Fixed SCALE records do not encode gate kind. Only prior nonzero-correction records are TWO-SPAN128/256/512, each1 (scale853/894/935); chosen fallback may be triggered by stagnation, not only corrections3. No definite earlier failure derived; do not assume state-count evidence proves reach. Any earlier ResidualGate remains uncredited."
+  },
+  {
+    "group": "R7_K4",
+    "id": "K4-M37",
+    "patch": "K4-M37_publication_floor.patch",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/m37_correction_03/K4-M37_publication_floor.patch",
+    "patch_sha256": "809471ddeb17c83f7279c711be98bbbb4da6d413e7725a36d87f71ce3f02312f",
+    "postimage_sha256": "a8599ba9345d2d0cfc521f7b17676311f42d9e8e27b1aa1d2a1697606a207f9d",
+    "filters": [
+      "structural::retained::adaptive::classification_tests::item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else",
+      "structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling"
+    ],
+    "target": "--lib",
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "test_sources": [
+      {
+        "test_source": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+        "test_source_sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+        "qualifying_assertions": [
+          {
+            "line": 296,
+            "expected": "Force row 1e-200 with binding Phi_fo=1e-150 becomes AbsoluteVerified with bound_bits absolute_bound(1e-150).to_bits().",
+            "fault_effect": "Fault leaves original force scale 1e-200 and RelativeVerified; this direct class comparison fails.",
+            "credit": "Primary actual failure expected here; baseline must first pass the same exact test."
+          },
+          {
+            "line": 305,
+            "expected": "Floored force body scale equals 1e-150; moment remains 3.0.",
+            "fault_effect": "Fault would leave force scale 1e-200.",
+            "credit": "Later assertion stays protected but is not claimed reached after the first panic."
+          }
+        ]
+      },
+      {
+        "test_source": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+        "test_source_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+        "qualifying_assertions": [
+          {
+            "line": 982,
+            "expected": "After genuine Accepted(d) for valid p512 Some floor, force scale bits equal floor[0].to_bits().",
+            "fault_effect": "First [0,0] loop iteration passes; second [least_subnormal,least_subnormal] iteration still accepts zero source but force scale remains 0 instead of 1.",
+            "credit": "Actual numeric scale comparison after accepted draft is the required failure; Shape or nonaccepted-draft panic is not a kill."
+          },
+          {
+            "line": 983,
+            "expected": "Accepted draft moment scale bits equal floor[1].to_bits(); translation/rotation remain zero.",
+            "fault_effect": "Suppressed Phi leaves zero moment scale for positive floors.",
+            "credit": "Later protected assertion; do not claim reached if force-scale assertion already panics."
+          }
+        ]
+      }
+    ],
+    "qualifying_semantic_assertion": "Pure classification binding Force class at296; valid accepted p512 draft Force scale bits at982. Compiler, Shape, other certificate error or Accepted precondition panic never counts.",
+    "status": "PREPARED_METADATA_ONLY_UNRUN",
+    "runtime_status": "UNRUN_BY_RV29",
+    "old_patch_status": "Preserved and unready; do not apply original protected_01 M37 patch.",
+    "runtime_id": "R52",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "a8599ba9345d2d0cfc521f7b17676311f42d9e8e27b1aa1d2a1697606a207f9d"
+      }
+    ],
+    "baseline_binding": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_root": "<wt>/scratch/i22/protected_g3/R52",
+    "target_root": "<wt>/a1-protected-target/g3/R52",
+    "scan_status": "NO_EARLIER_AFFECTED_ASSERTION",
+    "control_flow_assessment": "First classification filter has unchanged plain-row294 before required floored-class295-299. Publication filter validates invalid p128/p512 floor shapes933-963 before publication_with; fault does not alter validation. Zero-floor first iteration remains unchanged; first positive floor reaches Force scale982 if Accepted setup succeeds, as required. No Shape/Accepted-precondition substitute permitted."
+  }
+]

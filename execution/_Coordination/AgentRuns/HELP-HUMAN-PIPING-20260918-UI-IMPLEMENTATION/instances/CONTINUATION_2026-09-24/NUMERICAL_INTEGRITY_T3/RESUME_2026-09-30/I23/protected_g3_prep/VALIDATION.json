@@ -1,0 +1,398 @@
+{
+  "status": "PASS_SOURCE_PREPARATION_ONLY",
+  "checked_at_utc": "2026-10-01T13:45:48Z",
+  "copies": 52,
+  "FK_only_copies": 51,
+  "full_core_S11_copies": 1,
+  "scope_files": {
+    "FK": 116,
+    "full_core": 560
+  },
+  "full_original_file_hash_checks": 6476,
+  "unchanged_test_files": true,
+  "faults_applied": 0,
+  "test_overlays": 0,
+  "empty_targets": 52,
+  "empty_log_directories": 52,
+  "inode_pairs_unique": 6476,
+  "links_to_maintained": 0,
+  "symlink_ancestors": 0,
+  "logs_outside_sources": true,
+  "source_revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "ROOT_manifest_sha256": "5194a1b926f01b1bc4372ec6771a76a75e2d80fbeb000a3b93855268113837f6",
+  "exact_filter_bindings": 53,
+  "prepared_copies": [
+    {
+      "runtime_id": "R01",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R02",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R03",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R04",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R05",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R06",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R07",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R08",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R09",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R10",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R11",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R12",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R13",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R14",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R15",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R16",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R17",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R18",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R19",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R20",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R21",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R22",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R23",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R24",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R25",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R26",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R27",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R28",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R29",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R30",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R31",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R32",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R33",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R34",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R35",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R36",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R37",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R38",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R39",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R40",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R41",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R42",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R43",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R44",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R45",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R46",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R47",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R48",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R49",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R50",
+      "source_files": 560,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R51",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    },
+    {
+      "runtime_id": "R52",
+      "source_files": 116,
+      "all_original_hashes": "PASS",
+      "target_empty": true,
+      "logs_empty": true
+    }
+  ],
+  "runtime": {
+    "Rust": 0,
+    "tests": 0,
+    "solver": 0,
+    "baseline_runs": 0,
+    "runtime_credit": 0
+  },
+  "gaps": []
+}

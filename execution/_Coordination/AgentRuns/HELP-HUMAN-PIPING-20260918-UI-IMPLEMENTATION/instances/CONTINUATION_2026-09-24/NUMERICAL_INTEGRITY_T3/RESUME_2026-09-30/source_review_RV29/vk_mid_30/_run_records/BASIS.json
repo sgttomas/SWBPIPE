@@ -1,0 +1,23 @@
+{
+  "role": "TASK RV29",
+  "parent": "ROOT /root",
+  "start_utc": "2026-10-01T19:36:06Z",
+  "completed_utc": "2026-10-01T19:42:25.656760+00:00",
+  "limit_minutes": 15,
+  "candidate": "2e1adc4015e833780a354bc0ee8ba0946b17cce6",
+  "numerical_source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "source_observation_basis": "942572ede4c15aca87b4660c7d570343e14e679e",
+  "skill": {
+    "origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "retained_selection_origin_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/preparation_01/BASIS.json"
+  },
+  "resume_brief": {
+    "commit": "a341d1cf9527fb2b9dfa2bb486f88057847aa94c",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/F03_ATTRIBUTION_RESUME.md",
+    "sha256": "c0b4114ec161152a7714e0279373e7ae35fa9efa77735bad64bb4002d3dad076"
+  },
+  "scope": "P10/P11/P12 and full F03 release provenance/control/reasons; independent source attribution pending sealed consequence",
+  "runtime_by_reviewer": "NONE",
+  "write_fence": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/vk_mid_30"
+}

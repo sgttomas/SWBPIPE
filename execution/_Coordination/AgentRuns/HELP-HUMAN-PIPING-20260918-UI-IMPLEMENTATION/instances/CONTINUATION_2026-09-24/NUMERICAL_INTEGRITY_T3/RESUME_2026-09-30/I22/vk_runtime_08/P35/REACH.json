@@ -1,0 +1,10 @@
+{
+  "tests_selected": 1,
+  "exit": 0,
+  "required_numerical_predicates": 0,
+  "rows_passed": 2700,
+  "structural_zeros": 60,
+  "cases_selected": 30,
+  "outcome": "SURVIVOR",
+  "no_failure_credit": true
+}

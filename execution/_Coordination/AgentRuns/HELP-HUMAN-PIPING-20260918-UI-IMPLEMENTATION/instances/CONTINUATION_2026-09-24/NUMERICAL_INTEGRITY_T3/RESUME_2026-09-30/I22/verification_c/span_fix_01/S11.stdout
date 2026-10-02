@@ -1,0 +1,8 @@
+
+running 3 tests
+test scanner_counts_what_it_claims ... ok
+test scanner_counts_self_assignment_folds ... ok
+test site_table_is_exactly_the_accumulations_of_the_scanned_files ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+

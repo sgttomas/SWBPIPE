@@ -1,0 +1,246 @@
+{
+  "actor": "TASK /root/rv29_a1_source",
+  "parent": "/root",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "start_utc": "2026-10-01T14:17:45Z",
+  "deadline_utc": "2026-10-01T14:32:45Z",
+  "preserved_instruction_skill_origins": [
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0",
+      "bytes": 3126,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV29_A1_SOURCE.md",
+      "sha256": "47a595116c567303dcdce7caa39066e50460c742dcbee18c88728e396df1c578",
+      "bytes": 2188,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/PLAN.md",
+      "sha256": "671726095845d99f6bfa893a5ebe9d308840c78fabfd2655541e66371ae6a129",
+      "bytes": 6258,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "APP_WORKTREE/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+      "bytes": 1411,
+      "kind": "active_skill"
+    }
+  ],
+  "input_receipts": [
+    {
+      "path": "I22/protected_g1/runtime_02/COMMANDS.json",
+      "sha256": "b00ca8951bb241566c7a24a873937577573e8d42f806801aecaa20965abb493f"
+    },
+    {
+      "path": "I22/protected_g1/runtime_02/RECHECK.json",
+      "sha256": "ecd8d4f1c633f545389a86603f54b44305188759dd40f09aaaeaeba2e31d47fb"
+    },
+    {
+      "path": "I22/protected_g1/runtime_02/RETURN.md",
+      "sha256": "43d8e8a0e943f20075be521fac179e24e1a93b8c5d9810320dd4da0e060c0964"
+    },
+    {
+      "path": "I22/protected_g1/runtime_02/SHA256SUMS",
+      "sha256": "cb3f835d50e2b180c57e5445e6af2f04bafeaf76c7ca678f6daddecd8c94f0f6"
+    },
+    {
+      "path": "I22/protected_g1/runtime_02/VERDICTS.json",
+      "sha256": "d1788e03fa758b6dba45a90023a6febbb2bcd8e3060ea5c15930df551836779c"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/COMMANDS.json",
+      "sha256": "7776c5f40c07439f72967839f5a4c3eeea1d67fc128d81f87c907e70d774fe9a"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/G05_ACTUAL.diff",
+      "sha256": "dc89d89bcfe2af599d9458dfd12620612a87fc0f49e40b3ded98ea88ed81369d"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/LOG_READY.json",
+      "sha256": "97d3aa4bda9420d1a69679c986e13d76aabed98592b93e0c11d124af6a37ecdb"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/RETURN.md",
+      "sha256": "0ce275a8330c150f5c8a77d74e1bf11b6cf13d62cc9bb578c167a65ec770a5ba"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/SHA256SUMS",
+      "sha256": "52f4b01685e621e981fb06e87bee024e1f1efccf39dce6b40502bcc10a821d3f"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/STOP_IDENTITIES.json",
+      "sha256": "5eae7c50980607fdaf9c0fedc7048058eced86a2a5aae72af1026bb87fe6d96f"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/VERDICTS.json",
+      "sha256": "d099f7cd0e5b7e077cbb0c6134a73844ec9c74adccfbb7df9e0e8a7cc9bd9e49"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/control/G02/EVIDENCE.json",
+      "sha256": "5fe68ef471865fff43f40e2bf7f79cc1156ab68930fdba75b5e623fcf4f02ac1"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/control/G02/stderr.txt",
+      "sha256": "5a1f6e376a6ae9a3616509122e0b3b111073ab2b560c7c9188450eec2d480531"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/control/G02/stdout.txt",
+      "sha256": "b731db3400398ed7cbdc3b61cdaba25752290336240bd1798b4823f4e2ce07d6"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/control/G03/EVIDENCE.json",
+      "sha256": "d8d0baed01c332bda5e60c35dabaf43821483557bb321388e8422b715c9d35a9"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/control/G03/stderr.txt",
+      "sha256": "4cd792d639d8091ca29b9854bb57aad95f830d8e66f1d17d5709cb93ae9cca88"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/control/G03/stdout.txt",
+      "sha256": "ddf981ccd5751e75c35ddcd7cfb57962a70494c6e79f9317f31bcaea4e96cbf4"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/control/G04/EVIDENCE.json",
+      "sha256": "d5547059ac069809bdd0cc332b5a07ffac49d2a4f654b730e648d28d1487f0b8"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/control/G04/stderr.txt",
+      "sha256": "ea6b1c764421b6d1d85b28a144a1b11057c65b6820af0225474c451785daa423"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/control/G04/stdout.txt",
+      "sha256": "1210ed4e14d24cf576e0648f1cf2c5a7df59b66e166cf1603309d9b7602e7586"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G02/EVIDENCE.json",
+      "sha256": "badf2b5a118cf61ffac0a96bf74f114c4c5f1f6d8e38f62955324466bbd2fdbd"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G02/stderr.txt",
+      "sha256": "6b41bf63222ee388842f3c55f55888484ee5f7777a8b1884fd00b602081ca1df"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G02/stdout.txt",
+      "sha256": "657a13da144ae3676dff0ea50ad062f619c25b6563c42b702c480c25158183c9"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G03/EVIDENCE.json",
+      "sha256": "e417460e1962a02e041a98cb43d0ef6e403937c2f49350d9e233a8def96a1129"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G03/stderr.txt",
+      "sha256": "472ac80ba5edbd3000a33c3e2ec7f96a2c59a6e2d13e9a18bc8b3fc76a92a838"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G03/stdout.txt",
+      "sha256": "2a2dcdee323d0d13c98b8b8ec9edb00a9b96167df9a769d4a83a64a2519b79a5"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G04/EVIDENCE.json",
+      "sha256": "8c647e915a4d4c8d7f259487e0568e49c2141b7fe4a6bc48a4315dd94f102abb"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G04/stderr.txt",
+      "sha256": "f757ffe40d6a61e39ed8e935e4c8e32a81edd5d174642bce00eef1af76095b33"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G04/stdout.txt",
+      "sha256": "06c1f6034ff6e43c856b0b4f904879082a661dcf95f2c063e3818a93bc6f92f8"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G05/stderr.txt",
+      "sha256": "a53caa48c0bf2e69ccaa92f27006e75783820c1d449707c0a2d701e52cfbfdf9"
+    },
+    {
+      "path": "I22/protected_g1/runtime_03/mutant/G05/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "manager/protected_g1/runtime_02/CHILD_SEAL_VERIFY.txt",
+      "sha256": "b04eb4ee1943d714bc9d329b0cc56d47dde628e6be2783a3ae0755d043651b60"
+    },
+    {
+      "path": "manager/protected_g1/runtime_02/CONTAINMENT_CHECK.txt",
+      "sha256": "0a53c4e9c4d42703908ef067e442590b7b954e520058d34e7d7549f9823a382f"
+    },
+    {
+      "path": "manager/protected_g1/runtime_02/DISPATCH.md",
+      "sha256": "6165bb096ae373630eb3404b394a0556d6cc3735f6d81165dc9d8328114b9c69"
+    },
+    {
+      "path": "manager/protected_g1/runtime_02/RELEASE.md",
+      "sha256": "44df1baa3bc58fcdc85866f6e4da260ba3cbffe40c71a459b9a0ec5c792c28f8"
+    },
+    {
+      "path": "manager/protected_g1/runtime_02/RETURN.md",
+      "sha256": "a2e1922c9aad56b3c3cd6a2533ad3a1e2541ebfc40eb0e15f063129d616f45a6"
+    },
+    {
+      "path": "manager/protected_g1/runtime_02/SHA256SUMS",
+      "sha256": "ba07cfe69dd4b724a79a626046e4454277581139fe7d9addc2d10c0d25c6121a"
+    },
+    {
+      "path": "manager/protected_g1/runtime_03/CHILD_SEAL_VERIFY.txt",
+      "sha256": "14d4e82d4e399fbabf13e73aeb5954cd0b4949f48dbd5b801e6f52c8c21df4e4"
+    },
+    {
+      "path": "manager/protected_g1/runtime_03/DISPATCH.md",
+      "sha256": "0bd836d276f572742ec100d816459fec2009334358554215aabf1e4ea7772a30"
+    },
+    {
+      "path": "manager/protected_g1/runtime_03/RELEASE.md",
+      "sha256": "ff5ce993da60ad17263e5a5b7e90e05dd6a3f1671fb0e8f51c7094f687eddfd3"
+    },
+    {
+      "path": "manager/protected_g1/runtime_03/RETURN.md",
+      "sha256": "bc9a8e08fa603cb259d76a077486dee0becc988004ec7a9d249c334460699d40"
+    },
+    {
+      "path": "manager/protected_g1/runtime_03/SHA256SUMS",
+      "sha256": "8b6e847c5f84b0b03cd6de70599dee61bfef82abba58d2a863987ddef639fcbd"
+    },
+    {
+      "path": "I22/protected_g1/RUNTIME_MANIFEST.json",
+      "sha256": "bd4dae325f30af11bb9ec1479f255f73912b96b7d4e50a066825aee725644e90"
+    },
+    {
+      "path": "I23/protected_01/INVENTORY.json",
+      "sha256": "7e06062f358db39e7d869fee3500c8d46cbd637ccf403f394b50a5e54ec9f0a8"
+    }
+  ],
+  "repair_brief": {
+    "origin": "NUM@e4b5902e41122037d76437b30e69b54887e64739:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_G1_POSTIMAGE_GATE_REPAIR.md",
+    "sha256": "d5248e2419b7d50162e81e22f6de2104ccc5ece16021b92159dbb404bd856706",
+    "read_full": true,
+    "requirement": "Independent manager full postimage/test/lock/path/guard verification and explicit one-group release before every later Cargo; logs outside source; fresh G05_r1 preserves old wrong copy.",
+    "runtime04_not_verified": true
+  },
+  "exclusions": [
+    "G01 re-review",
+    "runtime_04",
+    "later active results",
+    "new runtime"
+  ]
+}

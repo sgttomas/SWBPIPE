@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::method_tests::i23_r7_required_shift' (25770679) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2063:9:
+assertion `left == right` failed: I23:REQUIRED_SHIFT:RF-LARGE-CHAIN-n00100-AX
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        1.13 real         1.12 user         0.00 sys
+            28295168  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                2083  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  39  involuntary context switches
+         13359357789  instructions retired
+          3256093484  cycles elapsed
+            18268544  peak memory footprint

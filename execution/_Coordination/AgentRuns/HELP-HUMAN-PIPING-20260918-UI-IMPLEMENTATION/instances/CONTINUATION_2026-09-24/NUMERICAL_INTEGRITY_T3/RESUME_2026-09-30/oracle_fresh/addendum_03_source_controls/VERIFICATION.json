@@ -1,0 +1,59 @@
+{
+  "scope": "Independent arithmetic/encoding checks and synthetic exact-output interface only; no solver or constructor execution",
+  "python_version": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "truth_regeneration_identical": true,
+  "rounding_crosschecks": 116,
+  "cases": [
+    {
+      "id": "EXTRA-FM-01",
+      "rows": 40,
+      "input_source_encoding_roundtrip": true,
+      "external_force_and_torque_balance": true,
+      "coverage_kind": "Moment",
+      "exact_truth_coupled_scale": {
+        "significand": "5",
+        "exponent2": -976
+      },
+      "direct_published_coupled_scale": {
+        "significand": "1",
+        "exponent2": -974
+      },
+      "relative_scale_loss": "1/5",
+      "synthetic_interface_pass": true
+    },
+    {
+      "id": "EXTRA-MF-01",
+      "rows": 40,
+      "input_source_encoding_roundtrip": true,
+      "external_force_and_torque_balance": true,
+      "coverage_kind": "Force",
+      "exact_truth_coupled_scale": {
+        "significand": "5",
+        "exponent2": -976
+      },
+      "direct_published_coupled_scale": {
+        "significand": "1",
+        "exponent2": -974
+      },
+      "relative_scale_loss": "1/5",
+      "synthetic_interface_pass": true
+    },
+    {
+      "id": "EXTRA-ZR-01",
+      "rows": 36,
+      "input_source_encoding_roundtrip": true,
+      "external_force_and_torque_balance": true,
+      "coverage_kind": "Rotation",
+      "exact_truth_coupled_scale": {
+        "significand": "5",
+        "exponent2": -1176
+      },
+      "direct_published_coupled_scale": {
+        "significand": "0",
+        "exponent2": 0
+      },
+      "relative_scale_loss": "1",
+      "synthetic_interface_pass": true
+    }
+  ]
+}

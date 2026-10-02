@@ -1,0 +1,9 @@
+COMMANDS.json: OK
+FK.stdout: OK
+FK.stderr.portable: OK
+H.stdout: OK
+H.stderr.portable: OK
+RAW_SCRATCH_SHA256SUMS: OK
+REPAIR_01.diff: OK
+RETURN.md: OK
+SOURCE_SHA256SUMS: OK

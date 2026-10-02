@@ -1,0 +1,171 @@
+{
+  "process_id": "P52",
+  "phase": "FAULT_EXAMPLE",
+  "registered_id": "VK-R28",
+  "argv": [
+    "<wt>/a1-vk-target/release/examples/vk_records",
+    "RF-LARGE",
+    "--show=RF-LARGE-CHAIN-n00100-AX",
+    "--show=RF-LARGE-TREE-n00100-AX"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "VK-R28"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P52.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P52.stderr",
+  "qualifying_condition": "Both fixed AX controls are selected128/verified256 with exactly one scheduled shift at256. A missing specific shift or changed named bound/acceptance sequence is the evidence fault; generic record drift excluded.",
+  "actual_scope": {
+    "family": "RF-LARGE",
+    "case_ids_computed": [
+      "RF-LARGE-CHAIN-n00010-AX",
+      "RF-LARGE-CHAIN-n00010-ROT",
+      "RF-LARGE-TREE-n00010-AX",
+      "RF-LARGE-TREE-n00010-ROT",
+      "RF-LARGE-CONT-n00010-AX",
+      "RF-LARGE-CONT-n00010-ROT",
+      "RF-LARGE-CHAIN-n00100-AX",
+      "RF-LARGE-CHAIN-n00100-ROT",
+      "RF-LARGE-TREE-n00100-AX",
+      "RF-LARGE-TREE-n00100-ROT",
+      "RF-LARGE-CONT-n00100-AX",
+      "RF-LARGE-CONT-n00100-ROT"
+    ],
+    "run_case_invocations_planned": 12,
+    "max_members": 100,
+    "parity_calls_planned": 12,
+    "sparse_parity_invocations_planned": 12,
+    "dense_parity_invocations_planned": 12,
+    "sparse_only_cases": [],
+    "dense_member_ceiling": 105,
+    "shown_case_ids_only": [
+      "RF-LARGE-CHAIN-n00100-AX",
+      "RF-LARGE-TREE-n00100-AX"
+    ],
+    "show_filters_computation": false,
+    "no_dense_at_10000_or_more": true,
+    "full_work_required_even_for_unshown_cases": true
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "record_projections": [
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+      "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+      "expected_projection": {
+        "id": "RF-LARGE-CHAIN-n00100-AX",
+        "outcome": "Selected at 128",
+        "selected_precision": 128,
+        "attempts": [
+          {
+            "precision": 128,
+            "role": "Candidate",
+            "outcome": "Accepted",
+            "gate": "Coalesced",
+            "residual_basis": 192,
+            "verification": null
+          },
+          {
+            "precision": 256,
+            "role": "Verification",
+            "outcome": "Verified",
+            "gate": "Coalesced",
+            "residual_basis": 320,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 1,
+              "uc_missing": null
+            }
+          }
+        ]
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    },
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+      "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+      "expected_projection": {
+        "id": "RF-LARGE-TREE-n00100-AX",
+        "outcome": "Selected at 128",
+        "selected_precision": 128,
+        "attempts": [
+          {
+            "precision": 128,
+            "role": "Candidate",
+            "outcome": "Accepted",
+            "gate": "Coalesced",
+            "residual_basis": 192,
+            "verification": null
+          },
+          {
+            "precision": 256,
+            "role": "Verification",
+            "outcome": "Verified",
+            "gate": "Coalesced",
+            "residual_basis": 320,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 1,
+              "uc_missing": null
+            }
+          }
+        ]
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    }
+  ],
+  "returns_or_baseline_for": "VK-R28",
+  "example_no_write": true,
+  "exit_status_not_verdict": true,
+  "mode": "normal release example",
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=VK-R28 '<wt>/a1-vk-target/release/examples/vk_records' 'RF-LARGE' '--show=RF-LARGE-CHAIN-n00100-AX' '--show=RF-LARGE-TREE-n00100-AX' > '<wt>/scratch/i23/vk_prep/logs/P52.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P52.stderr'",
+  "binary": {
+    "key": "vk_records",
+    "path": "<wt>/a1-vk-target/release/examples/vk_records",
+    "sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+    "fingerprint_sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+  },
+  "guard_before": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e  <wt>/a1-vk-target/release/examples/vk_records\nae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526  <wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json\n 5387 /bin/bash <wt>/guard/memguard.sh\n",
+  "launch_utc": "2026-10-02T00:01:03.405Z",
+  "tool_initial": {
+    "chunk_id": "9a9f75",
+    "wall_time_seconds": 1.00114325,
+    "session_id": 43258,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "0582ce",
+    "wall_time_seconds": 8.792e-06,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "raw_hashes": {
+    "stdout_path": "f1d14a03805ffb7083d5857f202d81673c164748819636c694825e399eb2fab4",
+    "stderr_path": "7a06e5d7830e6c19fc199ed20daee8ff85d9f0aa138505fd57322629f5aaaf7d"
+  },
+  "verdict": "QUALIFYING_NAMED_WITNESS_WITH_PASSING_RETURN",
+  "semantic_review": "Bothnonnull256reports data_blocks1/shift_factorizations0 versusbaseline1. CHAIN128Uc/256Charge/512Accepted1024Verified;TREE128Charge/256Accepted512Verified. Actualspecificshift/sequencewitness.",
+  "returned_control": "P53"
+}

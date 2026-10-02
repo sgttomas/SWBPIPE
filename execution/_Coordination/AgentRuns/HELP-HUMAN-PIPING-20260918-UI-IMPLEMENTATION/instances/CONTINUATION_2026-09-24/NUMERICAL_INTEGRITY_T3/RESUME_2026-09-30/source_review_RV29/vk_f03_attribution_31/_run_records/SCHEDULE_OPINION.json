@@ -1,0 +1,180 @@
+{
+  "status": "CONDITIONAL_REVIEW_OPINION_NOT_RUNTIME_AUTHORITY",
+  "registration": "VK-F03",
+  "criterion": "RF-CHAIN and RF-SKEW soft roots: unresolved or wrong; value or outcome; whole per-diagonal omission mutant",
+  "evidence_conclusion": "Both original families qualified by reviewed normal-release NONE/F03/NONE and source consequence. No separate debug-specific fault behavior claimed.",
+  "proposed_ROOT_disposition": [
+    {
+      "id": "P13",
+      "status": "PRESERVE_STOP_UNQUALIFIED",
+      "reason": "Debug attempts not printed; no retrospective attribution."
+    },
+    {
+      "id": "P14",
+      "status": "PENDING_ACTUAL_DEBUG_RETURN",
+      "reason": "Run exact rf_chain NONE as return for actually executed P13; no inference from release controls."
+    },
+    {
+      "id": "P15",
+      "status": "MAY_BE_EXPLICITLY_SUPERSEDED_UNRUN",
+      "reason": "Its family-level F03 fault obligation is supplied by qualified RF-SKEW release observation; never label this debug process executed/passed/killed."
+    },
+    {
+      "id": "P16",
+      "status": "FRESH_DEBUG_NONE_BASELINE_IF_ROOT_SELECTS",
+      "reason": "Retain same rf_skew NONE filter/checks as a fresh baseline; not a returned control for unrun P15."
+    }
+  ],
+  "later": "P17\u2013P53 remain unchanged and require separate bounded ROOT continuation; no automatic reopening of expired windows.",
+  "limitation": "Frozen53process schedule currently lists P15 and P16 as fault/return. It must be superseded explicitly with an additive execution ledger; this review does not silently change it. No preserved semantic criterion demands recreating ambiguous top-level-only output.",
+  "original_four_schedule_entries": [
+    {
+      "process_id": "P13",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F03",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F03"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P13.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P13.stderr",
+      "qualifying_condition": "Named soft-root numerical predicate or outcome failure due to lost smallest stiffness contribution.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value or outcome",
+      "registered_target": "soft roots of RF-CHAIN and RF-SKEW (NC-LOST-SOFT)",
+      "qualification": null
+    },
+    {
+      "process_id": "P14",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P14.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P14.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F03 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F03"
+    },
+    {
+      "process_id": "P15",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F03",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_skew",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F03"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P15.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P15.stderr",
+      "qualifying_condition": "Named soft-root numerical predicate or outcome failure due to lost smallest stiffness contribution.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-SKEW",
+        "cases": 36,
+        "max_members": 1,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value or outcome",
+      "registered_target": "soft roots of RF-CHAIN and RF-SKEW (NC-LOST-SOFT)",
+      "qualification": null
+    },
+    {
+      "process_id": "P16",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_skew",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P16.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P16.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F03 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-SKEW",
+        "cases": 36,
+        "max_members": 1,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F03"
+    }
+  ]
+}

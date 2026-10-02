@@ -1,0 +1,37 @@
+{
+  "checked_at_utc": "2026-10-01T10:30:09Z",
+  "source_archive_sha256": "25c4d1299803d4b60770ea9cc7487564f4e40c6bc93400c2bb607d5241a0aa95",
+  "complete_file_hash_checks": 1044,
+  "copies": 9,
+  "files_each": 116,
+  "exact_overlay_postimage": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+  "original_test_bytes_exact_prefix": true,
+  "only_test_overlay_diff": true,
+  "production_faults_applied": 0,
+  "all_targets_empty": true,
+  "regular_file_inode_pairs_unique": 1044,
+  "hardlinks": 0,
+  "symlinks": 0,
+  "maintained_file_links": 0,
+  "runtime": {
+    "builds": 0,
+    "tests": 0,
+    "solver": 0,
+    "generator": 0
+  },
+  "model_unit_counts": [
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "members": 100,
+      "nodes": 101,
+      "basis": "immutable models5a3.txt model/end block"
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "members": 100,
+      "nodes": 101,
+      "basis": "immutable models5a3.txt model/end block"
+    }
+  ],
+  "status": "PASS_SOURCE_PREPARATION_ONLY"
+}

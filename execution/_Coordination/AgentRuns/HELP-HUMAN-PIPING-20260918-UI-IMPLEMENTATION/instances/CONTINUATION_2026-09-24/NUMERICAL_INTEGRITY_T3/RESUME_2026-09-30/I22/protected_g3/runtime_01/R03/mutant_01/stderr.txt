@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification' (25894991) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1054:21:
+assertion `left == right` failed: SEEDED-COMMON 256 r̂
+  left: "adf149577de523c9fdbc7878e1d46f800ec6c64880002730e72e25ae5ce6754b"
+ right: "8471078ce047965a13a8f045f729f4845dff7181dcfddcfc14f60b6fa6b08a58"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+       17.47 real        17.37 user         0.09 sys
+            24395776  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                1845  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 322  involuntary context switches
+        208892901285  instructions retired
+         50227452983  cycles elapsed
+            14270848  peak memory footprint

@@ -1,0 +1,135 @@
+{
+  "process_id": "P49",
+  "phase": "FAULT_EXAMPLE",
+  "registered_id": "VK-R02",
+  "argv": [
+    "<wt>/a1-vk-target/release/examples/vk_records",
+    "RF-LARGE",
+    "--show=RF-LARGE-TREE-n00100-AX"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "VK-R02"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P49.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P49.stderr",
+  "qualifying_condition": "TREE100-AX must retain128 Accepted and256 Verified; inspect changed named R7 estimate/charge or acceptance outcome caused by uncoupled e_hat, not work-only drift or a certificate-only precondition.",
+  "actual_scope": {
+    "family": "RF-LARGE",
+    "case_ids_computed": [
+      "RF-LARGE-CHAIN-n00010-AX",
+      "RF-LARGE-CHAIN-n00010-ROT",
+      "RF-LARGE-TREE-n00010-AX",
+      "RF-LARGE-TREE-n00010-ROT",
+      "RF-LARGE-CONT-n00010-AX",
+      "RF-LARGE-CONT-n00010-ROT",
+      "RF-LARGE-CHAIN-n00100-AX",
+      "RF-LARGE-CHAIN-n00100-ROT",
+      "RF-LARGE-TREE-n00100-AX",
+      "RF-LARGE-TREE-n00100-ROT",
+      "RF-LARGE-CONT-n00100-AX",
+      "RF-LARGE-CONT-n00100-ROT"
+    ],
+    "run_case_invocations_planned": 12,
+    "max_members": 100,
+    "parity_calls_planned": 12,
+    "sparse_parity_invocations_planned": 12,
+    "dense_parity_invocations_planned": 12,
+    "sparse_only_cases": [],
+    "dense_member_ceiling": 105,
+    "shown_case_ids_only": [
+      "RF-LARGE-TREE-n00100-AX"
+    ],
+    "show_filters_computation": false,
+    "no_dense_at_10000_or_more": true,
+    "full_work_required_even_for_unshown_cases": true
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "record_projections": [
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+      "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+      "expected_projection": {
+        "id": "RF-LARGE-TREE-n00100-AX",
+        "outcome": "Selected at 128",
+        "selected_precision": 128,
+        "attempts": [
+          {
+            "precision": 128,
+            "role": "Candidate",
+            "outcome": "Accepted",
+            "gate": "Coalesced",
+            "residual_basis": 192,
+            "verification": null
+          },
+          {
+            "precision": 256,
+            "role": "Verification",
+            "outcome": "Verified",
+            "gate": "Coalesced",
+            "residual_basis": 320,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 1,
+              "uc_missing": null
+            }
+          }
+        ]
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    }
+  ],
+  "returns_or_baseline_for": "VK-R02",
+  "example_no_write": true,
+  "exit_status_not_verdict": true,
+  "mode": "normal release example",
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=VK-R02 '<wt>/a1-vk-target/release/examples/vk_records' 'RF-LARGE' '--show=RF-LARGE-TREE-n00100-AX' > '<wt>/scratch/i23/vk_prep/logs/P49.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P49.stderr'",
+  "binary": {
+    "key": "vk_records",
+    "path": "<wt>/a1-vk-target/release/examples/vk_records",
+    "sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+    "fingerprint_sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+  },
+  "guard_before": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e  <wt>/a1-vk-target/release/examples/vk_records\nae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526  <wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json\n 5387 /bin/bash <wt>/guard/memguard.sh\n",
+  "launch_utc": "2026-10-02T00:04:20.130Z",
+  "tool_initial": {
+    "chunk_id": "4ea15f",
+    "wall_time_seconds": 1.001661375,
+    "session_id": 88277,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "de7cb3",
+    "wall_time_seconds": 8.291e-06,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "raw_hashes": {
+    "stdout_path": "8eb20441ab88ecede77adfe315589aa5160252bab94c6755ad195b8dadb90385",
+    "stderr_path": "b308df29ad4d546062d63085a51cb2af8325d012b68f7526d58e3cb997264d25"
+  },
+  "verdict": "QUALIFYING_NAMED_WITNESS_WITH_PASSING_RETURN",
+  "semantic_review": "OriginalTREE100128/256/512VerificationEstimate member1I/Rybody0Moment rejections replacebaseline128Accepted256Verified;1024Solved/Ceiling. NamedR7/acceptancechange,notunprintedratio/work/certificate. Other3familyCeilings retaineduncredited;scalar remainsdistinct.",
+  "returned_control": "P50"
+}

@@ -1,0 +1,19 @@
+{
+  "mechanism": "collaboration.followup_task",
+  "manager": "/root/t3_recovery_manager",
+  "manager_parent": "/root",
+  "child": "/root/t3_recovery_manager/i21_k6c",
+  "new_child": false,
+  "grant_commit": "bc606b147221c204d8f511f24c45e3554be1c549",
+  "grant_sha256": "fc20c9c3959e78a726faf59272721048e246818c917329c12618760f3dbf7f27",
+  "source_candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "K6C_preserved_basis": "66f046b8d71601c883a3f5299ab2cfe9ec7c75a4",
+  "prompt": "FOLLOWUP.txt (transport plus terminal newline)",
+  "scope": "Source-only kernel K01-K20 phase/formula/owner integration; actual size/capacity facts and explicit unresolved parameters; no runtime/library workaround or maintained edit",
+  "timebox_minutes": 30,
+  "write_fence": "<K6C_WT>/<R>/I21/source_05/**",
+  "actual_start_utc":"2026-10-01 09:13:46 UTC",
+  "deadline_utc":"2026-10-01 09:43:46 UTC",
+  "followup_file_sha256":"e3b1c92ab907a2430a1ab0a88572a53f90b7faefe13a6676cb0d44657ef34724",
+  "status":"completed;7-entry child seal and copied159/15 facts verified; source ledger read and finite gaps retained; I21 idle"
+}

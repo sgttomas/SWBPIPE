@@ -1,0 +1,291 @@
+{
+  "source_origins": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "1c02ea1f82c7087829ab9ec6845a2f0389d1f60829fceec6c01aafa51e3d726f",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "201506548f494b59fa877521bf531953b57e08df802a1289d506fed603db58e6",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "db546b9c509954389e6107aeb9cdb81c338d4b0f7aba7a41d8b45fb723b4643e",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc",
+      "origin": "hash-bound immutable40129 FK tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "origin": "hash-bound immutable40129 FK tar"
+    }
+  ],
+  "reviewer_inputs": {
+    "GAPS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/GAPS.json",
+      "sha256": "1eb06e808e9396f8197cdf531f3fb7be179af3f5ca479216c39ce46880155b56"
+    },
+    "ARITHMETIC_WITNESSES.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/ARITHMETIC_WITNESSES.json",
+      "sha256": "fd2ac76b8235402db6a818dbd721937f595c65a23a1719fa4e17561db9ae4337"
+    },
+    "SHA256SUMS": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/SHA256SUMS",
+      "sha256": "91be123e9de71fa40c61869fb61e689561365548bec76632f2e975b2aca3b697"
+    }
+  },
+  "warrants": [
+    {
+      "id": "accepted_pivot_and_condition_rules",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "start_line": 15,
+      "end_line": 35,
+      "claim": "Exact pivot inequality at requested p; radix equilibration; rcond estimates the equilibrated matrix.",
+      "text": "//! - **Radix equilibration** as M03 (`structural.rs` `prepare_bound`):\n//!   K\u0303 = S K S with s_i = \u2212\u230ae(K_ii)/2\u230b, applied exactly.\n//! - **Profile LDL\u1d40 at p**, the loop of `ProfileFactor::factor_structural_profile`\n//!   (`structural.rs:1962`), every operation rounded to p (the factorization is\n//!   outside the exact-sum rule). **Pivot screen** \"d_i > 64\u00b7\u03b3_p(m_i)\u00b7c_i, with\n//!   \u03b3_p(m) = m\u00b72^-p/(1 \u2212 m\u00b72^-p)\", decided exactly as\n//!   d_i\u00b7(2^p \u2212 m_i) \u2212 64\u00b7m_i\u00b7c_i > 0. \"A failed pivot at p escalates to the next\n//!   p \u2026 It is never read as a mechanism.\"\n//! - **Negative energy** \"for pattern pairs only, at p, against the intended K\":\n//!   E = K_ii + K_jj \u2212 2|K_ij|, a witness when E < \u221264\u00b7\u03b3_p(4)\u00b7(K_ii + K_jj +\n//!   2|K_ij|), decided exactly.\n//! - **Condition estimate**: Hager\u2013Higham with the alternating-vector safeguard\n//!   (`structural.rs:1537`) on K\u0303 with the p-factor. \"rcond \u2264 2^-(p-1) counts as\n//!   unresolved at p and escalates.\" It is model information: \"sensitivity to\n//!   matrix-entry perturbation, not to authored parameters\".\n//!\n//!   **The estimate's role (D1 revision 5a.3, R7 \u00a75.9).** The estimate est\n//!   serves availability only. It screens ill-conditioned candidates early\n//!   (rcond \u2264 2^-(p\u22121), unchanged), and its solves choose the shift \u03c3_c of\n//!   \u00a74.1.6.3 item 7c (`bound.rs`: an optional read-only observer collects the\n//!   per-block ratios est_c; ROOT's A3-0 ruling Q4). It carries no part of the\n"
+    },
+    {
+      "id": "actual_pivot_signature",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "start_line": 443,
+      "end_line": 460,
+      "claim": "pivot_passes uses ExactWideSum, Wide<L> pivot/scale, u64 m, u32 p and returns Result<bool,AttemptStop>; only requested p exponent is mutated by K4-M9.",
+      "text": "/// d\u00b7(2^p \u2212 m) \u2212 64\u00b7m\u00b7c > 0, exactly.\nfn pivot_passes<const L: usize>(\n    sum: &mut ExactWideSum,\n    pivot: &Wide<L>,\n    scale: &Wide<L>,\n    m: u64,\n    p: u32,\n) -> Result<bool, AttemptStop>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    sum.clear();\n    sum.add_wide_scaled(pivot, false, 1, i64::from(p))?;\n    sum.add_wide_scaled(pivot, true, m, 0)?;\n    sum.add_wide_scaled(scale, true, 64 * m, 0)?;\n    Ok(sum.signum() > 0)\n}\n\n"
+    },
+    {
+      "id": "factor_scaling_and_pivot",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "start_line": 505,
+      "end_line": 608,
+      "claim": "K=16 has exponent4, radix exponent -2, scaled scalar pivot1. Factor m=2 for this row, passes at128. The M9 diagnostic separately exercises the helper at m1.",
+      "text": "pub(crate) fn factor<const L: usize>(\n    ctx: &mut WideContext<L>,\n    sum: &mut ExactWideSum,\n    guard: &StageGuard,\n    structure: &Structure,\n    k: &[Wide<L>],\n    ordering: &Ordering,\n) -> Result<RetainedFactor<L>, AttemptStop>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    let p = ctx.precision();\n    let n = ordering.free.len();\n    let zero = Wide::<L>::ZERO;\n    // Radix equilibration.\n    let mut scale = Vec::with_capacity(n);\n    for &g in &ordering.free {\n        let d = stored(structure, k, g, g).unwrap_or(zero);\n        if d.is_zero() {\n            return Err(AttemptStop::ZeroDiagonal { global_dof: g });\n        }\n        if d.is_sign_negative() {\n            return Err(AttemptStop::NegativeEnergy { i: g, j: g });\n        }\n        scale.push(-d.exponent().div_euclid(2));\n    }\n    // Scaled ordered rows.\n    let mut rows: Vec<Vec<Wide<L>>> = Vec::with_capacity(n);\n    for i in 0..n {\n        let a = ordering.order[i];\n        let g = ordering.free[a];\n        let f = ordering.first[i];\n        let mut row = vec![zero; i - f + 1];\n        for index in structure.pattern.row_range(g) {\n            let c = structure.pattern.column(index);\n            let b = ordering.position[c];\n            if b == usize::MAX {\n                continue;\n            }\n            let j = ordering.rank[b];\n            if j <= i {\n                debug_assert!(j >= f);\n                row[j - f] = k[index].mul_pow2(scale[a] + scale[b])?;\n            }\n        }\n        rows.push(row);\n    }\n    let first = ordering.first.clone();\n    let get = |rows: &Vec<Vec<Wide<L>>>, i: usize, j: usize| -> Wide<L> {\n        if j < first[i] {\n            zero\n        } else {\n            rows[i][j - first[i]]\n        }\n    };\n    let mut work = vec![zero; n];\n    let mut screens = Vec::with_capacity(n);\n    for i in 0..n {\n        for j in first[i]..i {\n            let mut s = get(&rows, i, j);\n            for kk in first[i].max(first[j])..j {\n                let t = ctx.mul(&work[kk], &get(&rows, j, kk))?;\n                s = ctx.sub(&s, &t)?;\n            }\n            work[j] = s;\n            let d = get(&rows, j, j);\n            rows[i][j - first[i]] = ctx.div(&s, &d)?;\n        }\n        let mut pivot = get(&rows, i, i);\n        let mut cancellation = pivot.abs();\n        for kk in first[i]..i {\n            let term = ctx.mul(&work[kk], &get(&rows, i, kk))?;\n            pivot = ctx.sub(&pivot, &term)?;\n            cancellation = ctx.add(&cancellation, &term.abs())?;\n        }\n        let operations = 2 * (i - first[i]) as u64 + 2;\n        if !pivot_passes(sum, &pivot, &cancellation, operations, p)? {\n            let global = ordering.free[ordering.order[i]];\n            return Err(match negative_pair(sum, structure, k, ordering, p)? {\n                Some((a, b)) => AttemptStop::NegativeEnergy { i: a, j: b },\n                None => AttemptStop::Pivot { global_dof: global },\n            });\n        }\n        screens.push(PivotScreen {\n            pivot,\n            scale: cancellation,\n            operations,\n        });\n        rows[i][i - first[i]] = pivot;\n        guard.check(ctx, sum)?;\n    }\n    Ok(RetainedFactor {\n        order: ordering.order.clone(),\n        first,\n        rows,\n        scale,\n        screens,\n    })\n}\n\nimpl<const L: usize> RetainedFactor<L>\nwhere\n    Wide<L>: SupportedWidth,\n{\n"
+    },
+    {
+      "id": "scaled_solve",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "start_line": 611,
+      "end_line": 660,
+      "claim": "Accessor scale/get and scalar solve_scaled divide by scaled pivot1 with empty triangular loops.",
+      "text": "    pub(crate) fn get(&self, i: usize, j: usize) -> Wide<L> {\n        if j < self.first[i] {\n            Wide::<L>::ZERO\n        } else {\n            self.rows[i][j - self.first[i]]\n        }\n    }\n\n    /// First stored column of each ordered row.\n    pub(crate) fn first(&self) -> &[usize] {\n        &self.first\n    }\n\n    /// The radix scale exponent of each free position (s_a = 2^scale[a]).\n    pub(crate) fn scale(&self) -> &[i64] {\n        &self.scale\n    }\n\n    /// K\u0303 x = b, both in free-position order (ProfileFactor::solve's loops).\n    pub(crate) fn solve_scaled(\n        &self,\n        ctx: &mut WideContext<L>,\n        rhs: &[Wide<L>],\n    ) -> Result<Vec<Wide<L>>, AttemptStop> {\n        let n = self.order.len();\n        let mut x: Vec<Wide<L>> = self.order.iter().map(|&a| rhs[a]).collect();\n        for i in 0..n {\n            for j in self.first[i]..i {\n                let t = ctx.mul(&self.get(i, j), &x[j])?;\n                x[i] = ctx.sub(&x[i], &t)?;\n            }\n        }\n        for (i, value) in x.iter_mut().enumerate() {\n            *value = ctx.div(value, &self.get(i, i))?;\n        }\n        for i in (0..n).rev() {\n            let v = x[i];\n            for j in self.first[i]..i {\n                let t = ctx.mul(&self.get(i, j), &v)?;\n                x[j] = ctx.sub(&x[j], &t)?;\n            }\n        }\n        let mut out = vec![Wide::<L>::ZERO; n];\n        for (i, &a) in self.order.iter().enumerate() {\n            out[a] = x[i];\n        }\n        Ok(out)\n    }\n\n    /// K x = b in free-position order: b scaled by S, solved, x = S y (exact\n"
+    },
+    {
+      "id": "condition_steps",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "start_line": 679,
+      "end_line": 820,
+      "claim": "For n1 norm1 (fault16), x1, estimate1, signs/z1, dot1, first-loop break, alternate RN128(2/3)<1, and exact reciprocals. Product1 and16 both below2^127.",
+      "text": "    /// Hager\u2013Higham on K\u0303 with this factor (module documentation). Returns\n    /// rcond at p, or `Condition` when rcond \u2264 2^-(p\u22121).\n    pub(crate) fn condition(\n        &self,\n        ctx: &mut WideContext<L>,\n        sum: &mut ExactWideSum,\n        structure: &Structure,\n        k: &[Wide<L>],\n        ordering: &Ordering,\n    ) -> Result<Wide<L>, AttemptStop> {\n        self.condition_observed(ctx, sum, structure, k, ordering, None)\n    }\n\n    /// `condition`, with an optional read-only observer that sees each of the\n    /// screen's solves y = K\u0303\u207b\u00b9x (R7 \u00a74.1.6.3 item 7c's est_c). The observer\n    /// changes nothing the screen computes.\n    pub(crate) fn condition_observed(\n        &self,\n        ctx: &mut WideContext<L>,\n        sum: &mut ExactWideSum,\n        structure: &Structure,\n        k: &[Wide<L>],\n        ordering: &Ordering,\n        mut observer: Option<&mut BlockRatios<L>>,\n    ) -> Result<Wide<L>, AttemptStop> {\n        let p = ctx.precision();\n        let n = ordering.free.len();\n        let one = Wide::<L>::ONE;\n        if n == 0 {\n            return Ok(one);\n        }\n        let lift_count =\n            |x: usize| -> Result<Wide<L>, AttemptStop> { Ok(Wide::<L>::from_f64(x as f64)?) };\n        // \u2016K\u0303\u2016\u2081: the largest column sum (exact, rounded once).\n        let mut norm = Wide::<L>::ZERO;\n        for (a, &g) in ordering.free.iter().enumerate() {\n            sum.clear();\n            for index in structure.pattern.row_range(g) {\n                let b = ordering.position[structure.pattern.column(index)];\n                if b != usize::MAX {\n                    sum.add_wide_scaled(&k[index].abs(), false, 1, self.scale[a] + self.scale[b])?;\n                }\n            }\n            let column = sum.round(ctx)?;\n            if column.cmp_value(&norm) == CmpOrdering::Greater {\n                norm = column;\n            }\n        }\n        let abs_sum = |ctx: &mut WideContext<L>,\n                       sum: &mut ExactWideSum,\n                       v: &[Wide<L>]|\n         -> Result<Wide<L>, AttemptStop> {\n            sum.clear();\n            for x in v {\n                sum.add_wide(&x.abs(), false)?;\n            }\n            Ok(sum.round(ctx)?)\n        };\n        let inverse_n = ctx.div(&one, &lift_count(n)?)?;\n        let mut x = vec![inverse_n; n];\n        let mut estimate = Wide::<L>::ZERO;\n        let mut previous = n;\n        for _ in 0..5 {\n            let y = self.solve_scaled(ctx, &x)?;\n            if let Some(o) = observer.as_deref_mut() {\n                o.offer(ctx, sum, &x, &y)?;\n            }\n            let current = abs_sum(ctx, sum, &y)?;\n            if current.cmp_value(&estimate) != CmpOrdering::Greater && !estimate.is_zero() {\n                break;\n            }\n            estimate = current;\n            let signs: Vec<Wide<L>> = y\n                .iter()\n                .map(|v| {\n                    if v.is_zero() || !v.is_sign_negative() {\n                        one\n                    } else {\n                        one.neg()\n                    }\n                })\n                .collect();\n            let z = self.solve_scaled(ctx, &signs)?;\n            if let Some(o) = observer.as_deref_mut() {\n                o.offer(ctx, sum, &signs, &z)?;\n            }\n            let mut j = 0;\n            for i in 1..n {\n                if z[i].abs().cmp_value(&z[j].abs()) != CmpOrdering::Less {\n                    j = i;\n                }\n            }\n            sum.clear();\n            for i in 0..n {\n                sum.add_product(ctx, &z[i], &x[i], false)?;\n            }\n            let dot = sum.round(ctx)?;\n            if z[j].abs().cmp_value(&dot) != CmpOrdering::Greater || j == previous {\n                break;\n            }\n            previous = j;\n            x.iter_mut().for_each(|v| *v = Wide::<L>::ZERO);\n            x[j] = one;\n        }\n        let mut alternating = Vec::with_capacity(n);\n        for i in 0..n {\n            let magnitude = if n == 1 {\n                one\n            } else {\n                ctx.div(&lift_count(n - 1 + i)?, &lift_count(n - 1)?)?\n            };\n            alternating.push(if i % 2 == 0 {\n                magnitude\n            } else {\n                magnitude.neg()\n            });\n        }\n        let y = self.solve_scaled(ctx, &alternating)?;\n        if let Some(o) = observer.as_deref_mut() {\n            o.offer(ctx, sum, &alternating, &y)?;\n        }\n        let total = abs_sum(ctx, sum, &y)?.mul_pow2(1)?;\n        let alternative = ctx.div(&total, &lift_count(3 * n)?)?;\n        if alternative.cmp_value(&estimate) == CmpOrdering::Greater {\n            estimate = alternative;\n        }\n        let product = ctx.mul(&norm, &estimate)?;\n        let boundary = one.mul_pow2(i64::from(p) - 1)?;\n        if product.is_zero() || product.cmp_value(&boundary) != CmpOrdering::Less {\n            return Err(AttemptStop::Condition);\n        }\n        let rcond = ctx.div(&one, &product)?;\n        Ok(if rcond.cmp_value(&one) == CmpOrdering::Greater {\n            one\n        } else {\n            rcond\n        })\n    }\n}\n\n#[cfg(test)]\n#[path = \"../../../tests/retained_k4/factor_tests.rs\"]\n"
+    },
+    {
+      "id": "existing_constructed_helpers",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "start_line": 74,
+      "end_line": 128,
+      "claim": "Existing constructed fills values only at free pattern entries and does not assemble or solve a physical model. SPRING-CARRIED is reused unchanged solely as pattern carrier.",
+      "text": "/// Nodes (k, 0, 0), members k\u2013k+1, every DOF but UX restrained: the free\u2013free\n/// pattern is a path over the UX DOFs (a carrier for constructed values).\nfn path_source(n: usize) -> PrimitiveSource {\n    let member = |id: u32| StraightMember {\n        id,\n        node_i: id - 1,\n        node_j: id,\n        elastic_modulus: 1.0,\n        shear_modulus: 1.0,\n        area: 1.0,\n        second_moment_y: 1.0,\n        second_moment_z: 1.0,\n        torsion_constant: 1.0,\n        y_reference: [0.0, 1.0, 0.0],\n    };\n    let mut parts = SourceParts {\n        nodes: (0..n).map(|k| [k as f64, 0.0, 0.0]).collect(),\n        members: (1..n as u32).map(member).collect(),\n        ..Default::default()\n    };\n    for node in 0..n as u32 {\n        for c in 1..6 {\n            parts.constraints.push(Constraint {\n                dof: Dof {\n                    node,\n                    component: Component::from_index(c),\n                },\n                value: 0.0,\n            });\n        }\n    }\n    PrimitiveSource::new(parts).unwrap()\n}\n\n/// K on the path's free pattern with K(i, j) = value(rank i, rank j) in the\n/// RCM order (every other stored entry zero).\nfn constructed<const L: usize>(\n    source: &PrimitiveSource,\n    value: impl Fn(usize, usize) -> f64,\n) -> (Structure, Ordering, Vec<Wide<L>>)\nwhere\n    Wide<L>: SupportedWidth,\n{\n    let structure = Structure::new(source).unwrap();\n    let ordering = order_free(source, &structure);\n    let mut k = vec![Wide::<L>::ZERO; structure.entry_count()];\n    for (r, c, index) in structure.entries() {\n        let (a, b) = (ordering.position[r], ordering.position[c]);\n        if a != usize::MAX && b != usize::MAX {\n            k[index] = support::lift::<L>(value(ordering.rank[a], ordering.rank[b]));\n        }\n    }\n    (structure, ordering, k)\n}\n\n"
+    },
+    {
+      "id": "empty_path_source_one_hazard",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+      "start_line": 545,
+      "end_line": 584,
+      "claim": "Structure adds positions from members/springs. path_source(1) has neither and supplies an empty pattern; not used by this proposal.",
+      "text": "impl Structure {\n    /// `SparsePattern::from_positions` of the member 12\u00d712 blocks, the spring\n    /// diagonals and the directional springs' 3\u00d73 node blocks.\n    pub(crate) fn new(source: &PrimitiveSource) -> Result<Self, AttemptStop> {\n        let n = source.dof_count();\n        let mut positions: Vec<(usize, usize)> = Vec::new();\n        let member_dofs = |m: &StraightMember| {\n            let mut out = [0usize; 12];\n            for k in 0..6 {\n                out[k] = m.node_i as usize * DOF_PER_NODE + k;\n                out[6 + k] = m.node_j as usize * DOF_PER_NODE + k;\n            }\n            out\n        };\n        for m in source.members() {\n            let dofs = member_dofs(m);\n            for &r in &dofs {\n                for &c in &dofs {\n                    if r <= c {\n                        positions.push((r, c));\n                    }\n                }\n            }\n        }\n        for s in source.springs() {\n            let d = s.dof.global();\n            positions.push((d, d));\n        }\n        for s in source.directional_springs() {\n            let base = s.node as usize * DOF_PER_NODE + s.kind.offset();\n            for a in 0..3 {\n                for b in a..3 {\n                    positions.push((base + a, base + b));\n                }\n            }\n        }\n        let pattern = SparsePattern::from_positions(n, positions.iter().copied())\n            .map_err(|_| AttemptStop::Structure)?;\n        let entries = pattern.entry_count();\n        let mut tagged: Vec<(usize, Contribution)> = Vec::new();\n"
+    },
+    {
+      "id": "no_synthesized_diagonal",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6",
+      "start_line": 55,
+      "end_line": 77,
+      "claim": "from_positions does not invent diagonal entries; confirms the path_source(1) false route.",
+      "text": "impl SparsePattern {\n    /// The symmetric closure of `positions`, deduplicated. A pure function of\n    /// the set of positions: their order and repetition do not matter.\n    pub fn from_positions(\n        dimension: usize,\n        positions: impl IntoIterator<Item = (usize, usize)>,\n    ) -> Result<Self, StructuralError> {\n        let mut rows: Vec<Vec<usize>> = vec![Vec::new(); dimension];\n        for (row, col) in positions {\n            if row >= dimension || col >= dimension {\n                return Err(StructuralError::InvalidInput(\"pattern position\"));\n            }\n            rows[row].push(col);\n            if row != col {\n                rows[col].push(row);\n            }\n        }\n        for row in &mut rows {\n            row.sort_unstable();\n            row.dedup();\n        }\n        Ok(Self::from_sorted_rows(dimension, rows))\n    }\n"
+    },
+    {
+      "id": "typed_pivot_existing_singular",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "start_line": 176,
+      "end_line": 210,
+      "claim": "Existing direct typed Pivot check uses exactly singular matrix; this remains failed under both p and p53, so it does not sharply discriminate M9.",
+      "text": "fn a_constructed_indefinite_pair_is_a_negative_energy_witness_and_its_definite_neighbour_is_not() {\n    let source = path_source(2);\n    let guard = StageGuard::unlimited();\n    let mut sum = ExactWideSum::new();\n    let mut c = ctx::<4>(128);\n    // K11 = K22 = 1, K12 = 2: E = 1 + 1 \u2212 4 < 0.\n    let (structure, ordering, k) = constructed::<4>(&source, |i, j| if i == j { 1.0 } else { 2.0 });\n    assert_eq!(\n        negative_pair(&mut sum, &structure, &k, &ordering, 128),\n        Ok(Some((0, 6)))\n    );\n    assert_eq!(\n        factor(&mut c, &mut sum, &guard, &structure, &k, &ordering).err(),\n        Some(AttemptStop::NegativeEnergy { i: 0, j: 6 })\n    );\n    // K12 = 0.75: definite, no witness, the factor passes.\n    let (structure, ordering, k) =\n        constructed::<4>(&source, |i, j| if i == j { 1.0 } else { 0.75 });\n    assert_eq!(\n        negative_pair(&mut sum, &structure, &k, &ordering, 128),\n        Ok(None)\n    );\n    assert!(factor(&mut c, &mut sum, &guard, &structure, &k, &ordering).is_ok());\n    // K12 = 1 exactly (E = 0, singular): a failed pivot, never a witness.\n    let (structure, ordering, k) = constructed::<4>(&source, |i, j| if i == j { 1.0 } else { 1.0 });\n    assert_eq!(\n        negative_pair(&mut sum, &structure, &k, &ordering, 128),\n        Ok(None)\n    );\n    assert!(matches!(\n        factor(&mut c, &mut sum, &guard, &structure, &k, &ordering),\n        Err(AttemptStop::Pivot { .. })\n    ));\n}\n\n"
+    },
+    {
+      "id": "typed_pivot_selected_prerequisite",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "start_line": 214,
+      "end_line": 238,
+      "claim": "Existing PIVOT test first requires Selected, then asserts typed Pivot; generic selection failure is insufficient.",
+      "text": "fn a_pivot_that_fails_at_128_escalates_and_passes_at_256() {\n    let m = models::model(\"PIVOT\");\n    let source = m.source();\n    let CaseOutcome::Selected(solve) = solve(source.clone()) else {\n        panic!(\"PIVOT not selected\")\n    };\n    assert_eq!(solve.selected_precision(), 256);\n    let attempts = &solve.evidence().attempts;\n    assert!(matches!(\n        attempts[0].outcome,\n        AttemptOutcome::Failed(AttemptReason::Stop(AttemptStop::Pivot { .. }))\n    ));\n    assert_eq!(attempts[0].precision, 128);\n    assert_eq!(\n        (attempts[1].precision, &attempts[1].outcome),\n        (256, &AttemptOutcome::Accepted)\n    );\n    assert_eq!(\n        (attempts[2].precision, &attempts[2].outcome),\n        (512, &AttemptOutcome::Verified)\n    );\n    let (worst, at, compared) = models::compare(&source, &solve.publish().rows, &m.expect);\n    assert!(\n        compared > 20 && worst <= 1.0,\n        \"{worst} at {at} ({compared})\"\n"
+    },
+    {
+      "id": "typed_pivot_ceiling",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14",
+      "start_line": 182,
+      "end_line": 208,
+      "claim": "Existing ceiling route asserts Pivot on every attempted precision, but source evidence does not establish a changed typed verdict when the threshold is made stricter.",
+      "text": "#[test]\nfn a_ceiling_case_is_unresolved_with_its_attempts() {\n    match outcome(\"SKEW-K1E-300\") {\n        CaseOutcome::Unresolved {\n            reason: UnresolvedReason::Ceiling,\n            attempts,\n            geometry,\n        } => {\n            assert_eq!(geometry, vec![BodyGeometry::Restrained]);\n            assert_eq!(\n                attempts.iter().map(|a| a.precision).collect::<Vec<_>>(),\n                vec![128, 256, 512]\n            );\n            for a in &attempts {\n                assert!(matches!(\n                    a.outcome,\n                    AttemptOutcome::Failed(AttemptReason::Stop(AttemptStop::Pivot { .. }))\n                ));\n                assert!(a.shared_work > 0);\n            }\n        }\n        other => panic!(\"{other:?}\"),\n    }\n}\n\n// ---------------------------------------------------------------- G: the predicate, exactly\n\n"
+    },
+    {
+      "id": "existing_condition_not_exact_norm",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "start_line": 142,
+      "end_line": 173,
+      "claim": "Constructed 70/20-row tests use Condition and broad <2^-127 bounds; no exact norm equality establishes crossing under M32.",
+      "text": "fn a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only() {\n    let source = path_source(70);\n    let guard = StageGuard::unlimited();\n    let mut sum = ExactWideSum::new();\n    // p = 128: every pivot passes, the condition screen escalates.\n    let (structure, ordering, k) = constructed::<4>(&source, bidiagonal_product);\n    assert_eq!(ordering.free.len(), 70);\n    let mut c128 = ctx::<4>(128);\n    let f = factor(&mut c128, &mut sum, &guard, &structure, &k, &ordering).unwrap();\n    assert_eq!(f.screens.len(), 70);\n    assert_eq!(\n        f.condition(&mut c128, &mut sum, &structure, &k, &ordering),\n        Err(AttemptStop::Condition)\n    );\n    // p = 256: the same matrix passes, with rcond far below 2^-127.\n    let mut c256 = ctx::<4>(256);\n    let f = factor(&mut c256, &mut sum, &guard, &structure, &k, &ordering).unwrap();\n    let rcond = f\n        .condition(&mut c256, &mut sum, &structure, &k, &ordering)\n        .unwrap()\n        .to_binary64()\n        .value()\n        .unwrap();\n    assert!(rcond > 0.0 && rcond < support::pow2(-127), \"{rcond:e}\");\n    // A well-conditioned control (n = 20) passes at 128.\n    let small = path_source(20);\n    let (structure, ordering, k) = constructed::<4>(&small, bidiagonal_product);\n    let f = factor(&mut c128, &mut sum, &guard, &structure, &k, &ordering).unwrap();\n    assert!(f\n        .condition(&mut c128, &mut sum, &structure, &k, &ordering)\n        .is_ok());\n}\n"
+    },
+    {
+      "id": "existing_M11_basis_filter",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "start_line": 394,
+      "end_line": 411,
+      "claim": "TWO-SPAN exact basis assertion [(128,192,1),(256,320,1)] follows Selected prerequisite and attempts.len==2; only exact tuple assertion failure qualifies.",
+      "text": "#[test]\nfn the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis() {\n    // K4-M11's control (ROOT's O5: an evidence-level kill). The shared node's\n    // rotational entry is formed at p from two cancelling spans; the residual\n    // at p + 64 sees the formation error and one correction removes it.\n    let CaseOutcome::Selected(solve) = solve(models::model(\"TWO-SPAN\").source()) else {\n        panic!()\n    };\n    let attempts = &solve.evidence().attempts;\n    assert_eq!(attempts.len(), 2);\n    assert_eq!(\n        attempts\n            .iter()\n            .map(|a| (a.precision, a.residual_basis, a.corrections))\n            .collect::<Vec<_>>(),\n        vec![(128, 192, 1), (256, 320, 1)]\n    );\n}\n"
+    },
+    {
+      "id": "factor_tests_namespace",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "start_line": 824,
+      "end_line": 827,
+      "claim": "Existing cfg(test) mount supplies structural::retained::factor::tests namespace; no new module or helper required.",
+      "text": "\n"
+    },
+    {
+      "id": "support_context_and_lift",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "db546b9c509954389e6107aeb9cdb81c338d4b0f7aba7a41d8b45fb723b4643e",
+      "start_line": 346,
+      "end_line": 360,
+      "claim": "Existing ctx<4>(128) and lift<4>(16.0) use supported exact binary64 values; proposed fields have existing accessors/types.",
+      "text": "\npub(crate) fn ctx<const L: usize>(p: u32) -> WideContext<L>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    WideContext::<L>::new(p).unwrap()\n}\n\npub(crate) fn lift<const L: usize>(x: f64) -> Wide<L>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    Wide::<L>::from_f64(x).unwrap()\n}\n\n"
+    },
+    {
+      "id": "existing_scalar_carrier",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e",
+      "start_line": 2758,
+      "end_line": 2775,
+      "claim": "Unmodified SPRING-CARRIED has 2 nodes, constraints on all but node1 Rx/global9, and stored spring diagonal (9,9).",
+      "text": "model SPRING-CARRIED\nnode 0000000000000000 0000000000000000 0000000000000000\nnode 4000000000000000 0000000000000000 0000000000000000\nmember 1 0 1 42474876e8000000 01a56e1fc2f8f359 3d53e57380a0d150 3aa1f040d2bcfea3 3aa1f040d2bcfea3 3ab1f040d2bcfea3 0000000000000000 3ff0000000000000 0000000000000000\nspring 1 1 3 3ff0000000000000\nconstraint 0 0 0000000000000000\nconstraint 0 1 0000000000000000\nconstraint 0 2 0000000000000000\nconstraint 0 3 0000000000000000\nconstraint 0 4 0000000000000000\nconstraint 0 5 0000000000000000\nconstraint 1 0 0000000000000000\nconstraint 1 1 0000000000000000\nconstraint 1 2 0000000000000000\nconstraint 1 4 0000000000000000\nconstraint 1 5 0000000000000000\nload 1 3 3ff0000000000000 l0\nexpect Mb.1.i 0000000000000000 x:0\n"
+    }
+  ],
+  "scalar_carrier": {
+    "name": "SPRING-CARRIED",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+    "file_sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e",
+    "block_sha256": "0a34429a0aa1d505cdea7d8b640e9e3aca6399741c4fb63168b1b23724105dd9",
+    "free_global_dofs": [
+      9
+    ],
+    "model_changes": 0
+  },
+  "ROOT_steering": "ROOT confirmed: preserve SPRING-CARRIED unchanged as existing one-free-DOF pattern carrier; rederive exact scaling/condition steps; helper/setup assertions distinct from qualifying rcond equality; no runtime inference.",
+  "search_conclusion": {
+    "M9": "Existing typed checks found, but none establishes precision-discriminating typed failure independent of the publication prerequisite; direct inequality diagnostic proposed.",
+    "M32": "No exact existing norm discriminator found in bounded factor/condition test sources; scalar direct condition equality proposed."
+  }
+}

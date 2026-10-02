@@ -1,0 +1,39 @@
+{
+  "disposition": "MISSING_DISCRIMINATION_IN_CURRENT_NARROW_FILTER; SURVIVOR_ZERO_CREDIT_PRESERVED",
+  "preferred_bounded_followup": {
+    "kind": "Existing protected test/corpus; no new inputs or expectations",
+    "filter": "structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit",
+    "initial_baseline": "Exact immutable source/test/profile baseline evidence must be bound or separately granted, one selected test PASS.",
+    "fault": "Unchanged RV19-D2 patch; separately authorized run must reach existing set19 row20 bound_bits comparison with correct3 and faulty2.",
+    "qualifying_assertion": {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "line": 96,
+      "expected": "set19 original class vector, specifically row20 AbsoluteVerified bound_bits3",
+      "fault_prediction": "same row bound_bits2",
+      "unrelated_or_earlier_failures": "No credit; return exact reach gap."
+    },
+    "returned_control": "Same exact existing filter on untouched source must pass under later grant.",
+    "runtime_authority": false
+  },
+  "optional_smaller_strengthening": {
+    "kind": "NEW_ASSERTION on an EXISTING unit-test operand, not a changed old criterion",
+    "operand": "q=3*2^-1060; S=2^-995",
+    "value_bits": "000000000000c000",
+    "scale_bits": "01c0000000000000",
+    "expected_bits": "0000000000008002",
+    "fault_prediction_bits": "0000000000008001",
+    "proposal": "Add exact to_bits equality for this existing operand if ROOT prefers a unit-level focused witness after review. Keep current > assertion and every existing expected value.",
+    "code_patch_created": false
+  },
+  "optional_smallest_positive_input": {
+    "kind": "NEW_PROPOSED_CASE (not silently added or replacing existing corpus)",
+    "operand": "q=S=f64::from_bits(1)",
+    "expected_bits": "0000000000000003",
+    "fault_prediction_bits": "0000000000000002",
+    "scope": "One direct formula assertion only if separately granted; no sweep/model."
+  },
+  "why_not_equivalent": "ceil(q/2^53) can differ from nearest by h. Existing set19 and the independently derived minimal case prove distinct exact outputs.",
+  "why_unit_passes": "Exact-bit operands either bypass the branch or have ceil==nearest. One loop operand activates it, but omitted-rounding+h still exceeds its nearest-rounded RHS; both satisfy the weak inequality.",
+  "scope_limit": "This proves a pure row_bound/helper test-mapping gap. No new production certification defect, mutation kill, retirement, closure, patch/copy preparation or runtime result is claimed.",
+  "pending": "ROOT survivor disposition after independent RV29 review; later runtimes remain held."
+}

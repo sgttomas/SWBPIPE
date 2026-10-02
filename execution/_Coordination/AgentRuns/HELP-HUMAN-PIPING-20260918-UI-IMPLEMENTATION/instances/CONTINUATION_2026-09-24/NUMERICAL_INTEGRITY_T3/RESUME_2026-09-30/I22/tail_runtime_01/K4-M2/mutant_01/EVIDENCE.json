@@ -1,0 +1,69 @@
+{
+  "kind": "mutant",
+  "id": "K4-M2",
+  "index": 0,
+  "name": "mutant_01",
+  "filter": "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+  "argv": [
+    "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "--exact",
+    "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/mutant_01.stdout' 2> '<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/mutant_01.stderr'",
+  "workdir": "<wt>/scratch/i23/r09_r10_tail/K4-M2/projects/chirality-piping/core/solver/frame_kernel",
+  "log": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M2/mutant_01",
+  "launch_utc": "2026-10-01T16:39:21.024Z",
+  "guard_before": {
+    "chunk_id": "059cbe",
+    "wall_time_seconds": 7.792e-06,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-15:03:01 /bin/bash <wt>/guard/memguard.sh\n"
+  },
+  "tool_initial": {
+    "chunk_id": "240392",
+    "wall_time_seconds": 9e-06,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "240392",
+    "wall_time_seconds": 9e-06,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "info": {
+    "stdout": "\nrunning 1 test\ntest structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up ... FAILED\n\nfailures:\n\nfailures:\n    structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 392 filtered out; finished in 0.00s\n\n",
+    "stderr": "\nthread 'structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up' (26086346) panicked at src/structural/retained/../../../tests/retained_k4/wide_sum_tests.rs:102:17:\nassertion `left == right` failed: p 128 terms [\"w:+8p0\", \"w:+8p-128\", \"w:+8p-428\"]\n  left: \"+8p0\"\n right: \"+80000000000000000000000000000001p0\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n        0.00 real         0.00 user         0.00 sys\n             4915200  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                 657  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                   9  involuntary context switches\n            36338680  instructions retired\n            16162767  cycles elapsed\n             1737064  peak memory footprint\n",
+    "stdout_sha256": "b2eea3894994a2117a35c999dc05979c4311657bfe5e8a9f82e1fe1eee07f97a",
+    "stderr_raw_sha256": "9a96a1375ea6baebd37ec664a21a1d4d778ce0f30a03822be12dd4b11d9944fc",
+    "source_id": "K4-M2",
+    "source_manifest_sha256": "21f77fc369fb055977937ef16a8cf0b13f14684530fe51423dd65d0adc078ad1",
+    "complete_source_hashes_match": true,
+    "affected_images": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+        "before_sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+        "after_sha256": "e671336b0dc5dc2eb71825f667bb4fe1926cf93c2f9c4d3f3e5f1518c051752e"
+      }
+    ],
+    "test_sha256": "039a43e1fe0f9bc51fec0e99e5aaf59b468acd32fce80631c0df1c797c43ba8a",
+    "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "binary": {
+      "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "50b513d305d6f8b0da2ef325a0494b8ccde1c37bfb5090add938c56fd5e17087"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    },
+    "guard_after": "5387     1 03-15:03:02 /bin/bash <wt>/guard/memguard.sh"
+  }
+}

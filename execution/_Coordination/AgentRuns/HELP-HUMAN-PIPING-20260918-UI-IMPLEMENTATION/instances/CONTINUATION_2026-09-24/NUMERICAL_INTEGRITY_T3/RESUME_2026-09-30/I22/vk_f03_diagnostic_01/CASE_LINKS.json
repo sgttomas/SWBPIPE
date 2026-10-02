@@ -1,0 +1,6202 @@
+[
+  {
+    "id": "RF-CHAIN-T-n03-r1e-04",
+    "family": "RF-CHAIN",
+    "source_sha256": "bd42aaee4ebcf0ea84eb81432aca7a2186144e0348fa07cca8f4f4636efaa2cd",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ]
+    ],
+    "observed_global_dof": 14,
+    "node": 2,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M2",
+        2,
+        1,
+        2
+      ],
+      [
+        "M3",
+        3,
+        2,
+        3
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N2.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n03-r1e-06",
+    "family": "RF-CHAIN",
+    "source_sha256": "7a0603f63d91516bf2e181c9ea849fbfdcdb58b1b658f0f5a7e8acc313b94c8c",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ]
+    ],
+    "observed_global_dof": 14,
+    "node": 2,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M2",
+        2,
+        1,
+        2
+      ],
+      [
+        "M3",
+        3,
+        2,
+        3
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N2.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n03-r1e-08",
+    "family": "RF-CHAIN",
+    "source_sha256": "20c2148fc4e1ac4419155de43d1ca85a6c257b2eb3040b295c6fd430149ffa5a",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ]
+    ],
+    "observed_global_dof": 14,
+    "node": 2,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M2",
+        2,
+        1,
+        2
+      ],
+      [
+        "M3",
+        3,
+        2,
+        3
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N2.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "9.999999956193345756285344e-5",
+          "th.N1.RX": "1.000000005615690408094191e-4",
+          "th.N2.RX": "1.000000010613868324327019e-4",
+          "th.N3.RX": "1.000000025608402073025504e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n03-r1e-10",
+    "family": "RF-CHAIN",
+    "source_sha256": "4da1ad2e0aed5564205326c500257574520ee96f5ef02a81e1ee2a3063f5636f",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ]
+    ],
+    "observed_global_dof": 14,
+    "node": 2,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M2",
+        2,
+        1,
+        2
+      ],
+      [
+        "M3",
+        3,
+        2,
+        3
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N2.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "1.000001008864820116587907e-4",
+          "th.N1.RX": "1.000001008964783674912563e-4",
+          "th.N2.RX": "1.000001009014765454074891e-4",
+          "th.N3.RX": "1.000001009164710791561876e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n03-r1e-12",
+    "family": "RF-CHAIN",
+    "source_sha256": "7ab12bb550088d7ae0e391ed18a942968bd716588fd84dd0a56da4f05f34296d",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ]
+    ],
+    "observed_global_dof": 14,
+    "node": 2,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M2",
+        2,
+        1,
+        2
+      ],
+      [
+        "M3",
+        3,
+        2,
+        3
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N2.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "9.999061607415391248113818e-5",
+          "th.N1.RX": "9.999061607425387603946283e-5",
+          "th.N2.RX": "9.999061607430385781862516e-5",
+          "th.N3.RX": "9.999061607445380315611215e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n05-r1e-04",
+    "family": "RF-CHAIN",
+    "source_sha256": "eb12d4df05500dddbbf911c1f09a21bdd6d48cd4dca9a377fce8132182103385",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ]
+    ],
+    "observed_global_dof": 26,
+    "node": 4,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M4",
+        4,
+        3,
+        4
+      ],
+      [
+        "M5",
+        5,
+        4,
+        5
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N4.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n05-r1e-06",
+    "family": "RF-CHAIN",
+    "source_sha256": "c5d89f62551c613a28fde00464b430235d61b11ea6a1dc999ef421ada5ec656d",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ]
+    ],
+    "observed_global_dof": 26,
+    "node": 4,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M4",
+        4,
+        3,
+        4
+      ],
+      [
+        "M5",
+        5,
+        4,
+        5
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N4.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n05-r1e-08",
+    "family": "RF-CHAIN",
+    "source_sha256": "09461e8c8faa03d570a8243c3acbca762b2a8c62b6f7822a1de67aa5aab23b3f",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ]
+    ],
+    "observed_global_dof": 26,
+    "node": 4,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M4",
+        4,
+        3,
+        4
+      ],
+      [
+        "M5",
+        5,
+        4,
+        5
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N4.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "9.999999956193345756285344e-5",
+          "th.N1.RX": "1.000000005615690408094191e-4",
+          "th.N2.RX": "1.000000010613868324327019e-4",
+          "th.N3.RX": "1.000000025608402073025504e-4",
+          "th.N4.RX": "1.000000033105668947374746e-4",
+          "th.N5.RX": "1.000000045601113737956817e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n05-r1e-10",
+    "family": "RF-CHAIN",
+    "source_sha256": "c0a992e77002a1711e1ffe4ed96609dfe3e6836c6ef8a56e0a8444411e8d5a9d",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ]
+    ],
+    "observed_global_dof": 26,
+    "node": 4,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M4",
+        4,
+        3,
+        4
+      ],
+      [
+        "M5",
+        5,
+        4,
+        5
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N4.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "1.000001008864820116587907e-4",
+          "th.N1.RX": "1.000001008964783674912563e-4",
+          "th.N2.RX": "1.000001009014765454074891e-4",
+          "th.N3.RX": "1.000001009164710791561876e-4",
+          "th.N4.RX": "1.000001009239683460305369e-4",
+          "th.N5.RX": "1.000001009364637908211189e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n05-r1e-12",
+    "family": "RF-CHAIN",
+    "source_sha256": "524f1f8a0ec69a026794befe18008b942f6410b2843cb80ea745022bd1df707e",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ]
+    ],
+    "observed_global_dof": 26,
+    "node": 4,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M4",
+        4,
+        3,
+        4
+      ],
+      [
+        "M5",
+        5,
+        4,
+        5
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N4.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "9.999061607415391248113818e-5",
+          "th.N1.RX": "9.999061607425387603946283e-5",
+          "th.N2.RX": "9.999061607430385781862516e-5",
+          "th.N3.RX": "9.999061607445380315611215e-5",
+          "th.N4.RX": "9.999061607452877582485564e-5",
+          "th.N5.RX": "9.999061607465373027276146e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n10-r1e-04",
+    "family": "RF-CHAIN",
+    "source_sha256": "a36bd21e9bcb0a9fc3b0b082fbbf110653733cc3f0696ca0f771363b5a402eef",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ]
+    ],
+    "observed_global_dof": 59,
+    "node": 9,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M9",
+        9,
+        8,
+        9
+      ],
+      [
+        "M10",
+        10,
+        9,
+        10
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "th.N9.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n10-r1e-06",
+    "family": "RF-CHAIN",
+    "source_sha256": "456edadb3b4ba26556663de813f49a65868645c3a1b9c8c5fa5a4a43c9812997",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ]
+    ],
+    "observed_global_dof": 59,
+    "node": 9,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M9",
+        9,
+        8,
+        9
+      ],
+      [
+        "M10",
+        10,
+        9,
+        10
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "th.N9.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n10-r1e-08",
+    "family": "RF-CHAIN",
+    "source_sha256": "5143b6e75d91f0d940d48fdfde94a8bf9f168af3098b6f56aa2abe7ccac087be",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ]
+    ],
+    "observed_global_dof": 59,
+    "node": 9,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M9",
+        9,
+        8,
+        9
+      ],
+      [
+        "M10",
+        10,
+        9,
+        10
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "th.N9.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "9.999999956193345756285344e-5",
+          "th.N1.RX": "1.000000005615690408094191e-4",
+          "th.N10.RX": "1.000000095582892900285099e-4",
+          "th.N2.RX": "1.000000010613868324327019e-4",
+          "th.N3.RX": "1.000000025608402073025504e-4",
+          "th.N4.RX": "1.000000033105668947374746e-4",
+          "th.N5.RX": "1.000000045601113737956817e-4",
+          "th.N6.RX": "1.000000048100202696073231e-4",
+          "th.N7.RX": "1.000000068092914361004544e-4",
+          "th.N8.RX": "1.000000074340636756295579e-4",
+          "th.N9.RX": "1.000000091834259463110478e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n10-r1e-10",
+    "family": "RF-CHAIN",
+    "source_sha256": "402f5bcd074b2d8ce8b8a0ec479a94f224da68aa3245fa28692693e30851af1d",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ]
+    ],
+    "observed_global_dof": 59,
+    "node": 9,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M9",
+        9,
+        8,
+        9
+      ],
+      [
+        "M10",
+        10,
+        9,
+        10
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "th.N9.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "1.000001008864820116587907e-4",
+          "th.N1.RX": "1.000001008964783674912563e-4",
+          "th.N10.RX": "1.000001009864455699834472e-4",
+          "th.N2.RX": "1.000001009014765454074891e-4",
+          "th.N3.RX": "1.000001009164710791561876e-4",
+          "th.N4.RX": "1.000001009239683460305369e-4",
+          "th.N5.RX": "1.000001009364637908211189e-4",
+          "th.N6.RX": "1.000001009389628797792354e-4",
+          "th.N7.RX": "1.000001009589555914441667e-4",
+          "th.N8.RX": "1.000001009652033138394577e-4",
+          "th.N9.RX": "1.000001009826969365462726e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-T-n10-r1e-12",
+    "family": "RF-CHAIN",
+    "source_sha256": "c68448511e021a36856dad31269eedc669a848318d572639e5c65a5ab1ebc08b",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ]
+    ],
+    "observed_global_dof": 59,
+    "node": 9,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M9",
+        9,
+        8,
+        9
+      ],
+      [
+        "M10",
+        10,
+        9,
+        10
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "th.N9.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "9.999061607415391248113818e-5",
+          "th.N1.RX": "9.999061607425387603946283e-5",
+          "th.N10.RX": "9.999061607515354806438474e-5",
+          "th.N2.RX": "9.999061607430385781862516e-5",
+          "th.N3.RX": "9.999061607445380315611215e-5",
+          "th.N4.RX": "9.999061607452877582485564e-5",
+          "th.N5.RX": "9.999061607465373027276146e-5",
+          "th.N6.RX": "9.999061607467872116234262e-5",
+          "th.N7.RX": "9.999061607487864827899194e-5",
+          "th.N8.RX": "9.999061607494112550294485e-5",
+          "th.N9.RX": "9.999061607511606173001300e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n03-r1e-04",
+    "family": "RF-CHAIN",
+    "source_sha256": "74a5e5520f5a55f4154fdc0ecad985ac5351cdda20eec33abb54385d76ea8c47",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ]
+    ],
+    "observed_global_dof": 14,
+    "node": 2,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M2",
+        2,
+        1,
+        2
+      ],
+      [
+        "M3",
+        3,
+        2,
+        3
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N2.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n03-r1e-06",
+    "family": "RF-CHAIN",
+    "source_sha256": "37478680dd8cc0fc06accf03f27c9e8bf3fc6eb5e5fa8b9071cf83470145fdb9",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ]
+    ],
+    "observed_global_dof": 14,
+    "node": 2,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M2",
+        2,
+        1,
+        2
+      ],
+      [
+        "M3",
+        3,
+        2,
+        3
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N2.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n03-r1e-08",
+    "family": "RF-CHAIN",
+    "source_sha256": "4e351f2e44e3afa2657d356ce052319a336bacf15e171e1e830db15e67d9290d",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ]
+    ],
+    "observed_global_dof": 14,
+    "node": 2,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M2",
+        2,
+        1,
+        2
+      ],
+      [
+        "M3",
+        3,
+        2,
+        3
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N2.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "9.999999952076667746938448e-5",
+          "u.N1.UX": "1.000000005209298461626636e-4",
+          "u.N2.UX": "1.000000010210114305093031e-4",
+          "u.N3.UX": "1.000000025212561835492218e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n03-r1e-10",
+    "family": "RF-CHAIN",
+    "source_sha256": "600d4bbb4099607d7f40b0dafd3fb1f72c74cfb36bec9613a3714e59654a16f6",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ]
+    ],
+    "observed_global_dof": 14,
+    "node": 2,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M2",
+        2,
+        1,
+        2
+      ],
+      [
+        "M3",
+        3,
+        2,
+        3
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N2.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "9.999997955271565495207668e-5",
+          "u.N1.UX": "9.999997956271728663900947e-5",
+          "u.N2.UX": "9.999997956771810248247586e-5",
+          "u.N3.UX": "9.999997958272055001287505e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n03-r1e-12",
+    "family": "RF-CHAIN",
+    "source_sha256": "e6a503c6cee82acef946dac5e586536439022f6eb2d5f6a04125306fb12627bd",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 14 }))"
+      ]
+    ],
+    "observed_global_dof": 14,
+    "node": 2,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M2",
+        2,
+        1,
+        2
+      ],
+      [
+        "M3",
+        3,
+        2,
+        3
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N2.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "9.999997955271565495207668e-5",
+          "u.N1.UX": "9.999997955281567126894601e-5",
+          "u.N2.UX": "9.999997955286567942738067e-5",
+          "u.N3.UX": "9.999997955301570390268466e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n05-r1e-04",
+    "family": "RF-CHAIN",
+    "source_sha256": "aa6b2cd90e981573faf984283ea7c0e3be70b4b274577dd433682fa3b05b0623",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ]
+    ],
+    "observed_global_dof": 26,
+    "node": 4,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M4",
+        4,
+        3,
+        4
+      ],
+      [
+        "M5",
+        5,
+        4,
+        5
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N4.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n05-r1e-06",
+    "family": "RF-CHAIN",
+    "source_sha256": "6b9226826fb691df1e72a6d39fb634a23068b9f1440517ed1e0aa40d31e1b059",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ]
+    ],
+    "observed_global_dof": 26,
+    "node": 4,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M4",
+        4,
+        3,
+        4
+      ],
+      [
+        "M5",
+        5,
+        4,
+        5
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N4.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n05-r1e-08",
+    "family": "RF-CHAIN",
+    "source_sha256": "7c78acd8bcaa904f307b3b4bec23c76a00c99dad89b44adac46473c7dc99d4b0",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ]
+    ],
+    "observed_global_dof": 26,
+    "node": 4,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M4",
+        4,
+        3,
+        4
+      ],
+      [
+        "M5",
+        5,
+        4,
+        5
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N4.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "9.999999952076667746938448e-5",
+          "u.N1.UX": "1.000000005209298461626636e-4",
+          "u.N2.UX": "1.000000010210114305093031e-4",
+          "u.N3.UX": "1.000000025212561835492218e-4",
+          "u.N4.UX": "1.000000032713785600691811e-4",
+          "u.N5.UX": "1.000000045215825209357800e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n05-r1e-10",
+    "family": "RF-CHAIN",
+    "source_sha256": "0ba80dd7f66aabe214db7d3b0610801af51c072ecbc2f200b1a52d8e2228f4e6",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ]
+    ],
+    "observed_global_dof": 26,
+    "node": 4,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M4",
+        4,
+        3,
+        4
+      ],
+      [
+        "M5",
+        5,
+        4,
+        5
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N4.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "9.999997955271565495207668e-5",
+          "u.N1.UX": "9.999997956271728663900947e-5",
+          "u.N2.UX": "9.999997956771810248247586e-5",
+          "u.N3.UX": "9.999997958272055001287505e-5",
+          "u.N4.UX": "9.999997959022177377807464e-5",
+          "u.N5.UX": "9.999997960272381338674063e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n05-r1e-12",
+    "family": "RF-CHAIN",
+    "source_sha256": "15ae981a4973f7edbd31c9dfc59a1e822e42a60ff58e79234e65e1b3a9c03a43",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 26 }))"
+      ]
+    ],
+    "observed_global_dof": 26,
+    "node": 4,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M4",
+        4,
+        3,
+        4
+      ],
+      [
+        "M5",
+        5,
+        4,
+        5
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "u.N4.UZ",
+        "0",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "9.999997955271565495207668e-5",
+          "u.N1.UX": "9.999997955281567126894601e-5",
+          "u.N2.UX": "9.999997955286567942738067e-5",
+          "u.N3.UX": "9.999997955301570390268466e-5",
+          "u.N4.UX": "9.999997955309071614033666e-5",
+          "u.N5.UX": "9.999997955321573653642332e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n10-r1e-04",
+    "family": "RF-CHAIN",
+    "source_sha256": "1cdace706244965e553869afe92f580e3bdc2d51ba70cb8a1f61295d6cec4122",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ]
+    ],
+    "observed_global_dof": 59,
+    "node": 9,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M9",
+        9,
+        8,
+        9
+      ],
+      [
+        "M10",
+        10,
+        9,
+        10
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "th.N9.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n10-r1e-06",
+    "family": "RF-CHAIN",
+    "source_sha256": "e7d66e1f08cf860f9d33e228b906173ae00c94077b53aaaaa7d9d1ecdd7e1ead",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ]
+    ],
+    "observed_global_dof": 59,
+    "node": 9,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M9",
+        9,
+        8,
+        9
+      ],
+      [
+        "M10",
+        10,
+        9,
+        10
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "th.N9.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n10-r1e-08",
+    "family": "RF-CHAIN",
+    "source_sha256": "fb66632dbd31116d546475ed425ebc15609f212af856b8cb1bb5dc270b1aa76f",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ]
+    ],
+    "observed_global_dof": 59,
+    "node": 9,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M9",
+        9,
+        8,
+        9
+      ],
+      [
+        "M10",
+        10,
+        9,
+        10
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "th.N9.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "9.999999952076667746938448e-5",
+          "u.N1.UX": "1.000000005209298461626636e-4",
+          "u.N10.UX": "1.000000095223983644021756e-4",
+          "u.N2.UX": "1.000000010210114305093031e-4",
+          "u.N3.UX": "1.000000025212561835492218e-4",
+          "u.N4.UX": "1.000000032713785600691811e-4",
+          "u.N5.UX": "1.000000045215825209357800e-4",
+          "u.N6.UX": "1.000000047716233131090998e-4",
+          "u.N7.UX": "1.000000067719496504956580e-4",
+          "u.N8.UX": "1.000000073970516309289575e-4",
+          "u.N9.UX": "1.000000091473371761421959e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n10-r1e-10",
+    "family": "RF-CHAIN",
+    "source_sha256": "5d0da594796273232f1abceebb9f0638580a11acbd2d88d7dacd1bfd822141fe",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ]
+    ],
+    "observed_global_dof": 59,
+    "node": 9,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M9",
+        9,
+        8,
+        9
+      ],
+      [
+        "M10",
+        10,
+        9,
+        10
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "th.N9.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "9.999997955271565495207668e-5",
+          "u.N1.UX": "9.999997956271728663900947e-5",
+          "u.N10.UX": "9.999997965273197182140459e-5",
+          "u.N2.UX": "9.999997956771810248247586e-5",
+          "u.N3.UX": "9.999997958272055001287505e-5",
+          "u.N4.UX": "9.999997959022177377807464e-5",
+          "u.N5.UX": "9.999997960272381338674063e-5",
+          "u.N6.UX": "9.999997960522422130847383e-5",
+          "u.N7.UX": "9.999997962522748468233941e-5",
+          "u.N8.UX": "9.999997963147850448667241e-5",
+          "u.N9.UX": "9.999997964898135993880479e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-CHAIN-A-n10-r1e-12",
+    "family": "RF-CHAIN",
+    "source_sha256": "8aa490c3e20aa4e8b391230711129acb5a52fac4c7e6d90d0104b64bda616768",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 59 }))"
+      ]
+    ],
+    "observed_global_dof": 59,
+    "node": 9,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M9",
+        9,
+        8,
+        9
+      ],
+      [
+        "M10",
+        10,
+        9,
+        10
+      ]
+    ],
+    "source_springs_at_reported_node": [],
+    "original_reference_rows": [
+      [
+        "th.N9.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "9.999997955271565495207668e-5",
+          "u.N1.UX": "9.999997955281567126894601e-5",
+          "u.N10.UX": "9.999997955371581812076996e-5",
+          "u.N2.UX": "9.999997955286567942738067e-5",
+          "u.N3.UX": "9.999997955301570390268466e-5",
+          "u.N4.UX": "9.999997955309071614033666e-5",
+          "u.N5.UX": "9.999997955321573653642332e-5",
+          "u.N6.UX": "9.999997955324074061564065e-5",
+          "u.N7.UX": "9.999997955344077324937930e-5",
+          "u.N8.UX": "9.999997955350328344742263e-5",
+          "u.N9.UX": "9.999997955367831200194396e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "0c73a94b78857e23a90870ac3bd8cac46a7e3a6f02bf3efcb821ec3f4aa101ba",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [NotAssessed([(0, Rotation)])]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "405599999999999a"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "6.000000000000000000000000000000000000000e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-AX-345-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "37bbb983a3320ca12ed5483c15039ad04497e73f0bbd49653956c451e3b78a7d",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [NotAssessed([(0, Rotation)])]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "3f81b1d92b7fe08b"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "6.000000000000000000000000000000000000000e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "5.999999989884802053868091e-5",
+          "th.N0.RY": "7.999999986513069405157455e-5",
+          "th.N1.RX": "6.000000049862937048662030e-5",
+          "th.N1.RY": "8.000000066483916064882706e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-AX-345-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "31ca2b1aaba7944ca24d738d2e23cf8011d09bb1031a7ab4ed680260a5b92448",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [NotAssessed([(0, Rotation)])]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "3eacfdb417c18a1b"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "6.000000000000000000000000000000000000000e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "5.999760297080032336297494e-5",
+          "th.N0.RY": "7.999680396106709781729992e-5",
+          "th.N1.RX": "5.999760297086030149796973e-5",
+          "th.N1.RY": "7.999680396114706866395964e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-AX-122-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "71f3aa312539ce3e3b87ddb7db298e0a9079628c2a25f75c7c721b3bd415fa41",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [NotAssessed([(0, Rotation)])]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "4062000000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "3.333333333333333333333333333333333333333e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-AX-122-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "79b7995553c054b695e7c8a5a10c2d526d6ff82fa0043a019e9d746eaadfbab9",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [NotAssessed([(0, Rotation)])]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "3f8d7dbf487fcb92"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "3.333333333333333333333333333333333333333e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-AX-122-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "85d99feff2a0c6aa87e47bac061b83f1d99ea140a2a87c63a99a41a275a05a4f",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [NotAssessed([(0, Rotation)])]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "3eb828c0be769dc1"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "3.333333333333333333333333333333333333333e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "3.333200165044462409054163e-5",
+          "th.N0.RY": "6.666400330088924818108327e-5",
+          "th.N0.RZ": "6.666400330088924818108327e-5",
+          "th.N1.RX": "3.333200165047794527664985e-5",
+          "th.N1.RY": "6.666400330095589055329970e-5",
+          "th.N1.RZ": "6.666400330095589055329970e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-OFF-345-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "e1c09f93549f65897f47968f160d33be50284030bad712fa9fc7876ef90c21ad",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "405599999999999a"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "1.666666666666666666666666666666666666667e-4",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-OFF-345-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "8a995f9cc6c2e7e02611d3fb357eeba7e095f6ec34200dd8f14278bd663ebcb4",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f81b1d92b7fe08b"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "1.666666666666666666666666666666666666667e-4",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "1.666666641400230534671312e-4",
+          "th.N0.RY": "2.222222194457407132133990e-4",
+          "th.N1.RX": "1.666666651663155856002719e-4",
+          "th.N1.RY": "2.222222199255657931717505e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-OFF-345-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "db303b972343444ea94937ff82fe8d574924b8963ba29772a377aeda7b3b45c0",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3eacfdb417c18a1b"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "1.666666666666666666666666666666666666667e-4",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "1.667049300873315363881402e-4",
+          "th.N0.RY": "2.222732401165012861817126e-4",
+          "th.N1.RX": "1.667049300874341656413535e-4",
+          "th.N1.RY": "2.222732401165492686897084e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-OFF-122-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "8674c535edeb5dd3f1feb3a3ac9e9b1d1ab3d372a29f412daf5a057e35c29bbd",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "4062000000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "3.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-OFF-122-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "e7f77221a911807e56dd1c5fb5f850335135e146cf0e768e0c20075b809035b0",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f8d7dbf487fcb92"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "3.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "3.000000051533183347279458e-4",
+          "th.N0.RY": "6.000000119060536026503966e-4",
+          "th.N0.RZ": "6.000000119060536026503966e-4",
+          "th.N1.RX": "3.000000065528081512731377e-4",
+          "th.N1.RY": "6.000000123059078359490229e-4",
+          "th.N1.RZ": "6.000000123059078359490229e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-PIN-OFF-122-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "94745a991c6aea08d4825816bdb4183478281b96ed0737a72788b4791b4c3474",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 3 }))"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3eb828c0be769dc1"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "3.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "3.000365252056921086675291e-4",
+          "th.N0.RY": "6.000730504115441590283777e-4",
+          "th.N0.RZ": "6.000730504115441590283777e-4",
+          "th.N1.RX": "3.000365252058320576491836e-4",
+          "th.N1.RY": "6.000730504115841444517075e-4",
+          "th.N1.RZ": "6.000730504115841444517075e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-AX-345-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "d3f86863226af6edb22e57676ccd77383014fe007da76f97e1cbefdd03737133",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "405599999999999a"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        null,
+        [
+          "c010000000000000",
+          "4008000000000000",
+          "0000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        5,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "6.000000000000000000000000000000000000000e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-AX-345-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "5559ecb2ca28e769716c910cba56338e261c3242cfcc78835d19911ed5744f37",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "3f81b1d92b7fe08b"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        null,
+        [
+          "c010000000000000",
+          "4008000000000000",
+          "0000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        5,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "6.000000000000000000000000000000000000000e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RY": "7.999999986513069405157455e-5",
+          "th.N1.RY": "8.000000066483916064882706e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "ebda5315c8f0d899435275b96a9a1bc60b7e4da810ccc355d1e72ad82794cb86",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "3eacfdb417c18a1b"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        null,
+        [
+          "c010000000000000",
+          "4008000000000000",
+          "0000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        5,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "6.000000000000000000000000000000000000000e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "5.999760297080032336297494e-5",
+          "th.N0.RY": "7.999680396106709781729992e-5",
+          "th.N1.RX": "5.999760297086030149796973e-5",
+          "th.N1.RY": "7.999680396114706866395964e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-AX-122-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "83cc99e1dff014d40c319d30f815bcc6feb9b030e18f8e43e4a53b1f6e2e9499",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "4062000000000000"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        null,
+        [
+          "4000000000000000",
+          "3ff0000000000000",
+          "c000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        null,
+        [
+          "c000000000000000",
+          "4000000000000000",
+          "bff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "1.533333333333333333333333333333333333333e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-AX-122-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "b7944a1d950dccbe7c85c88dd303e95cfd046b8aa73d2062b92e7694c3a11f51",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "3f8d7dbf487fcb92"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        null,
+        [
+          "4000000000000000",
+          "3ff0000000000000",
+          "c000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        null,
+        [
+          "c000000000000000",
+          "4000000000000000",
+          "bff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "1.533333333333333333333333333333333333333e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "d88160052d29cb77e468efc217a7235bf15227e7b836f5cfca51384503fd7543",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 3,
+    "node": 0,
+    "component": "Rx",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "3eb828c0be769dc1"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        null,
+        [
+          "4000000000000000",
+          "3ff0000000000000",
+          "c000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        null,
+        [
+          "c000000000000000",
+          "4000000000000000",
+          "bff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RX",
+        "1.533333333333333333333333333333333333333e-5",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "1.533200165044462409054163e-5",
+          "th.N0.RY": "8.466400330088924818108327e-5",
+          "th.N0.RZ": "5.766400330088924818108327e-5",
+          "th.N1.RX": "1.033382373424511705244530e-5",
+          "th.N1.RY": "8.966218121718871877750425e-5",
+          "th.N1.RZ": "5.516491434283947644119743e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-OFF-345-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "05341f93cbc9241b018746e1b215c836d0d7f6d4a5042c7d27a6b14c8d9f2e54",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ]
+    ],
+    "observed_global_dof": 5,
+    "node": 0,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "405599999999999a"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        4,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        5,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-OFF-345-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "945678dbf351e1ddc5ff96828ee307e5748ece3821d02e570d35586f11c5a22e",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ]
+    ],
+    "observed_global_dof": 5,
+    "node": 0,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f81b1d92b7fe08b"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        4,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        5,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "5.999999909040829924816723e-5",
+          "th.N1.RX": "5.999999969018964919610661e-5",
+          "u.N1.UZ": "2.399999942880331969926689e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-OFF-345-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "9d0cf2eacacc4b8d56f8a85a43db4ec519d52d910a3b7b15c6f64c6597269010",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ]
+    ],
+    "observed_global_dof": 5,
+    "node": 0,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3eacfdb417c18a1b"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        4,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        5,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RZ",
+        "0",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "6.001377483143935309973046e-5",
+          "th.N1.RX": "6.001377483149933123472525e-5",
+          "u.N1.UZ": "2.400550993255500523989218e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-OFF-122-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "22b9cd389fcf355037e1dbd6c1d05d7b27454a3d319a2f7d68138ce47640905d",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ]
+    ],
+    "observed_global_dof": 5,
+    "node": 0,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "4062000000000000"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        4,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        5,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RZ",
+        "9.600000000000000000000000000000000000000e-9",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-OFF-122-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "dba188943790611f04a7dcf31e02966c6174c27fc382ff673d8a2378c7d6a5cc",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ]
+    ],
+    "observed_global_dof": 5,
+    "node": 0,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f8d7dbf487fcb92"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        4,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        5,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RZ",
+        "9.600000000000000000000000000000000000000e-13",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "3.333333390592425941421620e-5",
+          "th.N1.RX": "3.333333423913612049640475e-5",
+          "u.N1.UY": "-6.666666685184851882843240e-5",
+          "u.N1.UZ": "6.666666685184851882843240e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-T-CANT-OFF-122-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "9985ee16c30768b5b69816a4efdc6c15100d0038e4f0a9ed9f4add4ebc43d938",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 5 }))"
+      ]
+    ],
+    "observed_global_dof": 5,
+    "node": 0,
+    "component": "Rz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3eb828c0be769dc1"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "r",
+        4,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "412e848000000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "r",
+        5,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "412e848000000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "th.N0.RZ",
+        "9.600000000000000000000000000000000000000e-17",
+        "rotation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "th.N0.RX": "3.333739168952134540750323e-5",
+          "th.N1.RX": "3.333739168955466659361145e-5",
+          "u.N1.UY": "-6.667478337894669081500647e-5",
+          "u.N1.UZ": "6.667478337894669081500647e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-AX-345-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "0bbf793729842479459a45f67264a731bd36d41e2ae791c3f02d63e3b8b2c7ef",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 0,
+    "node": 0,
+    "component": "Ux",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "40d7570000000000"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        null,
+        [
+          "c010000000000000",
+          "4008000000000000",
+          "0000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        2,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UX",
+        "5.992000000000000000000000000000000000000e-5",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-AX-345-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "155669ec0e5328a2ac09bba0e6c723287a41cf1c8ed5f43fe83e2b5e19bf7399",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 0,
+    "node": 0,
+    "component": "Ux",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "40031eb851eb851f"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        null,
+        [
+          "c010000000000000",
+          "4008000000000000",
+          "0000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        2,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UX",
+        "5.992000000000000000000000000000000000000e-5",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "5.992000035912422171671054e-5",
+          "u.N0.UY": "8.006000047883229562228073e-5",
+          "u.N1.UX": "-1.785899240680569228764377e-6",
+          "u.N1.UY": "1.263394264299369216920114e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-AX-345-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "141a2ec56cacb3b9b0b04b9f735168610c4400297d5502dbf1d973c0b5537544",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 0,
+    "node": 0,
+    "component": "Ux",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "4008000000000000",
+          "4010000000000000",
+          "0000000000000000"
+        ],
+        "3f2f53825e13b18e"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        null,
+        [
+          "c010000000000000",
+          "4008000000000000",
+          "0000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        2,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UX",
+        "5.992000000000000000000000000000000000000e-5",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "5.991632853865336658354115e-5",
+          "u.N0.UY": "8.005510471820448877805486e-5",
+          "u.N1.UX": "-1.789571661691860085456231e-6",
+          "u.N1.UY": "1.263345298685885338830890e-4"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-AX-122-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "8e7f16b6434fafac6ba77efc672feecef198abdcab21509ad4a272688ac10fa9",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 0,
+    "node": 0,
+    "component": "Ux",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "40e36f0000000000"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        null,
+        [
+          "4000000000000000",
+          "3ff0000000000000",
+          "c000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        null,
+        [
+          "c000000000000000",
+          "4000000000000000",
+          "bff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UX",
+        "3.339333333333333333333333333333333333333e-5",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-AX-122-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "94c37042da994853ad7ca85577c705fb34be7e002abed98aa6825b67115c15a4",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 0,
+    "node": 0,
+    "component": "Ux",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "400fd70a3d70a3d7"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        null,
+        [
+          "4000000000000000",
+          "3ff0000000000000",
+          "c000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        null,
+        [
+          "c000000000000000",
+          "4000000000000000",
+          "bff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UX",
+        "3.339333333333333333333333333333333333333e-5",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "3.339333317358889248979483e-5",
+          "u.N0.UY": "6.669666634717778497958965e-5",
+          "u.N0.UZ": "6.660666634717778497958965e-5",
+          "u.N1.UX": "4.338968933944227183596363e-5",
+          "u.N1.UY": "7.169484493018605899931361e-5",
+          "u.N1.UZ": "5.661031118148757432669996e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-AX-122-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "3e7ac36cd75165bc0261a3903edd138c1fe20991be90a17f690feb35d6018f92",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "observed_global_dof": 0,
+    "node": 0,
+    "component": "Ux",
+    "reported_body": 0,
+    "location_interpretation": "R7 compared row; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        null,
+        [
+          "3ff0000000000000",
+          "4000000000000000",
+          "4000000000000000"
+        ],
+        "3f3a1554fbdad752"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        null,
+        [
+          "4000000000000000",
+          "3ff0000000000000",
+          "c000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        null,
+        [
+          "c000000000000000",
+          "4000000000000000",
+          "bff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UX",
+        "3.339333361178562056510314337396631693365e-5",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "3.339499060456292746243323e-5",
+          "u.N0.UY": "6.669998120912585492486646e-5",
+          "u.N0.UZ": "6.660998120912585492486646e-5",
+          "u.N1.UX": "4.339134643706192268313210e-5",
+          "u.N1.UY": "7.169815912542536069365056e-5",
+          "u.N1.UZ": "5.661362537672687602103691e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-OFF-345-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "75eba8bb1ae60dbafbe99040165c3f8376839b5b6ebb106e3d4b2755fea9fe53",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 1 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 1 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 1 }))"
+      ]
+    ],
+    "observed_global_dof": 1,
+    "node": 0,
+    "component": "Uy",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "40d7570000000000"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        1,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        2,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UY",
+        "1.912000000000000000000000000000000000000e-8",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-OFF-345-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "82faf51eb1e499c2d8646bcfa1ed2ce9d80d67d0174e92087d3673082883c2e1",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 1 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 1 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 1 }))"
+      ]
+    ],
+    "observed_global_dof": 1,
+    "node": 0,
+    "component": "Uy",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "40031eb851eb851f"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        1,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        2,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UY",
+        "1.912000000000000000000000000000000000000e-12",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-OFF-345-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "15165afa0d127bea4d00eeecdc52b7ef1c28049d3c266459d852465de90cd94b",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 1 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 1 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 1 }))"
+      ]
+    ],
+    "observed_global_dof": 1,
+    "node": 0,
+    "component": "Uy",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f2f53825e13b18e"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        1,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        2,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UY",
+        "1.912000000000000000000000000000000000000e-16",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "6.000006919134609389612819e-5",
+          "u.N1.UX": "6.000006919140615394570550e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+    "family": "RF-SKEW",
+    "source_sha256": "410f41dc2e87486136e06bacd70c76fcca5a90c7fb2f6bd69811e33a6a99f11f",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 2 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 2 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 2 }))"
+      ]
+    ],
+    "observed_global_dof": 2,
+    "node": 0,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "40e36f0000000000"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        1,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        2,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UZ",
+        "2.653333333333333333333333333333333333333e-8",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+    "family": "RF-SKEW",
+    "source_sha256": "ec57f90411c0345a4ddbd05174e0efb1fcf642fd1822e8841b03a2e8ca437bf9",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 2 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 2 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 2 }))"
+      ]
+    ],
+    "observed_global_dof": 2,
+    "node": 0,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "400fd70a3d70a3d7"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        1,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        2,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UZ",
+        "2.653333333333333333333333333333333333333e-12",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        false,
+        "value",
+        {}
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  },
+  {
+    "id": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+    "family": "RF-SKEW",
+    "source_sha256": "fb24537663ce2d2bc371fdf8d7a02b1c05dd3dcf50d0656fd945acb756a1733a",
+    "NONE_record_matches_frozen_and_return": true,
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F03_top_outcome": "Unresolved Ceiling [Restrained]",
+    "F03_sequence": [
+      [
+        128,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 2 }))"
+      ],
+      [
+        256,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 2 }))"
+      ],
+      [
+        512,
+        "Candidate",
+        "Failed(Stop(Pivot { global_dof: 2 }))"
+      ]
+    ],
+    "observed_global_dof": 2,
+    "node": 0,
+    "component": "Uz",
+    "reported_body": null,
+    "location_interpretation": "Factor screen location; not an observed deleted-contribution index.",
+    "source_incident_members_label_id_nodes": [
+      [
+        "M1",
+        1,
+        0,
+        1
+      ]
+    ],
+    "source_springs_at_reported_node": [
+      [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f3a1554fbdad752"
+      ],
+      [
+        "S.N0.1",
+        2,
+        0,
+        "t",
+        1,
+        [
+          "0000000000000000",
+          "3ff0000000000000",
+          "0000000000000000"
+        ],
+        "4197d78400000000"
+      ],
+      [
+        "S.N0.2",
+        3,
+        0,
+        "t",
+        2,
+        [
+          "0000000000000000",
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "4197d78400000000"
+      ]
+    ],
+    "original_reference_rows": [
+      [
+        "u.N0.UZ",
+        "2.653333333333333333333333333333333333333e-16",
+        "translation",
+        null
+      ]
+    ],
+    "historical_NC_LOST_SOFT_controls": [
+      [
+        "NC-LOST-SOFT",
+        true,
+        "value",
+        {
+          "u.N0.UX": "3.333311851837985236214331e-5",
+          "u.N1.UX": "3.333311851841319113443308e-5"
+        }
+      ]
+    ],
+    "omitted_contribution_identity": "NOT EMITTED / NOT RECONSTRUCTED",
+    "minimum_value_sign_zero_or_tie": "NOT EMITTED / NOT INFERRED",
+    "causal_qualification": "OPEN. Direct process association and numerical location established; actual deleted term(s) and registered soft-root causal connection are not established by the existing serialized records. No enum-only credit."
+  }
+]

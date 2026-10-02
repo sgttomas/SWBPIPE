@@ -1,0 +1,110 @@
+{
+  "record": "Manager central result verification",
+  "cases": 20,
+  "all_report_raw_hashes_match": true,
+  "all_source_bindings": true,
+  "selected": 19,
+  "selected_accuracy_all": true,
+  "compared_rows": 708,
+  "value_rows": 705,
+  "nonselection": [
+    {
+      "case": "EXTRA-ZR-01",
+      "raw_sha256": "4bc33ac043e550ae12979fc899606217482f7913e71f86f5e1264e928f3b4a14",
+      "status": "Unresolved",
+      "numeric_accuracy_pass": null,
+      "source_binding_exact": true,
+      "rows": 0,
+      "values": 0,
+      "failures": 0
+    }
+  ],
+  "B_reconciliation": {
+    "cases": 16,
+    "unchanged_value_outcome_classes": true,
+    "p512": [
+      "B01",
+      "B02",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B11",
+      "B12",
+      "B13",
+      "B14",
+      "B15",
+      "B16"
+    ],
+    "bound_changes": 144,
+    "work_deltas": [
+      {
+        "case": "B01",
+        "lme_delta": 4676834
+      },
+      {
+        "case": "B02",
+        "lme_delta": 2861493
+      },
+      {
+        "case": "B03",
+        "lme_delta": 848185
+      },
+      {
+        "case": "B04",
+        "lme_delta": 866106
+      },
+      {
+        "case": "B05",
+        "lme_delta": 4781624
+      },
+      {
+        "case": "B06",
+        "lme_delta": 4676174
+      },
+      {
+        "case": "B07",
+        "lme_delta": 2861685
+      },
+      {
+        "case": "B08",
+        "lme_delta": 2861800
+      },
+      {
+        "case": "B09",
+        "lme_delta": 601486
+      },
+      {
+        "case": "B10",
+        "lme_delta": 655788
+      },
+      {
+        "case": "B11",
+        "lme_delta": 4676943
+      },
+      {
+        "case": "B12",
+        "lme_delta": 2859196
+      },
+      {
+        "case": "B13",
+        "lme_delta": 4676925
+      },
+      {
+        "case": "B14",
+        "lme_delta": 2858980
+      },
+      {
+        "case": "B15",
+        "lme_delta": 4569183
+      },
+      {
+        "case": "B16",
+        "lme_delta": 2680744
+      }
+    ]
+  },
+  "probe_binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+  "binary_check": "Manager freshly hashed the actual a1-target/debug/a1_public_probe; matches canonical identities.",
+  "claim_boundary": "Numerical reported-claim/source-binding checks separate from compiler/probe/runtime identity and from general A1/availability/accounting/F2a acceptance."
+}

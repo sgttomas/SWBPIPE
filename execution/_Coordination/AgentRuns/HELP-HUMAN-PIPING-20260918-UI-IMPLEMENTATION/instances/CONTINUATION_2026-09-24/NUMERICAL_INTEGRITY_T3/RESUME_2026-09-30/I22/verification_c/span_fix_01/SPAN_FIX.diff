@@ -1,0 +1,18 @@
+--- before-span/publication_tests.rs
++++ after-span/publication_tests.rs
+@@ -512,10 +512,14 @@
+     assert_eq!(m.total(), 18_103); // H44 + predicate115 + RU17_944.
+     assert_eq!(sum_tuple(m.sums), (250, 188, 138, 21));
+     assert_eq!(lme(&m.ctx), 17_506);
+-    assert_eq!(m.sums.max_span_bits, 1075);
++    // RV29 additive source derivation e08b726fb695752b...: the b=2
++    // comparison retains uncancelled term extrema +1 and -1074.
++    // Aggregate span is 1-(-1074)+1=1076; H and RU alone remain 1075.
++    assert_eq!(m.sums.max_span_bits, 1076);
+     let (result, m) = ledger_h_route(StageGuard::unlimited(), 1.0);
+     assert_eq!(result, Ok(None));
+     assert_eq!(m.total(), 159); // Rejection precedes RU, not an omitted radius.
++    assert_eq!(m.sums.max_span_bits, 1075); // b=1 has high exponent 0.
+     let mut m = meter();
+     assert_eq!(
+         m.row_bound(f64::from_bits(1), f64::from_bits(1))

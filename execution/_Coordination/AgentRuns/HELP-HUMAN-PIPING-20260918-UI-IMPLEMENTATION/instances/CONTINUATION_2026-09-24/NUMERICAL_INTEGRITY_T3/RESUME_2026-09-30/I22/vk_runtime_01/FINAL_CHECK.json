@@ -1,0 +1,13 @@
+{
+  "checked_utc": "2026-10-01T18:12:54.424654+00:00",
+  "source_manifest_sha256": "1209dd30446f2b09344590d33ad7bc05a46aecb3e9b07c5edd674bcb3c189a60",
+  "complete_source_files_verified": 189,
+  "all_source_modes_and_bytes_unchanged": true,
+  "four_binary_and_raw_fingerprint_bindings_unchanged": true,
+  "dependency_raw_fingerprints_unchanged": true,
+  "guard": "5387     1 03-16:36:35 /bin/bash <wt>/guard/memguard.sh",
+  "owned_processes": [],
+  "no_running_owned_job": true,
+  "owned_scope": "transferred source/target process paths",
+  "no_additional_direct_calls": true
+}

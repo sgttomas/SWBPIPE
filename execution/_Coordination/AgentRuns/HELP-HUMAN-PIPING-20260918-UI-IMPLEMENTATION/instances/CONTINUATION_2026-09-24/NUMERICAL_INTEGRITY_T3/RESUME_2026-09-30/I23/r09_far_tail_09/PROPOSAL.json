@@ -1,0 +1,99 @@
+{
+  "registration": "K4-M2",
+  "runtime_id": "R09",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "overlay": {
+    "path": "wide_sum_line6_overlay.patch",
+    "sha256": "377cd67d43153c43b51009b603fab96b4bf692896f7643b91196ec913d558525",
+    "target": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+    "before_sha256": "94ee29a25bee27b2a21f31212a49a1ac7c6cee72796aa95a13158ab5bc0dcbc8",
+    "after_sha256": "77126d20c418901ce6d36ec83a831557494f6240a1696957c84ccdb42381c47a",
+    "append_only": true,
+    "added_lines": 18
+  },
+  "fixed_corpus": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt",
+    "sha256": "b4480589b78fa4eb4cf7a71bf91c43f22dbe6ba3602845f35082c18e852cd4a6",
+    "line": 6,
+    "line_text": "sum 4 128 3 w:+8p0 w:+8p-128 w:+8p-428 = +80000000000000000000000000000001p0"
+  },
+  "production_fault": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M2.patch",
+    "sha256": "a718338ef292bf41f7522133131dcc7fdb4a2d1a7b0c192404da3dd4ebf19763",
+    "expected_pre_post": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+        "before_sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+        "after_sha256": "e671336b0dc5dc2eb71825f667bb4fe1926cf93c2f9c4d3f3e5f1518c051752e"
+      }
+    ],
+    "state": "UNAPPLIED_UNCHANGED"
+  },
+  "filter": "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+  "expected_exact_test_count": 1,
+  "qualifying_assertion": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+    "line": 102,
+    "text": "assert_eq!(tok(&v), expect, \"p {p} terms {terms:?}\")",
+    "required_parameters": {
+      "p": 128,
+      "terms": [
+        "w:+8p0",
+        "w:+8p-128",
+        "w:+8p-428"
+      ],
+      "expect": "+80000000000000000000000000000001p0"
+    },
+    "expected_fault_numeric_mismatch": "actual +8p0 versus existing +80000000000000000000000000000001p0, as independent rational prediction; actual runtime unrun"
+  },
+  "not_kills": [
+    "Earlier original corpus line2 failure",
+    "new selector/width/term/oracle-identity assertion",
+    "refusal/setup/compiler/linker failure",
+    "zero or multiple filtered tests",
+    "any other assertion"
+  ],
+  "future_controls": {
+    "initial": "Fresh unmutated BASELINE copy/binary; exact new filter runs one PASS before mutant credit.",
+    "fault": "Only after RV29 exact-overlay review and ROOT transfer, apply unchanged K4-M2 patch in R09 and independently verify production postimage before compilation.",
+    "returned": "Rerun same exact filter on pinned untouched BASELINE binary after R09 trial; require one PASS."
+  },
+  "commands_proposal": {
+    "compile": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-j",
+      "4",
+      "--manifest-path",
+      "<COPY>/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "--target-dir",
+      "<OWNED_COPY_TARGET>",
+      "--lib",
+      "--no-run"
+    ],
+    "list": [
+      "<PINNED_BINARY>",
+      "--list",
+      "--exact",
+      "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up"
+    ],
+    "run": [
+      "<PINNED_BINARY>",
+      "--exact",
+      "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+      "--test-threads=2",
+      "--nocapture"
+    ]
+  },
+  "environment_proposal": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "NONE"
+  },
+  "runtime_authority": "None. RV29 review, ROOT ownership transfer/slot and existing guard required.",
+  "no_earlier_assertion_edit": true
+}

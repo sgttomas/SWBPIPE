@@ -1,0 +1,14 @@
+{
+  "candidate": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1",
+  "archive_files": 122,
+  "archive_verified_against_git_show": true,
+  "helper_primitives_unchanged": true,
+  "guard_pid": 5387,
+  "guard_origin": "<WT>/guard/memguard.sh",
+  "guard_sha256": "ee11ea1f43f0892dd0396bfe5c68e133084c90c87abbf757ce0be723e0ca7b79",
+  "timestamp_utc": "2026-10-01T06:56:26.270407+00:00",
+  "optional_vector_env": {
+    "K5_B1_VECTORS": null,
+    "K5_SUBNORMAL_VECTORS": null
+  }
+}

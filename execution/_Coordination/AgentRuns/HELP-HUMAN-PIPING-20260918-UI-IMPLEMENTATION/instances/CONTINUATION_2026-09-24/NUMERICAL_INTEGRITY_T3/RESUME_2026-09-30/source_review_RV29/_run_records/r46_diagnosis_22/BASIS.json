@@ -1,0 +1,21 @@
+{
+  "role": "TASK RV29",
+  "parent": "ROOT /root",
+  "start_utc": "2026-10-01T17:26:13Z",
+  "end_utc": "2026-10-01T17:32:07.551049+00:00",
+  "limit_minutes": 15,
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "historical_source": "5a46a6278",
+  "runtime_packet_commit": "25cde653ecf7b72250850a4a7d3bcf165ad1f22f",
+  "skill": {
+    "origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "retained_selection_origin_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/preparation_01/BASIS.json"
+  },
+  "scope": "R46 source/rational/historical diagnosis and narrow sealed survivor provenance only",
+  "runtime_by_reviewer": "NONE",
+  "write_fence": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/r46_diagnosis_22",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv29-a1/r46_diagnosis_22"
+  ]
+}

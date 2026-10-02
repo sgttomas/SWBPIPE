@@ -1,0 +1,4 @@
+PASS G53 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "24f2ab03a9b924cdfef7741dd237a9c659603ae48b2aac57baf5da67867ca68f"}
+filter structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence
+aliases [('RV23C', 'RV23C-M4-schedule-stop-drops-in-flight')]

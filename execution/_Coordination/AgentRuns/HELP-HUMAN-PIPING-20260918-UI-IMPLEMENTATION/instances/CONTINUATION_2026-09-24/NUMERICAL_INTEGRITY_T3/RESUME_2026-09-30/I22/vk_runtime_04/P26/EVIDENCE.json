@@ -1,0 +1,80 @@
+{
+  "process_id": "P26",
+  "phase": "RETURNED_NONE_TEST",
+  "registered_id": "NONE",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "--exact",
+    "rf_cancel",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "NONE"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P26.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P26.stderr",
+  "qualifying_condition": "Exactly one test passes after VK-F13 trial; do not infer return from initial baseline.",
+  "actual_scope": {
+    "route": "whole existing lane family, one run_case per case; final record comparison retained",
+    "family": "RF-CANCEL",
+    "cases": 38,
+    "max_members": 2,
+    "parity_calls": 0
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "returns_for": "VK-F13",
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5' '--exact' 'rf_cancel' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P26.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P26.stderr'",
+  "binary": {
+    "key": "lane",
+    "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+    "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+  },
+  "guard_before": " 5387     1 03-18:40:37 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "launch_utc": "2026-10-01T20:16:56.340Z",
+  "tool_initial": {
+    "chunk_id": "65a54e",
+    "wall_time_seconds": 1.001369584,
+    "session_id": 91817,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "4109ae",
+    "wall_time_seconds": 1.0209e-05,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "PASS",
+  "semantic_review": "F13 returned NONE exactly1rf_cancel PASS,38selected,1441pass/3notcovered,90/62controls and records restored.",
+  "completed_utc": "2026-10-01T20:17:48.251Z",
+  "raw_hashes": {
+    "stdout": "73082815e445d120840d60fd935d13b777b8ae79d8ecd8d29b74eda52d8f79ba",
+    "stderr": "3a0808e7afe037f078bca9a1478d5c89415fc44b91260f2e700b9140c7187b67"
+  },
+  "runtime_authority": {
+    "at": "2026-10-01T20:12:01Z",
+    "sha256": "d3ee1079e66a22e81dc10e993f96ca83fa4d6a1db2da16a109262e49aa6ad5bc"
+  },
+  "hard_end": "2026-10-01T20:30:30Z"
+}

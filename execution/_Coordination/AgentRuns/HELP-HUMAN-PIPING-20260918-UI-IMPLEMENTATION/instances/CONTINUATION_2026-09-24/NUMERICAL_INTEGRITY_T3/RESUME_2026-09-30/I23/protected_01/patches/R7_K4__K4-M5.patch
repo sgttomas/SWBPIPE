@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs
+@@ -228,7 +228,7 @@
+         };
+         let span = new_high - new_low + 1;
+         if span > SPAN_LIMIT_BITS {
+-            return Err(SumRefusal::Span);
++            return Ok(());
+         }
+         if self.empty {
+             self.anchor = new_low;

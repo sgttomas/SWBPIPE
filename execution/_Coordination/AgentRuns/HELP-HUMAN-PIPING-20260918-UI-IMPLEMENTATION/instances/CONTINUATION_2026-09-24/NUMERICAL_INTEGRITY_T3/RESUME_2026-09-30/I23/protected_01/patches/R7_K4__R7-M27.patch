@@ -1,0 +1,12 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
+@@ -1101,7 +1101,8 @@
+                     let delta = top.mul_pow2(1 - i64::from(ctx.precision()))?;
+                     let gn = mul_toward(ctx, sum, gamma, &n_l[b], Toward::Up)?;
+                     let e = add_toward(ctx, sum, &gn, &delta, Toward::Up)?;
+-                    let sp = sub_toward(ctx, sum, &s, &e, Toward::Down)?;
++                    let _ = (sub_toward::<L>, &e);
++            let sp = s;
+                     let sv = if !sp.is_zero() && !sp.is_sign_negative() {
+                         let root = Wide::<L>::from_f64(ceil_sqrt(n_c) as f64)?;
+                         Some(div_toward(ctx, sum, &root, &sp, Toward::Up)?)

@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2101,7 +2101,7 @@
+                 .collect(),
+             None => Vec::new(),
+         };
+-        if report.is_some() && verification_precision == 1024 {
++        if report.is_some() && verification_precision >= 512 {
+             let mut phis = Vec::with_capacity(hats.len());
+             for (b, h) in hats.iter().enumerate() {
+                 let phi = [phi_512(h[0]), phi_512(h[1])];

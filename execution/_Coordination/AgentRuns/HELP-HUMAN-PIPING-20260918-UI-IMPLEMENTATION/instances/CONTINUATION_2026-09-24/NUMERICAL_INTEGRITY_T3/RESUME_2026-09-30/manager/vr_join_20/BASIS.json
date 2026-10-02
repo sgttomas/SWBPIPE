@@ -1,0 +1,37 @@
+[
+  {
+    "path": "source_review_RV30/h_numeric_23",
+    "seal": "6ff5205bb500593bf02437fdc89c65df11acd8ea6d39aedf535598dee81e05b5",
+    "payloads_verified": 15
+  },
+  {
+    "path": "source_review_RV30/h_summary_24",
+    "seal": "23a3552e2a777ac96c40080fc6411894e240c70c269322cd240322fe2633ea29",
+    "payloads_verified": 5
+  },
+  {
+    "path": "verification/h_numeric_summary_correction_01",
+    "seal": "ba6b5c3805f89f8be60c52943bdd63a3a74c530e68f5244507a7e6541a4b5f00",
+    "payloads_verified": 1
+  },
+  {
+    "path": "design_review_RV28/vr_numbers_06",
+    "seal": "cd7e0f6108c88245d8bb729c381528644bcfba0cbb292aca225176a74fcda626",
+    "payloads_verified": 15
+  },
+  {
+    "path": "design_review_RV28/vr_correction_07",
+    "seal": "077f81000a0c4862e0dd84390897c4fd5baa2237140c9035439e52e6e7bf10b2",
+    "payloads_verified": 8
+  },
+  {
+    "path": "metric_design_10_vr_numbers",
+    "seal": "a5390504ba0198ebe280877b75d8b374a38c266e780a7e3dc0d7a280f1fb9a9c",
+    "payloads_verified": 21
+  },
+  {
+    "path": "metric_design_11_vr_correction",
+    "seal": "21bc713d669f4b4dcfe618a3454a874fef97edba230920b56647f3d63d8b8b14",
+    "payloads_verified": 13
+  }
+]

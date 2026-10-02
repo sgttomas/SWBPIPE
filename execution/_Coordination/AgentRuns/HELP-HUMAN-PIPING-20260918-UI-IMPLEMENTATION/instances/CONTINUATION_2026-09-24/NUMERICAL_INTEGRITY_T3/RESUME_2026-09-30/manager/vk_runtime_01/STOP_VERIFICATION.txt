@@ -1,0 +1,1 @@
+PASS2builds+9freshprocess bindings/raw/artifact hashes,4actual binaries/rawfingerprints,189unchanged sourcefiles,exactargv/env/one-test selections. Initial8NONE controlsPASS; P09 exit101 with30unexplainedCeilings, unqualified. P10-P53 raw paths absent/unrun.

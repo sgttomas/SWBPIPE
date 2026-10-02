@@ -1,0 +1,5 @@
+PASS R13 K4-M7 complete 116 files=frozenexactpostimages+original; protectedtests/lock/corpora/patch/controlbinary/source-target-logcontainment/nlink/emptytarget/guard5387.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs": "cc2ba246316a43c65b2f7b08a61954ef5bc50ffba368ad564556abf812490157"}
+filters ["structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero"]
+target --lib
+semantic ExactAccumulator accessor exponent is fixed -2148, not -2147.

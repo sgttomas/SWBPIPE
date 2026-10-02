@@ -1,0 +1,93 @@
+{
+  "verified_utc": "2026-10-01T20:51:32.336121+00:00",
+  "parser": "Python standard JSONDecoder; exact int; raw stream bytes retained",
+  "all_three_complete_records": 36,
+  "both_none_records_full_equal_frozen": true,
+  "both_none_equal_each_other": true,
+  "both_none_complete_report_control_pins_pass": true,
+  "frozen_records_sha256": "dfcc0eb54a0347268b018d02f3aa1596bb8de05fd46881cea6286a22e142c0fe",
+  "fault_all_case_source_identities_match": true,
+  "fault_all_36_sequence": [
+    [
+      128,
+      "Candidate",
+      "Rejected PublicationEnclosure PublicRelative"
+    ],
+    [
+      256,
+      "VerificationThenCandidate",
+      "Rejected PublicationEnclosure PublicRelative"
+    ],
+    [
+      512,
+      "VerificationThenCandidate",
+      "Rejected PublicationEnclosure PublicRelative"
+    ],
+    [
+      1024,
+      "Verification",
+      "Solved"
+    ]
+  ],
+  "fault_selected": 0,
+  "fault_top_level_ceiling": 36,
+  "fault_controls_unchanged": true,
+  "candidate128_rejection_groups": {
+    "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 0, component: Rz }), body: 0, kind: Rotation, predicate: PublicRelative })": 9,
+    "Rejected(PublicationEnclosure { quantity: EndAction { member: 1, end: I, component: Uy }, body: 0, kind: Force, predicate: PublicRelative })": 6,
+    "Rejected(PublicationEnclosure { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force, predicate: PublicRelative })": 6,
+    "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })": 3,
+    "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 0, component: Uz }), body: 0, kind: Translation, predicate: PublicRelative })": 6,
+    "Rejected(PublicationEnclosure { quantity: EndAction { member: 1, end: I, component: Rx }, body: 0, kind: Moment, predicate: PublicRelative })": 3,
+    "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Rx }), body: 0, kind: Rotation, predicate: PublicRelative })": 3
+  },
+  "protected_twist_relation": [
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+      "k4src_sha256": "ebda5315c8f0d899435275b96a9a1bc60b7e4da810ccc355d1e72ad82794cb86",
+      "actual": "Rejected(PublicationEnclosure { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force, predicate: PublicRelative })",
+      "protected": "EndAction { member: 1, end: J, component: Rx }, body: 0, kind: Moment",
+      "matches_protected": false
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+      "k4src_sha256": "d88160052d29cb77e468efc217a7235bf15227e7b836f5cfca51384503fd7543",
+      "actual": "Rejected(PublicationEnclosure { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force, predicate: PublicRelative })",
+      "protected": "EndAction { member: 1, end: J, component: Rx }, body: 0, kind: Moment",
+      "matches_protected": false
+    }
+  ],
+  "raw_logs": [
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D01_NONE_BEFORE.stderr",
+      "sha256": "828656c109aad7ca5eb24895205f7381d28c5d9614eafd5066802ac01fb5c208",
+      "size": 2727
+    },
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D01_NONE_BEFORE.stdout",
+      "sha256": "dc676f76fb07dc4a898d99044be85e33d3ee454587b798f84b5a9bdc67d0bb7c",
+      "size": 143953
+    },
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D02_F17.stderr",
+      "sha256": "cf931006ce012e2976427cade7e80b2d381c2fa9e859edc9c9ecd787b727329c",
+      "size": 2619
+    },
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D02_F17.stdout",
+      "sha256": "4d6de146ee84d86c5054d198545ac795d80a6446fa25b3f6ae4010a52cd17a08",
+      "size": 282924
+    },
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D03_NONE_RETURN.stderr",
+      "sha256": "efe7f13c5f31edbbb8c1c283ee3b9ee35564b6ba78f992a2cd109e6b405ad16e",
+      "size": 2727
+    },
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D03_NONE_RETURN.stdout",
+      "sha256": "dc676f76fb07dc4a898d99044be85e33d3ee454587b798f84b5a9bdc67d0bb7c",
+      "size": 143953
+    }
+  ],
+  "limits": "Diagnostic only. No CLASS credit or draft row/class/H visibility. Distinct release result does not retrospectively expose P29 debug reasons. P30 and later held."
+}

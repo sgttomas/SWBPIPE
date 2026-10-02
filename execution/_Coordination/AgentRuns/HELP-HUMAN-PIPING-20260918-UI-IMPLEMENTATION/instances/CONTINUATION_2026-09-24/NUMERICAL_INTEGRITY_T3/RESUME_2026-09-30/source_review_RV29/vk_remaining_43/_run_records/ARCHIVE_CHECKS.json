@@ -1,0 +1,16 @@
+{
+  "candidate": "c148117b8fe24ed9e59112cf440f183800c3e7fa",
+  "archive_sha256": "5c0040b1ef76144cc67c197b5ef5a2c3389905058a30a2061c3a41463229e3bb",
+  "packets": [
+    {
+      "tree": "I22/vk_runtime_09",
+      "seal": "cbc4c2ddb3f373ad5b70b54b277f86c52d82dbd41bf0f386cfa6561d7b5bb7cf",
+      "payloads": 59
+    },
+    {
+      "tree": "manager/vk_runtime_09",
+      "seal": "68d5a212f782885e50bf041c248c0ff517e5fda4b8e922e09e1c576e9935ee08",
+      "payloads": 5
+    }
+  ]
+}

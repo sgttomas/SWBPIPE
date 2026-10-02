@@ -1,0 +1,4 @@
+PASS G54 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "6816919fc3ddc48fdacc17ab89c4b67aff166b6006f761fca36897323639d11e"}
+filter structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence
+aliases [('RV23C', 'RV23C-M5-stopped-shared-build-returns-no-refusals')]

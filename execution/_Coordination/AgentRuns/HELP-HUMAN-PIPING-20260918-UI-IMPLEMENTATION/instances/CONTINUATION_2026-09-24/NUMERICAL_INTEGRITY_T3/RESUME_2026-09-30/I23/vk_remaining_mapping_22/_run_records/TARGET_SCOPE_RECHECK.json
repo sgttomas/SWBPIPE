@@ -1,0 +1,384 @@
+{
+  "checks": [
+    {
+      "id": "VK-F05",
+      "family": "RF-RANGE",
+      "casefile": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "sha256": "ae74938cdfc12a398f51728fee5304cf68e70acedd5df1b433e1f353db8a5a88",
+      "embedded_case_count": 32,
+      "all_named_show_targets_present": true,
+      "targets": [
+        {
+          "id": "RF-RANGE-THIN-A",
+          "model_present": true,
+          "members": 1,
+          "nodes": 2
+        },
+        {
+          "id": "RF-RANGE-THIN-B",
+          "model_present": true,
+          "members": 1,
+          "nodes": 2
+        }
+      ],
+      "frozen_command_process": "P40",
+      "unchanged_argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-RANGE",
+        "--show=RF-RANGE-THIN-A",
+        "--show=RF-RANGE-THIN-B"
+      ],
+      "wholefamily_scope": {
+        "family": "RF-RANGE",
+        "case_ids_computed": [
+          "RF-RANGE-CHAIN-L-240",
+          "RF-RANGE-CHAIN-L+240",
+          "RF-RANGE-CHAIN-E-1000",
+          "RF-RANGE-CHAIN-E+960",
+          "RF-RANGE-CHAIN-F-960",
+          "RF-RANGE-CHAIN-F+960",
+          "RF-RANGE-CHAIN-LEF-small",
+          "RF-RANGE-CHAIN-LEF-large",
+          "RF-RANGE-CHAIN-SIM-a",
+          "RF-RANGE-CHAIN-SIM-b",
+          "RF-RANGE-SKEW-L-240",
+          "RF-RANGE-SKEW-L+240",
+          "RF-RANGE-SKEW-E-1000",
+          "RF-RANGE-SKEW-E+960",
+          "RF-RANGE-SKEW-F-960",
+          "RF-RANGE-SKEW-F+960",
+          "RF-RANGE-SKEW-LEF-small",
+          "RF-RANGE-SKEW-LEF-large",
+          "RF-RANGE-SKEW-SIM-a",
+          "RF-RANGE-SKEW-SIM-b",
+          "RF-RANGE-CONT-L-240",
+          "RF-RANGE-CONT-L+240",
+          "RF-RANGE-CONT-E-1000",
+          "RF-RANGE-CONT-E+960",
+          "RF-RANGE-CONT-F-960",
+          "RF-RANGE-CONT-F+960",
+          "RF-RANGE-CONT-LEF-small",
+          "RF-RANGE-CONT-LEF-large",
+          "RF-RANGE-CONT-SIM-a",
+          "RF-RANGE-CONT-SIM-b",
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "run_case_invocations_planned": 32,
+        "max_members": 10,
+        "parity_calls_planned": 0,
+        "sparse_parity_invocations_planned": 0,
+        "dense_parity_invocations_planned": 0,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": null,
+        "shown_case_ids_only": [
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      }
+    },
+    {
+      "id": "VK-F06",
+      "family": "RF-RANGE",
+      "casefile": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "sha256": "ae74938cdfc12a398f51728fee5304cf68e70acedd5df1b433e1f353db8a5a88",
+      "embedded_case_count": 32,
+      "all_named_show_targets_present": true,
+      "targets": [
+        {
+          "id": "RF-RANGE-THIN-A",
+          "model_present": true,
+          "members": 1,
+          "nodes": 2
+        },
+        {
+          "id": "RF-RANGE-THIN-B",
+          "model_present": true,
+          "members": 1,
+          "nodes": 2
+        }
+      ],
+      "frozen_command_process": "P43",
+      "unchanged_argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-RANGE",
+        "--show=RF-RANGE-THIN-A",
+        "--show=RF-RANGE-THIN-B"
+      ],
+      "wholefamily_scope": {
+        "family": "RF-RANGE",
+        "case_ids_computed": [
+          "RF-RANGE-CHAIN-L-240",
+          "RF-RANGE-CHAIN-L+240",
+          "RF-RANGE-CHAIN-E-1000",
+          "RF-RANGE-CHAIN-E+960",
+          "RF-RANGE-CHAIN-F-960",
+          "RF-RANGE-CHAIN-F+960",
+          "RF-RANGE-CHAIN-LEF-small",
+          "RF-RANGE-CHAIN-LEF-large",
+          "RF-RANGE-CHAIN-SIM-a",
+          "RF-RANGE-CHAIN-SIM-b",
+          "RF-RANGE-SKEW-L-240",
+          "RF-RANGE-SKEW-L+240",
+          "RF-RANGE-SKEW-E-1000",
+          "RF-RANGE-SKEW-E+960",
+          "RF-RANGE-SKEW-F-960",
+          "RF-RANGE-SKEW-F+960",
+          "RF-RANGE-SKEW-LEF-small",
+          "RF-RANGE-SKEW-LEF-large",
+          "RF-RANGE-SKEW-SIM-a",
+          "RF-RANGE-SKEW-SIM-b",
+          "RF-RANGE-CONT-L-240",
+          "RF-RANGE-CONT-L+240",
+          "RF-RANGE-CONT-E-1000",
+          "RF-RANGE-CONT-E+960",
+          "RF-RANGE-CONT-F-960",
+          "RF-RANGE-CONT-F+960",
+          "RF-RANGE-CONT-LEF-small",
+          "RF-RANGE-CONT-LEF-large",
+          "RF-RANGE-CONT-SIM-a",
+          "RF-RANGE-CONT-SIM-b",
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "run_case_invocations_planned": 32,
+        "max_members": 10,
+        "parity_calls_planned": 0,
+        "sparse_parity_invocations_planned": 0,
+        "dense_parity_invocations_planned": 0,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": null,
+        "shown_case_ids_only": [
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      }
+    },
+    {
+      "id": "VK-F07",
+      "family": "RF-MECH",
+      "casefile": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_mech.jsonl",
+      "sha256": "8f0d8723b44c95216fa72fae47ad452025f9c280f1874a46f0f680bd840c3079",
+      "embedded_case_count": 9,
+      "all_named_show_targets_present": true,
+      "targets": [
+        {
+          "id": "RF-MECH-LINE122-TORQUE",
+          "model_present": true,
+          "members": 10,
+          "nodes": 11
+        },
+        {
+          "id": "RF-MECH-LINE122-PERP",
+          "model_present": true,
+          "members": 10,
+          "nodes": 11
+        },
+        {
+          "id": "RF-MECH-LINE122-UNLOADED",
+          "model_present": true,
+          "members": 10,
+          "nodes": 11
+        },
+        {
+          "id": "RF-MECH-LINE345-RZ",
+          "model_present": true,
+          "members": 10,
+          "nodes": 11
+        },
+        {
+          "id": "RF-MECH-K0",
+          "model_present": true,
+          "members": 10,
+          "nodes": 11
+        },
+        {
+          "id": "RF-MECH-DISC-CHAIN100",
+          "model_present": true,
+          "members": 103,
+          "nodes": 105
+        },
+        {
+          "id": "RF-MECH-DISC-CHAIN100-SPRING",
+          "model_present": true,
+          "members": 103,
+          "nodes": 105
+        },
+        {
+          "id": "RF-MECH-LINE-IN-CHAIN1000",
+          "model_present": true,
+          "members": 1005,
+          "nodes": 1007
+        }
+      ],
+      "frozen_command_process": "P46",
+      "unchanged_argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-MECH",
+        "--show=RF-MECH-LINE122-TORQUE",
+        "--show=RF-MECH-LINE122-PERP",
+        "--show=RF-MECH-LINE122-UNLOADED",
+        "--show=RF-MECH-LINE345-RZ",
+        "--show=RF-MECH-K0",
+        "--show=RF-MECH-DISC-CHAIN100",
+        "--show=RF-MECH-DISC-CHAIN100-SPRING",
+        "--show=RF-MECH-LINE-IN-CHAIN1000"
+      ],
+      "wholefamily_scope": {
+        "family": "RF-MECH",
+        "case_ids_computed": [
+          "RF-MECH-LINE122-TORQUE",
+          "RF-MECH-LINE122-PERP",
+          "RF-MECH-LINE122-UNLOADED",
+          "RF-MECH-LINE345-RZ",
+          "RF-MECH-K0",
+          "RF-MECH-DISC-CHAIN100",
+          "RF-MECH-DISC-CHAIN100-SPRING",
+          "RF-MECH-LINE-IN-CHAIN1000",
+          "RF-MECH-LINE345-RX-COMPANION"
+        ],
+        "run_case_invocations_planned": 9,
+        "max_members": 1005,
+        "parity_calls_planned": 9,
+        "sparse_parity_invocations_planned": 9,
+        "dense_parity_invocations_planned": 8,
+        "sparse_only_cases": [
+          "RF-MECH-LINE-IN-CHAIN1000"
+        ],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-MECH-LINE122-TORQUE",
+          "RF-MECH-LINE122-PERP",
+          "RF-MECH-LINE122-UNLOADED",
+          "RF-MECH-LINE345-RZ",
+          "RF-MECH-K0",
+          "RF-MECH-DISC-CHAIN100",
+          "RF-MECH-DISC-CHAIN100-SPRING",
+          "RF-MECH-LINE-IN-CHAIN1000"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      }
+    },
+    {
+      "id": "VK-R02",
+      "family": "RF-LARGE",
+      "casefile": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_large.jsonl",
+      "sha256": "16357afa5efeaaac3ab5798bb6f632104bec1e2dfada288f5b0936bfe6188759",
+      "embedded_case_count": 12,
+      "all_named_show_targets_present": true,
+      "targets": [
+        {
+          "id": "RF-LARGE-TREE-n00100-AX",
+          "model_present": true,
+          "members": 100,
+          "nodes": 101
+        }
+      ],
+      "frozen_command_process": "P49",
+      "unchanged_argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-LARGE",
+        "--show=RF-LARGE-TREE-n00100-AX"
+      ],
+      "wholefamily_scope": {
+        "family": "RF-LARGE",
+        "case_ids_computed": [
+          "RF-LARGE-CHAIN-n00010-AX",
+          "RF-LARGE-CHAIN-n00010-ROT",
+          "RF-LARGE-TREE-n00010-AX",
+          "RF-LARGE-TREE-n00010-ROT",
+          "RF-LARGE-CONT-n00010-AX",
+          "RF-LARGE-CONT-n00010-ROT",
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-CHAIN-n00100-ROT",
+          "RF-LARGE-TREE-n00100-AX",
+          "RF-LARGE-TREE-n00100-ROT",
+          "RF-LARGE-CONT-n00100-AX",
+          "RF-LARGE-CONT-n00100-ROT"
+        ],
+        "run_case_invocations_planned": 12,
+        "max_members": 100,
+        "parity_calls_planned": 12,
+        "sparse_parity_invocations_planned": 12,
+        "dense_parity_invocations_planned": 12,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-LARGE-TREE-n00100-AX"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      }
+    },
+    {
+      "id": "VK-R28",
+      "family": "RF-LARGE",
+      "casefile": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_large.jsonl",
+      "sha256": "16357afa5efeaaac3ab5798bb6f632104bec1e2dfada288f5b0936bfe6188759",
+      "embedded_case_count": 12,
+      "all_named_show_targets_present": true,
+      "targets": [
+        {
+          "id": "RF-LARGE-CHAIN-n00100-AX",
+          "model_present": true,
+          "members": 100,
+          "nodes": 101
+        },
+        {
+          "id": "RF-LARGE-TREE-n00100-AX",
+          "model_present": true,
+          "members": 100,
+          "nodes": 101
+        }
+      ],
+      "frozen_command_process": "P52",
+      "unchanged_argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-LARGE",
+        "--show=RF-LARGE-CHAIN-n00100-AX",
+        "--show=RF-LARGE-TREE-n00100-AX"
+      ],
+      "wholefamily_scope": {
+        "family": "RF-LARGE",
+        "case_ids_computed": [
+          "RF-LARGE-CHAIN-n00010-AX",
+          "RF-LARGE-CHAIN-n00010-ROT",
+          "RF-LARGE-TREE-n00010-AX",
+          "RF-LARGE-TREE-n00010-ROT",
+          "RF-LARGE-CONT-n00010-AX",
+          "RF-LARGE-CONT-n00010-ROT",
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-CHAIN-n00100-ROT",
+          "RF-LARGE-TREE-n00100-AX",
+          "RF-LARGE-TREE-n00100-ROT",
+          "RF-LARGE-CONT-n00100-AX",
+          "RF-LARGE-CONT-n00100-ROT"
+        ],
+        "run_case_invocations_planned": 12,
+        "max_members": 100,
+        "parity_calls_planned": 12,
+        "sparse_parity_invocations_planned": 12,
+        "dense_parity_invocations_planned": 12,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-TREE-n00100-AX"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      }
+    }
+  ],
+  "no_new_argv": "All commands copied from the existing frozen schedule as evidence; no runtime authorization, schedule mutation or new target."
+}

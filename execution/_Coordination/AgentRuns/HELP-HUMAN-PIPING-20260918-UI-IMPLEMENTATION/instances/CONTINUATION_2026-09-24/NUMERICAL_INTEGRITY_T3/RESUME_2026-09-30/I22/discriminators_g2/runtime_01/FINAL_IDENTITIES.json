@@ -1,0 +1,233 @@
+{
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "overlay_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+  "source_manifest_sha256": "17e2ec926c1b59db4f2a7bf5da752b9bab5df3f6cbb0e3d2ef6ad2febda8221e",
+  "copies_sha256": "d3fb48b752c64c0ee7828fa52b3a3d8ace202d016b91bcce7f11e7d52554a6de",
+  "runtime_proposal_sha256": "9c685af550e4e3c14684812e9352e65eef2874bf7c8f1cabcaa823dadf10c8c9",
+  "copies_final": [
+    {
+      "id": "BASELINE",
+      "file_hashes_verified": 116,
+      "fault_patch_sha256": null,
+      "affected_images": [],
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/g2/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "19651597da997437ca1654dcc26462356d29f802cb65202212b38e5c6630c855"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/g2/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "id": "R7-M25",
+      "file_hashes_verified": 116,
+      "fault_patch_sha256": "4e9c2e18ee6546010cb49d6ed9e4a3f9aa6f42f65c320f612460ff4e303902ba",
+      "affected_images": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "ae156ed748a50c1a72e5e4f38d521e97e2d26a8e1f78c2bb230f6d691731e74f"
+        }
+      ],
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M25/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "870258a57e9e5ee8481dbe8c68141761ea2af610253b71b6201d0eecf39e1d5a"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M25/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "id": "R7-M26",
+      "file_hashes_verified": 116,
+      "fault_patch_sha256": "f06395d1422dd23187e1d7c661b381c83651d665e83735b423300ff3fb396dfb",
+      "affected_images": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "00777717a1feb597fcf3d892b26d813556c6e97c2bd72ad723a9c29e40215726"
+        }
+      ],
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M26/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "5e9a472da48a25e1cd5c75b2bbe68c77597a9c8951c43e22d49c5bc6b67831ce"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M26/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "id": "R7-M28",
+      "file_hashes_verified": 116,
+      "fault_patch_sha256": "c3879ff417dee403af1925f7678882661507a3bb3f955bb299eba7427a2f2cd4",
+      "affected_images": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "8b3f7924d028722ef51768a3b3e3ca536d70a4aa9c119b18a23430ccab74d818"
+        }
+      ],
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M28/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "025a34f92755ae8e68c1a64e8033e842672ce118908a35763d88d4a9baea0ada"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M28/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "id": "R7-M29",
+      "file_hashes_verified": 116,
+      "fault_patch_sha256": "18ceb5db9bcc0a47329894c9a6953a4dc1312a2a78dfe2b81c78b56b293657c7",
+      "affected_images": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "aae902fffd368e34d19d1240fb51f07ab154dea43dcfa4bbbca3f1604161df78"
+        }
+      ],
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M29/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "80a59f4d5455f4f85d7863cbf58277405e6a54135ba35ca09176508030898d29"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M29/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "id": "R7-M3",
+      "file_hashes_verified": 116,
+      "fault_patch_sha256": "08974da0ac1bbfff7ed62628d05af3ad315510b5dd57c5e80c1f03d946ed2727",
+      "affected_images": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "b1175ee9162cf042719a37f47652f04adb8835097cafd1b10981a13725f70e92"
+        }
+      ],
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M3/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "427650d0669b0bb2b53a22ef23ff53f072133762da4405baf5ed2cec12813cfc"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M3/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "id": "R7-M4",
+      "file_hashes_verified": 116,
+      "fault_patch_sha256": "5aec428dfc9437a619738a4f9708b92e450e6a5b957a91c0ab84f8092bd98d2e",
+      "affected_images": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "057c16c1e84856f46fc729208eec91bd7f5368e974c0d6df8279daaf6d375a42"
+        }
+      ],
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M4/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "0c946329d8d8ecc55a8d3e520b1f042e950a29ed43b0cc6a1c1c0291eb36d9d6"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M4/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "id": "R7-M5",
+      "file_hashes_verified": 116,
+      "fault_patch_sha256": "caf207eede2ea7ee1129e8968b450db94c78c57571a5386623f6b0800ce6676c",
+      "affected_images": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "fdae9488f827106e1594bfd359a9429c9c73cda1ace901a64add0f35c8380347"
+        }
+      ],
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M5/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "8e1756dff3879f1c0ac453b55b17ead70b074447244473cb0455ae5520d3017c"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M5/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "id": "R7-M9",
+      "file_hashes_verified": 116,
+      "fault_patch_sha256": "92fcc43846c337e3018cbbfe6ed50023fb46f504d11d4c4be53fb9e4f1cad838",
+      "affected_images": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "ff2fa8979e7909d45fcfb914ca91730ba8269621f44381913a14a93b8a86ab73"
+        }
+      ],
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M9/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "39643d3e7bc852e831ca3188a8a4e1a9c85201866d96626b9666f4cdc11fc261"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/g2/R7-M9/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    }
+  ],
+  "prior_seals": [
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/discriminators_g2/SHA256SUMS",
+      "sha256": "97076c043e99328ef7aa3cd68088e468bc35431e26b375fa03262d3fcabd8d26",
+      "entries_verified": 7
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/runtime_07/SHA256SUMS",
+      "sha256": "abf0c03a6142d6924db0ff901f719441c5db640b2c76b6278de54838a7ccbdf5",
+      "entries_verified": 7
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/runtime_07/unit_erratum_01/SHA256SUMS",
+      "sha256": "f8eab7f648c45f1b330f9e692c9845f81c46418380599c18bccba4b96418645d",
+      "entries_verified": 2
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/protected_g1/runtime_04/SHA256SUMS",
+      "sha256": "f6c6efe5a23de3544732c19cac66694fc2b10feb4581d1893845214273546177",
+      "entries_verified": 306
+    }
+  ],
+  "raw_fingerprint_json_note": "Exact bytes preserved at every run/fingerprint.json. No JS numerical parse/reserialization."
+}

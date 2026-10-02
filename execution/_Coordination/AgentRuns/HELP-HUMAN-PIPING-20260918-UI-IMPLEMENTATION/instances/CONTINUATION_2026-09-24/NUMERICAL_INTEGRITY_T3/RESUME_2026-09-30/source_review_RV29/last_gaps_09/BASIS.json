@@ -1,0 +1,90 @@
+{
+  "actor": "TASK /root/rv29_a1_source",
+  "parent": "/root",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "preserved_instruction_skill_origins": [
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0",
+      "bytes": 3126,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV29_A1_SOURCE.md",
+      "sha256": "47a595116c567303dcdce7caa39066e50460c742dcbee18c88728e396df1c578",
+      "bytes": 2188,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/PLAN.md",
+      "sha256": "671726095845d99f6bfa893a5ebe9d308840c78fabfd2655541e66371ae6a129",
+      "bytes": 6258,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "APP_WORKTREE/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+      "bytes": 1411,
+      "kind": "active_skill"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "I23/last_gaps_04/SHA256SUMS",
+      "sha256": "195f46b175c063bcffd22418941597ac5229568a78672713c687d2c61e86bba5"
+    },
+    {
+      "path": "I23/last_gaps_04/OVERLAY_AND_FILTER_MAP.json",
+      "sha256": "5860f3f8a42574d740fdc3a06b4343274e5fa743a7e0f27ef5115a7d5ebccc4f"
+    },
+    {
+      "path": "I23/last_gaps_04/SOURCE_WARRANTS.json",
+      "sha256": "7c36e616526185497aad279b9c0ea47a6b8aa4f3642e45d7835282e5c0bb0bc8"
+    },
+    {
+      "path": "I23/last_gaps_04/ARITHMETIC_WITNESSES.json",
+      "sha256": "d838b16cc859ae03e6f5c446534b9462d17fe5c38d80c077a36543884d9f63ff"
+    },
+    {
+      "path": "verification/g3_preparation_01/MANIFEST.json",
+      "sha256": "5194a1b926f01b1bc4372ec6771a76a75e2d80fbeb000a3b93855268113837f6"
+    },
+    {
+      "path": "verification/g3_preparation_01/SHA256SUMS",
+      "sha256": "96e307b0c10e565c41c676c1f62be92a54f24014e270ca33a77c998ab18b2af0"
+    },
+    {
+      "path": "verification/fk_baseline_03/RESULT.json",
+      "sha256": "c0dbedd3a44baef75d92751a39e906518c7be00f3cf6b332b954ce52009fd86a"
+    },
+    {
+      "path": "verification/fk_baseline_03/SHA256SUMS",
+      "sha256": "7957caf97d843e458c750c67fc29f3ec3adb97cc2ce0787bf9a21259d3257210"
+    },
+    {
+      "path": "source_review_RV29/remaining_08/SHA256SUMS",
+      "sha256": "91be123e9de71fa40c61869fb61e689561365548bec76632f2e975b2aca3b697"
+    }
+  ],
+  "actual_source_checks": "PROPOSAL_CHECK.json, FAULT_BINDINGS.json and G3_BASELINE_CHECK.json",
+  "start_utc": "2026-10-01T13:40:27Z",
+  "deadline_utc": "2026-10-01T13:55:27Z"
+}

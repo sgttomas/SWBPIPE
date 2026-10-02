@@ -1,0 +1,42 @@
+RF-LARGE-CHAIN-n00010-AX selected Some(128) 0.01s
+RF-LARGE-CHAIN-n00010-ROT selected Some(128) 0.02s
+RF-LARGE-TREE-n00010-AX unresolved None 0.04s
+RF-LARGE-TREE-n00010-ROT selected Some(512) 0.07s
+RF-LARGE-CONT-n00010-AX selected Some(128) 0.01s
+RF-LARGE-CONT-n00010-ROT selected Some(128) 0.02s
+RF-LARGE-CHAIN-n00100-AX selected Some(128) 0.10s
+RF-LARGE-CHAIN-n00100-ROT unresolved None 0.70s
+RF-LARGE-TREE-n00100-AX unresolved None 0.41s
+RF-LARGE-TREE-n00100-ROT unresolved None 0.67s
+RF-LARGE-CONT-n00100-AX selected Some(128) 0.09s
+RF-LARGE-CONT-n00100-ROT selected Some(128) 0.15s
+RF-LARGE-CHAIN-n00010-AX parity 0.0s
+RF-LARGE-CHAIN-n00010-ROT parity 0.0s
+RF-LARGE-TREE-n00010-AX parity 0.0s
+RF-LARGE-TREE-n00010-ROT parity 0.0s
+RF-LARGE-CONT-n00010-AX parity 0.0s
+RF-LARGE-CONT-n00010-ROT parity 0.0s
+RF-LARGE-CHAIN-n00100-AX parity 0.1s
+RF-LARGE-CHAIN-n00100-ROT parity 0.1s
+RF-LARGE-TREE-n00100-AX parity 0.1s
+RF-LARGE-TREE-n00100-ROT parity 0.1s
+RF-LARGE-CONT-n00100-AX parity 0.1s
+RF-LARGE-CONT-n00100-ROT parity 0.1s
+        2.82 real         2.79 user         0.02 sys
+           103841792  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                6672  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 212  involuntary context switches
+         37838437153  instructions retired
+          8133300355  cycles elapsed
+           101728712  peak memory footprint

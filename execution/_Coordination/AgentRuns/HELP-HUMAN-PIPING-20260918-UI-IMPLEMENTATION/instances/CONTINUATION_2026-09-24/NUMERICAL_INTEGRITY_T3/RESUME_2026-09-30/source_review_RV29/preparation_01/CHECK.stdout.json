@@ -1,0 +1,15 @@
+{
+  "H_setup": 46,
+  "H_conversion": 17942,
+  "H_reference_total": 17988,
+  "small_A1_setup": 8,
+  "small_A1_conversion": 17555,
+  "small_A1_total": 17563,
+  "terminal": {
+    "span_raw": 2,
+    "span_scaled_width4": 6,
+    "exponent_round": 40
+  },
+  "assertions": "passed",
+  "candidate_total": "pending frozen implementation"
+}

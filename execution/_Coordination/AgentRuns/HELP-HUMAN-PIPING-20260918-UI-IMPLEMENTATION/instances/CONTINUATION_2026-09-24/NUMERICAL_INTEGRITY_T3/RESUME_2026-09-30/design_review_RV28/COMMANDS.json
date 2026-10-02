@@ -1,0 +1,228 @@
+{
+  "environment": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "python": "<VENV>/bin/python -B"
+  },
+  "commands": [
+    {
+      "cwd": "<COORD>",
+      "argv": [
+        "git",
+        "show",
+        "30fd4848b4f61c4fd9405e382b82462048fff8a3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md"
+      ],
+      "exit": 0,
+      "stdout_sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0",
+      "stderr": ""
+    },
+    {
+      "cwd": "<COORD>",
+      "argv": [
+        "git",
+        "show",
+        "30fd4848b4f61c4fd9405e382b82462048fff8a3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV28_A1_DESIGN_REVIEW.md"
+      ],
+      "exit": 0,
+      "stdout_sha256": "7bb89825d7dddeed70f6799b25c404d462e6b6869e1b76caf9dd9177711fb728",
+      "stderr": ""
+    },
+    {
+      "cwd": "<COORD>",
+      "argv": [
+        "git",
+        "show",
+        "30fd4848b4f61c4fd9405e382b82462048fff8a3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/PLAN.md"
+      ],
+      "exit": 0,
+      "stdout_sha256": "671726095845d99f6bfa893a5ebe9d308840c78fabfd2655541e66371ae6a129",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs"
+      ],
+      "exit": 0,
+      "stdout_sha256": "472bafb8281c7d311a81dcd5da042dd0f8db998bd81cf4902e6b55409eb5a563",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs"
+      ],
+      "exit": 0,
+      "stdout_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs"
+      ],
+      "exit": 0,
+      "stdout_sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs"
+      ],
+      "exit": 0,
+      "stdout_sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs"
+      ],
+      "exit": 0,
+      "stdout_sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs"
+      ],
+      "exit": 0,
+      "stdout_sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs"
+      ],
+      "exit": 0,
+      "stdout_sha256": "201506548f494b59fa877521bf531953b57e08df802a1289d506fed603db58e6",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "a6b40d2d036acac556e28f28f5b482a4adb39333:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/DESIGN.md"
+      ],
+      "exit": 0,
+      "stdout_sha256": "fb62ef4a8282e53fd5875430e8903da80f1e0821c2dfba075dce5a97e5f27a74",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "a6b40d2d036acac556e28f28f5b482a4adb39333:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/REV_5A3_CANDIDATE/D1_REV_5A3_SSTAR_RESOLUTION_R7.md"
+      ],
+      "exit": 0,
+      "stdout_sha256": "5502aef9803f05f42e93c2a05a0de495401e3f94fe92adb19fc2a0c3f80d8f42",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "a6b40d2d036acac556e28f28f5b482a4adb39333:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md"
+      ],
+      "exit": 0,
+      "stdout_sha256": "444c18e09467c205b70be853045b4d68ec655241cae1b2dea518a8f7da9bf22a",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "a6b40d2d036acac556e28f28f5b482a4adb39333:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md"
+      ],
+      "exit": 0,
+      "stdout_sha256": "edc78f9c20db9848b2f4bad1250359e6ba06c2c3af053039099a147201f7b992",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "a6b40d2d036acac556e28f28f5b482a4adb39333:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/c_01/RETURN.md"
+      ],
+      "exit": 0,
+      "stdout_sha256": "86eab6cfd8cb8c71cdb0bb5a1b63aea46366495dd90390d5c0bc1e80b19ab888",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "a6b40d2d036acac556e28f28f5b482a4adb39333:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/c_01/C17_INPUT.json"
+      ],
+      "exit": 0,
+      "stdout_sha256": "33475f24e4249d8d29a624af7e8b87ad14431358ccadbdfc80f828048c2ad310",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "show",
+        "a6b40d2d036acac556e28f28f5b482a4adb39333:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_02_C17/CONFIRMATION.json"
+      ],
+      "exit": 0,
+      "stdout_sha256": "3e4884df1f07548d42f7ba34f0f493e99d077415571882101868bbe4276b47af",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "rev-parse",
+        "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel"
+      ],
+      "exit": 0,
+      "stdout_sha256": "405e027affa3ec418bec684e8cf9db31de619fa03dbb974bbc36d517c4e20542",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "rev-parse",
+        "3bddc2b05f6106e969c7cf43373b230845c7cc66:projects/chirality-piping/core/solver/frame_kernel"
+      ],
+      "exit": 0,
+      "stdout_sha256": "405e027affa3ec418bec684e8cf9db31de619fa03dbb974bbc36d517c4e20542",
+      "stderr": ""
+    },
+    {
+      "cwd": "<A1_WT>",
+      "argv": [
+        "git",
+        "rev-parse",
+        "a6b40d2d036acac556e28f28f5b482a4adb39333:projects/chirality-piping/core/solver/frame_kernel"
+      ],
+      "exit": 0,
+      "stdout_sha256": "405e027affa3ec418bec684e8cf9db31de619fa03dbb974bbc36d517c4e20542",
+      "stderr": ""
+    }
+  ]
+}

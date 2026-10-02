@@ -1,0 +1,3 @@
+PASS:33H/213VR source-hash census and201embedded/8refusal/12external split;234 descriptor arithmetic rows independently recomputed. Actual distinctloadedDOF v used for ledger68v, retaining l as authored terms.
+PASS:4 selected installedString HTML hashes match. Complete descriptor map read; source-capacity/formula correctness remains proposed pending independent review, no globalC1/C2 acceptance.
+Manager initial check wrongly compared exact68v field to coarser68min(l,n) for cancellation; corrected check uses recorded input-derived distinctv and separately verifies its upper. No artifact/source changed.

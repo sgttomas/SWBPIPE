@@ -1,0 +1,36 @@
+RF-MECH-LINE122-TORQUE refused None 0.00s
+RF-MECH-LINE122-PERP refused None 0.00s
+RF-MECH-LINE122-UNLOADED refused None 0.00s
+RF-MECH-LINE345-RZ refused None 0.00s
+RF-MECH-K0 refused None 0.00s
+RF-MECH-DISC-CHAIN100 refused None 0.00s
+RF-MECH-DISC-CHAIN100-SPRING refused None 0.00s
+RF-MECH-LINE-IN-CHAIN1000 refused None 0.00s
+RF-MECH-LINE345-RX-COMPANION selected Some(128) 0.00s
+RF-MECH-LINE122-TORQUE parity 0.0s
+RF-MECH-LINE122-PERP parity 0.0s
+RF-MECH-LINE122-UNLOADED parity 0.0s
+RF-MECH-LINE345-RZ parity 0.0s
+RF-MECH-K0 parity 0.0s
+RF-MECH-DISC-CHAIN100 parity 0.1s
+RF-MECH-DISC-CHAIN100-SPRING parity 0.1s
+RF-MECH-LINE-IN-CHAIN1000 parity 0.1s
+RF-MECH-LINE345-RX-COMPANION parity 0.0s
+        0.29 real         0.27 user         0.01 sys
+            92553216  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                5983  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   6  involuntary context switches
+          5488093166  instructions retired
+           821426003  cycles elapsed
+            90522032  peak memory footprint

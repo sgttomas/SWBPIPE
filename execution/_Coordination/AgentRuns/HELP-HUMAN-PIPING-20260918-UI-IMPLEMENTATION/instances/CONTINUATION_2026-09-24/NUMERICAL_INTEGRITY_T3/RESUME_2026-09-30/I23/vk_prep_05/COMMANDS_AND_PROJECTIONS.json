@@ -1,0 +1,3908 @@
+{
+  "source": "942572ede4c15aca87b4660c7d570343e14e679e",
+  "builds": [
+    {
+      "id": "TESTS_DEBUG",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-vk-target",
+        "--features",
+        "seeded-faults",
+        "--test",
+        "adapter",
+        "--test",
+        "lane",
+        "--test",
+        "parity",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "profile": "dev/debug test harness",
+      "expected_artifact_kinds": [
+        "test adapter",
+        "test lane",
+        "test parity"
+      ],
+      "feature": "seeded-faults -> frame_kernel/mutation-controls",
+      "binary_paths_and_sha256": "PENDING_ACTUAL_BUILD; pin Cargo artifact paths plus SHA256 and fingerprints before direct runs; no binary executed here"
+    },
+    {
+      "id": "RECORDS_RELEASE_NORMAL",
+      "argv": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--release",
+        "--manifest-path",
+        "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-vk-target",
+        "--features",
+        "seeded-faults",
+        "--example",
+        "vk_records",
+        "--message-format=json"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "profile": "release normal executable (not test harness)",
+      "expected_artifact_kinds": [
+        "example vk_records"
+      ],
+      "feature": "seeded-faults -> frame_kernel/mutation-controls",
+      "binary_paths_and_sha256": "PENDING_ACTUAL_BUILD; pin normal release example path, SHA256 and fingerprints before direct runs"
+    }
+  ],
+  "build_env_unset_required": [
+    "RUSTFLAGS",
+    "CARGO_ENCODED_RUSTFLAGS",
+    "RUSTC_WRAPPER",
+    "RUSTC_WORKSPACE_WRAPPER"
+  ],
+  "no_config_change": "Record actual compiler/Cargo versions, profile, features and fingerprints; do not mutate user configuration or install dependencies. Unexpected build env is a release question for ROOT.",
+  "processes": [
+    {
+      "process_id": "P01",
+      "phase": "INITIAL_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_ADAPTER_TEST_BINARY>",
+        "--exact",
+        "permuting_every_list_changes_no_canonical_byte",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P01.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P01.stderr",
+      "qualifying_condition": "Exactly one test runs and passes; refreshed-record/numerical assertions all hold.",
+      "actual_scope": {
+        "route": "all201 embedded cases through PrimitiveSource::new(original/reversed) and canonical encoding; no solve_case",
+        "cases": 201,
+        "source_constructions_planned": 402,
+        "retained_solves": 0,
+        "parity_calls": 0,
+        "max_members": 1005
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "baseline_binding_for": {
+        "target": "adapter",
+        "filter": "permuting_every_list_changes_no_canonical_byte"
+      }
+    },
+    {
+      "process_id": "P02",
+      "phase": "INITIAL_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_cancel",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P02.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P02.stderr",
+      "qualifying_condition": "Exactly one test runs and passes; refreshed-record/numerical assertions all hold.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CANCEL",
+        "cases": 38,
+        "max_members": 2,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "baseline_binding_for": {
+        "target": "lane",
+        "filter": "rf_cancel"
+      }
+    },
+    {
+      "process_id": "P03",
+      "phase": "INITIAL_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P03.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P03.stderr",
+      "qualifying_condition": "Exactly one test runs and passes; refreshed-record/numerical assertions all hold.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "baseline_binding_for": {
+        "target": "lane",
+        "filter": "rf_chain"
+      }
+    },
+    {
+      "process_id": "P04",
+      "phase": "INITIAL_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_finite",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P04.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P04.stderr",
+      "qualifying_condition": "Exactly one test runs and passes; refreshed-record/numerical assertions all hold.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-FINITE",
+        "cases": 6,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "baseline_binding_for": {
+        "target": "lane",
+        "filter": "rf_finite"
+      }
+    },
+    {
+      "process_id": "P05",
+      "phase": "INITIAL_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_invariance",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P05.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P05.stderr",
+      "qualifying_condition": "Exactly one test runs and passes; refreshed-record/numerical assertions all hold.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-INVARIANCE",
+        "cases": 25,
+        "max_members": 100,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "baseline_binding_for": {
+        "target": "lane",
+        "filter": "rf_invariance"
+      }
+    },
+    {
+      "process_id": "P06",
+      "phase": "INITIAL_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_skew",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P06.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P06.stderr",
+      "qualifying_condition": "Exactly one test runs and passes; refreshed-record/numerical assertions all hold.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-SKEW",
+        "cases": 36,
+        "max_members": 1,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "baseline_binding_for": {
+        "target": "lane",
+        "filter": "rf_skew"
+      }
+    },
+    {
+      "process_id": "P07",
+      "phase": "INITIAL_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_weak",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P07.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P07.stderr",
+      "qualifying_condition": "Exactly one test runs and passes; refreshed-record/numerical assertions all hold.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-WEAK",
+        "cases": 9,
+        "max_members": 5,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "baseline_binding_for": {
+        "target": "lane",
+        "filter": "rf_weak"
+      }
+    },
+    {
+      "process_id": "P08",
+      "phase": "INITIAL_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_PARITY_TEST_BINARY>",
+        "--exact",
+        "rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P08.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P08.stderr",
+      "qualifying_condition": "Exactly one test runs and passes; refreshed-record/numerical assertions all hold.",
+      "actual_scope": {
+        "route": "whole RF-LARGE embedded family; parity(model,true)",
+        "family": "RF-LARGE",
+        "cases": 12,
+        "parity_calls": 12,
+        "sparse_parity_cases": 12,
+        "dense_parity_cases": 12,
+        "max_members": 100
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "baseline_binding_for": {
+        "target": "parity",
+        "filter": "rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis"
+      }
+    },
+    {
+      "process_id": "P09",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F01",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F01"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P09.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P09.stderr",
+      "qualifying_condition": "Named RF-CHAIN soft-row predicate failure or erroneous typed unavailability arising from stored-assembly rounding; generic work/record/certificate drift alone excluded.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value or outcome",
+      "registered_target": "RF-CHAIN, RF-SKEW, RF-WEAK soft rows (NC-STORED-ASSEMBLY)",
+      "qualification": null
+    },
+    {
+      "process_id": "P10",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P10.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P10.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F01 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F01"
+    },
+    {
+      "process_id": "P11",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F02",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F02"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P11.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P11.stderr",
+      "qualifying_condition": "Named RF-CHAIN-T/A r1e-10/12 T/N/tw/ext predicate failure or typed numerical unavailability from rounding u before recovery.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value or outcome",
+      "registered_target": "RF-CHAIN-T/A r1e-10/12 T, N, tw, ext (NC-SUBTRACT-ROUNDED)",
+      "qualification": null
+    },
+    {
+      "process_id": "P12",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P12.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P12.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F02 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F02"
+    },
+    {
+      "process_id": "P13",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F03",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F03"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P13.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P13.stderr",
+      "qualifying_condition": "Named soft-root numerical predicate or outcome failure due to lost smallest stiffness contribution.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value or outcome",
+      "registered_target": "soft roots of RF-CHAIN and RF-SKEW (NC-LOST-SOFT)",
+      "qualification": null
+    },
+    {
+      "process_id": "P14",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P14.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P14.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F03 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F03"
+    },
+    {
+      "process_id": "P15",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F03",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_skew",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F03"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P15.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P15.stderr",
+      "qualifying_condition": "Named soft-root numerical predicate or outcome failure due to lost smallest stiffness contribution.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-SKEW",
+        "cases": 36,
+        "max_members": 1,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value or outcome",
+      "registered_target": "soft roots of RF-CHAIN and RF-SKEW (NC-LOST-SOFT)",
+      "qualification": null
+    },
+    {
+      "process_id": "P16",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_skew",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P16.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P16.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F03 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-SKEW",
+        "cases": 36,
+        "max_members": 1,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F03"
+    },
+    {
+      "process_id": "P17",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F04",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_skew",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F04"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P17.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P17.stderr",
+      "qualifying_condition": "Named wrong-transform numerical predicate failure; unrelated source/geometry/selection failure is not the registered value kill.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-SKEW",
+        "cases": 36,
+        "max_members": 1,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value",
+      "registered_target": "RF-SKEW, RF-INVARIANCE-ROT, RF-LARGE-ROT, RF-WEAK-W-L (NC-WRONG-TRANSFORM)",
+      "qualification": null
+    },
+    {
+      "process_id": "P18",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_skew",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P18.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P18.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F04 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-SKEW",
+        "cases": 36,
+        "max_members": 1,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F04"
+    },
+    {
+      "process_id": "P19",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F04",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_invariance",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F04"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P19.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P19.stderr",
+      "qualifying_condition": "Named wrong-transform numerical predicate failure; unrelated source/geometry/selection failure is not the registered value kill.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-INVARIANCE",
+        "cases": 25,
+        "max_members": 100,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value",
+      "registered_target": "RF-SKEW, RF-INVARIANCE-ROT, RF-LARGE-ROT, RF-WEAK-W-L (NC-WRONG-TRANSFORM)",
+      "qualification": null
+    },
+    {
+      "process_id": "P20",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_invariance",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P20.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P20.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F04 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-INVARIANCE",
+        "cases": 25,
+        "max_members": 100,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F04"
+    },
+    {
+      "process_id": "P21",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F08",
+      "argv": [
+        "<PINNED_PARITY_TEST_BINARY>",
+        "--exact",
+        "rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F08"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P21.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P21.stderr",
+      "qualifying_condition": "Named bitwise K equality at parity.rs21 fails because only sparse member coupling block is omitted; not later delta/unwrap failure.",
+      "actual_scope": {
+        "route": "whole RF-LARGE embedded family; parity(model,true)",
+        "family": "RF-LARGE",
+        "cases": 12,
+        "parity_calls": 12,
+        "sparse_parity_cases": 12,
+        "dense_parity_cases": 12,
+        "max_members": 100
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/parity.rs",
+        "sha256": "622ccacd0e9fde5c732b6f60fe68f1a445b6386abc569cbd8d9e2cc9cfb7b0f0"
+      },
+      "registered_kind": "parity",
+      "registered_target": "bitwise K, sparse against dense",
+      "qualification": null
+    },
+    {
+      "process_id": "P22",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_PARITY_TEST_BINARY>",
+        "--exact",
+        "rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P22.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P22.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F08 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole RF-LARGE embedded family; parity(model,true)",
+        "family": "RF-LARGE",
+        "cases": 12,
+        "parity_calls": 12,
+        "sparse_parity_cases": 12,
+        "dense_parity_cases": 12,
+        "max_members": 100
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F08"
+    },
+    {
+      "process_id": "P23",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F10",
+      "argv": [
+        "<PINNED_ADAPTER_TEST_BINARY>",
+        "--exact",
+        "permuting_every_list_changes_no_canonical_byte",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F10"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P23.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P23.stderr",
+      "qualifying_condition": "Exact original versus reversed PrimitiveSource canonical byte assertion; no solver/publication prerequisite.",
+      "actual_scope": {
+        "route": "all201 embedded cases through PrimitiveSource::new(original/reversed) and canonical encoding; no solve_case",
+        "cases": 201,
+        "source_constructions_planned": 402,
+        "retained_solves": 0,
+        "parity_calls": 0,
+        "max_members": 1005
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/adapter.rs",
+        "sha256": "53d8a3b2046b2bb55c26fef7d4d1a9f2e1f255a08ddb7a231f2e827538cba66d"
+      },
+      "registered_kind": "bit",
+      "registered_target": "the canonical bytes and the list-permutation checks",
+      "qualification": null
+    },
+    {
+      "process_id": "P24",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_ADAPTER_TEST_BINARY>",
+        "--exact",
+        "permuting_every_list_changes_no_canonical_byte",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P24.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P24.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F10 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "all201 embedded cases through PrimitiveSource::new(original/reversed) and canonical encoding; no solve_case",
+        "cases": 201,
+        "source_constructions_planned": 402,
+        "retained_solves": 0,
+        "parity_calls": 0,
+        "max_members": 1005
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F10"
+    },
+    {
+      "process_id": "P25",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F13",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_cancel",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F13"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P25.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P25.stderr",
+      "qualifying_condition": "Named G1e80 RF-CANCEL net-governed numeric predicate failure, not work totals.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CANCEL",
+        "cases": 38,
+        "max_members": 2,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value",
+      "registered_target": "RF-CANCEL G1e80 net-governed rows (NC-FLOAT-SUM)",
+      "qualification": null
+    },
+    {
+      "process_id": "P26",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_cancel",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P26.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P26.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F13 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CANCEL",
+        "cases": 38,
+        "max_members": 2,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F13"
+    },
+    {
+      "process_id": "P27",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F17",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_weak",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F17"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P27.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P27.stderr",
+      "qualifying_condition": "Explicit CLASS failure on original not-covered rows only. The 51 rows are46+2+3 in these families; rf_zero has0 and is not the selected class witness. If publication is withheld before CLASS, no class kill.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-WEAK",
+        "cases": 9,
+        "max_members": 5,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "class",
+      "registered_target": "the 51 not-covered rows' class",
+      "qualification": "The3 RF-WEAK prescribed not-covered rows remain the accepted separately pinned InputDerived exception; do not relabel them as class failures. The original51-row correspondence and exception remain intact."
+    },
+    {
+      "process_id": "P28",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_weak",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P28.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P28.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F17 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-WEAK",
+        "cases": 9,
+        "max_members": 5,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F17"
+    },
+    {
+      "process_id": "P29",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F17",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_skew",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F17"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P29.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P29.stderr",
+      "qualifying_condition": "Explicit CLASS failure on original not-covered rows only. The 51 rows are46+2+3 in these families; rf_zero has0 and is not the selected class witness. If publication is withheld before CLASS, no class kill.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-SKEW",
+        "cases": 36,
+        "max_members": 1,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "class",
+      "registered_target": "the 51 not-covered rows' class",
+      "qualification": "The3 RF-WEAK prescribed not-covered rows remain the accepted separately pinned InputDerived exception; do not relabel them as class failures. The original51-row correspondence and exception remain intact."
+    },
+    {
+      "process_id": "P30",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_skew",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P30.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P30.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F17 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-SKEW",
+        "cases": 36,
+        "max_members": 1,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F17"
+    },
+    {
+      "process_id": "P31",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-F17",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_cancel",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F17"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P31.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P31.stderr",
+      "qualifying_condition": "Explicit CLASS failure on original not-covered rows only. The 51 rows are46+2+3 in these families; rf_zero has0 and is not the selected class witness. If publication is withheld before CLASS, no class kill.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CANCEL",
+        "cases": 38,
+        "max_members": 2,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "class",
+      "registered_target": "the 51 not-covered rows' class",
+      "qualification": "The3 RF-WEAK prescribed not-covered rows remain the accepted separately pinned InputDerived exception; do not relabel them as class failures. The original51-row correspondence and exception remain intact."
+    },
+    {
+      "process_id": "P32",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_cancel",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P32.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P32.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-F17 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CANCEL",
+        "cases": 38,
+        "max_members": 2,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-F17"
+    },
+    {
+      "process_id": "P33",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-S1",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_finite",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-S1"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P33.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P33.stderr",
+      "qualifying_condition": "Named directional-spring numerical predicate failure caused by omitting division by n dot n.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-FINITE",
+        "cases": 6,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value",
+      "registered_target": "the directional-spring cases",
+      "qualification": null
+    },
+    {
+      "process_id": "P34",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_finite",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P34.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P34.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-S1 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-FINITE",
+        "cases": 6,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-S1"
+    },
+    {
+      "process_id": "P35",
+      "phase": "FAULT_TEST",
+      "registered_id": "VK-S2",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-S2"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P35.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P35.stderr",
+      "qualifying_condition": "Named nonzero reaction numerical predicate failure caused by sign reversal.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "test_source": {
+        "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+        "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+      },
+      "registered_kind": "value",
+      "registered_target": "every nonzero reaction",
+      "qualification": null
+    },
+    {
+      "process_id": "P36",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P36.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P36.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-S2 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-S2"
+    },
+    {
+      "process_id": "P37",
+      "phase": "UNKNOWN_SANITY",
+      "registered_id": "VK-UNKNOWN",
+      "argv": [
+        "<PINNED_ADAPTER_TEST_BINARY>",
+        "--exact",
+        "permuting_every_list_changes_no_canonical_byte",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-UNKNOWN"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P37.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P37.stderr",
+      "qualifying_condition": "Fresh seeded-feature process must panic exactly FK_SEEDED_FAULT: unknown fault id at PrimitiveSource::new seeded site. Compiler/zero-test/unrelated panic invalid.",
+      "actual_scope": {
+        "route": "all201 embedded cases through PrimitiveSource::new(original/reversed) and canonical encoding; no solve_case",
+        "cases": 201,
+        "source_constructions_planned": 402,
+        "retained_solves": 0,
+        "parity_calls": 0,
+        "max_members": 1005
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "qualification": "The process normally stops at the first seeded-site panic, so201 is selected loop scope, not a claim201 cases execute."
+    },
+    {
+      "process_id": "P38",
+      "phase": "RETURNED_NONE_UNKNOWN",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_ADAPTER_TEST_BINARY>",
+        "--exact",
+        "permuting_every_list_changes_no_canonical_byte",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P38.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P38.stderr",
+      "qualifying_condition": "Exactly one adapter test passes after unknown-id sanity.",
+      "actual_scope": {
+        "route": "all201 embedded cases through PrimitiveSource::new(original/reversed) and canonical encoding; no solve_case",
+        "cases": 201,
+        "source_constructions_planned": 402,
+        "retained_solves": 0,
+        "parity_calls": 0,
+        "max_members": 1005
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false
+    },
+    {
+      "process_id": "P39",
+      "phase": "INITIAL_NONE_EXAMPLE",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-RANGE",
+        "--show=RF-RANGE-THIN-A",
+        "--show=RF-RANGE-THIN-B"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P39.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P39.stderr",
+      "qualifying_condition": "Exact frozen shown-case projections match and no unexpected family failure; exit0 alone is insufficient.",
+      "actual_scope": {
+        "family": "RF-RANGE",
+        "case_ids_computed": [
+          "RF-RANGE-CHAIN-L-240",
+          "RF-RANGE-CHAIN-L+240",
+          "RF-RANGE-CHAIN-E-1000",
+          "RF-RANGE-CHAIN-E+960",
+          "RF-RANGE-CHAIN-F-960",
+          "RF-RANGE-CHAIN-F+960",
+          "RF-RANGE-CHAIN-LEF-small",
+          "RF-RANGE-CHAIN-LEF-large",
+          "RF-RANGE-CHAIN-SIM-a",
+          "RF-RANGE-CHAIN-SIM-b",
+          "RF-RANGE-SKEW-L-240",
+          "RF-RANGE-SKEW-L+240",
+          "RF-RANGE-SKEW-E-1000",
+          "RF-RANGE-SKEW-E+960",
+          "RF-RANGE-SKEW-F-960",
+          "RF-RANGE-SKEW-F+960",
+          "RF-RANGE-SKEW-LEF-small",
+          "RF-RANGE-SKEW-LEF-large",
+          "RF-RANGE-SKEW-SIM-a",
+          "RF-RANGE-SKEW-SIM-b",
+          "RF-RANGE-CONT-L-240",
+          "RF-RANGE-CONT-L+240",
+          "RF-RANGE-CONT-E-1000",
+          "RF-RANGE-CONT-E+960",
+          "RF-RANGE-CONT-F-960",
+          "RF-RANGE-CONT-F+960",
+          "RF-RANGE-CONT-LEF-small",
+          "RF-RANGE-CONT-LEF-large",
+          "RF-RANGE-CONT-SIM-a",
+          "RF-RANGE-CONT-SIM-b",
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "run_case_invocations_planned": 32,
+        "max_members": 10,
+        "parity_calls_planned": 0,
+        "sparse_parity_invocations_planned": 0,
+        "dense_parity_invocations_planned": 0,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": null,
+        "shown_case_ids_only": [
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-A",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-B",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-F05",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P40",
+      "phase": "FAULT_EXAMPLE",
+      "registered_id": "VK-F05",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-RANGE",
+        "--show=RF-RANGE-THIN-A",
+        "--show=RF-RANGE-THIN-B"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F05"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P40.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P40.stderr",
+      "qualifying_condition": "Loss of required later256/512 candidates and1024 verification after retained128 StopRule rejection; reduced attempt sequence is the evidence fault, irrespective of unchanged finalCeiling.",
+      "actual_scope": {
+        "family": "RF-RANGE",
+        "case_ids_computed": [
+          "RF-RANGE-CHAIN-L-240",
+          "RF-RANGE-CHAIN-L+240",
+          "RF-RANGE-CHAIN-E-1000",
+          "RF-RANGE-CHAIN-E+960",
+          "RF-RANGE-CHAIN-F-960",
+          "RF-RANGE-CHAIN-F+960",
+          "RF-RANGE-CHAIN-LEF-small",
+          "RF-RANGE-CHAIN-LEF-large",
+          "RF-RANGE-CHAIN-SIM-a",
+          "RF-RANGE-CHAIN-SIM-b",
+          "RF-RANGE-SKEW-L-240",
+          "RF-RANGE-SKEW-L+240",
+          "RF-RANGE-SKEW-E-1000",
+          "RF-RANGE-SKEW-E+960",
+          "RF-RANGE-SKEW-F-960",
+          "RF-RANGE-SKEW-F+960",
+          "RF-RANGE-SKEW-LEF-small",
+          "RF-RANGE-SKEW-LEF-large",
+          "RF-RANGE-SKEW-SIM-a",
+          "RF-RANGE-SKEW-SIM-b",
+          "RF-RANGE-CONT-L-240",
+          "RF-RANGE-CONT-L+240",
+          "RF-RANGE-CONT-E-1000",
+          "RF-RANGE-CONT-E+960",
+          "RF-RANGE-CONT-F-960",
+          "RF-RANGE-CONT-F+960",
+          "RF-RANGE-CONT-LEF-small",
+          "RF-RANGE-CONT-LEF-large",
+          "RF-RANGE-CONT-SIM-a",
+          "RF-RANGE-CONT-SIM-b",
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "run_case_invocations_planned": 32,
+        "max_members": 10,
+        "parity_calls_planned": 0,
+        "sparse_parity_invocations_planned": 0,
+        "dense_parity_invocations_planned": 0,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": null,
+        "shown_case_ids_only": [
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-A",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-B",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-F05",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P41",
+      "phase": "RETURNED_NONE_EXAMPLE",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-RANGE",
+        "--show=RF-RANGE-THIN-A",
+        "--show=RF-RANGE-THIN-B"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P41.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P41.stderr",
+      "qualifying_condition": "Exact frozen shown-case projections match after VK-F05; no credit inferred from earlier NONE.",
+      "actual_scope": {
+        "family": "RF-RANGE",
+        "case_ids_computed": [
+          "RF-RANGE-CHAIN-L-240",
+          "RF-RANGE-CHAIN-L+240",
+          "RF-RANGE-CHAIN-E-1000",
+          "RF-RANGE-CHAIN-E+960",
+          "RF-RANGE-CHAIN-F-960",
+          "RF-RANGE-CHAIN-F+960",
+          "RF-RANGE-CHAIN-LEF-small",
+          "RF-RANGE-CHAIN-LEF-large",
+          "RF-RANGE-CHAIN-SIM-a",
+          "RF-RANGE-CHAIN-SIM-b",
+          "RF-RANGE-SKEW-L-240",
+          "RF-RANGE-SKEW-L+240",
+          "RF-RANGE-SKEW-E-1000",
+          "RF-RANGE-SKEW-E+960",
+          "RF-RANGE-SKEW-F-960",
+          "RF-RANGE-SKEW-F+960",
+          "RF-RANGE-SKEW-LEF-small",
+          "RF-RANGE-SKEW-LEF-large",
+          "RF-RANGE-SKEW-SIM-a",
+          "RF-RANGE-SKEW-SIM-b",
+          "RF-RANGE-CONT-L-240",
+          "RF-RANGE-CONT-L+240",
+          "RF-RANGE-CONT-E-1000",
+          "RF-RANGE-CONT-E+960",
+          "RF-RANGE-CONT-F-960",
+          "RF-RANGE-CONT-F+960",
+          "RF-RANGE-CONT-LEF-small",
+          "RF-RANGE-CONT-LEF-large",
+          "RF-RANGE-CONT-SIM-a",
+          "RF-RANGE-CONT-SIM-b",
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "run_case_invocations_planned": 32,
+        "max_members": 10,
+        "parity_calls_planned": 0,
+        "sparse_parity_invocations_planned": 0,
+        "dense_parity_invocations_planned": 0,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": null,
+        "shown_case_ids_only": [
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-A",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-B",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-F05",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P42",
+      "phase": "INITIAL_NONE_EXAMPLE",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-RANGE",
+        "--show=RF-RANGE-THIN-A",
+        "--show=RF-RANGE-THIN-B"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P42.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P42.stderr",
+      "qualifying_condition": "Exact frozen shown-case projections match and no unexpected family failure; exit0 alone is insufficient.",
+      "actual_scope": {
+        "family": "RF-RANGE",
+        "case_ids_computed": [
+          "RF-RANGE-CHAIN-L-240",
+          "RF-RANGE-CHAIN-L+240",
+          "RF-RANGE-CHAIN-E-1000",
+          "RF-RANGE-CHAIN-E+960",
+          "RF-RANGE-CHAIN-F-960",
+          "RF-RANGE-CHAIN-F+960",
+          "RF-RANGE-CHAIN-LEF-small",
+          "RF-RANGE-CHAIN-LEF-large",
+          "RF-RANGE-CHAIN-SIM-a",
+          "RF-RANGE-CHAIN-SIM-b",
+          "RF-RANGE-SKEW-L-240",
+          "RF-RANGE-SKEW-L+240",
+          "RF-RANGE-SKEW-E-1000",
+          "RF-RANGE-SKEW-E+960",
+          "RF-RANGE-SKEW-F-960",
+          "RF-RANGE-SKEW-F+960",
+          "RF-RANGE-SKEW-LEF-small",
+          "RF-RANGE-SKEW-LEF-large",
+          "RF-RANGE-SKEW-SIM-a",
+          "RF-RANGE-SKEW-SIM-b",
+          "RF-RANGE-CONT-L-240",
+          "RF-RANGE-CONT-L+240",
+          "RF-RANGE-CONT-E-1000",
+          "RF-RANGE-CONT-E+960",
+          "RF-RANGE-CONT-F-960",
+          "RF-RANGE-CONT-F+960",
+          "RF-RANGE-CONT-LEF-small",
+          "RF-RANGE-CONT-LEF-large",
+          "RF-RANGE-CONT-SIM-a",
+          "RF-RANGE-CONT-SIM-b",
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "run_case_invocations_planned": 32,
+        "max_members": 10,
+        "parity_calls_planned": 0,
+        "sparse_parity_invocations_planned": 0,
+        "dense_parity_invocations_planned": 0,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": null,
+        "shown_case_ids_only": [
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-A",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-B",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-F06",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P43",
+      "phase": "FAULT_EXAMPLE",
+      "registered_id": "VK-F06",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-RANGE",
+        "--show=RF-RANGE-THIN-A",
+        "--show=RF-RANGE-THIN-B"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F06"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P43.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P43.stderr",
+      "qualifying_condition": "Erroneous THIN selection at128, OR exact loss of required p128 Rejected(StopRule Displacement node1 Uy Translation) after forced R7 acceptance. A replacement PublicationEnclosure verdict demonstrates loss of that specific required R7 verdict only when the exact record identifies it; certificate withholding alone is not a kill.",
+      "actual_scope": {
+        "family": "RF-RANGE",
+        "case_ids_computed": [
+          "RF-RANGE-CHAIN-L-240",
+          "RF-RANGE-CHAIN-L+240",
+          "RF-RANGE-CHAIN-E-1000",
+          "RF-RANGE-CHAIN-E+960",
+          "RF-RANGE-CHAIN-F-960",
+          "RF-RANGE-CHAIN-F+960",
+          "RF-RANGE-CHAIN-LEF-small",
+          "RF-RANGE-CHAIN-LEF-large",
+          "RF-RANGE-CHAIN-SIM-a",
+          "RF-RANGE-CHAIN-SIM-b",
+          "RF-RANGE-SKEW-L-240",
+          "RF-RANGE-SKEW-L+240",
+          "RF-RANGE-SKEW-E-1000",
+          "RF-RANGE-SKEW-E+960",
+          "RF-RANGE-SKEW-F-960",
+          "RF-RANGE-SKEW-F+960",
+          "RF-RANGE-SKEW-LEF-small",
+          "RF-RANGE-SKEW-LEF-large",
+          "RF-RANGE-SKEW-SIM-a",
+          "RF-RANGE-SKEW-SIM-b",
+          "RF-RANGE-CONT-L-240",
+          "RF-RANGE-CONT-L+240",
+          "RF-RANGE-CONT-E-1000",
+          "RF-RANGE-CONT-E+960",
+          "RF-RANGE-CONT-F-960",
+          "RF-RANGE-CONT-F+960",
+          "RF-RANGE-CONT-LEF-small",
+          "RF-RANGE-CONT-LEF-large",
+          "RF-RANGE-CONT-SIM-a",
+          "RF-RANGE-CONT-SIM-b",
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "run_case_invocations_planned": 32,
+        "max_members": 10,
+        "parity_calls_planned": 0,
+        "sparse_parity_invocations_planned": 0,
+        "dense_parity_invocations_planned": 0,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": null,
+        "shown_case_ids_only": [
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-A",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-B",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-F06",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P44",
+      "phase": "RETURNED_NONE_EXAMPLE",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-RANGE",
+        "--show=RF-RANGE-THIN-A",
+        "--show=RF-RANGE-THIN-B"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P44.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P44.stderr",
+      "qualifying_condition": "Exact frozen shown-case projections match after VK-F06; no credit inferred from earlier NONE.",
+      "actual_scope": {
+        "family": "RF-RANGE",
+        "case_ids_computed": [
+          "RF-RANGE-CHAIN-L-240",
+          "RF-RANGE-CHAIN-L+240",
+          "RF-RANGE-CHAIN-E-1000",
+          "RF-RANGE-CHAIN-E+960",
+          "RF-RANGE-CHAIN-F-960",
+          "RF-RANGE-CHAIN-F+960",
+          "RF-RANGE-CHAIN-LEF-small",
+          "RF-RANGE-CHAIN-LEF-large",
+          "RF-RANGE-CHAIN-SIM-a",
+          "RF-RANGE-CHAIN-SIM-b",
+          "RF-RANGE-SKEW-L-240",
+          "RF-RANGE-SKEW-L+240",
+          "RF-RANGE-SKEW-E-1000",
+          "RF-RANGE-SKEW-E+960",
+          "RF-RANGE-SKEW-F-960",
+          "RF-RANGE-SKEW-F+960",
+          "RF-RANGE-SKEW-LEF-small",
+          "RF-RANGE-SKEW-LEF-large",
+          "RF-RANGE-SKEW-SIM-a",
+          "RF-RANGE-SKEW-SIM-b",
+          "RF-RANGE-CONT-L-240",
+          "RF-RANGE-CONT-L+240",
+          "RF-RANGE-CONT-E-1000",
+          "RF-RANGE-CONT-E+960",
+          "RF-RANGE-CONT-F-960",
+          "RF-RANGE-CONT-F+960",
+          "RF-RANGE-CONT-LEF-small",
+          "RF-RANGE-CONT-LEF-large",
+          "RF-RANGE-CONT-SIM-a",
+          "RF-RANGE-CONT-SIM-b",
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "run_case_invocations_planned": 32,
+        "max_members": 10,
+        "parity_calls_planned": 0,
+        "sparse_parity_invocations_planned": 0,
+        "dense_parity_invocations_planned": 0,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": null,
+        "shown_case_ids_only": [
+          "RF-RANGE-THIN-A",
+          "RF-RANGE-THIN-B"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-A",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+          "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+          "expected_projection": {
+            "id": "RF-RANGE-THIN-B",
+            "outcome": "Unresolved Ceiling [Restrained]",
+            "selected_precision": null,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 512,
+                "role": "VerificationThenCandidate",
+                "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+                "gate": "Coalesced",
+                "residual_basis": 576,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              },
+              {
+                "precision": 1024,
+                "role": "Verification",
+                "outcome": "Solved",
+                "gate": "Coalesced",
+                "residual_basis": 1024,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 0,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-F06",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P45",
+      "phase": "INITIAL_NONE_EXAMPLE",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-MECH",
+        "--show=RF-MECH-LINE122-TORQUE",
+        "--show=RF-MECH-LINE122-PERP",
+        "--show=RF-MECH-LINE122-UNLOADED",
+        "--show=RF-MECH-LINE345-RZ",
+        "--show=RF-MECH-K0",
+        "--show=RF-MECH-DISC-CHAIN100",
+        "--show=RF-MECH-DISC-CHAIN100-SPRING",
+        "--show=RF-MECH-LINE-IN-CHAIN1000"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P45.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P45.stderr",
+      "qualifying_condition": "Exact frozen shown-case projections match and no unexpected family failure; exit0 alone is insufficient.",
+      "actual_scope": {
+        "family": "RF-MECH",
+        "case_ids_computed": [
+          "RF-MECH-LINE122-TORQUE",
+          "RF-MECH-LINE122-PERP",
+          "RF-MECH-LINE122-UNLOADED",
+          "RF-MECH-LINE345-RZ",
+          "RF-MECH-K0",
+          "RF-MECH-DISC-CHAIN100",
+          "RF-MECH-DISC-CHAIN100-SPRING",
+          "RF-MECH-LINE-IN-CHAIN1000",
+          "RF-MECH-LINE345-RX-COMPANION"
+        ],
+        "run_case_invocations_planned": 9,
+        "max_members": 1005,
+        "parity_calls_planned": 9,
+        "sparse_parity_invocations_planned": 9,
+        "dense_parity_invocations_planned": 8,
+        "sparse_only_cases": [
+          "RF-MECH-LINE-IN-CHAIN1000"
+        ],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-MECH-LINE122-TORQUE",
+          "RF-MECH-LINE122-PERP",
+          "RF-MECH-LINE122-UNLOADED",
+          "RF-MECH-LINE345-RZ",
+          "RF-MECH-K0",
+          "RF-MECH-DISC-CHAIN100",
+          "RF-MECH-DISC-CHAIN100-SPRING",
+          "RF-MECH-LINE-IN-CHAIN1000"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE122-TORQUE",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE122-PERP",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE122-UNLOADED",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE345-RZ",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-K0",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-DISC-CHAIN100",
+            "outcome": "Refused MechanismWitnessed { body: 1 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-DISC-CHAIN100-SPRING",
+            "outcome": "Refused MechanismWitnessed { body: 1 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE-IN-CHAIN1000",
+            "outcome": "Refused MechanismWitnessed { body: 1 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-F07",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P46",
+      "phase": "FAULT_EXAMPLE",
+      "registered_id": "VK-F07",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-MECH",
+        "--show=RF-MECH-LINE122-TORQUE",
+        "--show=RF-MECH-LINE122-PERP",
+        "--show=RF-MECH-LINE122-UNLOADED",
+        "--show=RF-MECH-LINE345-RZ",
+        "--show=RF-MECH-K0",
+        "--show=RF-MECH-DISC-CHAIN100",
+        "--show=RF-MECH-DISC-CHAIN100-SPRING",
+        "--show=RF-MECH-LINE-IN-CHAIN1000"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-F07"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P46.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P46.stderr",
+      "qualifying_condition": "Loss of each named MechanismWitnessed immediate refusal/body with empty attempts; distinguish it from source error, random numerical failure or generic record drift.",
+      "actual_scope": {
+        "family": "RF-MECH",
+        "case_ids_computed": [
+          "RF-MECH-LINE122-TORQUE",
+          "RF-MECH-LINE122-PERP",
+          "RF-MECH-LINE122-UNLOADED",
+          "RF-MECH-LINE345-RZ",
+          "RF-MECH-K0",
+          "RF-MECH-DISC-CHAIN100",
+          "RF-MECH-DISC-CHAIN100-SPRING",
+          "RF-MECH-LINE-IN-CHAIN1000",
+          "RF-MECH-LINE345-RX-COMPANION"
+        ],
+        "run_case_invocations_planned": 9,
+        "max_members": 1005,
+        "parity_calls_planned": 9,
+        "sparse_parity_invocations_planned": 9,
+        "dense_parity_invocations_planned": 8,
+        "sparse_only_cases": [
+          "RF-MECH-LINE-IN-CHAIN1000"
+        ],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-MECH-LINE122-TORQUE",
+          "RF-MECH-LINE122-PERP",
+          "RF-MECH-LINE122-UNLOADED",
+          "RF-MECH-LINE345-RZ",
+          "RF-MECH-K0",
+          "RF-MECH-DISC-CHAIN100",
+          "RF-MECH-DISC-CHAIN100-SPRING",
+          "RF-MECH-LINE-IN-CHAIN1000"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE122-TORQUE",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE122-PERP",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE122-UNLOADED",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE345-RZ",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-K0",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-DISC-CHAIN100",
+            "outcome": "Refused MechanismWitnessed { body: 1 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-DISC-CHAIN100-SPRING",
+            "outcome": "Refused MechanismWitnessed { body: 1 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE-IN-CHAIN1000",
+            "outcome": "Refused MechanismWitnessed { body: 1 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-F07",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P47",
+      "phase": "RETURNED_NONE_EXAMPLE",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-MECH",
+        "--show=RF-MECH-LINE122-TORQUE",
+        "--show=RF-MECH-LINE122-PERP",
+        "--show=RF-MECH-LINE122-UNLOADED",
+        "--show=RF-MECH-LINE345-RZ",
+        "--show=RF-MECH-K0",
+        "--show=RF-MECH-DISC-CHAIN100",
+        "--show=RF-MECH-DISC-CHAIN100-SPRING",
+        "--show=RF-MECH-LINE-IN-CHAIN1000"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P47.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P47.stderr",
+      "qualifying_condition": "Exact frozen shown-case projections match after VK-F07; no credit inferred from earlier NONE.",
+      "actual_scope": {
+        "family": "RF-MECH",
+        "case_ids_computed": [
+          "RF-MECH-LINE122-TORQUE",
+          "RF-MECH-LINE122-PERP",
+          "RF-MECH-LINE122-UNLOADED",
+          "RF-MECH-LINE345-RZ",
+          "RF-MECH-K0",
+          "RF-MECH-DISC-CHAIN100",
+          "RF-MECH-DISC-CHAIN100-SPRING",
+          "RF-MECH-LINE-IN-CHAIN1000",
+          "RF-MECH-LINE345-RX-COMPANION"
+        ],
+        "run_case_invocations_planned": 9,
+        "max_members": 1005,
+        "parity_calls_planned": 9,
+        "sparse_parity_invocations_planned": 9,
+        "dense_parity_invocations_planned": 8,
+        "sparse_only_cases": [
+          "RF-MECH-LINE-IN-CHAIN1000"
+        ],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-MECH-LINE122-TORQUE",
+          "RF-MECH-LINE122-PERP",
+          "RF-MECH-LINE122-UNLOADED",
+          "RF-MECH-LINE345-RZ",
+          "RF-MECH-K0",
+          "RF-MECH-DISC-CHAIN100",
+          "RF-MECH-DISC-CHAIN100-SPRING",
+          "RF-MECH-LINE-IN-CHAIN1000"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE122-TORQUE",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE122-PERP",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE122-UNLOADED",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE345-RZ",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-K0",
+            "outcome": "Refused MechanismWitnessed { body: 0 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-DISC-CHAIN100",
+            "outcome": "Refused MechanismWitnessed { body: 1 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-DISC-CHAIN100-SPRING",
+            "outcome": "Refused MechanismWitnessed { body: 1 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+          "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+          "expected_projection": {
+            "id": "RF-MECH-LINE-IN-CHAIN1000",
+            "outcome": "Refused MechanismWitnessed { body: 1 } []",
+            "selected_precision": null,
+            "attempts": []
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-F07",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P48",
+      "phase": "INITIAL_NONE_EXAMPLE",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-LARGE",
+        "--show=RF-LARGE-TREE-n00100-AX"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P48.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P48.stderr",
+      "qualifying_condition": "Exact frozen shown-case projections match and no unexpected family failure; exit0 alone is insufficient.",
+      "actual_scope": {
+        "family": "RF-LARGE",
+        "case_ids_computed": [
+          "RF-LARGE-CHAIN-n00010-AX",
+          "RF-LARGE-CHAIN-n00010-ROT",
+          "RF-LARGE-TREE-n00010-AX",
+          "RF-LARGE-TREE-n00010-ROT",
+          "RF-LARGE-CONT-n00010-AX",
+          "RF-LARGE-CONT-n00010-ROT",
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-CHAIN-n00100-ROT",
+          "RF-LARGE-TREE-n00100-AX",
+          "RF-LARGE-TREE-n00100-ROT",
+          "RF-LARGE-CONT-n00100-AX",
+          "RF-LARGE-CONT-n00100-ROT"
+        ],
+        "run_case_invocations_planned": 12,
+        "max_members": 100,
+        "parity_calls_planned": 12,
+        "sparse_parity_invocations_planned": 12,
+        "dense_parity_invocations_planned": 12,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-LARGE-TREE-n00100-AX"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+          "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+          "expected_projection": {
+            "id": "RF-LARGE-TREE-n00100-AX",
+            "outcome": "Selected at 128",
+            "selected_precision": 128,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Accepted",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "Verification",
+                "outcome": "Verified",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 1,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-R02",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P49",
+      "phase": "FAULT_EXAMPLE",
+      "registered_id": "VK-R02",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-LARGE",
+        "--show=RF-LARGE-TREE-n00100-AX"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-R02"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P49.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P49.stderr",
+      "qualifying_condition": "TREE100-AX must retain128 Accepted and256 Verified; inspect changed named R7 estimate/charge or acceptance outcome caused by uncoupled e_hat, not work-only drift or a certificate-only precondition.",
+      "actual_scope": {
+        "family": "RF-LARGE",
+        "case_ids_computed": [
+          "RF-LARGE-CHAIN-n00010-AX",
+          "RF-LARGE-CHAIN-n00010-ROT",
+          "RF-LARGE-TREE-n00010-AX",
+          "RF-LARGE-TREE-n00010-ROT",
+          "RF-LARGE-CONT-n00010-AX",
+          "RF-LARGE-CONT-n00010-ROT",
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-CHAIN-n00100-ROT",
+          "RF-LARGE-TREE-n00100-AX",
+          "RF-LARGE-TREE-n00100-ROT",
+          "RF-LARGE-CONT-n00100-AX",
+          "RF-LARGE-CONT-n00100-ROT"
+        ],
+        "run_case_invocations_planned": 12,
+        "max_members": 100,
+        "parity_calls_planned": 12,
+        "sparse_parity_invocations_planned": 12,
+        "dense_parity_invocations_planned": 12,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-LARGE-TREE-n00100-AX"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+          "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+          "expected_projection": {
+            "id": "RF-LARGE-TREE-n00100-AX",
+            "outcome": "Selected at 128",
+            "selected_precision": 128,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Accepted",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "Verification",
+                "outcome": "Verified",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 1,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-R02",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P50",
+      "phase": "RETURNED_NONE_EXAMPLE",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-LARGE",
+        "--show=RF-LARGE-TREE-n00100-AX"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P50.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P50.stderr",
+      "qualifying_condition": "Exact frozen shown-case projections match after VK-R02; no credit inferred from earlier NONE.",
+      "actual_scope": {
+        "family": "RF-LARGE",
+        "case_ids_computed": [
+          "RF-LARGE-CHAIN-n00010-AX",
+          "RF-LARGE-CHAIN-n00010-ROT",
+          "RF-LARGE-TREE-n00010-AX",
+          "RF-LARGE-TREE-n00010-ROT",
+          "RF-LARGE-CONT-n00010-AX",
+          "RF-LARGE-CONT-n00010-ROT",
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-CHAIN-n00100-ROT",
+          "RF-LARGE-TREE-n00100-AX",
+          "RF-LARGE-TREE-n00100-ROT",
+          "RF-LARGE-CONT-n00100-AX",
+          "RF-LARGE-CONT-n00100-ROT"
+        ],
+        "run_case_invocations_planned": 12,
+        "max_members": 100,
+        "parity_calls_planned": 12,
+        "sparse_parity_invocations_planned": 12,
+        "dense_parity_invocations_planned": 12,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-LARGE-TREE-n00100-AX"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+          "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+          "expected_projection": {
+            "id": "RF-LARGE-TREE-n00100-AX",
+            "outcome": "Selected at 128",
+            "selected_precision": 128,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Accepted",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "Verification",
+                "outcome": "Verified",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 1,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-R02",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P51",
+      "phase": "INITIAL_NONE_EXAMPLE",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-LARGE",
+        "--show=RF-LARGE-CHAIN-n00100-AX",
+        "--show=RF-LARGE-TREE-n00100-AX"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P51.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P51.stderr",
+      "qualifying_condition": "Exact frozen shown-case projections match and no unexpected family failure; exit0 alone is insufficient.",
+      "actual_scope": {
+        "family": "RF-LARGE",
+        "case_ids_computed": [
+          "RF-LARGE-CHAIN-n00010-AX",
+          "RF-LARGE-CHAIN-n00010-ROT",
+          "RF-LARGE-TREE-n00010-AX",
+          "RF-LARGE-TREE-n00010-ROT",
+          "RF-LARGE-CONT-n00010-AX",
+          "RF-LARGE-CONT-n00010-ROT",
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-CHAIN-n00100-ROT",
+          "RF-LARGE-TREE-n00100-AX",
+          "RF-LARGE-TREE-n00100-ROT",
+          "RF-LARGE-CONT-n00100-AX",
+          "RF-LARGE-CONT-n00100-ROT"
+        ],
+        "run_case_invocations_planned": 12,
+        "max_members": 100,
+        "parity_calls_planned": 12,
+        "sparse_parity_invocations_planned": 12,
+        "dense_parity_invocations_planned": 12,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-TREE-n00100-AX"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+          "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+          "expected_projection": {
+            "id": "RF-LARGE-CHAIN-n00100-AX",
+            "outcome": "Selected at 128",
+            "selected_precision": 128,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Accepted",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "Verification",
+                "outcome": "Verified",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 1,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+          "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+          "expected_projection": {
+            "id": "RF-LARGE-TREE-n00100-AX",
+            "outcome": "Selected at 128",
+            "selected_precision": 128,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Accepted",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "Verification",
+                "outcome": "Verified",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 1,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-R28",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P52",
+      "phase": "FAULT_EXAMPLE",
+      "registered_id": "VK-R28",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-LARGE",
+        "--show=RF-LARGE-CHAIN-n00100-AX",
+        "--show=RF-LARGE-TREE-n00100-AX"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "VK-R28"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P52.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P52.stderr",
+      "qualifying_condition": "Both fixed AX controls are selected128/verified256 with exactly one scheduled shift at256. A missing specific shift or changed named bound/acceptance sequence is the evidence fault; generic record drift excluded.",
+      "actual_scope": {
+        "family": "RF-LARGE",
+        "case_ids_computed": [
+          "RF-LARGE-CHAIN-n00010-AX",
+          "RF-LARGE-CHAIN-n00010-ROT",
+          "RF-LARGE-TREE-n00010-AX",
+          "RF-LARGE-TREE-n00010-ROT",
+          "RF-LARGE-CONT-n00010-AX",
+          "RF-LARGE-CONT-n00010-ROT",
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-CHAIN-n00100-ROT",
+          "RF-LARGE-TREE-n00100-AX",
+          "RF-LARGE-TREE-n00100-ROT",
+          "RF-LARGE-CONT-n00100-AX",
+          "RF-LARGE-CONT-n00100-ROT"
+        ],
+        "run_case_invocations_planned": 12,
+        "max_members": 100,
+        "parity_calls_planned": 12,
+        "sparse_parity_invocations_planned": 12,
+        "dense_parity_invocations_planned": 12,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-TREE-n00100-AX"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+          "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+          "expected_projection": {
+            "id": "RF-LARGE-CHAIN-n00100-AX",
+            "outcome": "Selected at 128",
+            "selected_precision": 128,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Accepted",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "Verification",
+                "outcome": "Verified",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 1,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+          "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+          "expected_projection": {
+            "id": "RF-LARGE-TREE-n00100-AX",
+            "outcome": "Selected at 128",
+            "selected_precision": 128,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Accepted",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "Verification",
+                "outcome": "Verified",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 1,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-R28",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    },
+    {
+      "process_id": "P53",
+      "phase": "RETURNED_NONE_EXAMPLE",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_VK_RECORDS_BINARY>",
+        "RF-LARGE",
+        "--show=RF-LARGE-CHAIN-n00100-AX",
+        "--show=RF-LARGE-TREE-n00100-AX"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P53.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P53.stderr",
+      "qualifying_condition": "Exact frozen shown-case projections match after VK-R28; no credit inferred from earlier NONE.",
+      "actual_scope": {
+        "family": "RF-LARGE",
+        "case_ids_computed": [
+          "RF-LARGE-CHAIN-n00010-AX",
+          "RF-LARGE-CHAIN-n00010-ROT",
+          "RF-LARGE-TREE-n00010-AX",
+          "RF-LARGE-TREE-n00010-ROT",
+          "RF-LARGE-CONT-n00010-AX",
+          "RF-LARGE-CONT-n00010-ROT",
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-CHAIN-n00100-ROT",
+          "RF-LARGE-TREE-n00100-AX",
+          "RF-LARGE-TREE-n00100-ROT",
+          "RF-LARGE-CONT-n00100-AX",
+          "RF-LARGE-CONT-n00100-ROT"
+        ],
+        "run_case_invocations_planned": 12,
+        "max_members": 100,
+        "parity_calls_planned": 12,
+        "sparse_parity_invocations_planned": 12,
+        "dense_parity_invocations_planned": 12,
+        "sparse_only_cases": [],
+        "dense_member_ceiling": 105,
+        "shown_case_ids_only": [
+          "RF-LARGE-CHAIN-n00100-AX",
+          "RF-LARGE-TREE-n00100-AX"
+        ],
+        "show_filters_computation": false,
+        "no_dense_at_10000_or_more": true,
+        "full_work_required_even_for_unshown_cases": true
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "record_projections": [
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+          "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+          "expected_projection": {
+            "id": "RF-LARGE-CHAIN-n00100-AX",
+            "outcome": "Selected at 128",
+            "selected_precision": 128,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Accepted",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "Verification",
+                "outcome": "Verified",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 1,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        },
+        {
+          "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+          "refreshed_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+          "expected_projection": {
+            "id": "RF-LARGE-TREE-n00100-AX",
+            "outcome": "Selected at 128",
+            "selected_precision": 128,
+            "attempts": [
+              {
+                "precision": 128,
+                "role": "Candidate",
+                "outcome": "Accepted",
+                "gate": "Coalesced",
+                "residual_basis": 192,
+                "verification": null
+              },
+              {
+                "precision": 256,
+                "role": "Verification",
+                "outcome": "Verified",
+                "gate": "Coalesced",
+                "residual_basis": 320,
+                "verification": {
+                  "data_blocks": 1,
+                  "g_max": 0,
+                  "g_violation": null,
+                  "shift_factorizations": 1,
+                  "uc_missing": null
+                }
+              }
+            ]
+          },
+          "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+        }
+      ],
+      "returns_or_baseline_for": "VK-R28",
+      "example_no_write": true,
+      "exit_status_not_verdict": true,
+      "mode": "normal release example"
+    }
+  ],
+  "counts_from_metadata": {
+    "FAULT_EXAMPLE": 5,
+    "FAULT_TEST": 14,
+    "INITIAL_NONE_EXAMPLE": 5,
+    "INITIAL_NONE_TEST": 8,
+    "RETURNED_NONE_EXAMPLE": 5,
+    "RETURNED_NONE_TEST": 14,
+    "RETURNED_NONE_UNKNOWN": 1,
+    "UNKNOWN_SANITY": 1
+  },
+  "planned_direct_process_count": 53,
+  "planned_example_work_if_all53_processes_are_released": {
+    "run_case_invocations_planned": 291,
+    "sparse_parity_invocations_planned": 99,
+    "dense_parity_invocations_planned": 96
+  },
+  "NONE_deduplication": "Initial test baselines share only identical target/filter; five example plans remain explicit even where argv repeats. ROOT may choose a smaller separately bounded batch; this file grants none.",
+  "no_new_collector": "This manifest specifies existing direct binaries and known projections. No runtime parser, runner or source tool was added.",
+  "artifact_separation": "Debug test harness artifacts and release normal example are built/pinned separately; a test-harness example cannot substitute for vk_records normal executable."
+}

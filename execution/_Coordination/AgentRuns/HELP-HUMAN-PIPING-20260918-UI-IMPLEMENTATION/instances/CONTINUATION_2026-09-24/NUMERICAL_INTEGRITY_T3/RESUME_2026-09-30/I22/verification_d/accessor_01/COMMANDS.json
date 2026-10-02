@@ -1,0 +1,24 @@
+{
+  "authority": "Recovery manager's same-D positive-accessor review correction, after initial D seal; no additional model/API scope.",
+  "command": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --manifest-path <A1_WT>/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml --lib structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft -- --exact > <S>/accessor_01.stdout 2> <S>/accessor_01.stderr",
+  "launch_utc": "2026-10-01T08:06:41.313Z",
+  "tool_initial": {
+    "chunk_id": "c5ae2e",
+    "wall_time_seconds": 1.002427,
+    "session_id": 92336,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "completion": {
+    "chunk_id": "4983f6",
+    "wall_time_seconds": 0.000012209,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "initial_D_manifest": "210847fca5044d3c89c3f29256d487d682e0c52ae5313f24f7797663aed9754e",
+  "initial_D_test_hash": "f93a8368b44ca0cde8e3286057d0bfa7557e5997c446a3caf21c490fb2481ffb",
+  "candidate_test_hash": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+  "guard": "PID 5387 observed live before and after. Same 1.97.1/offline/locked/-j4/2-thread/incremental0 env and own target.",
+  "running_owned_jobs": 0
+}

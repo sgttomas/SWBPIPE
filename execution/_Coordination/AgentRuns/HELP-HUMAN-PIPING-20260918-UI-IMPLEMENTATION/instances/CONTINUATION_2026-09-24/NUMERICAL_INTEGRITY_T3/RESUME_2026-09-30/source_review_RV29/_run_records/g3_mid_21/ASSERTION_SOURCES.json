@@ -1,0 +1,125 @@
+[
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+    "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14",
+    "excerpts": [
+      {
+        "start": 285,
+        "end": 316,
+        "text": "    let scales = scales_at(&mut c, layout, &b.recovered.values, extents, &skip).unwrap();\n    let mut types = std::collections::HashSet::new();\n    let mut kinds = std::collections::BTreeSet::new();\n    for (index, meta) in layout.iter().enumerate() {\n        let s = scales[meta.body as usize][meta.kind.index()];\n        let magnitude = if b.recovered.values[index].abs().cmp_value(&s) == CmpOrdering::Greater {\n            b.recovered.values[index].abs()\n        } else {\n            s\n        };\n        if magnitude.is_zero() {\n            continue;\n        }\n        let mut perturbed = a.recovered.values.clone();\n        let delta: Wide<4> = magnitude.mul_pow2(-60).unwrap();\n        perturbed[index] = c.add(&perturbed[index], &delta).unwrap();\n        let d = stop_rule(\n            layout,\n            extents,\n            &perturbed,\n            &b.recovered.values,\n            256,\n            StageGuard::unlimited(),\n        );\n        assert_eq!(\n            (d.result, d.first_failure),\n            (Ok(false), Some(index)),\n            \"{:?}\",\n            meta.id\n        );\n        types.insert(std::mem::discriminant(&meta.id));\n        kinds.insert(meta.kind.index());"
+      },
+      {
+        "start": 338,
+        "end": 384,
+        "text": "#[test]\nfn a_case_limit_is_exhausted_exactly_where_its_work_ends() {\n    for name in [\"N05\", \"SKEW-K1E-28\"] {\n        let source = models::model(name).source();\n        let (limit, mut meter) = unlimited();\n        let CaseOutcome::Selected(solve) = solve_case(source.clone(), limit, &mut meter) else {\n            panic!()\n        };\n        let needed = charge(&solve.evidence().attempts);\n        assert_eq!(\n            meter.charged(),\n            needed,\n            \"{name}: a lone case charges the invocation its full work\"\n        );\n        let mut meter = InvocationMeter::new(u64::MAX);\n        assert!(matches!(\n            solve_case(source.clone(), CaseLimit::new(needed), &mut meter),\n            CaseOutcome::Selected(_)\n        ));\n        let mut meter = InvocationMeter::new(u64::MAX);\n        match solve_case(source.clone(), CaseLimit::new(needed - 1), &mut meter) {\n            CaseOutcome::Unresolved {\n                reason: UnresolvedReason::Budget(BudgetScope::Case),\n                attempts,\n                ..\n            } => assert!(!attempts.is_empty() || needed - 1 == 0),\n            other => panic!(\"{name}: {other:?}\"),\n        }\n        let mut meter = InvocationMeter::new(needed - 1);\n        assert!(matches!(\n            solve_case(source.clone(), CaseLimit::new(u64::MAX), &mut meter),\n            CaseOutcome::Unresolved {\n                reason: UnresolvedReason::Budget(BudgetScope::Invocation),\n                ..\n            }\n        ));\n        // An exhausted invocation refuses further cases before any work.\n        let before = meter.charged();\n        assert!(matches!(\n            solve_case(source, CaseLimit::new(u64::MAX), &mut meter),\n            CaseOutcome::Unresolved {\n                reason: UnresolvedReason::Budget(BudgetScope::Invocation),\n                ..\n            }\n        ));\n        assert_eq!(meter.charged(), before);\n    }"
+      },
+      {
+        "start": 407,
+        "end": 424,
+        "text": "fn a_sums_rounding_charges_the_limbs_it_rounds() {\n    // from_integer's input length is charged: a one-limb net against a net\n    // spanning 1,075 bits (at least 17 limbs).\n    let rounded = |terms: &[f64]| {\n        let mut sum = super::super::wide_sum::ExactWideSum::new();\n        for &t in terms {\n            sum.add_binary64(t, false).unwrap();\n        }\n        let mut c = WideContext::<4>::new(128).unwrap();\n        let before = sum.work().rounded_limbs;\n        let _ = sum.round(&mut c).unwrap();\n        sum.work().rounded_limbs - before\n    };\n    let narrow = rounded(&[1.0, 2.0]);\n    let wide = rounded(&[1.0, f64::from_bits(1)]);\n    assert!(narrow <= 2, \"{narrow}\");\n    assert!((17..=20).contains(&wide), \"{wide}\");\n}"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+    "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+    "excerpts": [
+      {
+        "start": 1650,
+        "end": 1673,
+        "text": "    // Underflow, through the coupling S*(rot) = max(rot, tr/L_b) with\n    // L_b = 2^-60: 2^-1075 (a tie that rounds to zero) against\n    // 2^-1075 + 2^-1200 (which rounds to 2^-1074).\n    let tiny = w(-1075);\n    let above_tiny = ctx.add(&tiny, &w(-1200)).unwrap();\n    assert!(tiny.to_binary64().value().is_none());\n    assert!(above_tiny.to_binary64().value().is_some());\n    let (layout, mut r) = two_displacement_rows([Component::Ux, Component::Rx]);\n    r.resolution = vec![[1.0, 1.0]];\n    let extent = [support::pow2(-60)];\n    let rot = w(-1020);\n    let rot_off = ctx.add(&rot, &w(-1080)).unwrap();\n    // The candidate underflows: row 0 sets no S*(tr), so S*(rot) = 2^-1020\n    // and row 1's |\u0394| = 2^-1080 exceeds 2^-64\u00b72^-1020.\n    assert_eq!(\n        verdict2_at(&layout, &extent, &[tiny, rot_off], &[above_tiny, rot], &r),\n        Some(Rejection::StopRule { index: 1 })\n    );\n    // The verification underflows, the candidate does not: row 0 sets\n    // S*(tr) = 2^-1075, S*(rot) = 2^-1075/2^-60 = 2^-1015, and row 1 passes.\n    assert_eq!(\n        verdict2_at(&layout, &extent, &[above_tiny, rot_off], &[tiny, rot], &r),\n        None\n    );"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+    "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+    "excerpts": [
+      {
+        "start": 34,
+        "end": 56,
+        "text": "#[test]\nfn the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_direct_does() {\n    // sparse_direct/src/lib.rs's own RCM tests (their graphs and orders).\n    let cases: [(Vec<Vec<usize>>, Vec<usize>); 4] = [\n        (\n            vec![vec![1], vec![0, 2], vec![1, 3], vec![2]],\n            vec![3, 2, 1, 0],\n        ),\n        (\n            vec![vec![1, 2, 3], vec![0], vec![0], vec![0]],\n            vec![3, 2, 0, 1],\n        ),\n        (\n            vec![vec![1], vec![0], vec![], vec![4], vec![3]],\n            vec![4, 3, 2, 1, 0],\n        ),\n        (\n            vec![vec![1, 1], vec![2], vec![], vec![2, 2]],\n            vec![3, 2, 1, 0],\n        ),\n    ];\n    for (adjacency, order) in cases {\n        assert_eq!(reverse_cuthill_mckee(&adjacency), order, \"{adjacency:?}\");"
+      },
+      {
+        "start": 244,
+        "end": 265,
+        "text": "#[test]\nfn witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves() {\n    for name in [\"N02\", \"N03-RZ\", \"N04\"] {\n        match solve(models::model(name).source()) {\n            CaseOutcome::Refused {\n                refusal: Refusal::MechanismWitnessed { .. },\n                geometry,\n            } => assert!(geometry.is_empty(), \"{name}\"),\n            other => panic!(\"{name}: {other:?}\"),\n        }\n        // Geometry first decides without a factor.\n        assert!(matches!(\n            geometry_first(&models::model(name).source()),\n            Err(GeometryRefusal::MechanismWitnessed { .. })\n        ));\n    }\n    match solve(models::model(\"N03-RX\").source()) {\n        CaseOutcome::Selected(solve) => {\n            assert_eq!(solve.selected_precision(), 128);\n            assert_eq!(solve.evidence().geometry, vec![BodyGeometry::Restrained]);\n        }\n        other => panic!(\"N03-RX: {other:?}\"),"
+      },
+      {
+        "start": 270,
+        "end": 285,
+        "text": "fn the_span_decision_is_exact() {\n    // det = 2^-104 exactly; a binary64 rule-of-Sarrus evaluation gives 0.\n    let e = f64::EPSILON;\n    let (a, b, c) = ([1.0, 1.0, 1.0], [1.0, 1.0 + e, 1.0], [1.0, 1.0, 1.0 + e]);\n    let sarrus = a[0] * b[1] * c[2] + a[1] * b[2] * c[0] + a[2] * b[0] * c[1]\n        - a[0] * b[2] * c[1]\n        - a[1] * b[0] * c[2]\n        - a[2] * b[1] * c[0];\n    assert_eq!(sarrus, 0.0);\n    assert!(spans_space(&[a, b, c]));\n    assert!(!spans_space(&[\n        [1.0, 1.0, 1.0],\n        [2.0, 2.0, 2.0],\n        [1.0, 2.0, 3.0]\n    ]));\n    assert!(!spans_space(&[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]));"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+    "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5",
+    "excerpts": [
+      {
+        "start": 89,
+        "end": 110,
+        "text": "        let f: Vec<&str> = line.split_whitespace().collect();\n        expected\n            .entry((f[1].to_string(), f[2].parse().unwrap()))\n            .or_default()\n            .insert(\n                (f[4].parse().unwrap(), f[5].parse().unwrap()),\n                f[6].to_string(),\n            );\n    }\n    assert_eq!(expected.len(), 7 * 8);\n    let mut entries = 0;\n    for m in &formation {\n        let source = m.source();\n        for p in [53u32, 128, 192, 256, 320, 512, 576, 1024] {\n            let want = &expected[&(m.name.clone(), p)];\n            let got = upper_tokens_at(&source, p);\n            assert_eq!(got.len(), want.len(), \"{} p {p}\", m.name);\n            for (rc, token) in want {\n                assert_eq!(&got[rc], token, \"{} p {p} entry {rc:?}\", m.name);\n            }\n            entries += want.len();\n        }"
+      },
+      {
+        "start": 189,
+        "end": 217,
+        "text": "        for r in rigid_motions(xi, xj) {\n            for a in 0..12 {\n                let mut t = ExactWideSum::new();\n                let mut bound = 0.0f64;\n                for (col, &rb) in r.iter().enumerate() {\n                    if rb == 0.0 {\n                        continue;\n                    }\n                    t.add_product(&mut c, op.ke(a, col), &support::lift::<L>(rb), false)\n                        .unwrap();\n                    for (x, dx) in d.iter().enumerate() {\n                        for (y, dxy) in dx.iter().enumerate() {\n                            bound += b[x][a] * dxy * b[y][col] * rb.abs();\n                        }\n                    }\n                }\n                t.make_absolute();\n                let mut scaled = ExactWideSum::new();\n                scaled.add_scaled(&t, false, 1, i64::from(p)).unwrap();\n                let lhs = if scaled.is_zero() {\n                    0.0\n                } else {\n                    f64_of::<16>(&scaled.round::<16>(&mut c16).unwrap())\n                };\n                let limit = 64.0 * bound * (1.0 + f64::from_bits(0x3E10_0000_0000_0000));\n                assert!(\n                    lhs <= limit,\n                    \"member {} p {p} row {a} motion {r:?}: {lhs:e} > {limit:e}\",\n                    m.id"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+    "sha256": "a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5",
+    "excerpts": [
+      {
+        "start": 450,
+        "end": 465,
+        "text": "        operand(support::pow2(-53), false),\n        operand(support::pow2(-150), false),\n    );\n    let combination = combined(&[(1.0, a.as_ref()), (1.0, b.as_ref()), (1.0, c.as_ref())]);\n    assert_eq!(combination.selected_precision(), 128);\n    let row = combination\n        .publish()\n        .rows\n        .iter()\n        .find(|r| models::key(&r.id) == format!(\"u.2.1\"))\n        .unwrap();\n    assert_eq!(row.class, RowClass::InputDerived);\n    assert_eq!(\n        row.value,\n        Binary64Outcome::Normal(f64::from_bits(0x3FF0_0000_0000_0001)),\n        \"1 + 2^-52\""
+      },
+      {
+        "start": 550,
+        "end": 567,
+        "text": "    assert_eq!(\n        reason(combine(&[(1.0, a.as_ref()), (1.0, b.as_ref())])),\n        CombinationReason::OperandsDiffer\n    );\n    // Group 1 reused under the same id with a different spring set.\n    assert_eq!(\n        reason(combine(&[(1.0, a.as_ref()), (1.0, c.as_ref())])),\n        CombinationReason::OperandsDiffer\n    );\n    // Equal stations and groups combine: st.1.4 = 2\u00b70.75.\n    let twice = combined(&[(1.0, a.as_ref()), (1.0, a.as_ref())]);\n    let st = twice\n        .publish()\n        .rows\n        .iter()\n        .find(|r| models::key(&r.id) == \"st.1.4\")\n        .unwrap();\n    assert_eq!(st.value.value(), Some(1.5));"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+    "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922",
+    "excerpts": [
+      {
+        "start": 267,
+        "end": 297,
+        "text": "    parts.loads.push(NodalLoad {\n        dof: dof(0, 0),\n        value: support::pow2(-128),\n        source_id: \"a\".into(),\n    });\n    parts.loads.push(NodalLoad {\n        dof: dof(0, 0),\n        value: support::pow2(-400),\n        source_id: \"b\".into(),\n    });\n    let source = PrimitiveSource::new(parts).unwrap();\n    let ledger = RetainedLedger::from_source(&source).unwrap();\n    let structure = Structure::new(&source).unwrap();\n    let mut c = ctx::<4>(128);\n    let mut sum = ExactWideSum::new();\n    let guard = StageGuard::unlimited();\n    let members = form_members(&mut c, &mut sum, &guard, &source).unwrap();\n    let k = assemble(&mut c, &mut sum, &guard, &source, &structure, &members, &[]).unwrap();\n    let kij = k[structure.pattern.find(0, 6).unwrap()];\n    assert_eq!(tok(&kij), tok(&lift::<4>(-(support::pow2(20)))));\n    let u: Vec<Wide<4>> = (0..source.dof_count())\n        .map(|g| lift::<4>(source.constraint(g).unwrap_or(0.0)))\n        .collect();\n    let rhs = reduced_rhs(&mut c, &mut sum, &source, &structure, &k, &ledger, &[0], &u).unwrap();\n    let expect = w_value::<4>(false, 0, &[1, 1 << 63]); // 1 + 2^-127\n    assert_eq!(tok(&rhs[0]), tok(&expect));\n    // The ledger's projection alone loses the tail (so a pre-rounded ledger\n    // would give the tie's even neighbour, 1).\n    let projected = ledger.project(0, &mut c).unwrap();\n    assert_eq!(tok(&projected), tok(&lift::<4>(support::pow2(-128))));\n}"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+    "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+    "excerpts": [
+      {
+        "start": 121,
+        "end": 126,
+        "text": "    let shared = shared.unwrap();\n    let solved = solved.unwrap_or_else(|e| panic!(\"{name} {p}: {e:?}\"));\n    assert_eq!(\n        solved.corrections.to_string(),\n        recs[0][4],\n        \"{name} {p} corrections\""
+      },
+      {
+        "start": 176,
+        "end": 208,
+        "text": "            \"abar\" => {\n                let mut entries: Vec<(usize, usize, usize)> = group.structure.entries().collect();\n                entries.sort_unstable();\n                let lines: Vec<String> = entries\n                    .iter()\n                    .map(|&(r, c, index)| format!(\"{r} {c} {}\", tok(&abar[index])))\n                    .collect();\n                assert_eq!(digest(&lines), f[3], \"{name} {p} \u0100\");\n            }\n            \"erows\" => assert_eq!(digest(&erows), f[3], \"{name} {p} E rows\"),\n            \"erow\" => explicit.push(format!(\"{} {}\", f[3], f[4])),\n            \"ebody\" => {\n                let b: usize = f[3].parse().unwrap();\n                let eh = e_hat(resolution[b], prep.extents[b]);\n                let values = [\n                    resolution[b][0],\n                    resolution[b][1],\n                    eh[0],\n                    eh[1],\n                    phi_512(eh[0]),\n                    phi_512(eh[1]),\n                ];\n                let got: Vec<String> = values\n                    .iter()\n                    .map(|v| format!(\"{:016x}\", v.to_bits()))\n                    .collect();\n                assert_eq!(got, f[4..10].to_vec(), \"{name} {p} body {b}\");\n            }\n            other => panic!(\"{other}\"),\n        }\n    }\n    if !explicit.is_empty() {\n        assert_eq!(explicit, erows, \"{name} {p} explicit E rows\");"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+    "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+    "excerpts": [
+      {
+        "start": 116,
+        "end": 144,
+        "text": "#[test]\nfn the_classifications_boundaries_hold_exactly() {\n    // One ulp either side of t = fl(R\u00b7S*) (\u00a77.3-20), with S* = 1.\n    let t = threshold(1.0);\n    assert_eq!(t, f64::from_bits(FLOOR_RATIO_BITS));\n    let below = f64::from_bits(t.to_bits() - 1);\n    assert_eq!(classify(t, 1.0), RowClass::RelativeVerified);\n    assert!(matches!(\n        classify(below, 1.0),\n        RowClass::AbsoluteVerified { .. }\n    ));\n    assert_eq!(\n        classify(f64::from_bits(t.to_bits() + 1), 1.0),\n        RowClass::RelativeVerified\n    );\n    // S* < 2^-988: every row is absolute, whatever its value.\n    let small = f64::from_bits(0x022F_FFFF_FFFF_FFFF);\n    assert!(matches!(\n        classify(small, small),\n        RowClass::AbsoluteVerified { .. }\n    ));\n    // b = fl\u2191(2^-64\u00b7S*): exact when representable, at least 2^-1074 for any\n    // S* > 0 (including S* < 2^-1011), and 0 only at S* = 0.\n    assert_eq!(absolute_bound(1.0), support::pow2(-64));\n    assert_eq!(absolute_bound(f64::from_bits(1)), f64::from_bits(1));\n    let s = support::pow2(-1015);\n    assert_eq!(absolute_bound(s), f64::from_bits(1));\n    assert!(absolute_bound(3.0 * support::pow2(-1000)) >= 3.0 * support::pow2(-1064));\n    assert_eq!(absolute_bound(0.0), 0.0);"
+      }
+    ]
+  }
+]

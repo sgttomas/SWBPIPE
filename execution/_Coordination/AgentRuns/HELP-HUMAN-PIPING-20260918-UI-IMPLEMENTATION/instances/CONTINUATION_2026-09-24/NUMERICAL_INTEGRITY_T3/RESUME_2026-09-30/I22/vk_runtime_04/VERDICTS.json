@@ -1,0 +1,236 @@
+[
+  {
+    "process_id": "P20",
+    "phase": "RETURNED_NONE_TEST",
+    "fault": "NONE",
+    "verdict": "PASS",
+    "exit": 0,
+    "semantic_review": "P20 actual F04 invariance returned NONE:exactly1PASS,25selected,7056passes40zeros,47/7controls and all original stored records restored. Completes required restoration for independently disposed P19.",
+    "raw_hashes": {
+      "stdout": "886670b576f9d05ed1f17eff53f2b0a6473ae92b5bc49ad924ef08766b71240e",
+      "stderr": "224283d57ced81b5c6103004b65bbcc96d419a94c3eda3656cdb010f3da73a55"
+    },
+    "evidence_sha256": "ef198c3e9646959e71849c728f432ebdbefb6b00b683d74bea21112247678fe2"
+  },
+  {
+    "process_id": "P21",
+    "phase": "FAULT_TEST",
+    "fault": "VK-F08",
+    "verdict": "QUALIFYING_FAILURE_WITH_PASSING_CONTROL",
+    "exit": 101,
+    "semantic_review": "F08 intended exact bitwiseK assertion parity.rs21:RF-LARGE-CHAIN-n00010-AX (0,6) patternSome(0.0) vs dense -3.9793506945470715e8; exactly1test failed, no downstream delta/unwrap credit.",
+    "raw_hashes": {
+      "stdout": "a820a35eb8c0c7f230761fba22af1d884e27faebca6aba2c8714d7c47d2355fd",
+      "stderr": "2c6f0f161a05eadd983c49696d4e4669c43f1e729faff3aeb8304a054c83659c"
+    },
+    "evidence_sha256": "e2a7514dda901bc5a164c5972080126a592e5643f3f6e93d8a09e3199f88e4b8"
+  },
+  {
+    "process_id": "P22",
+    "phase": "RETURNED_NONE_TEST",
+    "fault": "NONE",
+    "verdict": "PASS",
+    "exit": 0,
+    "semantic_review": "F08 returned NONE:exactly1parity PASS across all12 fixed cases,K/class/DEC053 original assertions restored.",
+    "raw_hashes": {
+      "stdout": "6edd551c76f398e3066ea9dc6fc2ba9755ca791e7bf1ace3283322f34f1f1288",
+      "stderr": "0d6ee7056c3d32d65c79f3a8a81bde316accf61b18ed28dbd6c8acf0b1aaa2a9"
+    },
+    "evidence_sha256": "96595a7b31822d0edc9c6f9b046a3593113d943e45384804b5db6b1eb3eb0773"
+  },
+  {
+    "process_id": "P23",
+    "phase": "FAULT_TEST",
+    "fault": "VK-F10",
+    "verdict": "QUALIFYING_FAILURE_WITH_PASSING_CONTROL",
+    "exit": 101,
+    "semantic_review": "F10 exact canonical byte original/reversed comparison failed at adapter.rs73 for RF-CHAIN-T-n03-r1e-04; differing full byte arrays retained,exactly1failed test, no solver premise.",
+    "raw_hashes": {
+      "stdout": "d52685121ddbee4336c9d929f2530dac9f4423c4251e695deb471793f04bd098",
+      "stderr": "43657ce43bcdbf55f3281def8f7ece7019c2e3339124c644efbcd352326ab7ab"
+    },
+    "evidence_sha256": "d68180aeee60376f62e1ddee013e9757dbe2e233ea153ffe89b6062f01b7f4e6"
+  },
+  {
+    "process_id": "P24",
+    "phase": "RETURNED_NONE_TEST",
+    "fault": "NONE",
+    "verdict": "PASS",
+    "exit": 0,
+    "semantic_review": "F10 returned NONE exactly1canonical permutation PASS.",
+    "raw_hashes": {
+      "stdout": "117c3a7db58fa7773f4e458aea6a89f8259e13ac275d596b325fe7333fe06dfa",
+      "stderr": "27c2a199f473fe62a56d90527650417df088b9ec67812c87cd9292d192192a7f"
+    },
+    "evidence_sha256": "3d0469613a7b5ed16a060bca61f92b8c70395adcf228b050904fb32dfe90c800"
+  },
+  {
+    "process_id": "P25",
+    "phase": "FAULT_TEST",
+    "fault": "VK-F13",
+    "verdict": "QUALIFYING_FAILURE_WITH_PASSING_CONTROL",
+    "exit": 101,
+    "semantic_review": "F13 exactly1rf_cancel failed at lane.rs75;58 named G1e80 net-governed predicate failures across8F/M GnG/nGG/ORTHO/INPLANE cases,38selected;no genericwork/unavailability.",
+    "raw_hashes": {
+      "stdout": "0e89acd50eae11f8136ce3598df539b3b4406babbd9aaaf17f94da035f3d6ed5",
+      "stderr": "79b4939339cd21758bc0afdfc3b5084f1c9de1606aac54e16302d782c4ef34bd"
+    },
+    "evidence_sha256": "a2f0d5f379fc9083d12a1ee46ab7dc5c28927fe3e303620e59ae57891384920d"
+  },
+  {
+    "process_id": "P26",
+    "phase": "RETURNED_NONE_TEST",
+    "fault": "NONE",
+    "verdict": "PASS",
+    "exit": 0,
+    "semantic_review": "F13 returned NONE exactly1rf_cancel PASS,38selected,1441pass/3notcovered,90/62controls and records restored.",
+    "raw_hashes": {
+      "stdout": "73082815e445d120840d60fd935d13b777b8ae79d8ecd8d29b74eda52d8f79ba",
+      "stderr": "3a0808e7afe037f078bca9a1478d5c89415fc44b91260f2e700b9140c7187b67"
+    },
+    "evidence_sha256": "3efb556c06847d9f95f2a57dc61a3122b229a2841f38de2f66636fbf36b4a1e2"
+  },
+  {
+    "process_id": "P27",
+    "phase": "FAULT_TEST",
+    "fault": "VK-F17",
+    "verdict": "STOP_PARTIAL_CLASS_UNSUPPORTED_ATTRIBUTION",
+    "exit": 101,
+    "semantic_review": "Exactly1rf_weak failure at lane.rs75.13 explicit CLASS comparisons on W-3D rows visible,6W-AX/W-L top-levelCeilings,not-covered46\u219210,oneFLOORlist. Prescribed W-AX-rho1e-12 u.N5.UX/UY/UZ exception case unselected; aggregate stops before exception-list assertion. No genericavailability or withheld-row CLASS credit. Disposition of visible witnesses/other outcomes remains ROOT review; no universal same-mode/all-rows-fail criterion added. P28 onward held.",
+    "raw_hashes": {
+      "stdout": "d03de9afadbcb9cc591f201f9965f4551c2f0d7d735720cb02a91c3c91670db4",
+      "stderr": "33f95ee61bc18488c3431159da8e8e14b37c09b37774c2dad8f17215ec1f2f14"
+    },
+    "evidence_sha256": "983c74411e7bc34c1361fc9c9073d125982308a1f95f993ccf8d90316b402ca1"
+  },
+  {
+    "process_id": "P28",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P29",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P30",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P31",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P32",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P33",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P34",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P35",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P36",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P37",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P38",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P39",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P40",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P41",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P42",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P43",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P44",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P45",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P46",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P47",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P48",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P49",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P50",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P51",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P52",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  },
+  {
+    "process_id": "P53",
+    "verdict": "UNRUN",
+    "reason": "P27 unsupported-attribution stop; advance condition held"
+  }
+]

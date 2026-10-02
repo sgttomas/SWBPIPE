@@ -1,0 +1,103 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "copies": [
+    {
+      "id": "BASELINE_SCALARS",
+      "source_root": "<wt>/scratch/i23/scalars_g4/BASELINE_SCALARS",
+      "target_root": "<wt>/a1-diagnostic-target/g4/BASELINE_SCALARS",
+      "logs_root": "<wt>/scratch/i23/scalars_g4/logs/BASELINE_SCALARS",
+      "manifest_path": "<wt>/scratch/i23/scalars_g4/BASELINE_SCALARS/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "source_revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "original_files": 116,
+      "overlay_applied": true,
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "changed_paths": [
+        "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs"
+      ],
+      "production_fault_applied": false,
+      "filters": [
+        "structural::retained::factor::tests::i23_k4_m9_pivot_inequality_uses_requested_precision",
+        "structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm"
+      ],
+      "full_file_hashes_verified": true,
+      "inode_separation": true,
+      "target_empty": true,
+      "logs_empty": true,
+      "runtime_owner": "ROOT_PENDING_TRANSFER"
+    },
+    {
+      "id": "K4-M9",
+      "source_root": "<wt>/scratch/i23/scalars_g4/K4-M9",
+      "target_root": "<wt>/a1-diagnostic-target/g4/K4-M9",
+      "logs_root": "<wt>/scratch/i23/scalars_g4/logs/K4-M9",
+      "manifest_path": "<wt>/scratch/i23/scalars_g4/K4-M9/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "source_revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "original_files": 116,
+      "overlay_applied": true,
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "changed_paths": [
+        "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs"
+      ],
+      "production_fault_applied": false,
+      "filters": [
+        "structural::retained::factor::tests::i23_k4_m9_pivot_inequality_uses_requested_precision"
+      ],
+      "full_file_hashes_verified": true,
+      "inode_separation": true,
+      "target_empty": true,
+      "logs_empty": true,
+      "runtime_owner": "ROOT_PENDING_TRANSFER"
+    },
+    {
+      "id": "K4-M32",
+      "source_root": "<wt>/scratch/i23/scalars_g4/K4-M32",
+      "target_root": "<wt>/a1-diagnostic-target/g4/K4-M32",
+      "logs_root": "<wt>/scratch/i23/scalars_g4/logs/K4-M32",
+      "manifest_path": "<wt>/scratch/i23/scalars_g4/K4-M32/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "source_revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "original_files": 116,
+      "overlay_applied": true,
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "changed_paths": [
+        "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs"
+      ],
+      "production_fault_applied": false,
+      "filters": [
+        "structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm"
+      ],
+      "full_file_hashes_verified": true,
+      "inode_separation": true,
+      "target_empty": true,
+      "logs_empty": true,
+      "runtime_owner": "ROOT_PENDING_TRANSFER"
+    },
+    {
+      "id": "K4-M11",
+      "source_root": "<wt>/scratch/i23/scalars_g4/K4-M11",
+      "target_root": "<wt>/a1-diagnostic-target/g4/K4-M11",
+      "logs_root": "<wt>/scratch/i23/scalars_g4/logs/K4-M11",
+      "manifest_path": "<wt>/scratch/i23/scalars_g4/K4-M11/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "source_revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "original_files": 116,
+      "overlay_applied": false,
+      "test_sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "changed_paths": [],
+      "production_fault_applied": false,
+      "filters": [
+        "structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis"
+      ],
+      "full_file_hashes_verified": true,
+      "inode_separation": true,
+      "target_empty": true,
+      "logs_empty": true,
+      "runtime_owner": "ROOT_PENDING_TRANSFER"
+    }
+  ],
+  "no_faults_applied": true,
+  "states": {
+    "BASELINE_SCALARS": "original production with reviewed scalar overlay",
+    "K4-M9": "original production with reviewed scalar overlay, fault UNAPPLIED",
+    "K4-M32": "original production with reviewed scalar overlay, fault UNAPPLIED",
+    "K4-M11": "entirely original production and tests, no overlay/fault"
+  }
+}

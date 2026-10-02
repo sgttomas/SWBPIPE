@@ -1,0 +1,545 @@
+projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_records.rs SHA256 a7117146b03200b17fef7a614b5a617dc24801c89fe8ccce82a6694c4ffc5cc3
+
+
+19: fn main() {
+20:     let args: Vec<String> = std::env::args().skip(1).collect();
+21:     let write = args.iter().any(|a| a == "--write");
+22:     // `--show=<case id>` prints that case's record.
+23:     let show: Vec<&str> = args
+24:         .iter()
+25:         .filter_map(|a| a.strip_prefix("--show="))
+26:         .collect();
+27:     let only: Vec<&String> = args.iter().filter(|a| !a.starts_with("--")).collect();
+
+41:         let cases: Vec<_> = load_family(family)
+42:             .into_iter()
+43:             .filter(|c| !c.is_large())
+44:             .collect();
+45:         let mut runs = Vec::new();
+46:         for case in &cases {
+47:             let t = Instant::now();
+48:             let run = run_case(case);
+49:             eprintln!(
+50:                 "{} {} {:?} {:.2}s",
+51:                 run.id,
+52:                 run.outcome,
+53:                 run.selected_precision,
+54:                 t.elapsed().as_secs_f64()
+55:             );
+56:             tally.merge(&run.tally);
+57:             controls.merge(&run.controls);
+58:             failures.extend(run.failures.iter().cloned());
+59:             failures.extend(run.class_mismatches.iter().map(|m| format!("CLASS {m}")));
+60:             if run.not_covered != case.not_covered {
+61:                 failures.push(format!(
+62:                     "FLOOR {}: {:?} committed {:?}",
+63:                     run.id, run.not_covered, case.not_covered
+64:                 ));
+65:             }
+66:             *outcomes
+67:                 .entry(format!("{} {:?}", run.outcome, run.selected_precision))
+68:                 .or_insert(0usize) += 1;
+69:             if show.iter().any(|s| *s == &run.id) {
+70:                 println!("{}", serde_json::to_string_pretty(&run.record).unwrap());
+71:             }
+72:             records.push(run.record.clone());
+73:             runs.push(run);
+74:         }
+
+81:         if family == "RF-LARGE" || family == "RF-MECH" {
+82:             for c in &cases {
+83:                 let model = c.model.as_ref().unwrap();
+84:                 // Dense to 105 members (RF-MECH-DISC's 103 included); the
+85:                 // time is printed, never recorded.
+86:                 let t = Instant::now();
+87:                 let p = parity(model, model.members.len() <= 105).unwrap();
+88:                 eprintln!("{} parity {:.1}s", c.id, t.elapsed().as_secs_f64());
+89:                 let row = json!({
+90:                     "case": c.id, "sparse": p.sparse, "dense": p.dense,
+91:                     "bitwise_k_equal": p.bitwise_k.as_ref().map(|m| m.is_none()),
+92:                     "dec053_within": p.delta.map(|d| d.0),
+93:                     "dec053_ratio_in_allowances": p.delta.map(|d| d.1),
+94:                     "both_passed": p.both_passed,
+95:                 });
+96:                 println!("{family}: parity {row}");
+97:                 parity_rows.push(row);
+98:             }
+99:         }
+100:         println!("{family}: {tally}");
+101:         println!("{family}: outcomes {outcomes:?}");
+102:         println!(
+103:             "{family}: controls discriminated {}, non-discriminating {}, undiscriminated {:?}, unexpectedly failing {:?}",
+104:             controls.discriminated, controls.non_discriminating, controls.undiscriminated, controls.unexpectedly_failing
+105:         );
+106:         for f in &failures {
+107:             println!("{family}: FAILURE {f}");
+108:         }
+109:         println!("{family}: {:.1}s", t0.elapsed().as_secs_f64());
+110:         if write {
+111:             std::fs::create_dir_all(&dir).unwrap();
+112:             let name = file.replace(".jsonl", ".json");
+113:             std::fs::write(dir.join(name), family_file(&records)).unwrap();
+114:         }
+
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs SHA256 6f52fcb93d7d0c355139ca584a9abd0b3c1c59dd5a6f140340a0ec0282b5841c
+
+
+34: fn attempt(a: &AttemptRecord) -> Value {
+35:     json!({
+36:         "precision": a.precision,
+37:         "role": format!("{:?}", a.role),
+38:         "outcome": format!("{:?}", a.outcome),
+39:         "residual_basis": a.residual_basis,
+40:         "corrections": a.corrections,
+41:         "gate": a.gate.as_ref().map(|g| format!("{g:?}")),
+42:         "own_work": a.work.limb_multiply_equivalents(),
+43:         "exact_sum_work": a.k4_work.limb_multiply_equivalents(),
+44:         "stages": stages(&a.stages),
+45:         "shared_work": a.shared_work,
+46:         "shared_stages": stages(&a.shared_stages),
+47:         "shared_built_here": a.shared_built_here,
+48:         "stop_rule_work": a.stop_rule_work,
+49:         "verification_work": a.verification_work,
+50:         "verification_shared_work": a.verification_shared_work,
+51:         "verification_shared_built_here": a.verification_shared_built_here,
+52:         "storage": {
+53:             "pattern_entries": a.storage.pattern_entries,
+54:             "profile_entries": a.storage.profile_entries,
+55:             "limbs_per_entry": a.storage.limbs_per_entry,
+56:         },
+57:         "verification": a.verification.as_ref().map(|v| json!({
+58:             "data_blocks": v.data_blocks,
+59:             "shift_factorizations": v.shift_factorizations,
+60:             "uc_missing": v.uc_missing,
+61:             "g_max": v.g_max,
+62:             "g_violation": v.g_violation,
+63:         })),
+64:     })
+
+88: pub fn case_record(case: &Case, o: &CaseOutcome, t: &Tally, meter: &InvocationMeter) -> Value {
+89:     let mut r = Map::new();
+90:     r.insert("schema".into(), json!(SCHEMA));
+91:     r.insert("id".into(), json!(case.id));
+92:     r.insert("family".into(), json!(case.family));
+93:     r.insert("k4src_sha256".into(), json!(case.k4src_sha256));
+94:     r.insert("outcome".into(), json!(outcome_text(o)));
+95:     r.insert("case_limit".into(), json!(u64::MAX));
+96:     r.insert("invocation_charged".into(), json!(meter.charged()));
+97:     let attempts: Vec<Value> = match o {
+98:         CaseOutcome::Selected(s) => {
+99:             let e = s.evidence();
+100:             r.insert("selected_precision".into(), json!(e.selected_precision));
+101:             r.insert(
+102:                 "verification_precision".into(),
+103:                 json!(e.verification_precision),
+104:             );
+105:             r.insert("corrections".into(), json!(e.corrections));
+106:             r.insert("geometry".into(), json!(format!("{:?}", e.geometry)));
+107:             r.insert(
+108:                 "absolute_verified_rows".into(),
+109:                 json!(e.absolute_verified.len()),
+110:             );
+111:             r.insert("unpublishable_rows".into(), json!(e.unpublishable.len()));
+112:             r.insert("published_rows".into(), json!(s.publish().rows.len()));
+113:             e.attempts.iter().map(attempt).collect()
+114:         }
+115:         CaseOutcome::Unresolved { attempts, .. } => attempts.iter().map(attempt).collect(),
+116:         CaseOutcome::Refused { .. } => Vec::new(),
+117:     };
+118:     r.insert("attempts".into(), Value::Array(attempts));
+119:     r.insert("report".into(), report(t));
+120:     Value::Object(r)
+
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs SHA256 5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794
+
+
+49:     for case in &cases {
+50:         let run = run_case(case);
+51:         assert!(run.tally.accounted(), "{}: row accounting", case.id);
+52:         total.merge(&run.tally);
+53:         controls.merge(&run.controls);
+54:         failures.extend(run.failures.iter().cloned());
+55:         failures.extend(run.class_mismatches.iter().map(|m| format!("CLASS {m}")));
+56:         if run.not_covered != case.not_covered {
+57:             failures.push(format!(
+58:                 "FLOOR {}: not covered {:?}, committed {:?}",
+59:                 case.id, run.not_covered, case.not_covered
+60:             ));
+61:         }
+62:         input_derived.extend(run.input_derived_not_covered.iter().cloned());
+63:         *outcomes.entry(run.outcome.clone()).or_default() += 1;
+64:         records.push(run.record);
+65:     }
+66:     println!("{family}: {total}");
+67:     println!("{family}: outcomes {outcomes:?}");
+68:     println!(
+69:         "{family}: controls discriminated {}, non-discriminating {}",
+70:         controls.discriminated, controls.non_discriminating
+71:     );
+72:     for f in &failures {
+73:         println!("{family}: FAILURE {f}");
+74:     }
+75:     assert!(failures.is_empty(), "{family}: {} failures", failures.len());
+
+102:     let (_, file) = FAMILY_FILES.iter().find(|(f, _)| *f == family).unwrap();
+103:     let path = crate_dir()
+104:         .join("observations/kernel_lane")
+105:         .join(file.replace(".jsonl", ".json"));
+106:     let committed =
+107:         std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+108:     assert!(
+109:         committed == family_file(&records),
+110:         "{family}: the per-case records differ from {} (regenerate only by decision: \
+111:          cargo run --release --example vk_records -- --write {family})",
+112:         path.display()
+113:     );
+114: }
+115: 
+116: #[test]
+117: fn rf_chain() {
+118:     lane(
+119:         "RF-CHAIN",
+120:         Pin {
+121:             cases: 30,
+122:             tally: tally(2760, 2700, 0, 60),
+123:             outcomes: (30, 0, 0),
+124:             discriminated: 82,
+125:             non_discriminating: 38,
+126:             input_derived_not_covered: &[],
+127:         },
+128:     );
+
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs SHA256 057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2
+
+
+738:         // V-K seeded fault VK-F01 (§7.3-1): the entry promoted from its
+739:         // binary64 rounding.
+740:         #[cfg(any(test, feature = "mutation-controls"))]
+741:         if super::seeded::active(super::seeded::Fault::F01) {
+742:             let rounded = values[index].to_binary64().value().unwrap_or(0.0);
+743:             values[index] = lift::<L>(rounded)?;
+744:         }
+
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs SHA256 ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8
+
+
+75: fn parse(id: &str) -> Option<Fault> {
+76:     if id.is_empty() || id == "NONE" {
+77:         return None;
+78:     }
+79:     match IDS.iter().find(|(name, _)| *name == id) {
+80:         Some((_, fault)) => Some(*fault),
+81:         None => panic!("FK_SEEDED_FAULT: unknown fault id {id:?}"),
+82:     }
+83: }
+84: 
+85: /// Whether `fault` is the process's seeded fault.
+86: pub(crate) fn active(fault: Fault) -> bool {
+87:     static SELECTED: OnceLock<Option<Fault>> = OnceLock::new();
+88:     *SELECTED.get_or_init(|| match std::env::var("FK_SEEDED_FAULT") {
+89:         Ok(id) => parse(&id),
+90:         Err(_) => None,
+91:     }) == Some(fault)
+92: }
+
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs SHA256 4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9
+
+
+143: /// Why an attempt stopped.
+144: #[derive(Debug, Clone, PartialEq)]
+145: pub enum AttemptStop {
+146:     Budget(BudgetScope),
+147:     /// An exact sum exceeded the span limit (terminal: ROOT's ruling O4).
+148:     Span,
+149:     /// An exponent outside the `Wide` range (terminal).
+150:     Exponent,
+151:     /// Another `Wide` refusal (terminal; not expected for a valid source).
+152:     Arithmetic(WideError),
+153:     /// The sparse structure could not be built (terminal; internal).
+154:     Structure,
+155:     /// The pivot screen failed (escalates).
+156:     Pivot {
+157:         global_dof: usize,
+158:     },
+159:     /// A free DOF with an exactly zero diagonal (terminal).
+160:     ZeroDiagonal {
+161:         global_dof: usize,
+162:     },
+163:     /// A negative-energy pattern pair witnessed at p (terminal; a refusal).
+164:     NegativeEnergy {
+165:         i: usize,
+166:         j: usize,
+167:     },
+168:     /// rcond ≤ 2^-(p−1) (escalates).
+169:     Condition,
+170:     /// The residual gate failed after bounded refinement (escalates).
+171:     ResidualGate {
+172:         global_dof: usize,
+173:     },
+174:     /// A body's formation scale E rounds to +∞ in binary64 (D1 revision
+175:     /// 5a.3, R7 §4.1.6.2 item 4; ROOT's A3-0 ruling Q8): terminal.
+176:     ResolutionScale {
+177:         body: u32,
+178:         kind: Kind,
+179:     },
+180:     /// The new publication certificate cannot be interpreted (terminal).
+181:     PublicationCertificate {
+182:         index: Option<usize>,
+183:         issue: CertificateIssue,
+184:     },
+185: }
+
+2477: pub enum AttemptReason {
+2478:     Stop(AttemptStop),
+2479:     StopRule {
+2480:         quantity: QuantityId,
+2481:         body: u32,
+2482:         kind: Kind,
+2483:     },
+2484:     VerificationFailed,
+2485:     /// Exact H did not fit this row's published promise (escalates).
+2486:     PublicationEnclosure {
+2487:         quantity: QuantityId,
+2488:         body: u32,
+2489:         kind: Kind,
+2490:         predicate: PublicationPredicate,
+2491:     },
+2492:     /// D1 revision 5a.3 (R7 §4.1.6.3 item 13): `verification_estimate`.
+2493:     VerificationEstimate {
+2494:         quantity: QuantityId,
+2495:         body: u32,
+2496:         kind: Kind,
+2497:     },
+2498:     /// `uc`: a block with data of this body has neither Uc_c nor S_c.
+2499:     Uc {
+2500:         body: u32,
+2501:     },
+2502:     /// `theta`: θ_c > 1/2 on a block with data of this body.
+2503:     Theta {
+2504:         body: u32,
+2505:     },
+2506:     /// `g_validity`: a member in scope with g > 2^(P−16).
+2507:     GValidity {
+2508:         member: u32,
+2509:     },
+2510:     /// `charge`: C_q above its allowance.
+2511:     Charge {
+2512:         quantity: QuantityId,
+2513:         body: u32,
+2514:         kind: Kind,
+2515:     },
+2516: }
+2517: 
+2518: #[derive(Debug, Clone, PartialEq)]
+2519: pub enum AttemptOutcome {
+2520:     Accepted,
+2521:     Verified,
+2522:     Rejected(AttemptReason),
+2523:     Failed(AttemptReason),
+2524:     /// Solved as a verification that was not needed as a candidate.
+2525:     Solved,
+2526: }
+
+3746: fn rejection_reason(
+3747:     rejection: Option<Rejection>,
+3748:     layout: &[QuantityMeta],
+3749:     group: &GroupPrep,
+3750: ) -> AttemptReason {
+3751:     let row = |index: usize| layout[index];
+3752:     match rejection {
+3753:         Some(Rejection::StopRule { index }) => AttemptReason::StopRule {
+3754:             quantity: row(index).id,
+3755:             body: row(index).body,
+3756:             kind: row(index).kind,
+3757:         },
+3758:         Some(Rejection::VerificationEstimate { index }) => AttemptReason::VerificationEstimate {
+3759:             quantity: row(index).id,
+3760:             body: row(index).body,
+3761:             kind: row(index).kind,
+3762:         },
+3763:         Some(Rejection::Uc { block }) => AttemptReason::Uc {
+3764:             body: group.blocks.body[block],
+3765:         },
+3766:         Some(Rejection::Theta { block }) => AttemptReason::Theta {
+3767:             body: group.blocks.body[block],
+3768:         },
+3769:         Some(Rejection::GValidity { member }) => AttemptReason::GValidity { member },
+3770:         Some(Rejection::Charge { index }) => AttemptReason::Charge {
+3771:             quantity: row(index).id,
+3772:             body: row(index).body,
+3773:             kind: row(index).kind,
+3774:         },
+3775:         None => AttemptReason::VerificationFailed,
+3776:     }
+
+4062:         match decision.result {
+4063:             Err(stop) => {
+4064:                 attempts[candidate_index].outcome =
+4065:                     AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));
+4066:                 return finish_terminal(&stop, attempts, geometry);
+4067:             }
+4068:             Ok(true) => {
+4069:                 let publication_guard = StageGuard {
+4070:                     base: 0,
+4071:                     case_room: budget.limit.saturating_sub(budget.used),
+4072:                     invocation_room: meter.room(),
+4073:                 };
+4074:                 let certificate = certify_publication(
+4075:                     &prep,
+4076:                     &candidate,
+4077:                     &verification,
+4078:                     &report,
+4079:                     decision.floor.as_deref(),
+4080:                     publication_guard,
+4081:                 );
+4082:                 let record = &mut attempts[candidate_index];
+4083:                 record.stop_rule_work = record.stop_rule_work.saturating_add(certificate.total);
+4084:                 record.stages.stop_rule = record.stages.stop_rule.saturating_add(certificate.total);
+4085:                 record.work.merge(&certificate.work);
+4086:                 record.k4_work.merge(&certificate.sums);
+4087:                 budget.used = budget.used.saturating_add(certificate.total);
+4088:                 meter.charge(certificate.total);
+4089:                 match certificate.result {
+4090:                     Err(stop) => {
+4091:                         attempts[candidate_index].outcome =
+4092:                             AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));
+4093:                         return finish_terminal(&stop, attempts, geometry);
+4094:                     }
+4095:                     Ok(PublicationDecision::Accepted(publication)) => {
+4096:                         attempts[candidate_index].outcome = AttemptOutcome::Accepted;
+4097:                         attempts[v_index].outcome = AttemptOutcome::Verified;
+4098:                         return finish_selected(
+4099:                             prep,
+4100:                             group,
+4101:                             cache.clone(),
+4102:                             states,
+4103:                             &candidate,
+4104:                             verification_p,
+4105:                             attempts,
+4106:                             &decision,
+4107:                             &report.report,
+4108:                             publication,
+4109:                             geometry,
+4110:                         );
+4111:                     }
+4112:                     Ok(PublicationDecision::Rejected { index, predicate }) => {
+4113:                         let row = prep.layout[index];
+4114:                         attempts[candidate_index].outcome =
+4115:                             AttemptOutcome::Rejected(AttemptReason::PublicationEnclosure {
+4116:                                 quantity: row.id,
+4117:                                 body: row.body,
+4118:                                 kind: row.kind,
+4119:                                 predicate,
+4120:                             });
+4121:                         #[cfg(any(test, feature = "mutation-controls"))]
+4122:                         if super::seeded::active(super::seeded::Fault::F05) {
+4123:                             return CaseOutcome::Unresolved {
+4124:                                 reason: UnresolvedReason::Ceiling,
+4125:                                 attempts,
+4126:                                 geometry,
+4127:                             };
+4128:                         }
+4129:                         if c + 1 < 3 {
+4130:                             attempts[v_index].role = AttemptRole::VerificationThenCandidate;
+4131:                             pending = Some((verification, v_index));
+4132:                         }
+4133:                         c += 1;
+4134:                     }
+4135:                 }
+4136:             }
+4137:             Ok(false) => {
+4138:                 attempts[candidate_index].outcome = AttemptOutcome::Rejected(rejection_reason(
+4139:                     decision.rejection,
+4140:                     &prep.layout,
+4141:                     &group,
+4142:                 ));
+4143:                 // V-K seeded fault VK-F05 (§7.3-5): no escalation after a
+4144:                 // rejected candidate.
+4145:                 #[cfg(any(test, feature = "mutation-controls"))]
+4146:                 if super::seeded::active(super::seeded::Fault::F05) {
+4147:                     return CaseOutcome::Unresolved {
+4148:                         reason: UnresolvedReason::Ceiling,
+4149:                         attempts,
+4150:                         geometry,
+4151:                     };
+4152:                 }
+4153:                 if c + 1 < 3 {
+4154:                     attempts[v_index].role = AttemptRole::VerificationThenCandidate;
+4155:                     pending = Some((verification, v_index));
+4156:                 }
+4157:                 c += 1;
+4158:             }
+4159:         }
+4160:     }
+4161:     CaseOutcome::Unresolved {
+4162:         reason: UnresolvedReason::Ceiling,
+4163:         attempts,
+4164:         geometry,
+
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs SHA256 3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990
+
+
+229:     let encoding = source.encoding();
+230:     if sha256_hex(&encoding) != case.k4src_sha256 {
+231:         failures.push(format!(
+232:             "{}: K4SRC sha256 differs from the generator's --model path",
+233:             case.id
+234:         ));
+235:     }
+236:     let mut meter = InvocationMeter::new(u64::MAX);
+237:     let outcome = solve_case(source, CaseLimit::new(u64::MAX), &mut meter);
+238:     let (label, selected_precision) = match &outcome {
+239:         CaseOutcome::Selected(s) => ("selected", Some(s.selected_precision())),
+240:         CaseOutcome::Refused { .. } => ("refused", None),
+241:         CaseOutcome::Unresolved { .. } => ("unresolved", None),
+242:     };
+243:     if meter.exhausted() {
+244:         failures.push(format!("{}: the invocation meter was exhausted", case.id));
+
+274:         let scales = floor::scales(case, model);
+275:         for row in &case.rows {
+276:             let exp = Exact::parse_decimal(&row.expected).unwrap();
+277:             let scale = Exact::parse_decimal(case.scale_of(row)).unwrap();
+278:             let covered = exact::covered(&exp, &scale, floor::row_scale(row, &scales));
+279:             let verdict = match model.resolve(&row.key) {
+280:                 Ok(target) => {
+281:                     let v = judge(&observe(target, &published, model), &exp, &scale, covered);
+282:                     if !covered {
+283:                         not_covered.push(row.key.clone());
+284:                         for id in sources(target) {
+285:                             let restrained = matches!(id, QuantityId::Displacement(d)
+286:                                 if model.constraints.contains(&(d.node, d.component.index())));
+287:                             match published.get(&id).map(|r| &r.class) {
+288:                                 Some(RowClass::AbsoluteVerified { .. })
+289:                                 | Some(RowClass::Unpublishable) => {}
+290:                                 Some(RowClass::InputDerived) if restrained => {
+291:                                     input_derived_not_covered
+292:                                         .push(format!("{}:{}", case.id, row.key))
+293:                                 }
+294:                                 other => class_mismatches.push(format!(
+295:                                     "{}: {} ({id:?} is {other:?})",
+296:                                     case.id, row.key
+297:                                 )),
+298:                             }
+299:                         }
+300:                     }
+301:                     v
+302:                 }
+303:                 Err(e) => Verdict::Fail(e),
+304:             };
+305:             if let Verdict::Fail(why) = &verdict {
+306:                 failures.push(format!("{}: {} ({}) {why}", case.id, row.key, row.expected));
+307:             }
+308:             tally.add(&verdict);
+
+314:     } else {
+315:         for _row in &case.rows {
+316:             tally.add(&Verdict::Fail(format!("case {label}")));
+317:         }
+318:         failures.push(format!(
+319:             "{}: not selected: {}",
+320:             case.id,
+321:             records::outcome_text(&outcome)
+322:         ));
+323:     }
+324:     let record = records::case_record(case, &outcome, &tally, &meter);

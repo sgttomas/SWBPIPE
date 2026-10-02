@@ -1,0 +1,3 @@
+structural::retained::adaptive::method_tests::the_sas_norm_is_the_larger_of_the_one_and_infinity_norms: test
+
+1 test, 0 benchmarks

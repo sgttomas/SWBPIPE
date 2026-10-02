@@ -1,0 +1,10 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs
+@@ -99,7 +99,6 @@
+             o.prep.source.stiffness_encoding() != identity
+                 || o.prep.layout != first.prep.layout
+                 || o.prep.source.stations() != stations
+-                || o.prep.source.supports() != supports
+         }) {
+             return withheld(CombinationReason::OperandsDiffer);
+         }

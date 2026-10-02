@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends stdout ----
+
+thread 'structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends' (25425019) panicked at src/structural/retained/../../../tests/retained_k4/adaptive_tests.rs:347:9:
+assertion `left == right` failed: N05: a lone case charges the invocation its full work
+  left: 1736672
+ right: 1768542
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.04s
+

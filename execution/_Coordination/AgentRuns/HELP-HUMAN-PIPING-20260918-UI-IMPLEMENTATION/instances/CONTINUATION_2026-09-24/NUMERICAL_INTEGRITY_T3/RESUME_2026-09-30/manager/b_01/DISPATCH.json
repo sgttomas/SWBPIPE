@@ -1,0 +1,35 @@
+{
+  "record": "Additive recovery follow-up",
+  "observed_at_utc": "2026-10-01 05:04:11 UTC",
+  "mechanism": "collaboration.followup_task",
+  "manager": "/root/t3_recovery_manager",
+  "manager_parent": "/root",
+  "child": "/root/t3_recovery_manager/i22_a1",
+  "new_child": false,
+  "role": "TASK",
+  "grant_commit": "d2c73c3217dd3c483a22e4e26e5e07a9f6ffb47d",
+  "grant_path": "<COORD>/<R>/BRIEFS/I22_G1_B.md",
+  "grant_sha256": "1363b0bab8c64d0b3a84576aadb19f5dfaa637509715287964426989236acd26",
+  "full_normalized_prompt": "FOLLOWUP.txt",
+  "raw_transport_prompt_sha256": "4394d93e0b579ffd85cc3b7f1d8bd557a6c6a3efd66e687c23958aa08c70ea90",
+  "scope": [
+    "<A1_WT>/<R>/I22/b_01/**",
+    "<wt>/scratch/i22/**"
+  ],
+  "start_evidence": [
+    "followup_task returned",
+    "child explicitly acknowledged role and grant"
+  ],
+  "status": "completed; all B01-B16 ran once and passed strict comparison",
+  "return": {
+    "path": "<A1_WT>/<R>/I22/b_01/RETURN.md",
+    "sha256": "843dd6bd5ad70cc54b3db15cf3dff6f129807b479b40702a97a93b1eb355f859",
+    "manifest_sha256": "477cc8f4f1a0cdf3bda442fd2721b91290042ffb832d8a36ef5cd1cd2ce1d1d2",
+    "manager_verified_entries": 101,
+    "source_cases": 16,
+    "rows": 592,
+    "no_running_job": true,
+    "C": "C17-C24 unrun; separate grant required"
+  },
+  "interpreter_binding": "ROOT supplied existing <VENV> after dispatch; manager relayed actual host path before case launch. Native transcript retains binding; no new environment or grant."
+}

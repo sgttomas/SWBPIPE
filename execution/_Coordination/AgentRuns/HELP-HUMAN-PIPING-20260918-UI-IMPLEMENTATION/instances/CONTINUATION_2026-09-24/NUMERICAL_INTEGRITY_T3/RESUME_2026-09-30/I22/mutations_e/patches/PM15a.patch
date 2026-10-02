@@ -1,0 +1,17 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -4204,11 +4204,13 @@
+         }
+         return finish_terminal(&stop, attempts, geometry);
+     }
+     // The certified bytes are moved, never re-rounded/reclassified here.
+     let publication = certified.publication;
+-    let publication_radius_bits = certified.radii;
++    let mut publication_radius_bits = certified.radii;
++    if let Some(radius) = publication_radius_bits.iter_mut()
++        .find(|bits| **bits > 0 && **bits < ABSENT_RADIUS_BITS) { *radius = 0; }
+     let verification = match report.summary() {
+         Ok(v) => v,
+         Err(stop) => return finish_terminal(&stop, attempts, geometry),
+     };
+     for (body, bound) in verification.bound.iter().enumerate() {

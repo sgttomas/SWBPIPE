@@ -1,0 +1,12 @@
+# G4 manager completion return
+
+COMPLETE15:19:44.276 before15:27:06. Managerverified75childpayloads,17actualcommand/rawrecords,4independentbuildreleases,5exactlists,8tests/5binaries/rawfingerprints,464finalcopy+116E1controlsourcefiles andsequentialdeadline/guard/environmentbindings.2baselinePASS+3namedsemanticfaultfailures+3samefiltercontrolPASS. IndependentpsfoundnoownedCargo/rustc/test;slotreleased.
+
+Childsealce4b1d880c88c9c8a05719e083e14e7f7433a5435f669770e65a51920ce1190c; RETURN9df05dd5fd66f0774fcb4424b7d0f0d11076e08a7c32310fc742af97faaadcc8; VERDICTSb803a87f1b8c8bad1274daa8eeaada4e45cd2f4bca6dc72cf10901d14e32ba03.
+
+M9directrequestedp128Okfalsevstrue;M32exact1/16vs1aftersetuppassed;M11 reachedfactor_tests404tuple[(128,192,0),(256,320,0)]vsrequiredcorrections1, afterSelected/attemptcount2passed. ManagerreadrawM11stderr/control andmatchedallnamedmarkers. Noearlyfailure/compiler/setup/arbitrarycredit. M11basislabels192/320unchanged; actualcorrectioncounts discriminate.
+
+M9/M32scalaroverlay55lines68e27233... fixed;M11originalunoverlaidtest01e88088... unchanged. ROOTadditivecwd49874f6... usespreservedE1immutableFKcwd witholdreviewedbinarycd5967f3...; noinitialM11baseline/buildrepeat. Originalomission/unusedA1cwdproposalpreserved. ExactNONE/emptyfeaturesflags/offlinelocked4/2/guard/PTytime-l maintained, no5mincheckpointreached.
+
+No remainingG4unrun/uncreditedresult orunexpectedstop. ConditionalG3 noweligible underitsseparateROOTgrant; V-KstillwaitsG3completion. Priorseals/invalidattempts/copiespreserved,noGitindex/maintained/criterion/toolchanges. EvidenceisnotA1/K6c/Emax/W1/F2a acceptance.
+

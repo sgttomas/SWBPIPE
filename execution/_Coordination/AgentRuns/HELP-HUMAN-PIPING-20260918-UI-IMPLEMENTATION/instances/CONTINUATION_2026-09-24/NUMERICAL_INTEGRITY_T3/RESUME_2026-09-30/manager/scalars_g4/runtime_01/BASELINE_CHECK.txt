@@ -1,0 +1,2 @@
+PASS:all4preparedcopies/464files exactimmutable40129+55lineoverlay onlyon3scalarcopies,M11unoverlaid; uniquenlink1/no symlink/maintainedaliases;4emptytargets,writablesiblinglogs,guard5387.
+PASS:all3prep/proposal/reviewseals andM11reviewedbinaryhash verified. BaselineSCALARSonlyreleasepending; M11controlcwdseparatelybeingbound, noM11run.

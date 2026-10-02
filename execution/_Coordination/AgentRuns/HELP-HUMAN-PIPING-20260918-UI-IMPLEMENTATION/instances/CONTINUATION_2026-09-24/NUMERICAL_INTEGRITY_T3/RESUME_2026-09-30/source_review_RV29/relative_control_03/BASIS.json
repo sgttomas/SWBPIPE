@@ -1,0 +1,16 @@
+{
+  "records": [
+    {
+      "origin": "COORD@549b894e98:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV29_RELATIVE_CONTROL_CHECK.md",
+      "sha256": "83a90129747d8489642a4a95cc8c06a8bc57738ee8001ee5d0175942051d7067"
+    },
+    {
+      "origin": "COORD@549b894e98:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/ROOT_RELATIVE_RADIUS_CONTROL.json",
+      "sha256": "ed40153b57b29aff2fd22a2e5088da8a30b36bbd1b5c1da6f9b18504e4422ddb"
+    }
+  ],
+  "inherited_role_skill_basis": "../preparation_01/BASIS.json",
+  "review_origin": "TASK /root/rv29_a1_source reporting directly to /root",
+  "write_scope": "source_review_RV29/relative_control_03",
+  "no_Rust_or_maintained_edits": true
+}

@@ -1,0 +1,6 @@
+
+running 1 test
+test structural::retained::adaptive::method_tests::sd_g5_the_g_check_passes_at_2_to_the_p_minus_16_and_fails_above ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.02s
+

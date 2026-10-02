@@ -1,0 +1,13 @@
+{
+  "verified_utc": "2026-10-01T22:27:08.655976+00:00",
+  "child_seal": "1ae0efdda75f7bc93ea27db279dcc54ba77c10a8e8f0879a651b7325980a11b3",
+  "child_payloads_verified": 9,
+  "actual_original_command_fault_exit_raw_copies_verified": true,
+  "P35_exit": 0,
+  "source_files": 189,
+  "artifact_fingerprints_dependencies_unchanged": true,
+  "guard": "  PID  PPID     ELAPSED COMMAND\n 5387     1 03-20:50:49 /bin/bash <wt>/guard/memguard.sh\n",
+  "owned_jobs": [],
+  "both_children_idle": true,
+  "slot_released": true
+}

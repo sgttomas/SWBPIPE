@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them stdout ----
+
+thread 'structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them' (25397935) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:571:13:
+assertion `left == right` failed: SKEW-K1E-28 256 parity (8, 3)
+  left: "-8000000000000000000000000000000000000000000000000000000000000001p1"
+ right: "-8p1"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 1.75s
+

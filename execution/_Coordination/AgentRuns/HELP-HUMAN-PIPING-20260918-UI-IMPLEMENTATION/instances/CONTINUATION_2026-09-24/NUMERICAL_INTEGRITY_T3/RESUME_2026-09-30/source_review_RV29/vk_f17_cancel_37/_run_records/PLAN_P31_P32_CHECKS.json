@@ -1,0 +1,207 @@
+{
+  "plan_seal": "1e17c8a377a067a05d478185273dcee8ea25975925b340be867f3877237be21e",
+  "plan_payloads": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/vk_f17_cancel_plan_01/PLAN.json",
+      "sha256": "30c4e66101194ce56d2cf6654118223473c85b9183839ef26a2383323e4e8adf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/vk_f17_cancel_plan_01/README.md",
+      "sha256": "ec3634af30ee848fbb3538ed339846644091d2f49339707f44f336120cf31a0a"
+    }
+  ],
+  "plan_sha256": "30c4e66101194ce56d2cf6654118223473c85b9183839ef26a2383323e4e8adf",
+  "all_plan_argv_env_streams_equal_actual": true,
+  "all38_source_line_hashes_match": true,
+  "source_citations": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+      "lines": [
+        "375:         self.node_names",
+        "376:             .iter()",
+        "377:             .position(|n| n == name)",
+        "378:             .map(|k| k as u32)",
+        "379:     }",
+        "380: ",
+        "381:     pub fn member(&self, name: &str) -> Option<&Member> {",
+        "382:         self.members.iter().find(|m| m.name == name)",
+        "383:     }",
+        "384: ",
+        "385:     pub fn resolve(&self, key: &str) -> Result<Target, String> {",
+        "386:         let bad = || format!(\"unresolved R1 key {key}\");",
+        "387:         let parts: Vec<&str> = key.split('.').collect();",
+        "388:         let node = |name: &str| self.node_index(name).ok_or_else(bad);",
+        "389:         let member = |name: &str| self.member(name).map(|m| m.id).ok_or_else(bad);",
+        "390:         let dof = |n: u32, c: usize| Dof {",
+        "391:             node: n,",
+        "392:             component: Component::from_index(c),",
+        "393:         };",
+        "394:         match parts.as_slice() {",
+        "395:             [\"u\", n, c] => {",
+        "396:                 let a = c.strip_prefix('U').and_then(axis_offset).ok_or_else(bad)?;",
+        "397:                 Ok(Target::Displacement(dof(node(n)?, a)))",
+        "398:             }",
+        "399:             [\"th\", n, c] => {",
+        "400:                 let a = c.strip_prefix('R').and_then(axis_offset).ok_or_else(bad)?;",
+        "401:                 Ok(Target::Displacement(dof(node(n)?, 3 + a)))",
+        "402:             }",
+        "403:             [\"R\", n, d] => {",
+        "404:                 let (kind, axis) = d.split_at(1);",
+        "405:                 let off = match kind {",
+        "406:                     \"U\" => 0,",
+        "407:                     \"R\" => 3,",
+        "408:                     _ => return Err(bad()),",
+        "409:                 };",
+        "410:                 Ok(Target::Reaction(dof(",
+        "411:                     node(n)?,",
+        "412:                     off + axis_offset(axis).ok_or_else(bad)?,"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+      "lines": [
+        "444:             [\"N\", m] => Ok(Target::Axial(member(m)?)),",
+        "445:             [\"T\", m] => Ok(Target::Torque(member(m)?)),",
+        "446:             [\"Mb\", m, \"i\"] => Ok(Target::BendingEnd {",
+        "447:                 member: member(m)?,",
+        "448:                 j_end: false,",
+        "449:             }),",
+        "450:             [\"Mb\", m, \"j\"] => Ok(Target::BendingEnd {",
+        "451:                 member: member(m)?,",
+        "452:                 j_end: true,",
+        "453:             }),",
+        "454:             [\"Mb\", m, \"mid\"] => {",
+        "455:                 let id = member(m)?;",
+        "456:                 let station = self",
+        "457:                     .stations",
+        "458:                     .iter()",
+        "459:                     .find(|s| s.1 == id && s.2 == 0.5)",
+        "460:                     .ok_or_else(bad)?;",
+        "461:                 Ok(Target::BendingStation(station.0))",
+        "462:             }",
+        "463:             [\"tw\", m] => Ok(Target::Twist(member(m)?)),"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+      "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990",
+      "lines": [
+        "99: fn sources(target: Target) -> Vec<QuantityId> {",
+        "100:     match target {",
+        "101:         Target::Displacement(d) => vec![QuantityId::Displacement(d)],",
+        "102:         Target::Reaction(d) => vec![QuantityId::Reaction(d)],",
+        "103:         Target::Spring { id, component } => vec![QuantityId::SpringAction {",
+        "104:             spring: id,",
+        "105:             component,",
+        "106:         }],",
+        "107:         Target::DirectionalSpring { id, component } => {",
+        "108:             vec![QuantityId::DirectionalSpringAction {",
+        "109:                 spring: id,",
+        "110:                 component,",
+        "111:             }]",
+        "112:         }",
+        "113:         Target::StructuralZero => vec![],",
+        "114:         Target::Axial(m) | Target::Extension(m) => vec![end(m, true, Component::Ux)],",
+        "115:         Target::Torque(m) | Target::Twist(m) => vec![end(m, true, Component::Rx)],",
+        "116:         Target::BendingEnd { member, j_end } => vec![",
+        "117:             end(member, j_end, Component::Ry),",
+        "118:             end(member, j_end, Component::Rz),",
+        "119:         ],",
+        "120:         Target::BendingStation(s) => vec![",
+        "121:             QuantityId::StationAction {",
+        "122:                 station: s,",
+        "123:                 component: Component::Ry,",
+        "124:             },",
+        "125:             QuantityId::StationAction {",
+        "126:                 station: s,",
+        "127:                 component: Component::Rz,",
+        "128:             },",
+        "129:         ],",
+        "130:     }"
+      ]
+    }
+  ],
+  "protected_case_rows": {
+    "RF-CANCEL-F-G1e80-GnG-ORTHO": [
+      "u.N1.UY"
+    ],
+    "RF-CANCEL-F-G1e80-GnG-INPLANE": [
+      "Mb.M2.mid"
+    ],
+    "RF-CANCEL-M-G1e80-GnG-ORTHO": [
+      "u.N1.UY"
+    ]
+  },
+  "station_fixture": [
+    2,
+    2,
+    "3fe0000000000000"
+  ],
+  "owner_ref": "098fbd4df23db6eaf844b0741fde70c182fef063:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/OWNER_DECISION_F17_2026-10-01.md",
+  "owner_adoption_sha256": "58715e0e804ab264a83b18f85328777f90278600867a7bfe6b94b86eb782e336",
+  "owner_reviewed_text_sha256": "cf20096abdc15fb880f8c4e607e2b314f445285fcd052cb5c1c5f4286e64f58d",
+  "owner_receipt_sha256": "e87dae24fbcce5e46b8c5ff9c85b5b9ab5fe0d206e52858b800aaae7c8be31ea",
+  "runtime06_grant_sha256": "9a51c2c4855a036e31e1bf0ac32283acde6d549a93b71606bdbe8ad18112bd20",
+  "P31_P32": [
+    {
+      "id": 31,
+      "argv": [
+        "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+        "--exact",
+        "rf_cancel",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "fault": "VK-F17",
+      "launch": "2026-10-01T21:11:53.451Z",
+      "completion_observation": "2026-10-01T21:12:53.131Z",
+      "raw_real_seconds": 5.34,
+      "raw_hashes": {
+        "stdout": "893a13ba22d2ee6bb817fb26107b1b292e2a2519e5b8b38c80abcd1e6af6f054",
+        "stderr": "c120fe4606318fec7cc3ce601d822cb4cfc8f3111e20728acba1d613368b74a7"
+      },
+      "exit": 101
+    },
+    {
+      "id": 32,
+      "argv": [
+        "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+        "--exact",
+        "rf_cancel",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "fault": "NONE",
+      "launch": "2026-10-01T21:12:53.270Z",
+      "completion_observation": "2026-10-01T21:13:47.635Z",
+      "raw_real_seconds": 1.65,
+      "raw_hashes": {
+        "stdout": "73082815e445d120840d60fd935d13b777b8ae79d8ecd8d29b74eda52d8f79ba",
+        "stderr": "3909ccfafad4b6e8cd699c964f318561dabff55fefeaa11e122e00f53aea4ad0"
+      },
+      "exit": 0
+    }
+  ],
+  "P31_CLASS_credit": false,
+  "P32_actual_return_pass": true,
+  "closure": [
+    {
+      "process": "D01_NONE_BEFORE",
+      "records": 38,
+      "closure": true
+    },
+    {
+      "process": "D02_F17",
+      "records": 38,
+      "closure": true
+    },
+    {
+      "process": "D03_NONE_RETURN",
+      "records": 38,
+      "closure": true
+    }
+  ],
+  "P33_plus_credit": false
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01",
+    "sha256": "026823c7ad17e0415f679c37ef5dd854a05086e963e82c2aa3bd752b083e497e",
+    "entries_verified": 147
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/ADDENDUM_01",
+    "sha256": "09203f4fcfaf1a0a11b17d54a16d49f94f30c7aa671da63e0cbcdded6bee9c5d",
+    "entries_verified": 3
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/protected_06",
+    "sha256": "c58a74059025803e0a3dfb251dd53d3b0ba8f580351c24e5af09a337915625b4",
+    "entries_verified": 9
+  }
+]

@@ -1,0 +1,573 @@
+{
+  "start_utc": "2026-10-01T15:23:26Z",
+  "fixed_end_utc": "2026-10-01T16:23:26Z",
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "manifest_sha256": "5194a1b926f01b1bc4372ec6771a76a75e2d80fbeb000a3b93855268113837f6",
+  "source_manifests_sha256": "bb8e649fa4a7c3992c22c8f132417324865e93d89a4a6757247babf811ba7d8b",
+  "seals": [
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_g3_prep/SHA256SUMS",
+      "sha256": "cffffde3ae16a32de707c95f34c4030152bdf1c172676633b72d7f99fe94672f",
+      "entries": 11
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/SHA256SUMS",
+      "sha256": "91be123e9de71fa40c61869fb61e689561365548bec76632f2e975b2aca3b697",
+      "entries": 13
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/last_gaps_09/SHA256SUMS",
+      "sha256": "46bd7fccc2d460ec9b5a71b934045cca557275d66eb2b1b4f01bd2deb1ea7b83",
+      "entries": 8
+    }
+  ],
+  "archive_sha256": "934488fe984e02836fcec6034700cb7344afb4c24efcb171e81fa7edc0ba8403",
+  "copies": [
+    {
+      "runtime_id": "R01",
+      "source": "<wt>/scratch/i22/protected_g3/R01",
+      "target": "<wt>/a1-protected-target/g3/R01",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R01",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R02",
+      "source": "<wt>/scratch/i22/protected_g3/R02",
+      "target": "<wt>/a1-protected-target/g3/R02",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R02",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R03",
+      "source": "<wt>/scratch/i22/protected_g3/R03",
+      "target": "<wt>/a1-protected-target/g3/R03",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R03",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R04",
+      "source": "<wt>/scratch/i22/protected_g3/R04",
+      "target": "<wt>/a1-protected-target/g3/R04",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R04",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R05",
+      "source": "<wt>/scratch/i22/protected_g3/R05",
+      "target": "<wt>/a1-protected-target/g3/R05",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R05",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R06",
+      "source": "<wt>/scratch/i22/protected_g3/R06",
+      "target": "<wt>/a1-protected-target/g3/R06",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R06",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R07",
+      "source": "<wt>/scratch/i22/protected_g3/R07",
+      "target": "<wt>/a1-protected-target/g3/R07",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R07",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R08",
+      "source": "<wt>/scratch/i22/protected_g3/R08",
+      "target": "<wt>/a1-protected-target/g3/R08",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R08",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R09",
+      "source": "<wt>/scratch/i22/protected_g3/R09",
+      "target": "<wt>/a1-protected-target/g3/R09",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R09",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R10",
+      "source": "<wt>/scratch/i22/protected_g3/R10",
+      "target": "<wt>/a1-protected-target/g3/R10",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R10",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R11",
+      "source": "<wt>/scratch/i22/protected_g3/R11",
+      "target": "<wt>/a1-protected-target/g3/R11",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R11",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R12",
+      "source": "<wt>/scratch/i22/protected_g3/R12",
+      "target": "<wt>/a1-protected-target/g3/R12",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R12",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R13",
+      "source": "<wt>/scratch/i22/protected_g3/R13",
+      "target": "<wt>/a1-protected-target/g3/R13",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R13",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R14",
+      "source": "<wt>/scratch/i22/protected_g3/R14",
+      "target": "<wt>/a1-protected-target/g3/R14",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R14",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R15",
+      "source": "<wt>/scratch/i22/protected_g3/R15",
+      "target": "<wt>/a1-protected-target/g3/R15",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R15",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R16",
+      "source": "<wt>/scratch/i22/protected_g3/R16",
+      "target": "<wt>/a1-protected-target/g3/R16",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R16",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R17",
+      "source": "<wt>/scratch/i22/protected_g3/R17",
+      "target": "<wt>/a1-protected-target/g3/R17",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R17",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R18",
+      "source": "<wt>/scratch/i22/protected_g3/R18",
+      "target": "<wt>/a1-protected-target/g3/R18",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R18",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R19",
+      "source": "<wt>/scratch/i22/protected_g3/R19",
+      "target": "<wt>/a1-protected-target/g3/R19",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R19",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R20",
+      "source": "<wt>/scratch/i22/protected_g3/R20",
+      "target": "<wt>/a1-protected-target/g3/R20",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R20",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R21",
+      "source": "<wt>/scratch/i22/protected_g3/R21",
+      "target": "<wt>/a1-protected-target/g3/R21",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R21",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R22",
+      "source": "<wt>/scratch/i22/protected_g3/R22",
+      "target": "<wt>/a1-protected-target/g3/R22",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R22",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R23",
+      "source": "<wt>/scratch/i22/protected_g3/R23",
+      "target": "<wt>/a1-protected-target/g3/R23",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R23",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R24",
+      "source": "<wt>/scratch/i22/protected_g3/R24",
+      "target": "<wt>/a1-protected-target/g3/R24",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R24",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R25",
+      "source": "<wt>/scratch/i22/protected_g3/R25",
+      "target": "<wt>/a1-protected-target/g3/R25",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R25",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R26",
+      "source": "<wt>/scratch/i22/protected_g3/R26",
+      "target": "<wt>/a1-protected-target/g3/R26",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R26",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R27",
+      "source": "<wt>/scratch/i22/protected_g3/R27",
+      "target": "<wt>/a1-protected-target/g3/R27",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R27",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R28",
+      "source": "<wt>/scratch/i22/protected_g3/R28",
+      "target": "<wt>/a1-protected-target/g3/R28",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R28",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R29",
+      "source": "<wt>/scratch/i22/protected_g3/R29",
+      "target": "<wt>/a1-protected-target/g3/R29",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R29",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R30",
+      "source": "<wt>/scratch/i22/protected_g3/R30",
+      "target": "<wt>/a1-protected-target/g3/R30",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R30",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R31",
+      "source": "<wt>/scratch/i22/protected_g3/R31",
+      "target": "<wt>/a1-protected-target/g3/R31",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R31",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R32",
+      "source": "<wt>/scratch/i22/protected_g3/R32",
+      "target": "<wt>/a1-protected-target/g3/R32",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R32",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R33",
+      "source": "<wt>/scratch/i22/protected_g3/R33",
+      "target": "<wt>/a1-protected-target/g3/R33",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R33",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R34",
+      "source": "<wt>/scratch/i22/protected_g3/R34",
+      "target": "<wt>/a1-protected-target/g3/R34",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R34",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R35",
+      "source": "<wt>/scratch/i22/protected_g3/R35",
+      "target": "<wt>/a1-protected-target/g3/R35",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R35",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R36",
+      "source": "<wt>/scratch/i22/protected_g3/R36",
+      "target": "<wt>/a1-protected-target/g3/R36",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R36",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R37",
+      "source": "<wt>/scratch/i22/protected_g3/R37",
+      "target": "<wt>/a1-protected-target/g3/R37",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R37",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R38",
+      "source": "<wt>/scratch/i22/protected_g3/R38",
+      "target": "<wt>/a1-protected-target/g3/R38",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R38",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R39",
+      "source": "<wt>/scratch/i22/protected_g3/R39",
+      "target": "<wt>/a1-protected-target/g3/R39",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R39",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R40",
+      "source": "<wt>/scratch/i22/protected_g3/R40",
+      "target": "<wt>/a1-protected-target/g3/R40",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R40",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R41",
+      "source": "<wt>/scratch/i22/protected_g3/R41",
+      "target": "<wt>/a1-protected-target/g3/R41",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R41",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R42",
+      "source": "<wt>/scratch/i22/protected_g3/R42",
+      "target": "<wt>/a1-protected-target/g3/R42",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R42",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R43",
+      "source": "<wt>/scratch/i22/protected_g3/R43",
+      "target": "<wt>/a1-protected-target/g3/R43",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R43",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R44",
+      "source": "<wt>/scratch/i22/protected_g3/R44",
+      "target": "<wt>/a1-protected-target/g3/R44",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R44",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R45",
+      "source": "<wt>/scratch/i22/protected_g3/R45",
+      "target": "<wt>/a1-protected-target/g3/R45",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R45",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R46",
+      "source": "<wt>/scratch/i22/protected_g3/R46",
+      "target": "<wt>/a1-protected-target/g3/R46",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R46",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R47",
+      "source": "<wt>/scratch/i22/protected_g3/R47",
+      "target": "<wt>/a1-protected-target/g3/R47",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R47",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R48",
+      "source": "<wt>/scratch/i22/protected_g3/R48",
+      "target": "<wt>/a1-protected-target/g3/R48",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R48",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R49",
+      "source": "<wt>/scratch/i22/protected_g3/R49",
+      "target": "<wt>/a1-protected-target/g3/R49",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R49",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R50",
+      "source": "<wt>/scratch/i22/protected_g3/R50",
+      "target": "<wt>/a1-protected-target/g3/R50",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R50",
+      "files_verified": 560,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R51",
+      "source": "<wt>/scratch/i22/protected_g3/R51",
+      "target": "<wt>/a1-protected-target/g3/R51",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R51",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "runtime_id": "R52",
+      "source": "<wt>/scratch/i22/protected_g3/R52",
+      "target": "<wt>/a1-protected-target/g3/R52",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R52",
+      "files_verified": 116,
+      "nlink1_unique_no_symlink": true,
+      "target_empty": true,
+      "logs_empty_writable": true
+    }
+  ],
+  "file_inodes_unique": 6476,
+  "baseline_filters_each_one_existing_pass": 33,
+  "baseline_binaries": [
+    {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a",
+      "fingerprint_path": "<wt>/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "features": "[]",
+      "rustflags": []
+    },
+    {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/s11_site_table-c8ba14d9f767e011",
+      "sha256": "ffed9c0f948b771acfd3de71242f38a41dda478839afe7d54de2020f21f9165a",
+      "fingerprint_path": "<wt>/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-c8ba14d9f767e011/test-integration-test-s11_site_table.json",
+      "fingerprint_sha256": "44a3ed71f8bd5520b9ae8e8f1b5d39354371baa4c286422e618b56e9dea1dfb0",
+      "features": "[]",
+      "rustflags": []
+    }
+  ],
+  "S11_inputs_checked": 23,
+  "guard": "5387     1 03-13:50:20 /bin/bash <wt>/guard/memguard.sh",
+  "control_cwd_binding": "ROOT_CONFIRMATION_PENDING",
+  "rust_started": false,
+  "status": "INITIAL_CONTAINMENT_READY_EACH_POSTIMAGE_RELEASE_STILL_REQUIRED",
+  "preflight_read_note": "One initial S11 fingerprint path used executable basename instead of crate basename; corrected from observed file path before any Rust or fault. No source mismatch or host repair."
+}

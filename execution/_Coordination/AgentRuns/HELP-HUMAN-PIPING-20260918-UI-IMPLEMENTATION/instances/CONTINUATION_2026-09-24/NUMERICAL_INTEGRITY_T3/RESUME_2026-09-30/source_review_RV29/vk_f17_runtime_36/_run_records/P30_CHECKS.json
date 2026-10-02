@@ -1,0 +1,132 @@
+{
+  "packet_checks": [
+    {
+      "side": "I22",
+      "seal": "0fc0ac466e124b1ca913598d754ede055575142aeb67ebf72396a5fac221b2dc",
+      "payload_count": 7
+    },
+    {
+      "side": "manager",
+      "seal": "c0b67ccaa09b8144a166d497dde29245be05ca870244359c62bb3c4368e0bb9c",
+      "payload_count": 5
+    }
+  ],
+  "provenance": "sealed local packets supplied by ROOT; not part of the earlier diagnostic archive",
+  "process": {
+    "process_id": "P30",
+    "phase": "RETURNED_NONE_TEST",
+    "registered_id": "NONE",
+    "argv": [
+      "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+      "--exact",
+      "rf_skew",
+      "--test-threads=2",
+      "--nocapture"
+    ],
+    "environment": {
+      "RUSTUP_TOOLCHAIN": "1.97.1",
+      "RUSTUP_AUTO_INSTALL": "0",
+      "CARGO_INCREMENTAL": "0",
+      "RUST_TEST_THREADS": "2",
+      "FK_SEEDED_FAULT": "NONE"
+    },
+    "fresh_process": true,
+    "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+    "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P30.stdout",
+    "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P30.stderr",
+    "qualifying_condition": "Exactly one test passes after VK-F17 trial; do not infer return from initial baseline.",
+    "actual_scope": {
+      "route": "whole existing lane family, one run_case per case; final record comparison retained",
+      "family": "RF-SKEW",
+      "cases": 36,
+      "max_members": 1,
+      "parity_calls": 0
+    },
+    "status": "COMPLETED",
+    "runtime_authorized": true,
+    "returns_for": "VK-F17",
+    "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5' '--exact' 'rf_skew' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P30.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P30.stderr'",
+    "binary": {
+      "key": "lane",
+      "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+      "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+      "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+    },
+    "guard_before": "5387     1 03-19:20:56 /bin/bash <wt>/guard/memguard.sh\n",
+    "launch_utc": "2026-10-01T20:57:15.141Z",
+    "tool_initial": {
+      "chunk_id": "7c44b9",
+      "wall_time_seconds": 1.00136525,
+      "session_id": 94847,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "tool_completion": {
+      "chunk_id": "bb7b45",
+      "wall_time_seconds": 1.2708e-05,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "verdict": "PASS",
+    "CLASS_credit": false,
+    "semantic_review": "Exactly1rf_skew PASS restores36selections,982passes/96zeros/2notcovered,105/33controls and full original storedrecord equality.",
+    "raw_hashes": {
+      "stdout": "3a42c3f41829af3c73f44e8e3cf14c7c6bd9b56ba8458eff8c96a98f095ceb8c",
+      "stderr": "3a7ccf66da486e2453e4f69994ba0636f5f8b18b0b07970d68444749c0327d60"
+    }
+  },
+  "readiness": {
+    "combined_start": "2026-10-01T20:55:31Z",
+    "hard_end": "2026-10-01T21:00:31Z",
+    "child_continuation": "2026-10-01T20:56:28Z",
+    "source_files": 189,
+    "manifest_sha256": "1209dd30446f2b09344590d33ad7bc05a46aecb3e9b07c5edd674bcb3c189a60",
+    "schedule_sha256": "2bb936decaba11d00afafa71e42e12b1c0e0ca2007b39b99c036827f38ca6289",
+    "artifact": {
+      "key": "lane",
+      "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+      "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+      "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+    },
+    "guard": "5387     1 03-19:20:56 /bin/bash <wt>/guard/memguard.sh",
+    "grant_ref": "457cc6f5da4fb3769aaf6bb123b86bde25bc855d:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_VK_P30_RETURN.md",
+    "grant_sha256": "46c0056dde48ee069ecef052155da883c02f8c4cb42662645abb27fa40e1338d"
+  },
+  "manager_final": {
+    "verified_utc": "2026-10-01T20:58:55.944570+00:00",
+    "child_seal": "0fc0ac466e124b1ca913598d754ede055575142aeb67ebf72396a5fac221b2dc",
+    "child_payloads_verified": 7,
+    "source_files_reverified": 189,
+    "debug_artifacts_and_fingerprints_unchanged": true,
+    "guard": "  PID  PPID     ELAPSED COMMAND\n 5387     1 03-19:22:36 /bin/bash <wt>/guard/memguard.sh\n",
+    "owned_jobs": [],
+    "slot_released": true
+  },
+  "independent_result": "Original actual P30 returned control PASS; no P29 CLASS credit",
+  "record_equality_assertion_reached": true,
+  "source_binding_reuse": "same 189-file archive independently rechecked during this review",
+  "raw_real_seconds": 1.31
+}

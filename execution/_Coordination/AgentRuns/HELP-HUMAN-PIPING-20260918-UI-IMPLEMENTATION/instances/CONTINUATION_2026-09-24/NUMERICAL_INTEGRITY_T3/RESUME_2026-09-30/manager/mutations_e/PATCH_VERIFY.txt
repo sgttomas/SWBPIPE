@@ -1,0 +1,6 @@
+PASS: all35 unified patches independently verified in memory against immutable40129 source, including hunk counts and postimage hashes; no source writes or Rust.
+PASS: all14 unique named filters have source definitions in frozen candidate.
+PM16 variants distinct; positive zero/swap/accessor patches exclude ABSENT_RADIUS_BITS; all35 patches read by manager.
+Variant IDs: PM01,PM02,PM03,PM04,PM05,PM06,PM07,PM08,PM09,PM10a,PM10b,PM11,PM12a,PM12b,PM12c,PM13a,PM13b,PM14a,PM14b,PM14c,PM15a,PM15b,PM15c,PM15d,PM15e-class,PM15e-bound,PM15f,PM15g-accessor,PM16a,PM16b,PM16c,PM17a,PM17b,PM18a,PM18b
+Protected counts: {'R7_K4_registry': 88, 'RV19_A1_O9_registry': 10, 'V_K_seeded_registry': 15, 'A2_KF3_original_registry': 11, 'A2_review_registries': 2}
+No compilation, semantic kill, historical equivalent or complete protected coverage inferred from text applicability.

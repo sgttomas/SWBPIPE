@@ -1,0 +1,52 @@
+{
+  "verified_utc": "2026-10-01T21:17:45.882336+00:00",
+  "receipt_start_utc": "2026-10-01 21:16:54 UTC",
+  "hard_end_utc": "2026-10-01 21:26:54 UTC",
+  "grant": "a2c271ae33eee9f6e57d278b90b842915b1c8c37",
+  "grant_sha256": "f59cfe276cf2ff0c8957b1b8e60d6fbeb6c583dd061708f8cf76860340ced60e",
+  "plan_seal": "1e17c8a377a067a05d478185273dcee8ea25975925b340be867f3877237be21e",
+  "plan_sha256": "30c4e66101194ce56d2cf6654118223473c85b9183839ef26a2383323e4e8adf",
+  "source_files": 189,
+  "inventory_exact": true,
+  "all38case_source_hashes_verified": true,
+  "normal_records_hash_verified": true,
+  "bindings": [
+    {
+      "key": "vk_records",
+      "path": "<wt>/a1-vk-target/release/examples/vk_records",
+      "sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": false
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+      "fingerprint_sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+    },
+    {
+      "path": "<wt>/a1-vk-target/release/.fingerprint/open_pipe_stress_frame_kernel-2986612637137eef/lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "fa1936ccb5617c096e536e2c7a74d79170a79362e50127868681f939b3d44a11",
+      "features": "[\"mutation-controls\"]"
+    },
+    {
+      "path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-746b6873c6bcede9/lib-piping_numerical_robustness.json",
+      "sha256": "b756ef2d9c5ae7c5dc3adab0b416eeb0ba5d6d3a572c5affb530cb32d9582a5e",
+      "features": "[\"seeded-faults\"]"
+    },
+    {
+      "path": "<wt>/a1-vk-target/release/.fingerprint/open_pipe_stress_sparse_direct-f9901e17afef369c/lib-open_pipe_stress_sparse_direct.json",
+      "sha256": "6d42cb94aeed88282cc014beb28d6f697b17a9842b52381bfa27573d5f4a7261",
+      "features": "[]"
+    }
+  ],
+  "guard": "  PID  PPID     ELAPSED COMMAND\n 5387     1 03-19:41:26 /bin/bash <wt>/guard/memguard.sh\n",
+  "host": "Apple M5 Max\n137438953472\n",
+  "owned_jobs": [],
+  "six_log_paths_unused": true,
+  "release": "ExactlyD01NONE/D02F17/D03NONE with immediate per-process checks; noqualification orfollowon"
+}

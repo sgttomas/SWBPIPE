@@ -1,0 +1,126 @@
+{
+  "record": "T3 recovery manager checkpoint 0 dispatch",
+  "recorded_at_utc": "2026-10-01T04:56:02Z",
+  "mechanism": "collaboration.spawn_agent",
+  "manager": {
+    "id": "/root/t3_recovery_manager",
+    "role": "WORKING_ITEMS",
+    "type": 1,
+    "parent": "/root",
+    "parent_role": "HELP_HUMAN",
+    "write_scope": "<A1_WT>/<R>/manager/**"
+  },
+  "supplied_basis": {
+    "coord_commit": "3446bdf51d90b8f1812d161cc638d85c97bbef16",
+    "product_commit": "d01ad98a754698631f927709d08284c272de85e8",
+    "response_commit": "520d7dfb790bcedabc03e92b9692884ce295be54",
+    "T3": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3",
+    "R": "<T3>/RESUME_2026-09-30"
+  },
+  "aliases": {
+    "COORD": "ROOT-supplied numerics checkout",
+    "A1_WT": "ROOT-supplied a1 product checkout",
+    "K6C_WT": "ROOT-supplied k6c product checkout",
+    "wt": "ROOT-supplied T3 host work root",
+    "host_bindings": "Absolute host bindings are preserved in native launch transcript, not copied into this durable packet."
+  },
+  "instruction_basis": [
+    {
+      "origin": "<COORD>/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "<COORD>/agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "<COORD>/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "<COORD>/<R>/BRIEFS/COMMON.md",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0"
+    },
+    {
+      "origin": "<COORD>/<R>/BRIEFS/RECOVERY_MANAGER.md",
+      "sha256": "70e2c8d3c9dff38789cd5e786e4367a5076d4b0b006c7b934e4d6b36aaabbb26"
+    },
+    {
+      "origin": "<COORD>/<R>/PLAN.md",
+      "sha256": "671726095845d99f6bfa893a5ebe9d308840c78fabfd2655541e66371ae6a129"
+    }
+  ],
+  "runtime_boundary": "Prompt write fences on one shared host; not an OS sandbox. No Git/index mutations, Rust builds/runs, maintained-source writes or host-tool changes are granted. ROOT owns host slots, all Git integration, rulings, independent oracle/review and design selection.",
+  "children": [
+    {
+      "id": "/root/t3_recovery_manager/i22_a1",
+      "parent": "/root/t3_recovery_manager",
+      "role": "TASK",
+      "type": 2,
+      "delegation_allowed": false,
+      "fork_turns": "none",
+      "brief": "<COORD>/<R>/BRIEFS/I22_A1.md",
+      "brief_sha256": "5446994c94620be8308f1f1beae77abf7a96981c166f485c9ca6c437942e743c",
+      "prompt_normalized_file": "LAUNCH_I22.txt",
+      "actual_transport_prompt_sha256": "581482663f956ecec6aebf9f372c62e28c6674c64477e4a0f15fa40135bb261b",
+      "prompt_capture": "The full launch body is preserved with exact host paths replaced by aliases. Raw UTF-8 prompt hash excludes a terminal newline. Native tool transcript retains the original bindings.",
+      "worktree": "<A1_WT>",
+      "write_scope": [
+        "<A1_WT>/<R>/I22/**",
+        "<wt>/scratch/i22/**"
+      ],
+      "start_evidence": [
+        "spawn_agent returned this canonical ID",
+        "list_agents returned running",
+        "child acknowledged reading required instructions, matching brief hashes, product HEAD and clean status"
+      ],
+      "status": "completed: checkpoint 0 only; numerical investigation open",
+      "return": {
+        "path": "<A1_WT>/<R>/I22/CHECKPOINT_0.md",
+        "sha256": "eb4da1fc3b075a65bc63edc36581d6e6f263e80f46f277aa15cef3c174f46002",
+        "manifest": "<A1_WT>/<R>/I22/SHA256SUMS",
+        "manifest_sha256": "3f6940f1badfa109c4fa2d211d4510fb5f6cd3df4a9f25e5fc5da78ef9f3fe85",
+        "payload_entries": 6,
+        "manager_checked": true,
+        "no_running_experiment": true
+      }
+    },
+    {
+      "id": "/root/t3_recovery_manager/i21_k6c",
+      "parent": "/root/t3_recovery_manager",
+      "role": "TASK",
+      "type": 2,
+      "delegation_allowed": false,
+      "fork_turns": "none",
+      "brief": "<COORD>/<R>/BRIEFS/I21_K6C.md",
+      "brief_sha256": "bb580dd801a8d80ebe71949f317138fcac5623960136daba9a56c4fda5cb92bb",
+      "prompt_normalized_file": "LAUNCH_I21.txt",
+      "actual_transport_prompt_sha256": "d49e96b66ae939025644ad56ce003c81681231b1fb47e25059ba7a6fc9c12ac4",
+      "prompt_capture": "The full launch body is preserved with exact host paths replaced by aliases. Raw UTF-8 prompt hash excludes a terminal newline. Native tool transcript retains the original bindings.",
+      "worktree": "<K6C_WT>",
+      "write_scope": [
+        "<K6C_WT>/<R>/I21/**",
+        "<wt>/scratch/i21-resume/**"
+      ],
+      "start_evidence": [
+        "spawn_agent returned this canonical ID",
+        "list_agents returned running",
+        "child explicitly acknowledged role, pinned bases and effective fence"
+      ],
+      "status": "completed: finite source checkpoint; full K0 and E_max open",
+      "return": {
+        "path": "<K6C_WT>/<R>/I21/CHECKPOINT_0.md",
+        "sha256": "56252a04ef1cff473348291fa5c4d29ad10c962d98f6c18c95113ca32c3b4e00",
+        "manifest": "<K6C_WT>/<R>/I21/OWNED_FILES.sha256",
+        "manifest_sha256": "034062235c60cd344b64ac98c388356a965b31968cef2b2e7f397cf0e20acdd5",
+        "payload_entries": 7,
+        "manager_checked": true,
+        "no_running_experiment": true
+      }
+    }
+  ],
+  "model_attribution": "No model override supplied; model identity or diversity is not asserted.",
+  "pending": "Both children completed; checkpoint 0 returned to ROOT. No implementation or numerical execution grant. ROOT decides A1 build/run and K6c envelope/source continuation independently.",
+  "oracle_note": "ROOT reported first oracle exposure to old expected_rows before independent freeze and replaced it. No oracle result or denominator convention is accepted in this manager dispatch.",
+  "optional_lock_provenance": "Manager's first two git status reads used default optional locks. Clean output and no mutation subcommand observed, but optional stat-cache refresh cannot be excluded. ROOT notified; every later Git read explicitly uses GIT_OPTIONAL_LOCKS=0. No index repair."
+}

@@ -1,0 +1,26 @@
+{
+  "candidate": "fed9ea5b936741bd7d47e977f0d394793cd3650c",
+  "archive_sha256": "1f368c456f170f6b079219abfa64cd26e06a26604e1bf0ceee478be6b950cd83",
+  "packets": [
+    {
+      "tree": "I22/vk_f17_cancel_diagnostic_01",
+      "seal": "5a1b44604f96cc2baa074c1e80cf6aec093d29d846c89eca04936d9cb5e56a2c",
+      "count": 23
+    },
+    {
+      "tree": "manager/vk_f17_cancel_diagnostic_01",
+      "seal": "a8feb070990369efdc199cc587dbbd57ddec1e85ec59c7f54103375dda41ed14",
+      "count": 5
+    },
+    {
+      "tree": "I22/vk_runtime_06",
+      "seal": "074b968b5ba56f55775a7926236927fc917fad3d32010843c37e1fca06f674c2",
+      "count": 12
+    },
+    {
+      "tree": "manager/vk_runtime_06",
+      "seal": "f0ca67e350c5cc31788f27c5978b3a8ec1d93e82b318aa2e11676f2385998ac6",
+      "count": 5
+    }
+  ]
+}

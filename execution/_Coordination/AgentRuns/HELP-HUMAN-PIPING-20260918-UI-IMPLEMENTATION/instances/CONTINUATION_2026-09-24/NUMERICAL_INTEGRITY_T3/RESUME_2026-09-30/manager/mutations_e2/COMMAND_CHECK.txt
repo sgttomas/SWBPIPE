@@ -1,0 +1,2 @@
+PASS:73 recorded Cargo tool completions:38 expected101 and35 expected0; exact source/target bindings and approved flags/guards match.
+PASS:launch/completion intervals sequential, all before original10:06:30 boundary and each observed below5min checkpoint. No host hardcap/automatic deadline inferred.

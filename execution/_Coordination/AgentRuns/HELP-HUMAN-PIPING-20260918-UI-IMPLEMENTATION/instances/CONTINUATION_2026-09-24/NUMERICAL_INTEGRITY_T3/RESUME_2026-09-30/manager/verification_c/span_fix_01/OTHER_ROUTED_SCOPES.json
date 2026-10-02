@@ -1,0 +1,20 @@
+{
+  "routes": [
+    {
+      "commit": "f453ee631ecd1d89ac73689b09dae66e033876ed",
+      "brief": "A1_KF1_WORK_GOLDEN_DISPOSITION.md",
+      "permission": "Optional evidence-only patch preserving R7-only goldens plus separate inclusive certificate component; no maintained KF1 edit."
+    },
+    {
+      "commit": "4599aa7eea601fb142cdba1beb32e5e02ce62aa5",
+      "brief": "A1_KF1_WORK_GOLDEN_DISPOSITION.md appended section",
+      "permission": "Optional evidence-only A3B_WORK-preserving component isolation proposal; no maintained adaptive_tests edit."
+    },
+    {
+      "commit": "f9984bfaba2f0e26569d7744fd2ea1a8c06ff5f6",
+      "brief": "A1_S11_INVENTORY_DELTA.md",
+      "permission": "Sole sixth maintained path FK/tests/s11_site_table.rs: run_schedule row5→6 plus integer c+=1 annotation; exactly one focused S11 test. All scanner/other table/assertion criteria unchanged."
+    }
+  ],
+  "priority": "Direct C numerical controls and probe take priority; all routes stay within original07:42:42 deadline; no production/helper/old-golden change."
+}

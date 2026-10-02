@@ -1,0 +1,71 @@
+{
+  "kind": "list",
+  "id": "R42",
+  "registration": "RV19::RV19-1R",
+  "index": 0,
+  "name": "list_01",
+  "source_id": "R42",
+  "binary_id": "R42",
+  "filter": "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star",
+  "argv": [
+    "<wt>/a1-protected-target/g3/R42/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "--list",
+    "--exact",
+    "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star"
+  ],
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-protected-target/g3/R42/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--list' '--exact' 'structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star' > '<wt>/scratch/i22/protected_g3/logs/R42/list_01.stdout' 2> '<wt>/scratch/i22/protected_g3/logs/R42/list_01.stderr'",
+  "workdir": "<wt>/scratch/i22/protected_g3/R42/projects/chirality-piping/core/solver/frame_kernel",
+  "log": "<wt>/scratch/i22/protected_g3/logs/R42/list_01",
+  "guard_before": {
+    "chunk_id": "5bbb97",
+    "wall_time_seconds": 7.667e-06,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-15:44:09 /bin/bash <wt>/guard/memguard.sh\n"
+  },
+  "launch_utc": "2026-10-01T17:20:28.611Z",
+  "tool_initial": {
+    "chunk_id": "7a8241",
+    "wall_time_seconds": 0.696260417,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "7a8241",
+    "wall_time_seconds": 0.696260417,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "info": {
+    "stdout": "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star: test\n\n1 test, 0 benchmarks\n",
+    "stderr": "        0.81 real         0.00 user         0.00 sys\n             2818048  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                 528  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                   8  involuntary context switches\n            33654576  instructions retired\n            17890890  cycles elapsed\n             1655144  peak memory footprint\n",
+    "stdout_sha256": "134ac091e049411ad6429efb44c3f4c7abb1e8fc15c56e0a68a88291fb5ea12a",
+    "stderr_raw_sha256": "d7b7dabe9cf6148d078e10a3b88d80bf5b397fd9da4dfcaac92276dd3876581a",
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_role": "executed source binding",
+    "complete_source_hashes_match": true,
+    "source_manifest_sha256": "bb8e649fa4a7c3992c22c8f132417324865e93d89a4a6757247babf811ba7d8b",
+    "affected_images": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "ff631b1d4ffb062e0ccb8095696bf538e70bb140f29df706f1a8f86e1a667d97"
+      }
+    ],
+    "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "binary": {
+      "path": "<wt>/a1-protected-target/g3/R42/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "f30d4418d711f22c867ab0a26edc35762223b8948de3550896c6968e4b1bb1a5"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-protected-target/g3/R42/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    },
+    "guard_after": "5387     1 03-15:44:10 /bin/bash <wt>/guard/memguard.sh"
+  }
+}

@@ -1,0 +1,22 @@
+
+thread 'rf_chain' (26556643) panicked at tests/lane.rs:75:5:
+RF-CHAIN: 30 failures
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        1.50 real         1.49 user         0.00 sys
+             8257536  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 841  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  10  involuntary context switches
+         18974068991  instructions retired
+          4310762440  cycles elapsed
+             4964688  peak memory footprint

@@ -1,0 +1,16 @@
+{
+  "origin": "<WT>/scratch/i22/verification_c/span_fix_01/runs/C17/stdout.tsv",
+  "raw_sha256": "54fc25452f385d5078c5c416c65e6566afa4124f75d3dc791ed9c3fe65b1a831",
+  "argv": [
+    "<VENV>/bin/python",
+    "-B",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.stdout.tsv",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.COMPARISON.json"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"case\": \"C17\", \"status\": \"Selected\", \"numeric_accuracy_pass\": true, \"rows\": 36, \"failures\": [], \"exit_code\": 0}\n",
+  "stderr": "",
+  "sealed_comparator_sha256": "eeac3a5d827633eeeddbe87f7cb604474304aa5360082e3d5c083a2016c1b289",
+  "claim_boundary": "Output claims only; binary/source/probe integrity and bound construction reviewed separately."
+}

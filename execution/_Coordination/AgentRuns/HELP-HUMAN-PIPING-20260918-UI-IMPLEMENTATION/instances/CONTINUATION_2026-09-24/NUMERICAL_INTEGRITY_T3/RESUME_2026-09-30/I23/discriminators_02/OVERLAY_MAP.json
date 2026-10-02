@@ -1,0 +1,365 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "brief_revision": "fe949c668ebeea60b8c92161a0dbf46964b70925",
+  "target": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+  "target_before_sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+  "target_after_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+  "patch": "diagnostics.patch",
+  "patch_sha256": "5ef176143af79c127e0b7998e4d54e54738db473a6b7f5285cde4a1e02599f2d",
+  "additions": "DIAGNOSTIC_ADDITIONS.rs",
+  "additions_sha256": "1ff786998511373e54bf0df68877d49434bf05c48eaefc20fc06d6ee141d2aad",
+  "patch_mode": "append-only; original bytes and assertions remain exact prefix",
+  "tests": [
+    {
+      "faults": [
+        "R7-M3",
+        "R7-M4",
+        "R7-M9"
+      ],
+      "warrants": [
+        "W01_PHI_RULE",
+        "W02_PHI_ORACLE",
+        "W16_WIDTHS",
+        "W19_REPORT_CONSTRUCTOR"
+      ],
+      "expected": "floor=None at verification 256 and 512; floor=Some([[2^-438,2^-438]]) at 1024.",
+      "semantic_assertions": [
+        "I23:NO_EARLY_PHI:256",
+        "I23:NO_EARLY_PHI:512",
+        "I23:PHI_AT_CEILING"
+      ],
+      "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+      "target": "--lib",
+      "precision": [
+        256,
+        512,
+        1024
+      ],
+      "compile_status": "UNCOMPILED",
+      "runtime_status": "UNRUN",
+      "mapping_status": "PROPOSED_FOR_RV29_REVIEW",
+      "actual_diagnostic_location": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+        "line": 1980
+      }
+    },
+    {
+      "faults": [
+        "R7-M25",
+        "R7-M29"
+      ],
+      "warrants": [
+        "W03_DATA_DERIVATION",
+        "W06_CHARGE_SCHEMA"
+      ],
+      "models": [
+        "THETA-STUB",
+        "THETA-ZERO-BODY"
+      ],
+      "expected": "data=[true,false], theta[1]=None at 256, as fixed CHARGE records.",
+      "semantic_assertions": [
+        "I23:DATA_SCOPE",
+        "I23:NO_THETA_WITHOUT_DATA"
+      ],
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+      "target": "--lib",
+      "precision": 256,
+      "compile_status": "UNCOMPILED",
+      "runtime_status": "UNRUN",
+      "mapping_status": "PROPOSED_FOR_RV29_REVIEW",
+      "actual_diagnostic_location": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+        "line": 2005
+      }
+    },
+    {
+      "faults": [
+        "R7-M25"
+      ],
+      "warrants": [
+        "W05_G_SCOPE_DERIVATION",
+        "W06_CHARGE_SCHEMA"
+      ],
+      "models": [
+        "G-FIXED-MEMBER"
+      ],
+      "expected": "g_max=0, g_violation=None at 256, as fixed CHARGE records.",
+      "semantic_assertions": [
+        "I23:G_SCOPE",
+        "I23:G_SCOPE_VIOLATION"
+      ],
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_g_scope",
+      "target": "--lib",
+      "precision": 256,
+      "compile_status": "UNCOMPILED",
+      "runtime_status": "UNRUN",
+      "mapping_status": "PROPOSED_FOR_RV29_REVIEW",
+      "actual_diagnostic_location": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+        "line": 2017
+      }
+    },
+    {
+      "faults": [
+        "R7-M26",
+        "R7-M29"
+      ],
+      "warrants": [
+        "W04_BOUND_DERIVATION",
+        "W06_CHARGE_SCHEMA"
+      ],
+      "models": [
+        "CHARGE-SLENDER",
+        "HH-SLENDER-m40"
+      ],
+      "expected": "Every B field equals the corresponding fixed CHARGE token; no expectation is computed from current Uc/S/estimate.",
+      "semantic_assertions": [
+        "I23:B_CHOICE"
+      ],
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+      "target": "--lib",
+      "precision": 256,
+      "compile_status": "UNCOMPILED",
+      "runtime_status": "UNRUN",
+      "mapping_status": "PROPOSED_FOR_RV29_REVIEW",
+      "actual_diagnostic_location": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+        "line": 2026
+      }
+    },
+    {
+      "faults": [
+        "R7-M28",
+        "R7-M29"
+      ],
+      "warrants": [
+        "W07_FORCED_SHIFT_WARRANT",
+        "W06_CHARGE_SCHEMA"
+      ],
+      "models": [
+        "RF-LARGE-CHAIN-n00100-AX",
+        "RF-LARGE-TREE-n00100-AX"
+      ],
+      "expected": "One scheduled shift at 256; block 0 S equals the fixed BOUNDS first-try S token, also equal to fixed CHARGE B.",
+      "semantic_assertions": [
+        "I23:REQUIRED_SHIFT",
+        "I23:FORMED_SHIFT_BOUND"
+      ],
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+      "target": "--lib",
+      "precision": 256,
+      "compile_status": "UNCOMPILED",
+      "runtime_status": "UNRUN",
+      "mapping_status": "PROPOSED_FOR_RV29_REVIEW",
+      "actual_diagnostic_location": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+        "line": 2049
+      }
+    },
+    {
+      "faults": [
+        "R7-M5"
+      ],
+      "warrants": [
+        "W08_SCALE_SCHEMA",
+        "W09_SAME_E_DEFINITION",
+        "W10_EXISTING_SCALE_TEST_LIMIT",
+        "W11_MUTATED_E_PATH",
+        "W12_SHARED_E_FORMATION",
+        "W22_PRESCRIBED_INPUT"
+      ],
+      "models": [
+        "PRESCRIBED"
+      ],
+      "expected": "verify_state E rows 21..53 equal all 33 explicit SCALE tokens; resolution body 0 bits equal [0x4120facb09949713,0x40e2318280966d4e].",
+      "semantic_assertions": [
+        "I23:R7M5_E_ROW",
+        "I23:R7M5_RESOLUTION"
+      ],
+      "nonkill_shape_checks": [
+        "I23:R7M5_E_ROW_COVERAGE"
+      ],
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale",
+      "target": "--lib",
+      "precision": 256,
+      "compile_status": "UNCOMPILED",
+      "runtime_status": "UNRUN",
+      "mapping_status": "PROPOSED_FOR_RV29_REVIEW",
+      "actual_diagnostic_location": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+        "line": 2071
+      }
+    }
+  ],
+  "shared_helper": "i23_report256",
+  "frozen_corpus": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e",
+      "matches_existing_manifest": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b",
+      "matches_existing_manifest": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "matches_existing_manifest": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "matches_existing_manifest": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "matches_existing_manifest": true
+    }
+  ],
+  "baseline_policy": "After separate grant, exact selected filters must each run one test and pass unmutated. Then run each named source mutant with the same overlay; credit only the mapped numeric/rule assertion. Compiler, precondition, shape, empty-filter and certificate failures are not kills.",
+  "build_proposal": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-j",
+    "4",
+    "--manifest-path",
+    "<DISPOSABLE>/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+    "--lib",
+    "--no-run"
+  ],
+  "binary_proposal": [
+    "<PINNED_LIB_TEST_BINARY>",
+    "--exact",
+    "<EXACT_FILTER>",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "runtime_grant": false,
+  "adoption_or_acceptance": false,
+  "gaps": [
+    "Rust compilation and actual baseline/mutant execution are deliberately unrun. RV29 must review the exact overlay and mapping before ROOT grants installation/runtime."
+  ],
+  "out_of_scope": [
+    "K4-M24/D15 existing structured verdict filters",
+    "optional historical cache probe",
+    "other open protected mappings"
+  ],
+  "mutant_patch_map": [
+    {
+      "id": "R7-M25",
+      "patch": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__R7-M25.patch",
+      "sha256": "4e9c2e18ee6546010cb49d6ed9e4a3f9aa6f42f65c320f612460ff4e303902ba",
+      "source_preimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "ae156ed748a50c1a72e5e4f38d521e97e2d26a8e1f78c2bb230f6d691731e74f"
+        }
+      ],
+      "independent_of_test_overlay": true
+    },
+    {
+      "id": "R7-M26",
+      "patch": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__R7-M26.patch",
+      "sha256": "f06395d1422dd23187e1d7c661b381c83651d665e83735b423300ff3fb396dfb",
+      "source_preimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "00777717a1feb597fcf3d892b26d813556c6e97c2bd72ad723a9c29e40215726"
+        }
+      ],
+      "independent_of_test_overlay": true
+    },
+    {
+      "id": "R7-M28",
+      "patch": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__R7-M28.patch",
+      "sha256": "c3879ff417dee403af1925f7678882661507a3bb3f955bb299eba7427a2f2cd4",
+      "source_preimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "8b3f7924d028722ef51768a3b3e3ca536d70a4aa9c119b18a23430ccab74d818"
+        }
+      ],
+      "independent_of_test_overlay": true
+    },
+    {
+      "id": "R7-M29",
+      "patch": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__R7-M29.patch",
+      "sha256": "18ceb5db9bcc0a47329894c9a6953a4dc1312a2a78dfe2b81c78b56b293657c7",
+      "source_preimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "aae902fffd368e34d19d1240fb51f07ab154dea43dcfa4bbbca3f1604161df78"
+        }
+      ],
+      "independent_of_test_overlay": true
+    },
+    {
+      "id": "R7-M3",
+      "patch": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__R7-M3.patch",
+      "sha256": "08974da0ac1bbfff7ed62628d05af3ad315510b5dd57c5e80c1f03d946ed2727",
+      "source_preimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "b1175ee9162cf042719a37f47652f04adb8835097cafd1b10981a13725f70e92"
+        }
+      ],
+      "independent_of_test_overlay": true
+    },
+    {
+      "id": "R7-M4",
+      "patch": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__R7-M4.patch",
+      "sha256": "5aec428dfc9437a619738a4f9708b92e450e6a5b957a91c0ab84f8092bd98d2e",
+      "source_preimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "057c16c1e84856f46fc729208eec91bd7f5368e974c0d6df8279daaf6d375a42"
+        }
+      ],
+      "independent_of_test_overlay": true
+    },
+    {
+      "id": "R7-M5",
+      "patch": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__R7-M5.patch",
+      "sha256": "caf207eede2ea7ee1129e8968b450db94c78c57571a5386623f6b0800ce6676c",
+      "source_preimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "fdae9488f827106e1594bfd359a9429c9c73cda1ace901a64add0f35c8380347"
+        }
+      ],
+      "independent_of_test_overlay": true
+    },
+    {
+      "id": "R7-M9",
+      "patch": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__R7-M9.patch",
+      "sha256": "92fcc43846c337e3018cbbfe6ed50023fb46f504d11d4c4be53fb9e4f1cad838",
+      "source_preimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "ff2fa8979e7909d45fcfb914ca91730ba8269621f44381913a14a93b8a86ab73"
+        }
+      ],
+      "independent_of_test_overlay": true
+    }
+  ],
+  "prior_packet_seals_verified": {
+    "protected_01": "026823c7ad17e0415f679c37ef5dd854a05086e963e82c2aa3bd752b083e497e",
+    "ADDENDUM_01": "09203f4fcfaf1a0a11b17d54a16d49f94f30c7aa671da63e0cbcdded6bee9c5d"
+  },
+  "return_boundary_utc": "2026-10-01T10:02:43Z",
+  "elapsed_seconds": 411.0,
+  "status": "FINITE_ADDITIVE_PROPOSAL_COMPLETE_PENDING_RV29"
+}

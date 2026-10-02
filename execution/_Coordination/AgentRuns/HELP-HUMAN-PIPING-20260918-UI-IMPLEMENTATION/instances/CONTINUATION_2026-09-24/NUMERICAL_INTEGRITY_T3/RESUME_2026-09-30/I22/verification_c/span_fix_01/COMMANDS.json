@@ -1,0 +1,1345 @@
+{
+  "generated_at": "2026-10-01T07:31:30.736Z",
+  "aliases": "Host bindings are supplied by ROOT; all durable paths use these placeholders.",
+  "role": "TASK (Type 2), same /root/t3_recovery_manager/i22_a1; no delegation",
+  "stage_start": "2026-10-01T06:57:42Z",
+  "stage_deadline": "2026-10-01T07:42:42Z",
+  "jobs": [
+    {
+      "id": "FK",
+      "command": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --manifest-path <A1_WT>/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml --lib publication_tests > <S>/fk_02.stdout 2> <S>/fk_02.stderr",
+      "launch_utc": "2026-10-01T07:11:51.249Z",
+      "guard_before": {
+        "chunk_id": "4efc68",
+        "wall_time_seconds": 7.75e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:35:32 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "d25a54",
+        "wall_time_seconds": 1.000615458,
+        "session_id": 73156,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "e0e569",
+        "wall_time_seconds": 6.417e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "H",
+      "command": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --manifest-path <A1_WT>/projects/chirality-piping/core/solver/performance_harness/Cargo.toml --test k6b_export > <S>/h_01.stdout 2> <S>/h_01.stderr",
+      "launch_utc": "2026-10-01T07:13:09.659Z",
+      "guard_before": {
+        "chunk_id": "b01e7d",
+        "wall_time_seconds": 1.1875e-05,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:36:50 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "f4273a",
+        "wall_time_seconds": 9.333e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "PROBE_BUILD",
+      "command": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> \"$HOME/.cargo/bin/cargo\" build --offline --locked --manifest-path <S>/probe/Cargo.toml --bin a1_public_probe --no-default-features -j 4 --verbose > <S>/probe_build.stdout 2> <S>/probe_build.stderr",
+      "launch_utc": "2026-10-01T07:15:10.762Z",
+      "guard_before": {
+        "chunk_id": "af6a92",
+        "wall_time_seconds": 7.083e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:38:51 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "4a5921",
+        "wall_time_seconds": 1.00192425,
+        "session_id": 72664,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "4aabbb",
+        "wall_time_seconds": 1.0083e-05,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "S11",
+      "command": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --manifest-path <A1_WT>/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml --test s11_site_table > <S>/s11_01.stdout 2> <S>/s11_01.stderr",
+      "launch_utc": "2026-10-01T07:24:57.622Z",
+      "guard_before": {
+        "chunk_id": "b2c11e",
+        "wall_time_seconds": 7.708e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:48:38 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "0465a4",
+        "wall_time_seconds": 1.003173,
+        "session_id": 74551,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "77a52c",
+        "wall_time_seconds": 6.917e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "PRESCRIPTION",
+      "command": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --manifest-path <A1_WT>/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml --lib pc17_20_exact_prescription_and_magnitude_term > <S>/prescription_01.stdout 2> <S>/prescription_01.stderr",
+      "launch_utc": "2026-10-01T07:30:43.197Z",
+      "tool_initial": {
+        "chunk_id": "2794b4",
+        "wall_time_seconds": 1.000553083,
+        "session_id": 71179,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "8fa5d8",
+        "wall_time_seconds": 6.583e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    }
+  ],
+  "cases": [
+    {
+      "case": "C17",
+      "dispatch_utc": "2026-10-01T07:16:25.452Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "006b97",
+        "wall_time_seconds": 8.542e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:40:06 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe C17 100000000 100000000 C > <S>/runs/C17/stdout.tsv 2> <S>/runs/C17/stderr.txt",
+        "chunk_id": "48adbb",
+        "wall_time_seconds": 0.348637042,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "803464",
+        "wall_time_seconds": 9.292e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:40:07 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/C17/stdout.tsv <E>/cases/C17/BARE_B.json > <S>/runs/C17/compare.stdout 2> <S>/runs/C17/compare.stderr",
+        "chunk_id": "6777f2",
+        "wall_time_seconds": 7.208e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "C17 source/policy/header/limits/guard valid; first old false p128 rejected at D:0 AbsoluteBound, honest p256/P512 selection. Frozen complete 36-row bare-b comparison passes, affected rows exact; no known protected availability conflict. Advance to B01.",
+      "report_summary": {
+        "case": "C17",
+        "status": "Selected",
+        "raw_sha256": "54fc25452f385d5078c5c416c65e6566afa4124f75d3dc791ed9c3fe65b1a831",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 256,
+        "compared_rows": 36,
+        "failures": []
+      },
+      "full_report": "cases/C17/BARE_B.json"
+    },
+    {
+      "case": "B01",
+      "dispatch_utc": "2026-10-01T07:16:55.442Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "9ae980",
+        "wall_time_seconds": 7.375e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:40:36 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B01 100000000 100000000 B > <S>/runs/B01/stdout.tsv 2> <S>/runs/B01/stderr.txt",
+        "chunk_id": "3f5568",
+        "wall_time_seconds": 1.1667e-05,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "3830ac",
+        "wall_time_seconds": 9.375e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:40:36 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B01/stdout.tsv <E>/cases/B01/BARE_B.json > <S>/runs/B01/compare.stdout 2> <S>/runs/B01/compare.stderr",
+        "chunk_id": "77606f",
+        "wall_time_seconds": 8.417e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B01 binds source/policy exactly and all37 rows pass bare-b. New p128/p256 rejections at I-end Uy AbsoluteBound explain escalation to p512/P1024; existing Force/Moment Phi=h, no unavailable outcome or protected-standing conflict. Old p128 observation preserved; advance.",
+      "report_summary": {
+        "case": "B01",
+        "status": "Selected",
+        "raw_sha256": "5cce9889b9eb5c0e614d66d654158a363bd9b8109bdb1bd00a10579cdd57ea32",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B01/BARE_B.json"
+    },
+    {
+      "case": "B02",
+      "dispatch_utc": "2026-10-01T07:17:40.276Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "8d8681",
+        "wall_time_seconds": 7.208e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:41:21 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B02 100000000 100000000 B > <S>/runs/B02/stdout.tsv 2> <S>/runs/B02/stderr.txt",
+        "chunk_id": "5c8c07",
+        "wall_time_seconds": 8.917e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "fb1da6",
+        "wall_time_seconds": 9.333e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:41:21 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B02/stdout.tsv <E>/cases/B02/BARE_B.json > <S>/runs/B02/compare.stdout 2> <S>/runs/B02/compare.stderr",
+        "chunk_id": "7e6464",
+        "wall_time_seconds": 7.834e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B02 all37 rows/source binding/bare claims pass; old p128 Force StopRule rejection retained, new p256 Moment Ry AbsoluteBound rejection explains p512/P1024 selection and Phi=h. Published D:6/M:1 h/4 errors fit bare3h. No protected standing conflict; advance.",
+      "report_summary": {
+        "case": "B02",
+        "status": "Selected",
+        "raw_sha256": "6d1728ff21f7b288eec509eddbc181d315c6ad9a045892327dbaa5ff4a1db9e4",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B02/BARE_B.json"
+    },
+    {
+      "case": "B03",
+      "dispatch_utc": "2026-10-01T07:18:18.978Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "16b2d7",
+        "wall_time_seconds": 8.417e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:42:00 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B03 100000000 100000000 B > <S>/runs/B03/stdout.tsv 2> <S>/runs/B03/stderr.txt",
+        "chunk_id": "b0773a",
+        "wall_time_seconds": 9.458e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "92997b",
+        "wall_time_seconds": 7.375e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:42:00 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B03/stdout.tsv <E>/cases/B03/BARE_B.json > <S>/runs/B03/compare.stdout 2> <S>/runs/B03/compare.stderr",
+        "chunk_id": "b1b7c1",
+        "wall_time_seconds": 1.325e-05,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B03 no-amplification control remains p128/P256; 37 rows pass all bare predicates and exact source binding; D:9 quarter-h error bounded by3h, zero corrections and no floor. Advance.",
+      "report_summary": {
+        "case": "B03",
+        "status": "Selected",
+        "raw_sha256": "c0b8df64af9cf26a063be7a88c148fdc5ac7501b5fe4bf06948f0053cb64c998",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 128,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B03/BARE_B.json"
+    },
+    {
+      "case": "B04",
+      "dispatch_utc": "2026-10-01T07:18:26.107Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "e5e9d1",
+        "wall_time_seconds": 7.167e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:42:07 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B04 100000000 100000000 B > <S>/runs/B04/stdout.tsv 2> <S>/runs/B04/stderr.txt",
+        "chunk_id": "e88a7d",
+        "wall_time_seconds": 7.708e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "4301c3",
+        "wall_time_seconds": 6.667e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:42:07 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B04/stdout.tsv <E>/cases/B04/BARE_B.json > <S>/runs/B04/compare.stdout 2> <S>/runs/B04/compare.stderr",
+        "chunk_id": "e649d2",
+        "wall_time_seconds": 6.958e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B04 p128/P256 retained; both h/4 displacement/magnitude errors fit bare3h; all37 rows, source/policy and guard pass. No unexpected outcome. Advance.",
+      "report_summary": {
+        "case": "B04",
+        "status": "Selected",
+        "raw_sha256": "855cea653c0130ed7d90f6e5bb9f9e05467e03a63a69e76e9a8e96c3abbdcb53",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 128,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B04/BARE_B.json"
+    },
+    {
+      "case": "B05",
+      "dispatch_utc": "2026-10-01T07:18:35.919Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "fe0bf7",
+        "wall_time_seconds": 7.25e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:42:17 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B05 100000000 100000000 B > <S>/runs/B05/stdout.tsv 2> <S>/runs/B05/stderr.txt",
+        "chunk_id": "9003f0",
+        "wall_time_seconds": 7.833e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "f8c002",
+        "wall_time_seconds": 6.875e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:42:17 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B05/stdout.tsv <E>/cases/B05/BARE_B.json > <S>/runs/B05/compare.stdout 2> <S>/runs/B05/compare.stderr",
+        "chunk_id": "779d4c",
+        "wall_time_seconds": 6.959e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B05 selected p512/P1024 after two explicit force Uy certificate rejections; translation scale below boundary2^-989 retained and all37 rows pass bare claims. Floors=h force/moment. No availability loss; advance.",
+      "report_summary": {
+        "case": "B05",
+        "status": "Selected",
+        "raw_sha256": "0c27624dfd19c9378a7d3ad41f36a5efb084ae3f16cc71f3c7f3305973fef476",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B05/BARE_B.json"
+    },
+    {
+      "case": "B06",
+      "dispatch_utc": "2026-10-01T07:18:59.282Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "6587ae",
+        "wall_time_seconds": 8.583e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:42:40 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B06 100000000 100000000 B > <S>/runs/B06/stdout.tsv 2> <S>/runs/B06/stderr.txt",
+        "chunk_id": "eca29c",
+        "wall_time_seconds": 8.667e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "8acae9",
+        "wall_time_seconds": 8.417e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:42:40 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B06/stdout.tsv <E>/cases/B06/BARE_B.json > <S>/runs/B06/compare.stdout 2> <S>/runs/B06/compare.stderr",
+        "chunk_id": "07961c",
+        "wall_time_seconds": 7.417e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B06 at-threshold S_tr2^-988 source-bound; all37 bare predicates pass. p512/P1024 floor=h follows explicit p128/p256 Uy certificate rejections; expected conservative escalation, no unavailable outcome. Advance.",
+      "report_summary": {
+        "case": "B06",
+        "status": "Selected",
+        "raw_sha256": "a6fec6bdd365320d6fc3a140ea9dc3ef92fd1fe1b730aa218fb604e78c2bfd03",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B06/BARE_B.json"
+    },
+    {
+      "case": "B07",
+      "dispatch_utc": "2026-10-01T07:19:11.409Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "71521e",
+        "wall_time_seconds": 8.041e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:42:52 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B07 100000000 100000000 B > <S>/runs/B07/stdout.tsv 2> <S>/runs/B07/stderr.txt",
+        "chunk_id": "9a3c20",
+        "wall_time_seconds": 9.041e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "139f3d",
+        "wall_time_seconds": 8.25e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:42:52 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B07/stdout.tsv <E>/cases/B07/BARE_B.json > <S>/runs/B07/compare.stdout 2> <S>/runs/B07/compare.stderr",
+        "chunk_id": "c87e63",
+        "wall_time_seconds": 8.5e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B07 below rotation threshold2^-989 selected512/1024, earlier oldForce/newMoment gate reasons explicit; all37 bare predicates/sourcebinding/guards pass. h/4 T errors bounded3h. Advance.",
+      "report_summary": {
+        "case": "B07",
+        "status": "Selected",
+        "raw_sha256": "c5720dc07483c77b9d8b84e26db50368b1d5c30038ea3518dee430283d77056a",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B07/BARE_B.json"
+    },
+    {
+      "case": "B08",
+      "dispatch_utc": "2026-10-01T07:19:26.309Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "5566ab",
+        "wall_time_seconds": 6.875e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:43:07 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B08 100000000 100000000 B > <S>/runs/B08/stdout.tsv 2> <S>/runs/B08/stderr.txt",
+        "chunk_id": "5a3dc9",
+        "wall_time_seconds": 9.459e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "0d7605",
+        "wall_time_seconds": 7e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:43:07 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B08/stdout.tsv <E>/cases/B08/BARE_B.json > <S>/runs/B08/compare.stdout 2> <S>/runs/B08/compare.stderr",
+        "chunk_id": "7a2a59",
+        "wall_time_seconds": 6.917e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B08 at rotation threshold2^-988 remains source-bound and honest for37 rows; selected512 after recorded lower-p refusals, zero corrections, no resource issue. Advance.",
+      "report_summary": {
+        "case": "B08",
+        "status": "Selected",
+        "raw_sha256": "f010a04e3ba6bbef1ce520f4e0dbf5139e1ae09f6a88e4a3e82ce90537ee3ec5",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B08/BARE_B.json"
+    },
+    {
+      "case": "B09",
+      "dispatch_utc": "2026-10-01T07:19:31.551Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "ce2efd",
+        "wall_time_seconds": 7.041e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:43:12 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B09 100000000 100000000 B > <S>/runs/B09/stdout.tsv 2> <S>/runs/B09/stderr.txt",
+        "chunk_id": "48a568",
+        "wall_time_seconds": 9.042e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "1af92e",
+        "wall_time_seconds": 7.792e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:43:12 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B09/stdout.tsv <E>/cases/B09/BARE_B.json > <S>/runs/B09/compare.stdout 2> <S>/runs/B09/compare.stderr",
+        "chunk_id": "a99949",
+        "wall_time_seconds": 6.958e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B09 p128/P256 passes37 rows. Zero translation scale and two zero-bound magnitudes remain exact zeros under bare contract; Rx quarter-h error fits3h. Exact source binding and guard healthy; advance.",
+      "report_summary": {
+        "case": "B09",
+        "status": "Selected",
+        "raw_sha256": "fdf839129346eed888a43b0a2905749cde3b8c23696364f5d0dd5a75c97a64d5",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 128,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B09/BARE_B.json"
+    },
+    {
+      "case": "B10",
+      "dispatch_utc": "2026-10-01T07:19:40.195Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "9aff35",
+        "wall_time_seconds": 1.4292e-05,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:43:21 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B10 100000000 100000000 B > <S>/runs/B10/stdout.tsv 2> <S>/runs/B10/stderr.txt",
+        "chunk_id": "65fc13",
+        "wall_time_seconds": 8.792e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "b88e16",
+        "wall_time_seconds": 1.3542e-05,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:43:21 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B10/stdout.tsv <E>/cases/B10/BARE_B.json > <S>/runs/B10/compare.stdout 2> <S>/runs/B10/compare.stderr",
+        "chunk_id": "fca49f",
+        "wall_time_seconds": 7.708e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B10 p128/P256 source-bound37-row bare pass. Rotation scalezero remains input-derived-only (not free zero-row witness); D6/M1 errors h/4 bounded3h. Extra ZR will cover free rotation. Advance.",
+      "report_summary": {
+        "case": "B10",
+        "status": "Selected",
+        "raw_sha256": "da7c11071045f9a56704d0c13eca6053d759e3f786d1f393608d8d618335e785",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 128,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B10/BARE_B.json"
+    },
+    {
+      "case": "B11",
+      "dispatch_utc": "2026-10-01T07:20:25.893Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "e9c37e",
+        "wall_time_seconds": 7.083e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:44:06 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B11 100000000 100000000 B > <S>/runs/B11/stdout.tsv 2> <S>/runs/B11/stderr.txt",
+        "chunk_id": "a386b1",
+        "wall_time_seconds": 8.917e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "54ebe9",
+        "wall_time_seconds": 6.583e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:44:07 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B11/stdout.tsv <E>/cases/B11/BARE_B.json > <S>/runs/B11/compare.stdout 2> <S>/runs/B11/compare.stderr",
+        "chunk_id": "fdf038",
+        "wall_time_seconds": 6.542e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B11 exact-subnormal driver: all37 publications exact and bare pass. p512 follows zero-bound force Uy certification rejections at lowerp; floors=h; no availability loss. Advance.",
+      "report_summary": {
+        "case": "B11",
+        "status": "Selected",
+        "raw_sha256": "50368bac8d6fdf57bb842f914cecbadd24dc12ed51ec700ad2acb27e74b9522a",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B11/BARE_B.json"
+    },
+    {
+      "case": "B12",
+      "dispatch_utc": "2026-10-01T07:20:30.404Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "9db4df",
+        "wall_time_seconds": 9.958e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:44:11 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B12 100000000 100000000 B > <S>/runs/B12/stdout.tsv 2> <S>/runs/B12/stderr.txt",
+        "chunk_id": "8016f1",
+        "wall_time_seconds": 8.667e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "437fa6",
+        "wall_time_seconds": 1.1959e-05,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:44:11 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B12/stdout.tsv <E>/cases/B12/BARE_B.json > <S>/runs/B12/compare.stdout 2> <S>/runs/B12/compare.stderr",
+        "chunk_id": "8d12ea",
+        "wall_time_seconds": 8.208e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B12 exact-subnormal axial: all37 publications exact, source/policy/guards valid; p512 after oldforce/newmoment rejections with Phi=h. Advance.",
+      "report_summary": {
+        "case": "B12",
+        "status": "Selected",
+        "raw_sha256": "b494bc613510c7ff022b73636594151b54949a6c248a71f61834252ba0619cc0",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B12/BARE_B.json"
+    },
+    {
+      "case": "B13",
+      "dispatch_utc": "2026-10-01T07:20:40.252Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "206d85",
+        "wall_time_seconds": 6.917e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:44:21 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B13 100000000 100000000 B > <S>/runs/B13/stdout.tsv 2> <S>/runs/B13/stderr.txt",
+        "chunk_id": "6efdfc",
+        "wall_time_seconds": 9.834e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "ace750",
+        "wall_time_seconds": 8.667e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:44:21 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B13/stdout.tsv <E>/cases/B13/BARE_B.json > <S>/runs/B13/compare.stdout 2> <S>/runs/B13/compare.stderr",
+        "chunk_id": "ddc5f8",
+        "wall_time_seconds": 7.292e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B13 normal-boundary torsion: exact37 values and barepass, p512/P1024 due documented lower-p positive-certificate zero-force-bound rejections. Phi=h; no issue. Advance.",
+      "report_summary": {
+        "case": "B13",
+        "status": "Selected",
+        "raw_sha256": "aebcbbaa31a200627ab2fce796410540e631add8f24448a592891fe848480152",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B13/BARE_B.json"
+    },
+    {
+      "case": "B14",
+      "dispatch_utc": "2026-10-01T07:20:47.935Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "a605d6",
+        "wall_time_seconds": 6.75e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:44:29 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B14 100000000 100000000 B > <S>/runs/B14/stdout.tsv 2> <S>/runs/B14/stderr.txt",
+        "chunk_id": "0952bb",
+        "wall_time_seconds": 8e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "afa88c",
+        "wall_time_seconds": 6.75e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:44:29 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B14/stdout.tsv <E>/cases/B14/BARE_B.json > <S>/runs/B14/compare.stdout 2> <S>/runs/B14/compare.stderr",
+        "chunk_id": "b14855",
+        "wall_time_seconds": 7.917e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B14 normal-boundary axial: all37 exact values/barepass and identity/guards. p512 selected after unchanged p128force plus newp256moment rejection; original availability retained. Advance to O9 controls.",
+      "report_summary": {
+        "case": "B14",
+        "status": "Selected",
+        "raw_sha256": "9dca3282629ad27130d713efb2d7c9d856dc7eba13777dedde61548ea0fc7a7c",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B14/BARE_B.json"
+    },
+    {
+      "case": "B15",
+      "dispatch_utc": "2026-10-01T07:20:52.457Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "6370e1",
+        "wall_time_seconds": 1.2375e-05,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:44:33 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B15 100000000 100000000 B > <S>/runs/B15/stdout.tsv 2> <S>/runs/B15/stderr.txt",
+        "chunk_id": "a8c401",
+        "wall_time_seconds": 9.292e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "78744d",
+        "wall_time_seconds": 8.333e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:44:33 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B15/stdout.tsv <E>/cases/B15/BARE_B.json > <S>/runs/B15/compare.stdout 2> <S>/runs/B15/compare.stderr",
+        "chunk_id": "3314d1",
+        "wall_time_seconds": 8.084e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B15 all37 checks/source binding pass, including D9 Underflow/Unpublishable consistent with frozen half-h truth; other36 values exact. p512 floor=h after zero-force-bound certificate rejects; no range normalization or availability loss. Advance.",
+      "report_summary": {
+        "case": "B15",
+        "status": "Selected",
+        "raw_sha256": "703323363c4c2de15a4969321783c455db58b1d14f6ad6078ef93ed0019d6ff5",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B15/BARE_B.json"
+    },
+    {
+      "case": "B16",
+      "dispatch_utc": "2026-10-01T07:22:05.466Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "abfbb7",
+        "wall_time_seconds": 7.25e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:45:46 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe B16 100000000 100000000 B > <S>/runs/B16/stdout.tsv 2> <S>/runs/B16/stderr.txt",
+        "chunk_id": "b91425",
+        "wall_time_seconds": 1.0041e-05,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "380c55",
+        "wall_time_seconds": 6.708e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:45:46 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/B16/stdout.tsv <E>/cases/B16/BARE_B.json > <S>/runs/B16/compare.stdout 2> <S>/runs/B16/compare.stderr",
+        "chunk_id": "be03b0",
+        "wall_time_seconds": 7.875e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "B16 correct two Underflow/Unpublishable rows D6/M1; all35 published values exact and all37 checks pass. p512 floor=h following retained oldforce/newmoment rejects. All B completed selected, no source/guard/range failure. Advance to fixed EXTRA-FM-01.",
+      "report_summary": {
+        "case": "B16",
+        "status": "Selected",
+        "raw_sha256": "6edf011510e5da25cc1bf1f63fc4c50d33ac3e19cc10d2797914ff367f17917d",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 512,
+        "compared_rows": 37,
+        "failures": []
+      },
+      "full_report": "cases/B16/BARE_B.json"
+    },
+    {
+      "case": "EXTRA-FM-01",
+      "dispatch_utc": "2026-10-01T07:22:15.916Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "9a790a",
+        "wall_time_seconds": 8.375e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:45:57 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe EXTRA-FM-01 100000000 100000000 E > <S>/runs/EXTRA-FM-01/stdout.tsv 2> <S>/runs/EXTRA-FM-01/stderr.txt",
+        "chunk_id": "cc9ab5",
+        "wall_time_seconds": 1.1458e-05,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "daa797",
+        "wall_time_seconds": 9e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:45:57 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/EXTRA-FM-01/stdout.tsv <E>/cases/EXTRA-FM-01/BARE_B.json > <S>/runs/EXTRA-FM-01/compare.stdout 2> <S>/runs/EXTRA-FM-01/compare.stderr",
+        "chunk_id": "79d63d",
+        "wall_time_seconds": 7.375e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "EXTRA-FM-01 exact canonical source binding (three distinct spring IDs/load ID) passes, p128/P256 and40 bare claims. Raw force driver rounded h from5h/4 with eight quarter-h errors bounded3h, coupled moment scale2^-974 realized honestly. Advance.",
+      "report_summary": {
+        "case": "EXTRA-FM-01",
+        "status": "Selected",
+        "raw_sha256": "040079a37f54e20302caf1b9bffc83f49cb4c88bfffbf4b28526a9e266ada8bb",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 128,
+        "compared_rows": 40,
+        "failures": []
+      },
+      "full_report": "cases/EXTRA-FM-01/BARE_B.json"
+    },
+    {
+      "case": "EXTRA-MF-01",
+      "dispatch_utc": "2026-10-01T07:22:27.636Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "15feb9",
+        "wall_time_seconds": 6.333e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:46:08 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe EXTRA-MF-01 100000000 100000000 E > <S>/runs/EXTRA-MF-01/stdout.tsv 2> <S>/runs/EXTRA-MF-01/stderr.txt",
+        "chunk_id": "67003d",
+        "wall_time_seconds": 8.833e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "78b904",
+        "wall_time_seconds": 7.208e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:46:08 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/EXTRA-MF-01/stdout.tsv <E>/cases/EXTRA-MF-01/BARE_B.json > <S>/runs/EXTRA-MF-01/compare.stdout 2> <S>/runs/EXTRA-MF-01/compare.stderr",
+        "chunk_id": "4f097c",
+        "wall_time_seconds": 6.458e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "EXTRA-MF-01 exact source binding,p128/P256,40 rows pass. Seven moment/rotation quarter-h errors fit3h; inverse moment-to-force coupling gives2^-974 honestly. No failure. Advance to final EXTRA-ZR-01.",
+      "report_summary": {
+        "case": "EXTRA-MF-01",
+        "status": "Selected",
+        "raw_sha256": "986daba50aaedc4d40416c19a42bf976c1282fda3cb3444831361c9077a2b35f",
+        "numeric_accuracy_pass": true,
+        "source_binding_exact": true,
+        "selected_precision": 128,
+        "compared_rows": 40,
+        "failures": []
+      },
+      "full_report": "cases/EXTRA-MF-01/BARE_B.json"
+    },
+    {
+      "case": "EXTRA-ZR-01",
+      "dispatch_utc": "2026-10-01T07:22:37.188Z",
+      "binary_sha256": "dcac1835f4702508c45fe3b3fcda21978c57e37d84dd1511c8c726d9c1e9c637",
+      "guard_before": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "5b0ab3",
+        "wall_time_seconds": 6.958e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:46:18 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "run": {
+        "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<TARGET> <TARGET>/debug/a1_public_probe EXTRA-ZR-01 100000000 100000000 E > <S>/runs/EXTRA-ZR-01/stdout.tsv 2> <S>/runs/EXTRA-ZR-01/stderr.txt",
+        "chunk_id": "49aa3e",
+        "wall_time_seconds": 8.708e-06,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "guard_after": {
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "8a5247",
+        "wall_time_seconds": 6.375e-06,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-05:46:18 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "compare": {
+        "cmd": "<VENV>/bin/python -B <A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py <S>/runs/EXTRA-ZR-01/stdout.tsv <E>/cases/EXTRA-ZR-01/BARE_B.json > <S>/runs/EXTRA-ZR-01/compare.stdout 2> <S>/runs/EXTRA-ZR-01/compare.stderr",
+        "chunk_id": "b0fb81",
+        "wall_time_seconds": 6.084e-06,
+        "exit_code": 3,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true
+      },
+      "review": "EXTRA-ZR-01 exact source binding, no publication, explicit D9 Rx AbsoluteBound rejection at all candidate precisions and Ceiling. Comparator exit3/null accuracy is recorded nonselection, permitted conservative refusal with no protected expected-selection pin for this new control. Sequence ends; no further source cases.",
+      "report_summary": {
+        "case": "EXTRA-ZR-01",
+        "status": "Unresolved",
+        "raw_sha256": "4bc33ac043e550ae12979fc899606217482f7913e71f86f5e1264e928f3b4a14",
+        "numeric_accuracy_pass": null,
+        "source_binding_exact": true,
+        "compared_rows": 0,
+        "failures": []
+      },
+      "full_report": "cases/EXTRA-ZR-01/BARE_B.json"
+    }
+  ],
+  "preflight": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "pins",
+        "cmd": "shasum -a 256 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/candidate_01_span_addendum_01/CORRECTION.md projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/candidate_01_span_addendum_01/SHA256SUMS projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+        "chunk_id": "9e3c16",
+        "wall_time_seconds": 6.542e-06,
+        "exit_code": 0,
+        "original_token_count": 193,
+        "output": "e08b726fb695752b232be8e4583385ba63db3a767fc1f95ad6a4fde8b313226e  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/candidate_01_span_addendum_01/CORRECTION.md\n90732af11fb8a8271500b53322f294cd0a17c0c9b0e798a76f4fc9126fa84cbb  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/candidate_01_span_addendum_01/SHA256SUMS\n57c759928d251a530286c72bc9e2cd08a8c79a62380dfcf93245780bee517d68  projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "correction-seal",
+        "cmd": "shasum -a 256 -c SHA256SUMS",
+        "chunk_id": "4f09b2",
+        "wall_time_seconds": 8.792e-06,
+        "exit_code": 0,
+        "original_token_count": 12,
+        "output": "CORRECTION.md: OK\nSOURCE_DERIVATION.json: OK\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "prior-seal",
+        "cmd": "shasum -a 256 -c SHA256SUMS",
+        "chunk_id": "3ed496",
+        "wall_time_seconds": 7.042e-06,
+        "exit_code": 0,
+        "original_token_count": 21,
+        "output": "COMMANDS.json: OK\nFK.stdout: OK\nFK.stderr.portable: OK\nRETURN.md: OK\nTESTS.diff: OK\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "head",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git rev-parse HEAD",
+        "chunk_id": "fe7cf8",
+        "wall_time_seconds": 8.167e-06,
+        "exit_code": 0,
+        "original_token_count": 11,
+        "output": "c6e7d35c048f36d45b78184dcf73ce0c75879c95\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "grant-hash",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git show 46e5040fcead86af741d09f1bce00b1372883a3a:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_C_SPAN_CORRECTION.md | shasum -a 256",
+        "chunk_id": "5e1dff",
+        "wall_time_seconds": 7.792e-06,
+        "exit_code": 0,
+        "original_token_count": 17,
+        "output": "481d185f34600c35296af2a6535bc68996bdb5b550e24e11a8b2d5e6eaadc5a2  -\n"
+      }
+    }
+  ],
+  "archive": {
+    "cmd": "set -o pipefail\nGIT_OPTIONAL_LOCKS=0 git archive dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1 projects/chirality-piping/core/solver/frame_kernel | tar -x -C <S>/source",
+    "chunk_id": "3f023b",
+    "wall_time_seconds": 0.062328167,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "probe_origin_copies": [
+    {
+      "cmd": "GIT_OPTIONAL_LOCKS=0 git show 520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/src/main.rs > <S>/probe/src/main.rs",
+      "chunk_id": "e85b84",
+      "wall_time_seconds": 7.083e-06,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "GIT_OPTIONAL_LOCKS=0 git show 520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/src/cases.rs > <S>/probe/src/cases.rs",
+      "chunk_id": "3264cc",
+      "wall_time_seconds": 6.708e-06,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "GIT_OPTIONAL_LOCKS=0 git show 520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/Cargo.toml > <S>/probe/Cargo.toml",
+      "chunk_id": "4fa9c4",
+      "wall_time_seconds": 6.5e-06,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "GIT_OPTIONAL_LOCKS=0 git show 520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/continuation_01/Cargo.lock > <S>/probe/Cargo.lock",
+      "chunk_id": "2d1867",
+      "wall_time_seconds": 7.583e-06,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "features": {
+    "chunk_id": "80f6fd",
+    "wall_time_seconds": 1.2208e-05,
+    "exit_code": 0,
+    "original_token_count": 215,
+    "output": "{\"rustc\":11722972603611519644,\"features\":\"[]\",\"declared_features\":\"[\\\"mutation-controls\\\"]\",\"target\":10814701284944778693,\"profile\":8887875775441740213,\"path\":9750876163721589278,\"deps\":[],\"local\":[{\"CheckDepInfo\":{\"dep_info\":\"debug/.fingerprint/open_pipe_stress_frame_kernel-68dc2a2c4126b66c/dep-lib-open_pipe_stress_frame_kernel\",\"checksum\":false}}],\"rustflags\":[],\"config\":9396254390672932401,\"compile_kind\":0}{\"rustc\":11722972603611519644,\"features\":\"[]\",\"declared_features\":\"[]\",\"target\":5513478535554972921,\"profile\":8887875775441740213,\"path\":4942398508502643691,\"deps\":[[10646818785860357717,\"open_pipe_stress_frame_kernel\",false,11776379550634009963]],\"local\":[{\"CheckDepInfo\":{\"dep_info\":\"debug/.fingerprint/a1_public_probe-389444f4a07efcc3/dep-bin-a1_public_probe\",\"checksum\":false}}],\"rustflags\":[],\"config\":9396254390672932401,\"compile_kind\":0}"
+  },
+  "oracle": {
+    "cmd": "<VENV>/bin/python -B - <<'PY'\nimport hashlib,json,pathlib\nroot=pathlib.Path('<A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh')\nm=json.loads((root/'addendum_04_bare_b/FREEZE_MANIFEST.json').read_text())\nchecks=[(x['path'],hashlib.sha256((root/x['path']).read_bytes()).hexdigest()==x['sha256'] and (root/x['path']).stat().st_size==x['bytes']) for x in m['files']]\nprint(json.dumps({'all_ok':all(c[1] for c in checks),'checks':checks}))\nraise SystemExit(0 if all(c[1] for c in checks) else 1)\nPY",
+    "chunk_id": "1ae6c9",
+    "wall_time_seconds": 7.458e-06,
+    "exit_code": 0,
+    "original_token_count": 107,
+    "output": "{\"all_ok\": true, \"checks\": [[\"addendum_04_bare_b/BOUNDARY_CHECKS.json\", true], [\"addendum_04_bare_b/CHECKPOINT_0.md\", true], [\"addendum_04_bare_b/RAW_CHECK_OUTPUTS.txt\", true], [\"addendum_04_bare_b/REGISTRY_CHECKS.json\", true], [\"addendum_04_bare_b/SOURCE_IDENTITIES.json\", true], [\"addendum_04_bare_b/SOURCE_READS.json\", true], [\"addendum_04_bare_b/bare_b_compare.py\", true], [\"addendum_04_bare_b/boundary_checks.py\", true]]}\n"
+  }
+}

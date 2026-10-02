@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -4308,7 +4308,7 @@
+ 
+ /// Geometry first, then the group's structure and ordering.
+ fn prepare_group(source: &PrimitiveSource) -> Result<GroupPrep, (Refusal, Vec<BodyGeometry>)> {
+-    let geometry = match geometry_first(source) {
++    let geometry = match Ok::<Vec<BodyGeometry>, GeometryRefusal>(geometry_first(source).unwrap_or_default()) {
+         Ok(g) => g,
+         Err(GeometryRefusal::MechanismWitnessed {
+             body,

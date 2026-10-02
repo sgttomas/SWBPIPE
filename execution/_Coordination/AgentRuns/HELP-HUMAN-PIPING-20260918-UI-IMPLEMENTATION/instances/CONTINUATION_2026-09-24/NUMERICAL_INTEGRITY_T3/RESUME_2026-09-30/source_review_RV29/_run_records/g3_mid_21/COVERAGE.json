@@ -1,0 +1,325 @@
+{
+  "qualified": [
+    {
+      "id": "R15",
+      "registration": "R7_K4::D13",
+      "filter": "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie",
+      "qualifier": "Direct reduced_rhs equals 1+2^-127: preserve ledger 2^-128+2^-400 until coupled term1 joins; early p128/binary64/top128 rounding loses the tail.",
+      "actual_meaning": "Coupled prescribed RHS token1 versus1+2^-127; exactKij setup passed.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+        "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922",
+        "assertion_lines": [
+          292
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie' (26113295) panicked at src/structural/retained/../../../tests/retained_k4/ledger_tests.rs:292:5:\nassertion `left == right` failed\n  left: \"+8p0\"\n right: \"+80000000000000000000000000000001p0\"",
+      "full_assertion_sha256": "117ab7f6195a5f8c8d042293a26e9edbed466f1bfce54d4eb59c1436df01f504",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R16",
+      "registration": "R7_K4::D13b",
+      "filter": "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie",
+      "qualifier": "Direct reduced_rhs equals 1+2^-127: preserve ledger 2^-128+2^-400 until coupled term1 joins; early p128/binary64/top128 rounding loses the tail.",
+      "actual_meaning": "Same protected coupled-tail equality under distinct frozen D13b fault.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+        "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922",
+        "assertion_lines": [
+          292
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie' (26116190) panicked at src/structural/retained/../../../tests/retained_k4/ledger_tests.rs:292:5:\nassertion `left == right` failed\n  left: \"+8p0\"\n right: \"+80000000000000000000000000000001p0\"",
+      "full_assertion_sha256": "ca0a4ce08575af750ce171be8c81f3badba00efbc71804ed57865f3f3ebd65a3",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R17",
+      "registration": "R7_K4::K4-M12",
+      "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+      "qualifier": "Fixed correction count and E-row tokens after solve_case_at using exact residual expansion; only specific numeric/correction mismatch counts.",
+      "actual_meaning": "GS-TRANS-y345 p128 E-row digest differs from frozen SCALE; earlier correction/g/A-bar checks passed.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+        "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+        "assertion_lines": [
+          123,
+          185,
+          208
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision' (26118124) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:185:24:\nassertion `left == right` failed: GS-TRANS-y345 128 E rows\n  left: \"6f248ae87d63c9ac22bf79824b6657cb356f3d2c8da194301d785a4b06cac7bb\"\n right: \"7ec6dac7eaca9d010eb65bdacbfe8cde5da08c03a59245182ceac5e47abc74aa\"",
+      "full_assertion_sha256": "f86b4e4e98bfb1cd54dc0117832cc176db1fbb7adcb04cbaa93763725de0491a",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R18",
+      "registration": "R7_K4::K4-M13",
+      "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+      "qualifier": "Fixed SCALE A-bar/E rows at p>128 must reflect same-p build_shared formation, not retained128 coefficients.",
+      "actual_meaning": "N09-B p256 A-bar digest differs from frozen same-precision SCALE; allowed p>128 criterion.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+        "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+        "assertion_lines": [
+          183,
+          185,
+          208
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision' (26123162) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:183:17:\nassertion `left == right` failed: N09-B 256 \u0100\n  left: \"da8ad1b1a1cf30a61e9482b7fad39e86b806ad0b3d31630fe919788adbf34535\"\n right: \"43eb8c321ca66f663dc10ba2aadb74a15f1ea71f649476c7e37b963541e8ebf9\"",
+      "full_assertion_sha256": "f97e280d123bd6772a082d4de259ad3c927d1788eb94201277ce2b884c6cacc6",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R19",
+      "registration": "R7_K4::K4-M15",
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star",
+      "qualifier": "Second underflow straddle must pass: tr=2^-1075 and extent2^-60 yield rotational scale2^-1015 and allowance2^-1079; uncoupled rotation2^-1020 yields2^-1084 and wrongly rejects delta2^-1080.",
+      "actual_meaning": "Second underflow straddle wrongly rejects StopRule index1 instead ofNone; exact preceding straddle/setup passed.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+        "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+        "assertion_lines": [
+          1670,
+          1672
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star' (26126725) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1670:5:\nassertion `left == right` failed\n  left: Some(StopRule { index: 1 })\n right: None",
+      "full_assertion_sha256": "3f3efd96402ae29fa6378d50c21b48c600b8b0ea90d42317a2de5d7693a8dbae",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R20",
+      "registration": "R7_K4::K4-M16",
+      "filter": "structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule",
+      "qualifier": "Perturbed Reaction row requires (Ok(false),Some(index)) just like each other kind; reaction omission returns no failure.",
+      "actual_meaning": "Perturbed Reaction(node0,Ux) is accepted with no first_failure instead of rejected at33.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+        "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14",
+        "assertion_lines": [
+          309,
+          312
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule' (26129119) panicked at src/structural/retained/../../../tests/retained_k4/adaptive_tests.rs:309:9:\nassertion `left == right` failed: Reaction(Dof { node: 0, component: Ux })\n  left: (Ok(true), None)\n right: (Ok(false), Some(33))",
+      "full_assertion_sha256": "ec2c7bc4bfd41ce4db0f6c4bc965f5fcca499c9913655bfc1cab31d6414976fe",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R21",
+      "registration": "R7_K4::K4-M18",
+      "filter": "structural::retained::adaptive::tests::a_sums_rounding_charges_the_limbs_it_rounds",
+      "qualifier": "Wide net rounding must add 17..20 rounded limbs; omitted charge gives0.",
+      "actual_meaning": "Wide sum round adds0 rounded limbs instead of required17..20; prior narrow control passed.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+        "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14",
+        "assertion_lines": [
+          423
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::adaptive::tests::a_sums_rounding_charges_the_limbs_it_rounds' (26132658) panicked at src/structural/retained/../../../tests/retained_k4/adaptive_tests.rs:423:5:\n0",
+      "full_assertion_sha256": "5c57e9d9109f1cd475b83434fdf8dd1ed8f232eee3ba5372fe14f2d6c3a33e9a",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R22",
+      "registration": "R7_K4::K4-M20",
+      "filter": "structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends",
+      "qualifier": "After unchanged unlimited baseline, needed-1 must produce Case budget; invocation needed-1 must produce Invocation budget.",
+      "actual_meaning": "N05 with needed\u22121 CaseLimit returnsSelected at existing364 else arm. Unlimited charge equality and exact-needed acceptance passed first. Later Invocation branch is not claimed reached.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+        "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14",
+        "assertion_lines": [
+          358,
+          373
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends' (26135726) panicked at src/structural/retained/../../../tests/retained_k4/adaptive_tests.rs:364:22:\nN05: Selected(RetainedSolve { prep: CasePrep { source: PrimitiveSource { nodes: [[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]], members: [StraightMember { id: 1, node_i: 0, node_j: 1, elastic_modulus: 200000000000.0, shear_modulus: 80000000000.0, area: 0.005969026041820607, second_moment_y: 2.7009842839238247e-5, second_moment_z: 2.7009842839238247e-5, torsion_constant: 5.4019685678476494e-5, y_reference: [0.0, 0.0, 1.0] }], springs: [Spring { id: 1, dof: Dof { node: 0, component: Rx }, stiffness: 0.0001 }], directional_springs: [], constraints: [Constraint { dof: Dof { node: 0, component: Ux }, value: 0.0 }, Constraint { dof: Dof { node: 0, component: Uy }, value: 0.0 }, Constraint { dof: Dof { node: 0, component: Uz }, value: 0.0 }, Constraint { dof: Dof { node: 0, component: Ry }, value: 0.0 }, Constraint { dof: Dof { node: 0, component: Rz }, value: 0.0 }], loads: [NodalLoad { dof: Dof { node: 1, component: Rx }, value: 1e-8, source_id: \"l0\" }], stations: [Station { id: 1, member: 1, fraction: 0.5 }], supports: [SupportGroup { id: 1, node: 0, restrained: [true, true, true, false, true, true], springs: [1], directional_springs: [] }], constrained: [Some(0.0), Some(0.0), Some(0.0), None, Some(0.0), Some(0.0), None, None, None, None, None, None], body_of_node: [0, 0], body_count: 1 }, ledger: RetainedLedger { entries: [(9, LedgerNet { negative: false, magnitude: [3022314549036573], exponent: -78 })], nonzero: [true] }, prescribed: [(0, [(1.0, 0.0)]), (1, [(1.0, 0.0)]), (2, [(1.0, 0.0)]), (4, [(1.0, 0.0)]), (5, [(1.0, 0.0)])], factors: [], identity: [75, 52, 83, 82, 67, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 232, 118, 72, 71, 66, 0, 0, 0, 32, 95, 160, 50, 66, 19, 172, 55, 58, 250, 114, 120, 63, 8, 33, 66, 68, 102, 82, 252, 62, 8, 33, 66, 68, 102, 82, 252, 62, 8, 33, 66, 68, 102, 82, 12, 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 240, 63, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 3, 45, 67, 28, 235, 226, 54, 26, 63, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 3, 2, 0, 0, 0, 108, 48, 58, 140, 48, 226, 142, 121, 69, 62, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 224, 63, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0], layout: [QuantityMeta { id: Displacement(Dof { node: 0, component: Ux }), kind: Translation, body: 0, input_derived: true }, QuantityMeta { id: Displacement(Dof { node: 0, component: Uy }), kind: Translation, body: 0, input_derived: true }, QuantityMeta { id: Displacement(Dof { node: 0, component: Uz }), kind: Translation, body: 0, input_derived: true }, QuantityMeta { id: Displacement(Dof { node: 0, component: Rx }), kind: Rotation, body: 0, input_derived: false }, QuantityMeta { id: Displacement(Dof { node: 0, component: Ry }), kind: Rotation, body: 0, input_derived: true }, QuantityMeta { id: Displacement(Dof { node: 0, component: Rz }), kind: Rotation, body: 0, input_derived: true }, QuantityMeta { id: Displacement(Dof { node: 1, component: Ux }), kind: Translation, body: 0, input_derived: false }, QuantityMeta { id: Displacement(Dof { node: 1, component: Uy }), kind: Translation, body: 0, input_derived: false }, QuantityMeta { id: Displacement(Dof { node: 1, component: Uz }), kind: Translation, body: 0, input_derived: false }, QuantityMeta { id: Displacement(Dof { node: 1, component: Rx }), kind: Rotation, body: 0, input_derived: false }, QuantityMeta { id: Displacement(Dof { node: 1, component: Ry }), kind: Rotation, body: 0, input_derived: false }, QuantityMeta { id: Displacement(Dof { node: 1, component: Rz }), kind: Rotation, body: 0, input_derived: false }, QuantityMeta { id: DisplacementMagnitude(0), kind: Translation, body: 0, input_derived: false }, QuantityMeta { id: DisplacementMagnitude(1), kind: Translation, body: 0, input_derived: false }, QuantityMeta { id: EndAction { member: 1, end: I, component: Ux }, kind: Force, body: 0, input_derived: false }, QuantityMeta { id: EndAction { member: 1, end: I, component: Uy }, kind: Force, body: 0, input_derived: false }, QuantityMeta { id: EndAction { member: 1, end: I, component: Uz }, kind: Force, body: 0, input_derived: false }, QuantityMeta { id: EndAction { member: 1, end: I, component: Rx }, kind: Moment, body: 0, input_derived: false }, QuantityMeta { id: EndAction { member: 1, end: I, component: Ry }, kind: Moment, body: 0, input_derived: false }, QuantityMeta { id: EndAction { member: 1, end: I, comp",
+      "full_assertion_sha256": "8086c850d696cc9ed3184d79d09307add09fc2a7298e3991bad937520d4844c9",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R23",
+      "registration": "R7_K4::K4-M21",
+      "filter": "structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves",
+      "qualifier": "Named N02/N03-RZ/N04 must be Refused MechanismWitnessed with no geometry attempts, not numerically escalated after bypassing geometry.",
+      "actual_meaning": "Named N02 returnsCeiling with numeric Pivot attempts instead of immediate Refused MechanismWitnessed. This violates the exact geometry-first branch; later N03/N04/RX checks not claimed reached.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+        "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+        "assertion_lines": [
+          247,
+          257
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves' (26137484) panicked at src/structural/retained/../../../tests/retained_k4/factor_tests.rs:252:22:\nN02: Unresolved { reason: Ceiling, attempts: [AttemptRecord { precision: 128, role: Candidate, outcome: Failed(Stop(Pivot { global_dof: 3 })), residual_basis: 192, corrections: 0, pivot_margin_min: None, rcond: None, residual_worst: None, work: AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 0, shift_limbs: 0, net_limbs: 0, rounded_limbs: 0, max_span_bits: 0 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 88437, shared_stages: StageWork { formation: 31811, assembly: 1128, residual_formation: 34063, factor: 21435, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 144, profile_entries: 21, limbs_per_entry: 4 }, gate: None, verification_work: 0, verification: None, verification_shared_work: 0, verification_shared_built_here: false, bound_refusals: [] }, AttemptRecord { precision: 256, role: Candidate, outcome: Failed(Stop(Pivot { global_dof: 3 })), residual_basis: 320, corrections: 0, pivot_margin_min: None, rcond: None, residual_worst: None, work: AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 0, shift_limbs: 0, net_limbs: 0, rounded_limbs: 0, max_span_bits: 0 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 163083, shared_stages: StageWork { formation: 34055, assembly: 1464, residual_formation: 105519, factor: 22045, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 144, profile_entries: 21, limbs_per_entry: 4 }, gate: None, verification_work: 0, verification: None, verification_shared_work: 0, verification_shared_built_here: false, bound_refusals: [] }, AttemptRecord { precision: 512, role: Candidate, outcome: Failed(Stop(Pivot { global_dof: 3 })), residual_basis: 576, corrections: 0, pivot_margin_min: None, rcond: None, residual_worst: None, work: AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 0, shift_limbs: 0, net_limbs: 0, rounded_limbs: 0, max_span_bits: 0 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 551946, shared_stages: StageWork { formation: 106339, assembly: 2760, residual_formation: 367150, factor: 75697, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 144, profile_entries: 21, limbs_per_entry: 8 }, gate: None, verification_work: 0, verification: None, verification_shared_work: 0, verification_shared_built_here: false, bound_refusals: [] }], geometry: [] }",
+      "full_assertion_sha256": "77a32d403575c1810290a15bf939ded4eae2a0e127888243d0717fd7688afa7a",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R24",
+      "registration": "R7_K4::D7",
+      "filter": "structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves",
+      "qualifier": "Named N02/N03-RZ/N04 must be Refused MechanismWitnessed with no geometry attempts, not numerically escalated after bypassing geometry.",
+      "actual_meaning": "Same named N02 geometry-first requirement under registered D7; its actual result is likewiseCeiling with attempts.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+        "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+        "assertion_lines": [
+          247,
+          257
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves' (26140935) panicked at src/structural/retained/../../../tests/retained_k4/factor_tests.rs:252:22:\nN02: Unresolved { reason: Ceiling, attempts: [AttemptRecord { precision: 128, role: Candidate, outcome: Failed(Stop(Pivot { global_dof: 3 })), residual_basis: 192, corrections: 0, pivot_margin_min: None, rcond: None, residual_worst: None, work: AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 0, shift_limbs: 0, net_limbs: 0, rounded_limbs: 0, max_span_bits: 0 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 88437, shared_stages: StageWork { formation: 31811, assembly: 1128, residual_formation: 34063, factor: 21435, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 144, profile_entries: 21, limbs_per_entry: 4 }, gate: None, verification_work: 0, verification: None, verification_shared_work: 0, verification_shared_built_here: false, bound_refusals: [] }, AttemptRecord { precision: 256, role: Candidate, outcome: Failed(Stop(Pivot { global_dof: 3 })), residual_basis: 320, corrections: 0, pivot_margin_min: None, rcond: None, residual_worst: None, work: AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 0, shift_limbs: 0, net_limbs: 0, rounded_limbs: 0, max_span_bits: 0 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 163083, shared_stages: StageWork { formation: 34055, assembly: 1464, residual_formation: 105519, factor: 22045, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 144, profile_entries: 21, limbs_per_entry: 4 }, gate: None, verification_work: 0, verification: None, verification_shared_work: 0, verification_shared_built_here: false, bound_refusals: [] }, AttemptRecord { precision: 512, role: Candidate, outcome: Failed(Stop(Pivot { global_dof: 3 })), residual_basis: 576, corrections: 0, pivot_margin_min: None, rcond: None, residual_worst: None, work: AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 0, shift_limbs: 0, net_limbs: 0, rounded_limbs: 0, max_span_bits: 0 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 551946, shared_stages: StageWork { formation: 106339, assembly: 2760, residual_formation: 367150, factor: 75697, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 144, profile_entries: 21, limbs_per_entry: 8 }, gate: None, verification_work: 0, verification: None, verification_shared_work: 0, verification_shared_built_here: false, bound_refusals: [] }], geometry: [] }",
+      "full_assertion_sha256": "24a55f0adf12d5b3694a902704d30c94fa8e95a1eee3a2f8810599f970119f42",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R25",
+      "registration": "R7_K4::K4-M22",
+      "filter": "structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p",
+      "qualifier": "rigid_mode_check bound lhs<=64*2^-p*A for exact rigid motion; named member/row/motion numeric inequality.",
+      "actual_meaning": "Member1 p128 row2 rigid motion violates fixed lhs<=limit inequality; operands/quantities printed in full raw.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+        "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5",
+        "assertion_lines": [
+          214,
+          215
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p' (26144149) panicked at src/structural/retained/../../../tests/retained_k4/assemble_tests.rs:214:17:\nmember 1 p 128 row 2 motion [0.0, -0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -0.0, 4.0, 1.0, 0.0, 0.0]: 3.9183475670506106e28 > 2.6551755929413018e8",
+      "full_assertion_sha256": "50dec2b991837ad40794806c146ae57d494a8e409e692a4f9f25469da2c36dc6",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R26",
+      "registration": "R7_K4::D4",
+      "filter": "structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p",
+      "qualifier": "rigid_mode_check bound lhs<=64*2^-p*A for exact rigid motion; named member/row/motion numeric inequality.",
+      "actual_meaning": "Member1 p128 row0 translation violates same fixed rigid-mode inequality under D4.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+        "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5",
+        "assertion_lines": [
+          214,
+          215
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p' (26146000) panicked at src/structural/retained/../../../tests/retained_k4/assemble_tests.rs:214:17:\nmember 1 p 128 row 0 motion [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]: 4.062308619446874e47 > 7.640353340646011e10",
+      "full_assertion_sha256": "894d4f313410fc4c4c631599fe5ea344cff65419b7a130745c4d68397e4ff04c",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R27",
+      "registration": "R7_K4::K4-M23",
+      "filter": "structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit",
+      "qualifier": "Fixed DIRECTIONAL-SPAN formation K entry tokens at exact precision; binary64-normalized directions differ.",
+      "actual_meaning": "DIRECTIONAL-SPAN p53 K(4,5) token differs from original formation corpus.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+        "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5",
+        "assertion_lines": [
+          107
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit' (26147329) panicked at src/structural/retained/../../../tests/retained_k4/assemble_tests.rs:107:17:\nassertion `left == right` failed: DIRECTIONAL-SPAN p 53 entry (4, 5)\n  left: \"+f4240000000008p19\"\n right: \"+f424p19\"",
+      "full_assertion_sha256": "908ffde20f750e7315bb438ec291d22a4701269acbfee352487de7d073c41d04",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R28",
+      "registration": "R7_K4::K4-M25a",
+      "filter": "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+      "qualifier": "absolute_bound(minimum subnormal)>0 and equals minsubnormal; nearest mutant returns0.",
+      "actual_meaning": "absolute_bound(minsubnormal) returns0 instead of minimum positive subnormal at140.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+        "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+        "assertion_lines": [
+          140,
+          142
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly' (26148888) panicked at src/structural/retained/../../../tests/retained_k4/classification_tests.rs:140:5:\nassertion `left == right` failed\n  left: 0.0\n right: 5e-324",
+      "full_assertion_sha256": "9f14be0afdbd850d9a6e2c6d7e5ba3480bcc7df122beb5aec211f606e20cbbf1",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R29",
+      "registration": "R7_K4::K4-M26",
+      "filter": "structural::retained::factor::tests::the_span_decision_is_exact",
+      "qualifier": "a,b,c with exact determinant2^-104 span space; binary64 determinant loses it.",
+      "actual_meaning": "Exact determinant fixture is declared not spanning at279; prior binary64-Sarrus-zero demonstration passed.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+        "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+        "assertion_lines": [
+          279
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::factor::tests::the_span_decision_is_exact' (26151609) panicked at src/structural/retained/../../../tests/retained_k4/factor_tests.rs:279:5:\nassertion failed: spans_space(&[a, b, c])",
+      "full_assertion_sha256": "7c0255e3dc5f1a7620df4db9c3f9481defc5e6df5a69db6fa9d917d517bef1d9",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R30",
+      "registration": "R7_K4::K4-M27",
+      "filter": "structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld",
+      "qualifier": "Final same-source doubled quarter station st.1.4 must be1.5 (2*0.75); substituting1-t gives0.5.",
+      "actual_meaning": "Final same-source doubled quarter-station returns0.5 instead of1.5; A+B/A+C guards and selected combination setup passed.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+        "sha256": "a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5",
+        "assertion_lines": [
+          567
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld' (26153700) panicked at src/structural/retained/../../../tests/retained_k4/combine_tests.rs:567:5:\nassertion `left == right` failed\n  left: Some(0.5)\n right: Some(1.5)",
+      "full_assertion_sha256": "8f68e1252a293b257bc4d7909523839e164b868102886f3b3782eb30d37ee920",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R31",
+      "registration": "R7_K4::K4-M28",
+      "filter": "structural::retained::factor::tests::the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_direct_does",
+      "qualifier": "Exact four sparse_direct graph orders; descending-index tie breaks change a pinned order.",
+      "actual_meaning": "First pinned path-graph RCM order is[0,1,2,3] instead of[3,2,1,0]; later graphs not claimed reached.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+        "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+        "assertion_lines": [
+          56
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::factor::tests::the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_direct_does' (26157126) panicked at src/structural/retained/../../../tests/retained_k4/factor_tests.rs:56:9:\nassertion `left == right` failed: [[1], [0, 2], [1, 3], [2]]\n  left: [0, 1, 2, 3]\n right: [3, 2, 1, 0]",
+      "full_assertion_sha256": "66f38937bc8ff9d13e5374f8fd47d00229a4e87280dc9e2f7149c25904028108",
+      "returned_same_filter": "PASS"
+    },
+    {
+      "id": "R32",
+      "registration": "R7_K4::K4-M33",
+      "filter": "structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once",
+      "qualifier": "Published input-derived u.2.1 is fixed 0x3ff0000000000001, not the p-rounded tie at1.",
+      "actual_meaning": "InputDerived combined u.2.1 publishes1 instead of nextafter(1,+inf); selected128 and InputDerived setup passed.",
+      "source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+        "sha256": "a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5",
+        "assertion_lines": [
+          461,
+          465
+        ]
+      },
+      "assertion_prefix": "thread 'structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once' (26158836) panicked at src/structural/retained/../../../tests/retained_k4/combine_tests.rs:462:5:\nassertion `left == right` failed: 1 + 2^-52\n  left: Normal(1.0)\n right: Normal(1.0000000000000002)",
+      "full_assertion_sha256": "f3213d84d42b1ffc7ac4cc498bd9861da7dee363ed32b91d8839601beefffb8d",
+      "returned_same_filter": "PASS"
+    }
+  ],
+  "uncredited": "R33 first N01 p128 E rows; fixed N05/N06 witnesses not reached; original control unrun",
+  "R34_R52_runtime": "not reviewed or credited"
+}

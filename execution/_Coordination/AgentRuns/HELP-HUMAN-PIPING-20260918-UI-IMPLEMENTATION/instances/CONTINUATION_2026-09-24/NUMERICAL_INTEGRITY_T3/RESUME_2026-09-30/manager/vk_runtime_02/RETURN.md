@@ -1,0 +1,9 @@
+# V-K remainder02 stopped manager return
+
+Actual restart2026-10-01 18:48:13 UTC; fresh end19:23:13 retained. Exactly four fresh processes, no builds/repeats: P10 NONE PASS; P11 F02 reaches176 named numerical predicate failures while all30 cases remain selected; P12 NONE PASS; P13 F03 STOP_UNQUALIFIED with30 unexplained Unresolved Ceiling[Restrained] results. P14–P53 including the F03 return/second filter remain unrun; no automatic diagnostic or alternate command.
+
+Manager independently verified all18 sealed payloads, exact4command argv/env/cwd/exit/raw/portable bindings, four original binaries/raw fingerprints,189 source files and absent40 remaining stream pairs. P10/P12 restore the original debug records/report. All176 P11 failure strings match unchanged frozen case/row/reference values, including registered r1e-10 T.M1/tw.M1 and N.M1/ext.M1 witnesses; F02 is a value result with returned control, not generic refusal/work drift. F02_WITNESS_CHECK.txt records the full reference match. One first compact read used the wrong output delimiter and was corrected read-only; no runtime/evidence changed.
+
+P13 launch18:51:15.541Z/PTy14553,exit101,1.50s real; lane.rs75 prints only the top-level ceilings, with no R7/certificate attribution. Manager read raw; no kill credited. ps18:52:26 found no owned Rust/test/example processes; guard5387 was live. Child final check18:51:58 agrees and preserves prior76 payloads. All later advance conditions held pending ROOT disposition.
+
+Child seald6aee79a73097ae9b4e422e441ad6b00e924062bfff40ce8fedc7fa09f03bc91 (18 unique payloads) verified; RETURN3f421df8f2c5dfe618273f33e30a374c84c6581aeae5b783bbc2b8997df39431 fully read. Original P09 remains unqualified; its separate release diagnostic and actual P10 return are distinct evidence. No source/corpus/oracle/observation/helper/tool/Git/index change, new collector, cleanup or acceptance. I22 idle/slot released; I21's separately granted source-only leaf work continues.

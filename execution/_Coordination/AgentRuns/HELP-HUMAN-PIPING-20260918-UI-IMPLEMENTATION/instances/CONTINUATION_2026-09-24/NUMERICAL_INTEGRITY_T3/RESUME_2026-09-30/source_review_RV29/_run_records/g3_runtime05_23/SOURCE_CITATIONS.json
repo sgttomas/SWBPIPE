@@ -1,0 +1,123 @@
+{
+  "tests": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+      "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5",
+      "excerpts": [
+        {
+          "start": 691,
+          "end": 722,
+          "text": "#[test]\nfn the_reduced_rhs_enters_prescribed_columns_exactly_and_rounds_once() {\n    // Every rhs entry of PRESCRIBED equals the exact ledger \u2212 \u03a3 K_ic\u00b7u_c\n    // rounded once, where the sum is re-formed here term by term from the\n    // assembled row (and differs from a binary64 rhs).\n    let source = models::model(\"PRESCRIBED\").source();\n    let (structure, k, _) = assembled::<4>(&source, 128);\n    let ledger = RetainedLedger::from_source(&source).unwrap();\n    let free = source.free_dofs();\n    let mut c = ctx::<4>(128);\n    let mut sum = ExactWideSum::new();\n    let u = prescribed::<4>(&source);\n    let rhs = reduced_rhs(\n        &mut c, &mut sum, &source, &structure, &k, &ledger, &free, &u,\n    )\n    .unwrap();\n    let mut wider = 0;\n    for (a, &i) in free.iter().enumerate() {\n        let mut s = ExactWideSum::new();\n        for index in structure.pattern.row_range(i) {\n            let col = structure.pattern.column(index);\n            if let Some(v) = source.constraint(col) {\n                s.add_product(&mut c, &k[index], &support::lift::<4>(v), true)\n                    .unwrap();\n            }\n        }\n        assert_eq!(tok(&rhs[a]), tok(&s.round(&mut c).unwrap()), \"row {i}\");\n        if !rhs[a].fits_precision(53) {\n            wider += 1;\n        }\n    }\n    // Entries wider than binary64: the rhs is never rounded back to 53 bits."
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14",
+      "excerpts": [
+        {
+          "start": 182,
+          "end": 204,
+          "text": "#[test]\nfn a_ceiling_case_is_unresolved_with_its_attempts() {\n    match outcome(\"SKEW-K1E-300\") {\n        CaseOutcome::Unresolved {\n            reason: UnresolvedReason::Ceiling,\n            attempts,\n            geometry,\n        } => {\n            assert_eq!(geometry, vec![BodyGeometry::Restrained]);\n            assert_eq!(\n                attempts.iter().map(|a| a.precision).collect::<Vec<_>>(),\n                vec![128, 256, 512]\n            );\n            for a in &attempts {\n                assert!(matches!(\n                    a.outcome,\n                    AttemptOutcome::Failed(AttemptReason::Stop(AttemptStop::Pivot { .. }))\n                ));\n                assert!(a.shared_work > 0);\n            }\n        }\n        other => panic!(\"{other:?}\"),\n    }"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+      "excerpts": [
+        {
+          "start": 1506,
+          "end": 1525,
+          "text": "#[test]\nfn sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order() {\n    let layout = force_row();\n    let one = Wide::<4>::ONE;\n    let zero = Wide::<4>::ZERO;\n    let half = one.mul_pow2(-1).unwrap();\n    let e = support::pow2(-4);\n    let big_p = 256i64;\n    let mut ctx = WideContext::<4>::new(256).unwrap();\n    // (a), force kind: |\u0394| = \u03b5\u00b7M \u2212 V with M = 1 and V = \u00ea\u00b72^(8\u2212P) = 2^-252.\n    let v = Wide::<4>::from_f64(e).unwrap().mul_pow2(8 - big_p).unwrap();\n    let delta = ctx.sub(&one.mul_pow2(-64).unwrap(), &v).unwrap();\n    let candidate = ctx.add(&one, &delta).unwrap();\n    let clean = report(256, e, Some(zero), Some(zero), None, zero);\n    assert_eq!(verdict(&layout, &candidate, &one, &clean), None);\n    let above = ulp_above(&candidate, big_p);\n    assert_eq!(\n        verdict(&layout, &above, &one, &clean),\n        Some(Rejection::StopRule { index: 0 })\n    );"
+        },
+        {
+          "start": 1622,
+          "end": 1649,
+          "text": "#[test]\nfn sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star() {\n    // RV19-D4 (ROOT's ruling on RV19's delta check): O9 on the stop rule is\n    // keyed on the candidate's binary64 value, as the classification's is on\n    // the published one. Row 0 straddles binary64's range, its candidate on\n    // one side and its verification on the other; row 1's allowance\n    // 2^-64\u00b7max(|q_2p|, S*) shows whether row 0 set S*. Keyed on the\n    // verification instead, every verdict below turns over.\n    let mut ctx = WideContext::<4>::new(256).unwrap();\n    let w = |e: i64| Wide::<4>::ONE.mul_pow2(e).unwrap();\n    // Overflow: T = 2^1024 \u2212 2^970, binary64's threshold (a tie that rounds\n    // to 2^1024); T \u2212 2^950 rounds to f64::MAX.\n    let t = ctx.sub(&w(1024), &w(970)).unwrap();\n    let below_t = ctx.sub(&t, &w(950)).unwrap();\n    assert!(t.to_binary64().value().is_none());\n    assert!(below_t.to_binary64().value().is_some());\n    let (layout, r) = two_displacement_rows([Component::Ux, Component::Uy]);\n    let one = Wide::<4>::ONE;\n    let off = ctx.add(&one, &w(-40)).unwrap();\n    // The candidate overflows, its verification does not: row 0 sets no S*,\n    // so row 1's |\u0394| = 2^-40 meets S* = 1 and is rejected.\n    assert_eq!(\n        verdict2(&layout, &[t, off], &[below_t, one], &r),\n        Some(Rejection::StopRule { index: 1 })\n    );\n    // The verification overflows, the candidate does not: row 0 sets S*\n    // (about 2^1024), and row 1 passes against it.\n    assert_eq!(verdict2(&layout, &[below_t, off], &[t, one], &r), None);"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+      "excerpts": [
+        {
+          "start": 532,
+          "end": 547,
+          "text": "{\n    let name = rec[1];\n    let guard = StageGuard::unlimited();\n    let shared = build_shared::<L, R>(p, q, &prep.source, group, guard).result;\n    if rec[3] == \"stop\" {\n        assert!(shared.is_err(), \"{name} {p}\");\n        return false;\n    }\n    let shared = shared.unwrap();\n    let factor = &shared.factor;\n    let nf = group.ordering.free.len();\n    let lines: Vec<String> = (0..nf)\n        .flat_map(|i| (factor.first_of(i)..=i).map(move |j| (i, j)))\n        .map(|(i, j)| format!(\"{i} {j} {}\", tok(&factor.get(i, j))))\n        .collect();\n    assert_eq!(digest(&lines), rec[6], \"{name} {p}: factor()'s L and D\");"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+      "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922",
+      "excerpts": [
+        {
+          "start": 334,
+          "end": 375,
+          "text": "#[test]\nfn canonical_encodings_equal_the_generators_independent_bytes() {\n    // Q10: GEN builds K4SRC, K4STF and K4LED (and combination ledgers) from\n    // the models' own lists, independently of source.rs and ledger.rs, and\n    // records their sha256 with hashlib.\n    let hex = |bytes: &[u8]| bytes.iter().map(|b| format!(\"{b:02x}\")).collect::<String>();\n    let mut kinds = std::collections::BTreeMap::new();\n    for line in include_str!(\"encodings.txt\").lines() {\n        let f: Vec<&str> = line.split_whitespace().collect();\n        let (kind, name, sha, expected) = (f[1], f[2], f[3], f[4]);\n        let bytes = match kind {\n            \"src\" => models::model(name).source().encoding(),\n            \"stf\" => models::model(name).source().stiffness_encoding(),\n            \"led\" => RetainedLedger::from_source(&models::model(name).source())\n                .unwrap()\n                .encoding(),\n            \"cled\" => {\n                let combo = models::combos()\n                    .into_iter()\n                    .find(|c| c.name == name)\n                    .unwrap();\n                let sources: Vec<PrimitiveSource> = combo\n                    .operands\n                    .iter()\n                    .map(|(_, n)| models::model(n).source())\n                    .collect();\n                let operands: Vec<(f64, &PrimitiveSource)> = combo\n                    .operands\n                    .iter()\n                    .zip(&sources)\n                    .map(|((factor, _), s)| (*factor, s))\n                    .collect();\n                RetainedLedger::combined(&operands).unwrap().encoding()\n            }\n            other => panic!(\"{other}\"),\n        };\n        assert_eq!(hex(&bytes), expected, \"{kind} {name}\");\n        assert_eq!(sha256_hex(&bytes), sha, \"{kind} {name}\");\n        *kinds.entry(kind.to_string()).or_insert(0) += 1;\n    }\n    assert_eq!(kinds.values().sum::<usize>(), 27, \"{kinds:?}\");\n}"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+      "sha256": "1540a9675c873ed1922e685302c7ea8302d3117844aa10895b9e21e447c251f7",
+      "excerpts": [
+        {
+          "start": 228,
+          "end": 258,
+          "text": "    let recovered = recover(\n        &mut c,\n        &mut sum,\n        &guard,\n        &source,\n        &layout,\n        &structure,\n        &k,\n        &members,\n        &directional,\n        &ledger,\n        &u,\n    )\n    .unwrap();\n    let index = layout\n        .iter()\n        .position(|m| {\n            m.id == QuantityId::EndAction {\n                member: 1,\n                end: End::J,\n                component: Component::Ux,\n            }\n        })\n        .unwrap();\n    let n = publish_value(&recovered.values[index]).value().unwrap();\n    let exact = -(200e9 * 6e-3 / 3.0) * (2.0 / 3.0) * tiny;\n    assert!(n != 0.0);\n    assert!(\n        (n - exact).abs() <= 1e-12 * exact.abs(),\n        \"{n:e} vs {exact:e}\"\n    );"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "excerpts": [
+        {
+          "start": 116,
+          "end": 184,
+          "text": "#[test]\nfn the_classifications_boundaries_hold_exactly() {\n    // One ulp either side of t = fl(R\u00b7S*) (\u00a77.3-20), with S* = 1.\n    let t = threshold(1.0);\n    assert_eq!(t, f64::from_bits(FLOOR_RATIO_BITS));\n    let below = f64::from_bits(t.to_bits() - 1);\n    assert_eq!(classify(t, 1.0), RowClass::RelativeVerified);\n    assert!(matches!(\n        classify(below, 1.0),\n        RowClass::AbsoluteVerified { .. }\n    ));\n    assert_eq!(\n        classify(f64::from_bits(t.to_bits() + 1), 1.0),\n        RowClass::RelativeVerified\n    );\n    // S* < 2^-988: every row is absolute, whatever its value.\n    let small = f64::from_bits(0x022F_FFFF_FFFF_FFFF);\n    assert!(matches!(\n        classify(small, small),\n        RowClass::AbsoluteVerified { .. }\n    ));\n    // b = fl\u2191(2^-64\u00b7S*): exact when representable, at least 2^-1074 for any\n    // S* > 0 (including S* < 2^-1011), and 0 only at S* = 0.\n    assert_eq!(absolute_bound(1.0), support::pow2(-64));\n    assert_eq!(absolute_bound(f64::from_bits(1)), f64::from_bits(1));\n    let s = support::pow2(-1015);\n    assert_eq!(absolute_bound(s), f64::from_bits(1));\n    assert!(absolute_bound(3.0 * support::pow2(-1000)) >= 3.0 * support::pow2(-1064));\n    assert_eq!(absolute_bound(0.0), 0.0);\n}\n\n#[test]\nfn amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988() {\n    // D1 revision 5a.3 amendment A1 (ROOT's ruling on RV19-6): where\n    // 0 < S* < 2^-988, b_row = fl\u2191(fl\u2191(2^-64\u00b7S*) + fl\u2191(2^-53\u00b7|q|) + 2^-1074).\n    let s = support::pow2(-995);\n    // q = S* (TINY-S-995's scale): 2^-1059 + 2^-1048 + 2^-1074, exact.\n    assert_eq!(row_bound(s, s).to_bits(), 0x0000_0000_0400_8001);\n    assert_eq!(\n        classify(s, s),\n        RowClass::AbsoluteVerified {\n            bound_bits: 0x0000_0000_0400_8001\n        }\n    );\n    // A zero row: 2^-1059 + 2^-1074.\n    assert_eq!(row_bound(0.0, s).to_bits(), 0x8001);\n    // It covers the row's own rounding (at most 2^-53\u00b7|q| + 2^-1075) beside b.\n    for q in [\n        s,\n        -0.75 * s,\n        f64::from_bits(s.to_bits() - 1),\n        3.0 * support::pow2(-1060),\n    ] {\n        let b = row_bound(q, s);\n        assert!(\n            b > absolute_bound(s) + q.abs() * support::pow2(-53),\n            \"{q:e}\"\n        );\n    }\n    // Just below 2^-988, where 2^-53\u00b7|q| is normal: the sum rounded upward\n    // once (GEN's value).\n    let below = f64::from_bits(0x022F_FFFF_FFFF_FFFF);\n    assert_eq!(row_bound(below, below).to_bits(), 0x0000_0002_0040_0001);\n    // At 2^-988 and above, and at S* = 0, the plain rule.\n    let at = support::pow2(-988);\n    assert_eq!(row_bound(0.5 * at, at), absolute_bound(at));\n    assert_eq!(row_bound(1.0, 1.0), absolute_bound(1.0));\n    assert_eq!(row_bound(0.0, 0.0), 0.0);\n}"
+        },
+        {
+          "start": 186,
+          "end": 202,
+          "text": "#[test]\nfn stress_scales_and_intensified_factors_match_bit_for_bit() {\n    assert_eq!(K_SQRT2_BITS, 0x3FF6_A09E_667F_3BCD);\n    assert_eq!(K_TWO_SQRT2_BITS, 0x4006_A09E_667F_3BCD);\n    let (mut ki, mut stresses) = (0, 0);\n    for line in VECTORS.lines() {\n        let f: Vec<&str> = line.split_whitespace().collect();\n        match f[0] {\n            \"kint\" => {\n                assert_eq!(\n                    intensified_k(hex(f[1])).to_bits(),\n                    hex(f[2]).to_bits(),\n                    \"{line}\"\n                );\n                ki += 1;\n            }\n            \"stress\" => {"
+        }
+      ]
+    }
+  ],
+  "fixed_corpus": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "rows": [
+        {
+          "line": 1,
+          "text": "bnd N01 256 6 1 +e00000000000000000000000000000000000000000000000000000000000000dp-253 931621ba36a283aadc8ab1d2f45b5a56ca485cbd0e9a22bfc47544edac38a290"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/encodings.txt",
+      "sha256": "70263358b79168453eb5c2955d0213bc6cb15d944cd8134119327b4365ab70e8",
+      "rows": [
+        {
+          "line": 25,
+          "text": "enc cled B1-C 3a917efafa33af8a345313bb5f0afe74910880b63e6acca88aaff7c0ed312315 4b344c45440101000000010000000300b2ffffffffffffff010000001d461871c7bc0a00"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt",
+      "sha256": "b6beb3626298d979a99e6b3c21096fa391d6907bc295487f88d1c706c94da9d2",
+      "rows": [
+        {
+          "line": 6580,
+          "text": "kint 4009fb5a1e624000 40125f3753c0eaa2"
+        }
+      ]
+    }
+  ]
+}

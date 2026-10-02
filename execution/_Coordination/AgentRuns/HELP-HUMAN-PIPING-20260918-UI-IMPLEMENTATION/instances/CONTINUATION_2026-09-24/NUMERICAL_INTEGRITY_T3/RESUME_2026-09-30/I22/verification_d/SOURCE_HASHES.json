@@ -1,0 +1,72 @@
+{
+  "grant_sha256": "d60bde45cb031e6fa7c6018271c104a9b925a0a9d015c5f2f0160d367173892d",
+  "hashes": {
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs": {
+      "baseline_sha256": "43fe7fa731a7568789225d3abc03356af06abb79cfcc2eb174e2325570e6dc8e",
+      "candidate_sha256": "f93a8368b44ca0cde8e3286057d0bfa7557e5997c446a3caf21c490fb2481ffb"
+    },
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs": {
+      "baseline_sha256": "7163b82577fa318c93a1348809474d5b1f6125e1646b4786601edce091ef57b6",
+      "candidate_sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14"
+    },
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs": {
+      "baseline_sha256": "a463e84949d12782858e957547f3592e51ff839f4142320f6b8c04411427e5cd",
+      "candidate_sha256": "1bce482dccc5c4dd06292d35d97ef6a4ec0c8ba7de0f9b9cb4440558cfd3ccac"
+    },
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": {
+      "candidate_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "dd1_identical": true
+    },
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": {
+      "candidate_sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d",
+      "dd1_identical": true
+    },
+    "AGENTS.md": {
+      "read_sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    "agents/AGENT_TASK.md": {
+      "read_sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    "projects/chirality-piping/AGENTS.md": {
+      "read_sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md": {
+      "read_sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0"
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/runtime_01/ACCOUNTING_TEST_PROPOSAL.md": {
+      "read_sha256": "ea5aa81222fd4c2dd8bb2d51aef6b80add0764159e50c65daf71f5d48da94196"
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/tests_02/REVIEW.md": {
+      "read_sha256": "c4e71449e8c3a8145d4f8865e42b4f8732b58f28985df8034894eced85f0b81a"
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/relative_control_03/REVIEW.md": {
+      "read_sha256": "edbf8ec618440639bd3df04f3ccf03d523ca19785d0dd8126d2deae32816b843"
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/relative_control_03/RETURN.md": {
+      "read_sha256": "99d3095d8c86e7608855f8569b93d1c4d8bdf077797545f721df89003de1c136"
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/relative_control_03/CHECKS.json": {
+      "read_sha256": "22a9cd8467f602b7228827ade221c51528d0bd898824f9a1b9f819ef1379c58e"
+    }
+  },
+  "scope_checks": {
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs": "All bytes outside exactly golden_work_counts unchanged",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs": "All bytes outside exactly kf1_golden_stop_rule_work_where_collapses_occur unchanged",
+    "adaptive_historical_tables": "golden/stages_golden/a3b binding and comments byte-identical; A3B_WORK and all later bytes unchanged",
+    "KF1_historical_table": "cost binding, every golden tuple, evaluation count and table byte-identical; exact 768*cost=13444608 / 640*cost=11203840 assertions preserved"
+  },
+  "relative_control_seal_verified": "71ea00691d89171cc5dd552544173212e872236c26443d9546e522dde5b85a97",
+  "prior_C_seal_verified": "2c6af55be464b7a69f90594051585290fb930a7528da21273b41b589f058dbb1",
+  "raw_log_hashes": {
+    "<S>/publication_01.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "<S>/publication_01.stderr": "7d8904ebe7fcde03a372a757288cf4aaab5ad97aa30151bb2e81ed26fbfa6798",
+    "<S>/publication_02.stdout": "00f823f7ee4f301a4f515944cc8544d42f01666b2c01ae4223c6468c379255d0",
+    "<S>/publication_02.stderr": "0ff2651f032816e4bc2e294234f6e2e5840deae006531febba403dfe5bd8af23",
+    "<S>/golden_01.stdout": "f91ebc28c1a49b50f3d7f0740405152f065f43507234b66d3ee4944f9e72142e",
+    "<S>/golden_01.stderr": "eba1d801f83ae34d4e1bd4aa5c772a883d43e57b91cd20ceef3306e243a185a5",
+    "<S>/kf1_01.stdout": "406b0ed430c90fffd81c54328f9cdf9e4dca5c4c96375de1aa8c624ff30b568b",
+    "<S>/kf1_01.stderr": "a01481bf6fdb8696449bd386fd5c9b5c6b7f818f466aa7ca3f913f35eee0ecc4"
+  },
+  "timestamp_utc": "2026-10-01T08:04:35.763907+00:00",
+  "final_HEAD": "cb13fcf3ea560c0d07ad9ac02dac78e9d2e06e00"
+}

@@ -1,0 +1,91 @@
+// I23 PROPOSAL ONLY. Append to tests/retained_k4/method_tests.rs in a
+// separately granted disposable diagnostic build. Do not replace any test.
+// Existing helpers/imports in that module are required. UNCOMPILED/UNRUN.
+// Credit only assertions labelled I23; a build/unwrap/certificate failure
+// does not establish these semantic claims.
+
+fn i23_report256(name: &str) -> VerificationReport<4> {
+    let all = all_models();
+    let m = all.iter().find(|m| m.name == name).expect("fixture exists");
+    let _seeded = Seeded::new(&m.seeds);
+    let prep = CasePrep::new(m.source()).unwrap();
+    let group = prepare_group(&prep.source).unwrap();
+    let guard = StageGuard::unlimited();
+    let shared = build_shared::<4, 8>(256, 320, &prep.source, &group, guard)
+        .result.unwrap();
+    let state = solve_case_at::<4, 8>(&shared, &prep, &group, guard)
+        .result.unwrap();
+    let vs = build_verify_shared::<4, 8, 8>(&shared, &prep.source, &group, guard)
+        .result.unwrap();
+    verify_state::<4, 8, 8>(&shared, &vs, &prep, &group, &state, guard)
+        .result.unwrap()
+}
+
+#[test]
+fn i23_phi_floor_only_at_verification_1024() {
+    fn check<const L: usize>(p: u32) where Wide<L>: SupportedWidth {
+        let layout = force_row();
+        let zero = Wide::<L>::ZERO;
+        let r = report::<L>(p, 1.0, None, None, None, zero);
+        let d = decide(&layout, &[0.0], &[zero], &[zero], &r, StageGuard::unlimited());
+        assert!(d.result.is_ok(), "precondition: rule arithmetic available");
+        if p == 1024 {
+            let expected = support::pow2(-438);
+            assert_eq!(d.floor, Some(vec![[expected, expected]]), "I23:PHI_AT_CEILING");
+        } else {
+            assert_eq!(d.floor, None, "I23:NO_EARLY_PHI:{p}");
+        }
+    }
+    check::<4>(256);
+    check::<8>(512);
+    check::<16>(1024);
+}
+
+#[test]
+fn i23_r7_data_scope() {
+    for name in ["THETA-STUB", "THETA-ZERO-BODY"] {
+        let r = i23_report256(name);
+        assert_eq!(r.blocks.iter().map(|b| b.data).collect::<Vec<_>>(),
+            vec![true, false], "I23:DATA_SCOPE:{name}");
+        assert_eq!(r.theta[1], None, "I23:NO_THETA_WITHOUT_DATA:{name}");
+    }
+}
+
+#[test]
+fn i23_r7_g_scope() {
+    let r = i23_report256("G-FIXED-MEMBER");
+    assert_eq!(r.g_max, 0, "I23:G_SCOPE");
+    assert_eq!(r.g_violation, None, "I23:G_SCOPE_VIOLATION");
+}
+
+#[test]
+fn i23_r7_bound_choice() {
+    for name in ["CHARGE-SLENDER", "HH-SLENDER-m40"] {
+        let r = i23_report256(name);
+        let mut checked = 0;
+        for (block, c) in r.blocks.iter().enumerate().filter(|(_, c)| c.data) {
+            // Re-express the accepted min-of-available-bounds rule directly;
+            // do not call production certified() to compute the expectation.
+            let s = c.shift.as_ref().and_then(|shift| shift.s);
+            let expected = match (c.bound.uc, s) {
+                (Some(u), Some(s)) => Some(if u.cmp_value(&s).is_le() { u } else { s }),
+                (Some(u), None) => Some(u),
+                (None, Some(s)) => Some(s),
+                (None, None) => None,
+            };
+            assert_eq!(c.b, expected, "I23:B_CHOICE:{name}:{block}");
+            checked += 1;
+        }
+        assert!(checked > 0, "precondition: at least one data block");
+    }
+}
+
+#[test]
+fn i23_r7_required_shift() {
+    for name in ["RF-LARGE-CHAIN-n00100-AX", "RF-LARGE-TREE-n00100-AX"] {
+        let r = i23_report256(name);
+        assert_eq!(r.shift_factorizations, 1, "I23:REQUIRED_SHIFT:{name}");
+        assert!(r.blocks.iter().any(|c| c.shift.as_ref().and_then(|s| s.s).is_some()),
+            "I23:FORMED_SHIFT_BOUND:{name}");
+    }
+}

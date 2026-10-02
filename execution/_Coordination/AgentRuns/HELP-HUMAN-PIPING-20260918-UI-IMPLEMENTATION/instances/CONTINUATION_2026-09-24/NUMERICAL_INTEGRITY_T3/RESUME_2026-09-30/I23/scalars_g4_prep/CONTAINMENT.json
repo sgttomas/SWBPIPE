@@ -1,0 +1,3731 @@
+{
+  "exact_resolved_host_bindings": {
+    "path": "<wt>/scratch/i23/scalars_g4/HOST_PATHS.json",
+    "sha256": "36eb3168158ab45af92bb3b16908ca44196c9b7e621c000fe1201032b855b7dd"
+  },
+  "copy_count": 4,
+  "files": [
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/.gitignore",
+      "device": 16777231,
+      "inode": 125383258,
+      "nlink": 1,
+      "sha256": "9183125d49601eb295964d719d75fa0e6b3d6981d6a310d8e1d1e9cd5dc65f8e"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "device": 16777231,
+      "inode": 125383259,
+      "nlink": 1,
+      "sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "device": 16777231,
+      "inode": 125383260,
+      "nlink": 1,
+      "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/README.md",
+      "device": 16777231,
+      "inode": 125383261,
+      "nlink": 1,
+      "sha256": "7d731b1ce74592b3d6d73ee0321b9d7085eca69a8b04c214de3d776dbb0512a0"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+      "device": 16777231,
+      "inode": 125383263,
+      "nlink": 1,
+      "sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs",
+      "device": 16777231,
+      "inode": 125383265,
+      "nlink": 1,
+      "sha256": "5738a338b32a86ed3eadd9cb0565a2cbb7ef6fb630781ff170ee6feae49b2efd"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests/k1_reference.rs",
+      "device": 16777231,
+      "inode": 125383267,
+      "nlink": 1,
+      "sha256": "e21fdbb56654ca05b5d2e8f9b9be74b987ea676522d034c691756c84fd5ab347"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "device": 16777231,
+      "inode": 125383268,
+      "nlink": 1,
+      "sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs",
+      "device": 16777231,
+      "inode": 125383269,
+      "nlink": 1,
+      "sha256": "8924d2822d9df02f6f8d34e1d030be1d78eb91d08d098eef307b5feebb7eb389"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "device": 16777231,
+      "inode": 125383270,
+      "nlink": 1,
+      "sha256": "3e5b9be185428f1652775f60cbb98b9d30e08bff4ce2a9b2bb83ccf662d30a1b"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "device": 16777231,
+      "inode": 125383271,
+      "nlink": 1,
+      "sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "device": 16777231,
+      "inode": 125383273,
+      "nlink": 1,
+      "sha256": "90ed530a04ac775acf55f81f7ac5c3b0a451c9fd9f0011b5bd4cf22b3a30f84d"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs",
+      "device": 16777231,
+      "inode": 125383275,
+      "nlink": 1,
+      "sha256": "9e378891a347d162f20fcdc32b424f4e8f0d664e61dcd6cebd4ef8c90d65c764"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals/tests.rs",
+      "device": 16777231,
+      "inode": 125383277,
+      "nlink": 1,
+      "sha256": "5d1574025e6ca3aac412f8b9cab11bdbc5a4f8016c8384daa87ded4e4c4fc312"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/s11k_tests.rs",
+      "device": 16777231,
+      "inode": 125383278,
+      "nlink": 1,
+      "sha256": "0d74db5a2951ad62ec9777c99f37b274522efc948286fdfa997f4d4b611f2a2f"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs",
+      "device": 16777231,
+      "inode": 125383279,
+      "nlink": 1,
+      "sha256": "052b093c256ba186bdd0ea66c891660c0dae8a7a344fc1d132a4746afcc00ece"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs",
+      "device": 16777231,
+      "inode": 125383280,
+      "nlink": 1,
+      "sha256": "f3f88ddc91e4ed744f8754685adf0acdfbc3007e23ff58ca372845af8aef321e"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/kf2_witness_tests.rs",
+      "device": 16777231,
+      "inode": 125383281,
+      "nlink": 1,
+      "sha256": "4a805ef758361151f837159686109aa67ad46003785a667d32e4911d8a270f29"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "device": 16777231,
+      "inode": 125383283,
+      "nlink": 1,
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "device": 16777231,
+      "inode": 125383284,
+      "nlink": 1,
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "device": 16777231,
+      "inode": 125383285,
+      "nlink": 1,
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+      "device": 16777231,
+      "inode": 125383286,
+      "nlink": 1,
+      "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+      "device": 16777231,
+      "inode": 125383287,
+      "nlink": 1,
+      "sha256": "8aaace7bc8fb65a8a1f60e5e6e630ee54b62bd43ed7c108a2fe193b372b74af4"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "device": 16777231,
+      "inode": 125383288,
+      "nlink": 1,
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "device": 16777231,
+      "inode": 125383289,
+      "nlink": 1,
+      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs",
+      "device": 16777231,
+      "inode": 125383290,
+      "nlink": 1,
+      "sha256": "78bb76773dd4fd4d799b5668f21a679f0ebf9c088ec5fff655e13a0453d6dc2a"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "device": 16777231,
+      "inode": 125383291,
+      "nlink": 1,
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+      "device": 16777231,
+      "inode": 125383292,
+      "nlink": 1,
+      "sha256": "ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "device": 16777231,
+      "inode": 125383293,
+      "nlink": 1,
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "device": 16777231,
+      "inode": 125383294,
+      "nlink": 1,
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+      "device": 16777231,
+      "inode": 125383295,
+      "nlink": 1,
+      "sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "device": 16777231,
+      "inode": 125383297,
+      "nlink": 1,
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "device": 16777231,
+      "inode": 125383298,
+      "nlink": 1,
+      "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_n5_base_signature.txt",
+      "device": 16777231,
+      "inode": 125383299,
+      "nlink": 1,
+      "sha256": "00c5807dda62356b64d26391ffddd7af6e8d895e676b94053902661816480eab"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_tests.rs",
+      "device": 16777231,
+      "inode": 125383300,
+      "nlink": 1,
+      "sha256": "f827b708de329c0e2af074f281cc464f4eb44baf63824db6bdb420d62ad8aaf0"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs",
+      "device": 16777231,
+      "inode": 125383301,
+      "nlink": 1,
+      "sha256": "b23900274b77c8d472a54e1bd024013ad73f20a440e4a34209a0c39e126c1e99"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "device": 16777231,
+      "inode": 125383302,
+      "nlink": 1,
+      "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs",
+      "device": 16777231,
+      "inode": 125383304,
+      "nlink": 1,
+      "sha256": "e1b93a639c6751f9bb80af3e10f61d519711fb5210e9e5237167c67db590c2dc"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs",
+      "device": 16777231,
+      "inode": 125383306,
+      "nlink": 1,
+      "sha256": "cf241452b7a82c75e26ab248df22900317fd35b0001ec5a36bb5f5f361c55959"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2a/rf_range_models.rs",
+      "device": 16777231,
+      "inode": 125383308,
+      "nlink": 1,
+      "sha256": "3463d22784a252d18f6bc232f4c8616eefc712679c1c7f5bd8137e7413b0c7c5"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2a_checked_formation.rs",
+      "device": 16777231,
+      "inode": 125383309,
+      "nlink": 1,
+      "sha256": "0fa172eba552b24093034c59731fe50911e4e6eb411abc6b6f490028f7c3f4d9"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs",
+      "device": 16777231,
+      "inode": 125383310,
+      "nlink": 1,
+      "sha256": "9013583e1d4ff054d8429cb8a2252c8cc647c04f89e3be466c0f87df11127690"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383312,
+      "nlink": 1,
+      "sha256": "4b00b516b299a3cd5622322759166bcc57ae6150ed45a1017e19a07393528f0d"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_sample.txt",
+      "device": 16777231,
+      "inode": 125383313,
+      "nlink": 1,
+      "sha256": "533bd223cf3e2ef9e345e3ed075fb1c3c65c054eac6a170b81237d0dc534cc9f"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_summary.txt",
+      "device": 16777231,
+      "inode": 125383314,
+      "nlink": 1,
+      "sha256": "bab3b6805a0244b3a6d0ce9c161914247cda69732289e84c7fccfc7c3a9d932a"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/cases.txt",
+      "device": 16777231,
+      "inode": 125383315,
+      "nlink": 1,
+      "sha256": "75657e9344c20ab480d79b4a628a435a8a0b65e61a8ed1d8d76a67e43e41d049"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py",
+      "device": 16777231,
+      "inode": 125383316,
+      "nlink": 1,
+      "sha256": "2e4a850c119d51297ca284368cab76dadf5ad3e3cce4e3fb061b77f5fc82aec0"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal.txt",
+      "device": 16777231,
+      "inode": 125383317,
+      "nlink": 1,
+      "sha256": "7e41bf9cdf8df85aa2efdcb0d0ed6fa1c346d3bafdfdc547cbe80d44e9410f46"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal_summary.txt",
+      "device": 16777231,
+      "inode": 125383318,
+      "nlink": 1,
+      "sha256": "63ad0f619553c10d03b81d2c118daa765b41eb6106e8b9153f0ee75bdaa11c90"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs",
+      "device": 16777231,
+      "inode": 125383319,
+      "nlink": 1,
+      "sha256": "ca7ffd1ef859aecdc0c6ae62c9b4e7e653dbd03d25fcdf27e7de3264fa561a5c"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_scale.rs",
+      "device": 16777231,
+      "inode": 125383320,
+      "nlink": 1,
+      "sha256": "c19da33fe74a22818b73153d05411e47349fcf02ca7c3b9ee86f89b99ec985a3"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs",
+      "device": 16777231,
+      "inode": 125383321,
+      "nlink": 1,
+      "sha256": "824fc637c995672e810ae01c0a7020776e913beed1d7f7c645a2a769a3f0204b"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383323,
+      "nlink": 1,
+      "sha256": "3aebae45d93eb3bc017298f42d316d81a6ef2004a5e86ff414f485b418917fa9"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "device": 16777231,
+      "inode": 125383324,
+      "nlink": 1,
+      "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+      "device": 16777231,
+      "inode": 125383325,
+      "nlink": 1,
+      "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+      "device": 16777231,
+      "inode": 125383326,
+      "nlink": 1,
+      "sha256": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "device": 16777231,
+      "inode": 125383327,
+      "nlink": 1,
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "device": 16777231,
+      "inode": 125383328,
+      "nlink": 1,
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt",
+      "device": 16777231,
+      "inode": 125383329,
+      "nlink": 1,
+      "sha256": "b6beb3626298d979a99e6b3c21096fa391d6907bc295487f88d1c706c94da9d2"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "device": 16777231,
+      "inode": 125383330,
+      "nlink": 1,
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+      "device": 16777231,
+      "inode": 125383331,
+      "nlink": 1,
+      "sha256": "a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed.txt",
+      "device": 16777231,
+      "inode": 125383332,
+      "nlink": 1,
+      "sha256": "028826667311510992d8f9d2e3fa260d16485fcac095febd8288b498e20a6b59"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed_tests.rs",
+      "device": 16777231,
+      "inode": 125383333,
+      "nlink": 1,
+      "sha256": "f9bd1f58e6430a92cb9b61aac5856c4bceaac3448fb45b18948b5390ac84c0fb"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directional_span_exact.txt",
+      "device": 16777231,
+      "inode": 125383334,
+      "nlink": 1,
+      "sha256": "f11545a8f761ed90fc2a92eabd3f14047c6524c9c3aaf4437e901f0344bcaa28"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/encodings.txt",
+      "device": 16777231,
+      "inode": 125383335,
+      "nlink": 1,
+      "sha256": "70263358b79168453eb5c2955d0213bc6cb15d944cd8134119327b4365ab70e8"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/estimate.txt",
+      "device": 16777231,
+      "inode": 125383336,
+      "nlink": 1,
+      "sha256": "972b4650e6a31f9e452c15df7d5394af52dd62c21da6809167356ce65f60112e"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "device": 16777231,
+      "inode": 125383337,
+      "nlink": 1,
+      "sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/formation.txt",
+      "device": 16777231,
+      "inode": 125383338,
+      "nlink": 1,
+      "sha256": "d1e2a11a0198a71e3bfa0d220255fea469222802a83274748389dba19c7db404"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "device": 16777231,
+      "inode": 125383339,
+      "nlink": 1,
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+      "device": 16777231,
+      "inode": 125383340,
+      "nlink": 1,
+      "sha256": "1bce482dccc5c4dd06292d35d97ef6a4ec0c8ba7de0f9b9cb4440558cfd3ccac"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3.txt",
+      "device": 16777231,
+      "inode": 125383341,
+      "nlink": 1,
+      "sha256": "729e7ef86ba0b61353a167a610d53910e0deddb357c71948dd742993fca6f75a"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs",
+      "device": 16777231,
+      "inode": 125383342,
+      "nlink": 1,
+      "sha256": "1c02ea1f82c7087829ab9ec6845a2f0389d1f60829fceec6c01aafa51e3d726f"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger.txt",
+      "device": 16777231,
+      "inode": 125383343,
+      "nlink": 1,
+      "sha256": "afd2e629bbd92c9586742223b9c58e4d4230949df985151e1bbade6b4dfc45c6"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+      "device": 16777231,
+      "inode": 125383344,
+      "nlink": 1,
+      "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "device": 16777231,
+      "inode": 125383345,
+      "nlink": 1,
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs",
+      "device": 16777231,
+      "inode": 125383346,
+      "nlink": 1,
+      "sha256": "201506548f494b59fa877521bf531953b57e08df802a1289d506fed603db58e6"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "device": 16777231,
+      "inode": 125383347,
+      "nlink": 1,
+      "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "device": 16777231,
+      "inode": 125383348,
+      "nlink": 1,
+      "sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/o8_states.txt",
+      "device": 16777231,
+      "inode": 125383349,
+      "nlink": 1,
+      "sha256": "70857094e753c2fd07ee331bfd4a535363a1356a507dda091eb6cc20057c197d"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt",
+      "device": 16777231,
+      "inode": 125383350,
+      "nlink": 1,
+      "sha256": "53f7176da76546eca377d1da96d4698ec5d71a624412ecadde7ffd464b2be037"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/profiles.txt",
+      "device": 16777231,
+      "inode": 125383351,
+      "nlink": 1,
+      "sha256": "15cbbe044dc82bafd6856d5411b2718dfed016732360a43b0417be48cd8793cb"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "device": 16777231,
+      "inode": 125383352,
+      "nlink": 1,
+      "sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_cases.txt",
+      "device": 16777231,
+      "inode": 125383353,
+      "nlink": 1,
+      "sha256": "7be020420dc1c5b1d0bc37ddce13f98e193e0f15c28bc317a66e0f1cd342b230"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_large.txt",
+      "device": 16777231,
+      "inode": 125383354,
+      "nlink": 1,
+      "sha256": "7e3ecee649825d99ab82fb061c2925245435ecae5de6d843cb4350e0c03d94fb"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+      "device": 16777231,
+      "inode": 125383355,
+      "nlink": 1,
+      "sha256": "1540a9675c873ed1922e685302c7ea8302d3117844aa10895b9e21e447c251f7"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
+      "device": 16777231,
+      "inode": 125383356,
+      "nlink": 1,
+      "sha256": "e57a84b56e64aa664a77d95b3fa4921fe9e79aa5d1eda9f95fee4cc6229d5c16"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "device": 16777231,
+      "inode": 125383357,
+      "nlink": 1,
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "device": 16777231,
+      "inode": 125383358,
+      "nlink": 1,
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_tests.rs",
+      "device": 16777231,
+      "inode": 125383359,
+      "nlink": 1,
+      "sha256": "dced0f7858b908c2bf66530820e4874507858d9e733a7110a07686cb4eed7802"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams.txt",
+      "device": 16777231,
+      "inode": 125383360,
+      "nlink": 1,
+      "sha256": "c36c867884ee4d1841284a990393c7c39d85a2719e1fb1ab6c91f6b5611e382e"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams_sample.txt",
+      "device": 16777231,
+      "inode": 125383361,
+      "nlink": 1,
+      "sha256": "e7789d1eb976b29dffade7e18619fb4553ee70872dec9e0fe44ffb916f94ae67"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential.txt",
+      "device": 16777231,
+      "inode": 125383362,
+      "nlink": 1,
+      "sha256": "89e0f239949d41c1c65cce9c42c4f0c510bdd07319c866beb900af7a9f240f8b"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383363,
+      "nlink": 1,
+      "sha256": "cf4bca4503272c203413ffff4d204bed6e8e102c24b7034a9d17547942d8fa24"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt",
+      "device": 16777231,
+      "inode": 125383364,
+      "nlink": 1,
+      "sha256": "b4480589b78fa4eb4cf7a71bf91c43f22dbe6ba3602845f35082c18e852cd4a6"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
+      "device": 16777231,
+      "inode": 125383365,
+      "nlink": 1,
+      "sha256": "db546b9c509954389e6107aeb9cdb81c338d4b0f7aba7a41d8b45fb723b4643e"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/verify_tests.rs",
+      "device": 16777231,
+      "inode": 125383366,
+      "nlink": 1,
+      "sha256": "3de53d2d018cb7286bed092760398b69f59c92214fcaf20c09e269feddd4d135"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "device": 16777231,
+      "inode": 125383367,
+      "nlink": 1,
+      "sha256": "94ee29a25bee27b2a21f31212a49a1ac7c6cee72796aa95a13158ab5bc0dcbc8"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383369,
+      "nlink": 1,
+      "sha256": "3b931423d9478735b1f0a24551eb1e35e64670281a04c3f28b015cd35fdc88c2"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/atan.txt",
+      "device": 16777231,
+      "inode": 125383370,
+      "nlink": 1,
+      "sha256": "55f467cb431dd34c789b93fce93a4a0bdb95025c26dabae5fd45e7804529da2d"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential.txt",
+      "device": 16777231,
+      "inode": 125383371,
+      "nlink": 1,
+      "sha256": "fdd083bfc4b597bb56406bbf0440ef64429357ca5a4c3be67ca2e300fb414fc7"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383372,
+      "nlink": 1,
+      "sha256": "8c6fb63acc06e3626335107b6d2459762e76b49addc4166a3b902d302bb751e6"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/gen_wide_vectors.py",
+      "device": 16777231,
+      "inode": 125383373,
+      "nlink": 1,
+      "sha256": "3136619e559de5aabc16b16e04b7535f283eae81dbad1283075b3e4475179b95"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/split.txt",
+      "device": 16777231,
+      "inode": 125383374,
+      "nlink": 1,
+      "sha256": "cd716781a7847879ebf58e1132719d760c29a68aa4debae8308bd3c00f10734a"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/targeted.txt",
+      "device": 16777231,
+      "inode": 125383375,
+      "nlink": 1,
+      "sha256": "a8843bfbf8e33668a9a9c9e04edabb5e155526037d865ae9208dd65e4f4a048a"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/wide_tests.rs",
+      "device": 16777231,
+      "inode": 125383376,
+      "nlink": 1,
+      "sha256": "a6e1e661bd1fdfd1edc14a60b360e36a4323fc8d756bd154cff0be2b048eb42a"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383378,
+      "nlink": 1,
+      "sha256": "23d85546fe7a1d69ce4cb37c9dd18595881946edb8b6cd5217def78bc8f8e711"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/conversion.txt",
+      "device": 16777231,
+      "inode": 125383379,
+      "nlink": 1,
+      "sha256": "f8daaf68c39c8962337828419cb3d2bb71f152e01bb4ee0af755fbb637e2a7c6"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential.txt",
+      "device": 16777231,
+      "inode": 125383380,
+      "nlink": 1,
+      "sha256": "211fbf9912cb9a276d87a2f3ee9a927bc8e436f4cc1670bd1035c991eabd0a33"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383381,
+      "nlink": 1,
+      "sha256": "fb2bc225e3287ebd1fdd02236ca83f32c659e99b8d044547b6f9246f9c6d191a"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/eft.txt",
+      "device": 16777231,
+      "inode": 125383382,
+      "nlink": 1,
+      "sha256": "498398c18e2887d0b5b2f6d10c4a171e7ceec0a67ff96fb40bdb047811a37a30"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py",
+      "device": 16777231,
+      "inode": 125383383,
+      "nlink": 1,
+      "sha256": "ca48d1bd65540eb3da7f30acbbdd4fa553fe03fed432f2b18afd960e2ba4da29"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs",
+      "device": 16777231,
+      "inode": 125383384,
+      "nlink": 1,
+      "sha256": "81020d3add105dcc042b458e201778addd6566976a0eccb5bc12927fdda09d34"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt",
+      "device": 16777231,
+      "inode": 125383385,
+      "nlink": 1,
+      "sha256": "d50b3d308d5a88647c30cd559c2eea54354977ac6343b98aa187fcec1449471d"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt",
+      "device": 16777231,
+      "inode": 125383386,
+      "nlink": 1,
+      "sha256": "6e2343d6774446baf94f39df42a66404b1f08dca3ee6634c56bece02c1c10eec"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt",
+      "device": 16777231,
+      "inode": 125383387,
+      "nlink": 1,
+      "sha256": "9b3afcb29531a426c417d8ae01fc0072178822818df44ca63c2163781b4cc13d"
+    },
+    {
+      "copy": "BASELINE_SCALARS",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "device": 16777231,
+      "inode": 125383388,
+      "nlink": 1,
+      "sha256": "143f50af64cbfa3ad60f38cdab06bfde9c89dff1918cb5ff8ff2378e69cf5c26"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/.gitignore",
+      "device": 16777231,
+      "inode": 125383397,
+      "nlink": 1,
+      "sha256": "9183125d49601eb295964d719d75fa0e6b3d6981d6a310d8e1d1e9cd5dc65f8e"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "device": 16777231,
+      "inode": 125383398,
+      "nlink": 1,
+      "sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "device": 16777231,
+      "inode": 125383399,
+      "nlink": 1,
+      "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/README.md",
+      "device": 16777231,
+      "inode": 125383400,
+      "nlink": 1,
+      "sha256": "7d731b1ce74592b3d6d73ee0321b9d7085eca69a8b04c214de3d776dbb0512a0"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+      "device": 16777231,
+      "inode": 125383402,
+      "nlink": 1,
+      "sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs",
+      "device": 16777231,
+      "inode": 125383404,
+      "nlink": 1,
+      "sha256": "5738a338b32a86ed3eadd9cb0565a2cbb7ef6fb630781ff170ee6feae49b2efd"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests/k1_reference.rs",
+      "device": 16777231,
+      "inode": 125383406,
+      "nlink": 1,
+      "sha256": "e21fdbb56654ca05b5d2e8f9b9be74b987ea676522d034c691756c84fd5ab347"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "device": 16777231,
+      "inode": 125383407,
+      "nlink": 1,
+      "sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs",
+      "device": 16777231,
+      "inode": 125383408,
+      "nlink": 1,
+      "sha256": "8924d2822d9df02f6f8d34e1d030be1d78eb91d08d098eef307b5feebb7eb389"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "device": 16777231,
+      "inode": 125383409,
+      "nlink": 1,
+      "sha256": "3e5b9be185428f1652775f60cbb98b9d30e08bff4ce2a9b2bb83ccf662d30a1b"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "device": 16777231,
+      "inode": 125383410,
+      "nlink": 1,
+      "sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "device": 16777231,
+      "inode": 125383412,
+      "nlink": 1,
+      "sha256": "90ed530a04ac775acf55f81f7ac5c3b0a451c9fd9f0011b5bd4cf22b3a30f84d"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs",
+      "device": 16777231,
+      "inode": 125383414,
+      "nlink": 1,
+      "sha256": "9e378891a347d162f20fcdc32b424f4e8f0d664e61dcd6cebd4ef8c90d65c764"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals/tests.rs",
+      "device": 16777231,
+      "inode": 125383416,
+      "nlink": 1,
+      "sha256": "5d1574025e6ca3aac412f8b9cab11bdbc5a4f8016c8384daa87ded4e4c4fc312"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/s11k_tests.rs",
+      "device": 16777231,
+      "inode": 125383417,
+      "nlink": 1,
+      "sha256": "0d74db5a2951ad62ec9777c99f37b274522efc948286fdfa997f4d4b611f2a2f"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs",
+      "device": 16777231,
+      "inode": 125383418,
+      "nlink": 1,
+      "sha256": "052b093c256ba186bdd0ea66c891660c0dae8a7a344fc1d132a4746afcc00ece"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs",
+      "device": 16777231,
+      "inode": 125383419,
+      "nlink": 1,
+      "sha256": "f3f88ddc91e4ed744f8754685adf0acdfbc3007e23ff58ca372845af8aef321e"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/kf2_witness_tests.rs",
+      "device": 16777231,
+      "inode": 125383420,
+      "nlink": 1,
+      "sha256": "4a805ef758361151f837159686109aa67ad46003785a667d32e4911d8a270f29"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "device": 16777231,
+      "inode": 125383422,
+      "nlink": 1,
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "device": 16777231,
+      "inode": 125383423,
+      "nlink": 1,
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "device": 16777231,
+      "inode": 125383424,
+      "nlink": 1,
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+      "device": 16777231,
+      "inode": 125383425,
+      "nlink": 1,
+      "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+      "device": 16777231,
+      "inode": 125383426,
+      "nlink": 1,
+      "sha256": "8aaace7bc8fb65a8a1f60e5e6e630ee54b62bd43ed7c108a2fe193b372b74af4"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "device": 16777231,
+      "inode": 125383427,
+      "nlink": 1,
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "device": 16777231,
+      "inode": 125383428,
+      "nlink": 1,
+      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs",
+      "device": 16777231,
+      "inode": 125383429,
+      "nlink": 1,
+      "sha256": "78bb76773dd4fd4d799b5668f21a679f0ebf9c088ec5fff655e13a0453d6dc2a"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "device": 16777231,
+      "inode": 125383430,
+      "nlink": 1,
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+      "device": 16777231,
+      "inode": 125383431,
+      "nlink": 1,
+      "sha256": "ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "device": 16777231,
+      "inode": 125383432,
+      "nlink": 1,
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "device": 16777231,
+      "inode": 125383433,
+      "nlink": 1,
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+      "device": 16777231,
+      "inode": 125383434,
+      "nlink": 1,
+      "sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "device": 16777231,
+      "inode": 125383436,
+      "nlink": 1,
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "device": 16777231,
+      "inode": 125383437,
+      "nlink": 1,
+      "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_n5_base_signature.txt",
+      "device": 16777231,
+      "inode": 125383438,
+      "nlink": 1,
+      "sha256": "00c5807dda62356b64d26391ffddd7af6e8d895e676b94053902661816480eab"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_tests.rs",
+      "device": 16777231,
+      "inode": 125383439,
+      "nlink": 1,
+      "sha256": "f827b708de329c0e2af074f281cc464f4eb44baf63824db6bdb420d62ad8aaf0"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs",
+      "device": 16777231,
+      "inode": 125383440,
+      "nlink": 1,
+      "sha256": "b23900274b77c8d472a54e1bd024013ad73f20a440e4a34209a0c39e126c1e99"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "device": 16777231,
+      "inode": 125383441,
+      "nlink": 1,
+      "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs",
+      "device": 16777231,
+      "inode": 125383443,
+      "nlink": 1,
+      "sha256": "e1b93a639c6751f9bb80af3e10f61d519711fb5210e9e5237167c67db590c2dc"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs",
+      "device": 16777231,
+      "inode": 125383445,
+      "nlink": 1,
+      "sha256": "cf241452b7a82c75e26ab248df22900317fd35b0001ec5a36bb5f5f361c55959"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2a/rf_range_models.rs",
+      "device": 16777231,
+      "inode": 125383447,
+      "nlink": 1,
+      "sha256": "3463d22784a252d18f6bc232f4c8616eefc712679c1c7f5bd8137e7413b0c7c5"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2a_checked_formation.rs",
+      "device": 16777231,
+      "inode": 125383448,
+      "nlink": 1,
+      "sha256": "0fa172eba552b24093034c59731fe50911e4e6eb411abc6b6f490028f7c3f4d9"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs",
+      "device": 16777231,
+      "inode": 125383449,
+      "nlink": 1,
+      "sha256": "9013583e1d4ff054d8429cb8a2252c8cc647c04f89e3be466c0f87df11127690"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383451,
+      "nlink": 1,
+      "sha256": "4b00b516b299a3cd5622322759166bcc57ae6150ed45a1017e19a07393528f0d"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_sample.txt",
+      "device": 16777231,
+      "inode": 125383452,
+      "nlink": 1,
+      "sha256": "533bd223cf3e2ef9e345e3ed075fb1c3c65c054eac6a170b81237d0dc534cc9f"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_summary.txt",
+      "device": 16777231,
+      "inode": 125383453,
+      "nlink": 1,
+      "sha256": "bab3b6805a0244b3a6d0ce9c161914247cda69732289e84c7fccfc7c3a9d932a"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/cases.txt",
+      "device": 16777231,
+      "inode": 125383454,
+      "nlink": 1,
+      "sha256": "75657e9344c20ab480d79b4a628a435a8a0b65e61a8ed1d8d76a67e43e41d049"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py",
+      "device": 16777231,
+      "inode": 125383455,
+      "nlink": 1,
+      "sha256": "2e4a850c119d51297ca284368cab76dadf5ad3e3cce4e3fb061b77f5fc82aec0"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal.txt",
+      "device": 16777231,
+      "inode": 125383456,
+      "nlink": 1,
+      "sha256": "7e41bf9cdf8df85aa2efdcb0d0ed6fa1c346d3bafdfdc547cbe80d44e9410f46"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal_summary.txt",
+      "device": 16777231,
+      "inode": 125383457,
+      "nlink": 1,
+      "sha256": "63ad0f619553c10d03b81d2c118daa765b41eb6106e8b9153f0ee75bdaa11c90"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs",
+      "device": 16777231,
+      "inode": 125383458,
+      "nlink": 1,
+      "sha256": "ca7ffd1ef859aecdc0c6ae62c9b4e7e653dbd03d25fcdf27e7de3264fa561a5c"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_scale.rs",
+      "device": 16777231,
+      "inode": 125383459,
+      "nlink": 1,
+      "sha256": "c19da33fe74a22818b73153d05411e47349fcf02ca7c3b9ee86f89b99ec985a3"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs",
+      "device": 16777231,
+      "inode": 125383460,
+      "nlink": 1,
+      "sha256": "824fc637c995672e810ae01c0a7020776e913beed1d7f7c645a2a769a3f0204b"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383462,
+      "nlink": 1,
+      "sha256": "3aebae45d93eb3bc017298f42d316d81a6ef2004a5e86ff414f485b418917fa9"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "device": 16777231,
+      "inode": 125383463,
+      "nlink": 1,
+      "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+      "device": 16777231,
+      "inode": 125383464,
+      "nlink": 1,
+      "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+      "device": 16777231,
+      "inode": 125383465,
+      "nlink": 1,
+      "sha256": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "device": 16777231,
+      "inode": 125383466,
+      "nlink": 1,
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "device": 16777231,
+      "inode": 125383467,
+      "nlink": 1,
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt",
+      "device": 16777231,
+      "inode": 125383468,
+      "nlink": 1,
+      "sha256": "b6beb3626298d979a99e6b3c21096fa391d6907bc295487f88d1c706c94da9d2"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "device": 16777231,
+      "inode": 125383469,
+      "nlink": 1,
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+      "device": 16777231,
+      "inode": 125383470,
+      "nlink": 1,
+      "sha256": "a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed.txt",
+      "device": 16777231,
+      "inode": 125383471,
+      "nlink": 1,
+      "sha256": "028826667311510992d8f9d2e3fa260d16485fcac095febd8288b498e20a6b59"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed_tests.rs",
+      "device": 16777231,
+      "inode": 125383472,
+      "nlink": 1,
+      "sha256": "f9bd1f58e6430a92cb9b61aac5856c4bceaac3448fb45b18948b5390ac84c0fb"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directional_span_exact.txt",
+      "device": 16777231,
+      "inode": 125383473,
+      "nlink": 1,
+      "sha256": "f11545a8f761ed90fc2a92eabd3f14047c6524c9c3aaf4437e901f0344bcaa28"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/encodings.txt",
+      "device": 16777231,
+      "inode": 125383474,
+      "nlink": 1,
+      "sha256": "70263358b79168453eb5c2955d0213bc6cb15d944cd8134119327b4365ab70e8"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/estimate.txt",
+      "device": 16777231,
+      "inode": 125383475,
+      "nlink": 1,
+      "sha256": "972b4650e6a31f9e452c15df7d5394af52dd62c21da6809167356ce65f60112e"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "device": 16777231,
+      "inode": 125383476,
+      "nlink": 1,
+      "sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/formation.txt",
+      "device": 16777231,
+      "inode": 125383477,
+      "nlink": 1,
+      "sha256": "d1e2a11a0198a71e3bfa0d220255fea469222802a83274748389dba19c7db404"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "device": 16777231,
+      "inode": 125383478,
+      "nlink": 1,
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+      "device": 16777231,
+      "inode": 125383479,
+      "nlink": 1,
+      "sha256": "1bce482dccc5c4dd06292d35d97ef6a4ec0c8ba7de0f9b9cb4440558cfd3ccac"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3.txt",
+      "device": 16777231,
+      "inode": 125383480,
+      "nlink": 1,
+      "sha256": "729e7ef86ba0b61353a167a610d53910e0deddb357c71948dd742993fca6f75a"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs",
+      "device": 16777231,
+      "inode": 125383481,
+      "nlink": 1,
+      "sha256": "1c02ea1f82c7087829ab9ec6845a2f0389d1f60829fceec6c01aafa51e3d726f"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger.txt",
+      "device": 16777231,
+      "inode": 125383482,
+      "nlink": 1,
+      "sha256": "afd2e629bbd92c9586742223b9c58e4d4230949df985151e1bbade6b4dfc45c6"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+      "device": 16777231,
+      "inode": 125383483,
+      "nlink": 1,
+      "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "device": 16777231,
+      "inode": 125383484,
+      "nlink": 1,
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs",
+      "device": 16777231,
+      "inode": 125383485,
+      "nlink": 1,
+      "sha256": "201506548f494b59fa877521bf531953b57e08df802a1289d506fed603db58e6"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "device": 16777231,
+      "inode": 125383486,
+      "nlink": 1,
+      "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "device": 16777231,
+      "inode": 125383487,
+      "nlink": 1,
+      "sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/o8_states.txt",
+      "device": 16777231,
+      "inode": 125383488,
+      "nlink": 1,
+      "sha256": "70857094e753c2fd07ee331bfd4a535363a1356a507dda091eb6cc20057c197d"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt",
+      "device": 16777231,
+      "inode": 125383489,
+      "nlink": 1,
+      "sha256": "53f7176da76546eca377d1da96d4698ec5d71a624412ecadde7ffd464b2be037"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/profiles.txt",
+      "device": 16777231,
+      "inode": 125383490,
+      "nlink": 1,
+      "sha256": "15cbbe044dc82bafd6856d5411b2718dfed016732360a43b0417be48cd8793cb"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "device": 16777231,
+      "inode": 125383491,
+      "nlink": 1,
+      "sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_cases.txt",
+      "device": 16777231,
+      "inode": 125383492,
+      "nlink": 1,
+      "sha256": "7be020420dc1c5b1d0bc37ddce13f98e193e0f15c28bc317a66e0f1cd342b230"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_large.txt",
+      "device": 16777231,
+      "inode": 125383493,
+      "nlink": 1,
+      "sha256": "7e3ecee649825d99ab82fb061c2925245435ecae5de6d843cb4350e0c03d94fb"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+      "device": 16777231,
+      "inode": 125383494,
+      "nlink": 1,
+      "sha256": "1540a9675c873ed1922e685302c7ea8302d3117844aa10895b9e21e447c251f7"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
+      "device": 16777231,
+      "inode": 125383495,
+      "nlink": 1,
+      "sha256": "e57a84b56e64aa664a77d95b3fa4921fe9e79aa5d1eda9f95fee4cc6229d5c16"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "device": 16777231,
+      "inode": 125383496,
+      "nlink": 1,
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "device": 16777231,
+      "inode": 125383497,
+      "nlink": 1,
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_tests.rs",
+      "device": 16777231,
+      "inode": 125383498,
+      "nlink": 1,
+      "sha256": "dced0f7858b908c2bf66530820e4874507858d9e733a7110a07686cb4eed7802"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams.txt",
+      "device": 16777231,
+      "inode": 125383499,
+      "nlink": 1,
+      "sha256": "c36c867884ee4d1841284a990393c7c39d85a2719e1fb1ab6c91f6b5611e382e"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams_sample.txt",
+      "device": 16777231,
+      "inode": 125383500,
+      "nlink": 1,
+      "sha256": "e7789d1eb976b29dffade7e18619fb4553ee70872dec9e0fe44ffb916f94ae67"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential.txt",
+      "device": 16777231,
+      "inode": 125383501,
+      "nlink": 1,
+      "sha256": "89e0f239949d41c1c65cce9c42c4f0c510bdd07319c866beb900af7a9f240f8b"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383502,
+      "nlink": 1,
+      "sha256": "cf4bca4503272c203413ffff4d204bed6e8e102c24b7034a9d17547942d8fa24"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt",
+      "device": 16777231,
+      "inode": 125383503,
+      "nlink": 1,
+      "sha256": "b4480589b78fa4eb4cf7a71bf91c43f22dbe6ba3602845f35082c18e852cd4a6"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
+      "device": 16777231,
+      "inode": 125383504,
+      "nlink": 1,
+      "sha256": "db546b9c509954389e6107aeb9cdb81c338d4b0f7aba7a41d8b45fb723b4643e"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/verify_tests.rs",
+      "device": 16777231,
+      "inode": 125383505,
+      "nlink": 1,
+      "sha256": "3de53d2d018cb7286bed092760398b69f59c92214fcaf20c09e269feddd4d135"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "device": 16777231,
+      "inode": 125383506,
+      "nlink": 1,
+      "sha256": "94ee29a25bee27b2a21f31212a49a1ac7c6cee72796aa95a13158ab5bc0dcbc8"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383508,
+      "nlink": 1,
+      "sha256": "3b931423d9478735b1f0a24551eb1e35e64670281a04c3f28b015cd35fdc88c2"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/atan.txt",
+      "device": 16777231,
+      "inode": 125383509,
+      "nlink": 1,
+      "sha256": "55f467cb431dd34c789b93fce93a4a0bdb95025c26dabae5fd45e7804529da2d"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential.txt",
+      "device": 16777231,
+      "inode": 125383510,
+      "nlink": 1,
+      "sha256": "fdd083bfc4b597bb56406bbf0440ef64429357ca5a4c3be67ca2e300fb414fc7"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383511,
+      "nlink": 1,
+      "sha256": "8c6fb63acc06e3626335107b6d2459762e76b49addc4166a3b902d302bb751e6"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/gen_wide_vectors.py",
+      "device": 16777231,
+      "inode": 125383512,
+      "nlink": 1,
+      "sha256": "3136619e559de5aabc16b16e04b7535f283eae81dbad1283075b3e4475179b95"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/split.txt",
+      "device": 16777231,
+      "inode": 125383513,
+      "nlink": 1,
+      "sha256": "cd716781a7847879ebf58e1132719d760c29a68aa4debae8308bd3c00f10734a"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/targeted.txt",
+      "device": 16777231,
+      "inode": 125383514,
+      "nlink": 1,
+      "sha256": "a8843bfbf8e33668a9a9c9e04edabb5e155526037d865ae9208dd65e4f4a048a"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/wide_tests.rs",
+      "device": 16777231,
+      "inode": 125383515,
+      "nlink": 1,
+      "sha256": "a6e1e661bd1fdfd1edc14a60b360e36a4323fc8d756bd154cff0be2b048eb42a"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383517,
+      "nlink": 1,
+      "sha256": "23d85546fe7a1d69ce4cb37c9dd18595881946edb8b6cd5217def78bc8f8e711"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/conversion.txt",
+      "device": 16777231,
+      "inode": 125383518,
+      "nlink": 1,
+      "sha256": "f8daaf68c39c8962337828419cb3d2bb71f152e01bb4ee0af755fbb637e2a7c6"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential.txt",
+      "device": 16777231,
+      "inode": 125383519,
+      "nlink": 1,
+      "sha256": "211fbf9912cb9a276d87a2f3ee9a927bc8e436f4cc1670bd1035c991eabd0a33"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383520,
+      "nlink": 1,
+      "sha256": "fb2bc225e3287ebd1fdd02236ca83f32c659e99b8d044547b6f9246f9c6d191a"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/eft.txt",
+      "device": 16777231,
+      "inode": 125383521,
+      "nlink": 1,
+      "sha256": "498398c18e2887d0b5b2f6d10c4a171e7ceec0a67ff96fb40bdb047811a37a30"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py",
+      "device": 16777231,
+      "inode": 125383522,
+      "nlink": 1,
+      "sha256": "ca48d1bd65540eb3da7f30acbbdd4fa553fe03fed432f2b18afd960e2ba4da29"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs",
+      "device": 16777231,
+      "inode": 125383523,
+      "nlink": 1,
+      "sha256": "81020d3add105dcc042b458e201778addd6566976a0eccb5bc12927fdda09d34"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt",
+      "device": 16777231,
+      "inode": 125383524,
+      "nlink": 1,
+      "sha256": "d50b3d308d5a88647c30cd559c2eea54354977ac6343b98aa187fcec1449471d"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt",
+      "device": 16777231,
+      "inode": 125383525,
+      "nlink": 1,
+      "sha256": "6e2343d6774446baf94f39df42a66404b1f08dca3ee6634c56bece02c1c10eec"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt",
+      "device": 16777231,
+      "inode": 125383526,
+      "nlink": 1,
+      "sha256": "9b3afcb29531a426c417d8ae01fc0072178822818df44ca63c2163781b4cc13d"
+    },
+    {
+      "copy": "K4-M9",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "device": 16777231,
+      "inode": 125383527,
+      "nlink": 1,
+      "sha256": "143f50af64cbfa3ad60f38cdab06bfde9c89dff1918cb5ff8ff2378e69cf5c26"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/.gitignore",
+      "device": 16777231,
+      "inode": 125383536,
+      "nlink": 1,
+      "sha256": "9183125d49601eb295964d719d75fa0e6b3d6981d6a310d8e1d1e9cd5dc65f8e"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "device": 16777231,
+      "inode": 125383537,
+      "nlink": 1,
+      "sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "device": 16777231,
+      "inode": 125383538,
+      "nlink": 1,
+      "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/README.md",
+      "device": 16777231,
+      "inode": 125383539,
+      "nlink": 1,
+      "sha256": "7d731b1ce74592b3d6d73ee0321b9d7085eca69a8b04c214de3d776dbb0512a0"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+      "device": 16777231,
+      "inode": 125383541,
+      "nlink": 1,
+      "sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs",
+      "device": 16777231,
+      "inode": 125383543,
+      "nlink": 1,
+      "sha256": "5738a338b32a86ed3eadd9cb0565a2cbb7ef6fb630781ff170ee6feae49b2efd"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests/k1_reference.rs",
+      "device": 16777231,
+      "inode": 125383545,
+      "nlink": 1,
+      "sha256": "e21fdbb56654ca05b5d2e8f9b9be74b987ea676522d034c691756c84fd5ab347"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "device": 16777231,
+      "inode": 125383546,
+      "nlink": 1,
+      "sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs",
+      "device": 16777231,
+      "inode": 125383547,
+      "nlink": 1,
+      "sha256": "8924d2822d9df02f6f8d34e1d030be1d78eb91d08d098eef307b5feebb7eb389"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "device": 16777231,
+      "inode": 125383548,
+      "nlink": 1,
+      "sha256": "3e5b9be185428f1652775f60cbb98b9d30e08bff4ce2a9b2bb83ccf662d30a1b"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "device": 16777231,
+      "inode": 125383549,
+      "nlink": 1,
+      "sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "device": 16777231,
+      "inode": 125383551,
+      "nlink": 1,
+      "sha256": "90ed530a04ac775acf55f81f7ac5c3b0a451c9fd9f0011b5bd4cf22b3a30f84d"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs",
+      "device": 16777231,
+      "inode": 125383553,
+      "nlink": 1,
+      "sha256": "9e378891a347d162f20fcdc32b424f4e8f0d664e61dcd6cebd4ef8c90d65c764"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals/tests.rs",
+      "device": 16777231,
+      "inode": 125383555,
+      "nlink": 1,
+      "sha256": "5d1574025e6ca3aac412f8b9cab11bdbc5a4f8016c8384daa87ded4e4c4fc312"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/s11k_tests.rs",
+      "device": 16777231,
+      "inode": 125383556,
+      "nlink": 1,
+      "sha256": "0d74db5a2951ad62ec9777c99f37b274522efc948286fdfa997f4d4b611f2a2f"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs",
+      "device": 16777231,
+      "inode": 125383557,
+      "nlink": 1,
+      "sha256": "052b093c256ba186bdd0ea66c891660c0dae8a7a344fc1d132a4746afcc00ece"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs",
+      "device": 16777231,
+      "inode": 125383558,
+      "nlink": 1,
+      "sha256": "f3f88ddc91e4ed744f8754685adf0acdfbc3007e23ff58ca372845af8aef321e"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/kf2_witness_tests.rs",
+      "device": 16777231,
+      "inode": 125383559,
+      "nlink": 1,
+      "sha256": "4a805ef758361151f837159686109aa67ad46003785a667d32e4911d8a270f29"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "device": 16777231,
+      "inode": 125383561,
+      "nlink": 1,
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "device": 16777231,
+      "inode": 125383562,
+      "nlink": 1,
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "device": 16777231,
+      "inode": 125383563,
+      "nlink": 1,
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+      "device": 16777231,
+      "inode": 125383564,
+      "nlink": 1,
+      "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+      "device": 16777231,
+      "inode": 125383565,
+      "nlink": 1,
+      "sha256": "8aaace7bc8fb65a8a1f60e5e6e630ee54b62bd43ed7c108a2fe193b372b74af4"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "device": 16777231,
+      "inode": 125383566,
+      "nlink": 1,
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "device": 16777231,
+      "inode": 125383567,
+      "nlink": 1,
+      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs",
+      "device": 16777231,
+      "inode": 125383568,
+      "nlink": 1,
+      "sha256": "78bb76773dd4fd4d799b5668f21a679f0ebf9c088ec5fff655e13a0453d6dc2a"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "device": 16777231,
+      "inode": 125383569,
+      "nlink": 1,
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+      "device": 16777231,
+      "inode": 125383570,
+      "nlink": 1,
+      "sha256": "ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "device": 16777231,
+      "inode": 125383571,
+      "nlink": 1,
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "device": 16777231,
+      "inode": 125383572,
+      "nlink": 1,
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+      "device": 16777231,
+      "inode": 125383573,
+      "nlink": 1,
+      "sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "device": 16777231,
+      "inode": 125383575,
+      "nlink": 1,
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "device": 16777231,
+      "inode": 125383576,
+      "nlink": 1,
+      "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_n5_base_signature.txt",
+      "device": 16777231,
+      "inode": 125383577,
+      "nlink": 1,
+      "sha256": "00c5807dda62356b64d26391ffddd7af6e8d895e676b94053902661816480eab"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_tests.rs",
+      "device": 16777231,
+      "inode": 125383578,
+      "nlink": 1,
+      "sha256": "f827b708de329c0e2af074f281cc464f4eb44baf63824db6bdb420d62ad8aaf0"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs",
+      "device": 16777231,
+      "inode": 125383579,
+      "nlink": 1,
+      "sha256": "b23900274b77c8d472a54e1bd024013ad73f20a440e4a34209a0c39e126c1e99"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "device": 16777231,
+      "inode": 125383580,
+      "nlink": 1,
+      "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs",
+      "device": 16777231,
+      "inode": 125383582,
+      "nlink": 1,
+      "sha256": "e1b93a639c6751f9bb80af3e10f61d519711fb5210e9e5237167c67db590c2dc"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs",
+      "device": 16777231,
+      "inode": 125383584,
+      "nlink": 1,
+      "sha256": "cf241452b7a82c75e26ab248df22900317fd35b0001ec5a36bb5f5f361c55959"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2a/rf_range_models.rs",
+      "device": 16777231,
+      "inode": 125383586,
+      "nlink": 1,
+      "sha256": "3463d22784a252d18f6bc232f4c8616eefc712679c1c7f5bd8137e7413b0c7c5"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2a_checked_formation.rs",
+      "device": 16777231,
+      "inode": 125383587,
+      "nlink": 1,
+      "sha256": "0fa172eba552b24093034c59731fe50911e4e6eb411abc6b6f490028f7c3f4d9"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs",
+      "device": 16777231,
+      "inode": 125383588,
+      "nlink": 1,
+      "sha256": "9013583e1d4ff054d8429cb8a2252c8cc647c04f89e3be466c0f87df11127690"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383590,
+      "nlink": 1,
+      "sha256": "4b00b516b299a3cd5622322759166bcc57ae6150ed45a1017e19a07393528f0d"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_sample.txt",
+      "device": 16777231,
+      "inode": 125383591,
+      "nlink": 1,
+      "sha256": "533bd223cf3e2ef9e345e3ed075fb1c3c65c054eac6a170b81237d0dc534cc9f"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_summary.txt",
+      "device": 16777231,
+      "inode": 125383592,
+      "nlink": 1,
+      "sha256": "bab3b6805a0244b3a6d0ce9c161914247cda69732289e84c7fccfc7c3a9d932a"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/cases.txt",
+      "device": 16777231,
+      "inode": 125383593,
+      "nlink": 1,
+      "sha256": "75657e9344c20ab480d79b4a628a435a8a0b65e61a8ed1d8d76a67e43e41d049"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py",
+      "device": 16777231,
+      "inode": 125383594,
+      "nlink": 1,
+      "sha256": "2e4a850c119d51297ca284368cab76dadf5ad3e3cce4e3fb061b77f5fc82aec0"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal.txt",
+      "device": 16777231,
+      "inode": 125383595,
+      "nlink": 1,
+      "sha256": "7e41bf9cdf8df85aa2efdcb0d0ed6fa1c346d3bafdfdc547cbe80d44e9410f46"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal_summary.txt",
+      "device": 16777231,
+      "inode": 125383596,
+      "nlink": 1,
+      "sha256": "63ad0f619553c10d03b81d2c118daa765b41eb6106e8b9153f0ee75bdaa11c90"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs",
+      "device": 16777231,
+      "inode": 125383597,
+      "nlink": 1,
+      "sha256": "ca7ffd1ef859aecdc0c6ae62c9b4e7e653dbd03d25fcdf27e7de3264fa561a5c"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_scale.rs",
+      "device": 16777231,
+      "inode": 125383598,
+      "nlink": 1,
+      "sha256": "c19da33fe74a22818b73153d05411e47349fcf02ca7c3b9ee86f89b99ec985a3"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs",
+      "device": 16777231,
+      "inode": 125383599,
+      "nlink": 1,
+      "sha256": "824fc637c995672e810ae01c0a7020776e913beed1d7f7c645a2a769a3f0204b"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383601,
+      "nlink": 1,
+      "sha256": "3aebae45d93eb3bc017298f42d316d81a6ef2004a5e86ff414f485b418917fa9"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "device": 16777231,
+      "inode": 125383602,
+      "nlink": 1,
+      "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+      "device": 16777231,
+      "inode": 125383603,
+      "nlink": 1,
+      "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+      "device": 16777231,
+      "inode": 125383604,
+      "nlink": 1,
+      "sha256": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "device": 16777231,
+      "inode": 125383605,
+      "nlink": 1,
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "device": 16777231,
+      "inode": 125383606,
+      "nlink": 1,
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt",
+      "device": 16777231,
+      "inode": 125383607,
+      "nlink": 1,
+      "sha256": "b6beb3626298d979a99e6b3c21096fa391d6907bc295487f88d1c706c94da9d2"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "device": 16777231,
+      "inode": 125383608,
+      "nlink": 1,
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+      "device": 16777231,
+      "inode": 125383609,
+      "nlink": 1,
+      "sha256": "a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed.txt",
+      "device": 16777231,
+      "inode": 125383610,
+      "nlink": 1,
+      "sha256": "028826667311510992d8f9d2e3fa260d16485fcac095febd8288b498e20a6b59"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed_tests.rs",
+      "device": 16777231,
+      "inode": 125383611,
+      "nlink": 1,
+      "sha256": "f9bd1f58e6430a92cb9b61aac5856c4bceaac3448fb45b18948b5390ac84c0fb"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directional_span_exact.txt",
+      "device": 16777231,
+      "inode": 125383612,
+      "nlink": 1,
+      "sha256": "f11545a8f761ed90fc2a92eabd3f14047c6524c9c3aaf4437e901f0344bcaa28"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/encodings.txt",
+      "device": 16777231,
+      "inode": 125383613,
+      "nlink": 1,
+      "sha256": "70263358b79168453eb5c2955d0213bc6cb15d944cd8134119327b4365ab70e8"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/estimate.txt",
+      "device": 16777231,
+      "inode": 125383614,
+      "nlink": 1,
+      "sha256": "972b4650e6a31f9e452c15df7d5394af52dd62c21da6809167356ce65f60112e"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "device": 16777231,
+      "inode": 125383615,
+      "nlink": 1,
+      "sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/formation.txt",
+      "device": 16777231,
+      "inode": 125383616,
+      "nlink": 1,
+      "sha256": "d1e2a11a0198a71e3bfa0d220255fea469222802a83274748389dba19c7db404"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "device": 16777231,
+      "inode": 125383617,
+      "nlink": 1,
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+      "device": 16777231,
+      "inode": 125383618,
+      "nlink": 1,
+      "sha256": "1bce482dccc5c4dd06292d35d97ef6a4ec0c8ba7de0f9b9cb4440558cfd3ccac"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3.txt",
+      "device": 16777231,
+      "inode": 125383619,
+      "nlink": 1,
+      "sha256": "729e7ef86ba0b61353a167a610d53910e0deddb357c71948dd742993fca6f75a"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs",
+      "device": 16777231,
+      "inode": 125383620,
+      "nlink": 1,
+      "sha256": "1c02ea1f82c7087829ab9ec6845a2f0389d1f60829fceec6c01aafa51e3d726f"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger.txt",
+      "device": 16777231,
+      "inode": 125383621,
+      "nlink": 1,
+      "sha256": "afd2e629bbd92c9586742223b9c58e4d4230949df985151e1bbade6b4dfc45c6"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+      "device": 16777231,
+      "inode": 125383622,
+      "nlink": 1,
+      "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "device": 16777231,
+      "inode": 125383623,
+      "nlink": 1,
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs",
+      "device": 16777231,
+      "inode": 125383624,
+      "nlink": 1,
+      "sha256": "201506548f494b59fa877521bf531953b57e08df802a1289d506fed603db58e6"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "device": 16777231,
+      "inode": 125383625,
+      "nlink": 1,
+      "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "device": 16777231,
+      "inode": 125383626,
+      "nlink": 1,
+      "sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/o8_states.txt",
+      "device": 16777231,
+      "inode": 125383627,
+      "nlink": 1,
+      "sha256": "70857094e753c2fd07ee331bfd4a535363a1356a507dda091eb6cc20057c197d"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt",
+      "device": 16777231,
+      "inode": 125383628,
+      "nlink": 1,
+      "sha256": "53f7176da76546eca377d1da96d4698ec5d71a624412ecadde7ffd464b2be037"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/profiles.txt",
+      "device": 16777231,
+      "inode": 125383629,
+      "nlink": 1,
+      "sha256": "15cbbe044dc82bafd6856d5411b2718dfed016732360a43b0417be48cd8793cb"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "device": 16777231,
+      "inode": 125383630,
+      "nlink": 1,
+      "sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_cases.txt",
+      "device": 16777231,
+      "inode": 125383631,
+      "nlink": 1,
+      "sha256": "7be020420dc1c5b1d0bc37ddce13f98e193e0f15c28bc317a66e0f1cd342b230"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_large.txt",
+      "device": 16777231,
+      "inode": 125383632,
+      "nlink": 1,
+      "sha256": "7e3ecee649825d99ab82fb061c2925245435ecae5de6d843cb4350e0c03d94fb"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+      "device": 16777231,
+      "inode": 125383633,
+      "nlink": 1,
+      "sha256": "1540a9675c873ed1922e685302c7ea8302d3117844aa10895b9e21e447c251f7"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
+      "device": 16777231,
+      "inode": 125383634,
+      "nlink": 1,
+      "sha256": "e57a84b56e64aa664a77d95b3fa4921fe9e79aa5d1eda9f95fee4cc6229d5c16"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "device": 16777231,
+      "inode": 125383635,
+      "nlink": 1,
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "device": 16777231,
+      "inode": 125383636,
+      "nlink": 1,
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_tests.rs",
+      "device": 16777231,
+      "inode": 125383637,
+      "nlink": 1,
+      "sha256": "dced0f7858b908c2bf66530820e4874507858d9e733a7110a07686cb4eed7802"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams.txt",
+      "device": 16777231,
+      "inode": 125383638,
+      "nlink": 1,
+      "sha256": "c36c867884ee4d1841284a990393c7c39d85a2719e1fb1ab6c91f6b5611e382e"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams_sample.txt",
+      "device": 16777231,
+      "inode": 125383639,
+      "nlink": 1,
+      "sha256": "e7789d1eb976b29dffade7e18619fb4553ee70872dec9e0fe44ffb916f94ae67"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential.txt",
+      "device": 16777231,
+      "inode": 125383640,
+      "nlink": 1,
+      "sha256": "89e0f239949d41c1c65cce9c42c4f0c510bdd07319c866beb900af7a9f240f8b"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383641,
+      "nlink": 1,
+      "sha256": "cf4bca4503272c203413ffff4d204bed6e8e102c24b7034a9d17547942d8fa24"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt",
+      "device": 16777231,
+      "inode": 125383642,
+      "nlink": 1,
+      "sha256": "b4480589b78fa4eb4cf7a71bf91c43f22dbe6ba3602845f35082c18e852cd4a6"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
+      "device": 16777231,
+      "inode": 125383643,
+      "nlink": 1,
+      "sha256": "db546b9c509954389e6107aeb9cdb81c338d4b0f7aba7a41d8b45fb723b4643e"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/verify_tests.rs",
+      "device": 16777231,
+      "inode": 125383644,
+      "nlink": 1,
+      "sha256": "3de53d2d018cb7286bed092760398b69f59c92214fcaf20c09e269feddd4d135"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "device": 16777231,
+      "inode": 125383645,
+      "nlink": 1,
+      "sha256": "94ee29a25bee27b2a21f31212a49a1ac7c6cee72796aa95a13158ab5bc0dcbc8"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383647,
+      "nlink": 1,
+      "sha256": "3b931423d9478735b1f0a24551eb1e35e64670281a04c3f28b015cd35fdc88c2"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/atan.txt",
+      "device": 16777231,
+      "inode": 125383648,
+      "nlink": 1,
+      "sha256": "55f467cb431dd34c789b93fce93a4a0bdb95025c26dabae5fd45e7804529da2d"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential.txt",
+      "device": 16777231,
+      "inode": 125383649,
+      "nlink": 1,
+      "sha256": "fdd083bfc4b597bb56406bbf0440ef64429357ca5a4c3be67ca2e300fb414fc7"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383650,
+      "nlink": 1,
+      "sha256": "8c6fb63acc06e3626335107b6d2459762e76b49addc4166a3b902d302bb751e6"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/gen_wide_vectors.py",
+      "device": 16777231,
+      "inode": 125383651,
+      "nlink": 1,
+      "sha256": "3136619e559de5aabc16b16e04b7535f283eae81dbad1283075b3e4475179b95"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/split.txt",
+      "device": 16777231,
+      "inode": 125383652,
+      "nlink": 1,
+      "sha256": "cd716781a7847879ebf58e1132719d760c29a68aa4debae8308bd3c00f10734a"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/targeted.txt",
+      "device": 16777231,
+      "inode": 125383653,
+      "nlink": 1,
+      "sha256": "a8843bfbf8e33668a9a9c9e04edabb5e155526037d865ae9208dd65e4f4a048a"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/wide_tests.rs",
+      "device": 16777231,
+      "inode": 125383654,
+      "nlink": 1,
+      "sha256": "a6e1e661bd1fdfd1edc14a60b360e36a4323fc8d756bd154cff0be2b048eb42a"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383656,
+      "nlink": 1,
+      "sha256": "23d85546fe7a1d69ce4cb37c9dd18595881946edb8b6cd5217def78bc8f8e711"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/conversion.txt",
+      "device": 16777231,
+      "inode": 125383657,
+      "nlink": 1,
+      "sha256": "f8daaf68c39c8962337828419cb3d2bb71f152e01bb4ee0af755fbb637e2a7c6"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential.txt",
+      "device": 16777231,
+      "inode": 125383658,
+      "nlink": 1,
+      "sha256": "211fbf9912cb9a276d87a2f3ee9a927bc8e436f4cc1670bd1035c991eabd0a33"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383659,
+      "nlink": 1,
+      "sha256": "fb2bc225e3287ebd1fdd02236ca83f32c659e99b8d044547b6f9246f9c6d191a"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/eft.txt",
+      "device": 16777231,
+      "inode": 125383660,
+      "nlink": 1,
+      "sha256": "498398c18e2887d0b5b2f6d10c4a171e7ceec0a67ff96fb40bdb047811a37a30"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py",
+      "device": 16777231,
+      "inode": 125383661,
+      "nlink": 1,
+      "sha256": "ca48d1bd65540eb3da7f30acbbdd4fa553fe03fed432f2b18afd960e2ba4da29"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs",
+      "device": 16777231,
+      "inode": 125383662,
+      "nlink": 1,
+      "sha256": "81020d3add105dcc042b458e201778addd6566976a0eccb5bc12927fdda09d34"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt",
+      "device": 16777231,
+      "inode": 125383663,
+      "nlink": 1,
+      "sha256": "d50b3d308d5a88647c30cd559c2eea54354977ac6343b98aa187fcec1449471d"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt",
+      "device": 16777231,
+      "inode": 125383664,
+      "nlink": 1,
+      "sha256": "6e2343d6774446baf94f39df42a66404b1f08dca3ee6634c56bece02c1c10eec"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt",
+      "device": 16777231,
+      "inode": 125383665,
+      "nlink": 1,
+      "sha256": "9b3afcb29531a426c417d8ae01fc0072178822818df44ca63c2163781b4cc13d"
+    },
+    {
+      "copy": "K4-M32",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "device": 16777231,
+      "inode": 125383666,
+      "nlink": 1,
+      "sha256": "143f50af64cbfa3ad60f38cdab06bfde9c89dff1918cb5ff8ff2378e69cf5c26"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/.gitignore",
+      "device": 16777231,
+      "inode": 125383675,
+      "nlink": 1,
+      "sha256": "9183125d49601eb295964d719d75fa0e6b3d6981d6a310d8e1d1e9cd5dc65f8e"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "device": 16777231,
+      "inode": 125383676,
+      "nlink": 1,
+      "sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "device": 16777231,
+      "inode": 125383677,
+      "nlink": 1,
+      "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/README.md",
+      "device": 16777231,
+      "inode": 125383678,
+      "nlink": 1,
+      "sha256": "7d731b1ce74592b3d6d73ee0321b9d7085eca69a8b04c214de3d776dbb0512a0"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+      "device": 16777231,
+      "inode": 125383680,
+      "nlink": 1,
+      "sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs",
+      "device": 16777231,
+      "inode": 125383682,
+      "nlink": 1,
+      "sha256": "5738a338b32a86ed3eadd9cb0565a2cbb7ef6fb630781ff170ee6feae49b2efd"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests/k1_reference.rs",
+      "device": 16777231,
+      "inode": 125383684,
+      "nlink": 1,
+      "sha256": "e21fdbb56654ca05b5d2e8f9b9be74b987ea676522d034c691756c84fd5ab347"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "device": 16777231,
+      "inode": 125383685,
+      "nlink": 1,
+      "sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs",
+      "device": 16777231,
+      "inode": 125383686,
+      "nlink": 1,
+      "sha256": "8924d2822d9df02f6f8d34e1d030be1d78eb91d08d098eef307b5feebb7eb389"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "device": 16777231,
+      "inode": 125383687,
+      "nlink": 1,
+      "sha256": "3e5b9be185428f1652775f60cbb98b9d30e08bff4ce2a9b2bb83ccf662d30a1b"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "device": 16777231,
+      "inode": 125383688,
+      "nlink": 1,
+      "sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "device": 16777231,
+      "inode": 125383690,
+      "nlink": 1,
+      "sha256": "90ed530a04ac775acf55f81f7ac5c3b0a451c9fd9f0011b5bd4cf22b3a30f84d"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs",
+      "device": 16777231,
+      "inode": 125383692,
+      "nlink": 1,
+      "sha256": "9e378891a347d162f20fcdc32b424f4e8f0d664e61dcd6cebd4ef8c90d65c764"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals/tests.rs",
+      "device": 16777231,
+      "inode": 125383694,
+      "nlink": 1,
+      "sha256": "5d1574025e6ca3aac412f8b9cab11bdbc5a4f8016c8384daa87ded4e4c4fc312"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/s11k_tests.rs",
+      "device": 16777231,
+      "inode": 125383695,
+      "nlink": 1,
+      "sha256": "0d74db5a2951ad62ec9777c99f37b274522efc948286fdfa997f4d4b611f2a2f"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs",
+      "device": 16777231,
+      "inode": 125383696,
+      "nlink": 1,
+      "sha256": "052b093c256ba186bdd0ea66c891660c0dae8a7a344fc1d132a4746afcc00ece"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs",
+      "device": 16777231,
+      "inode": 125383697,
+      "nlink": 1,
+      "sha256": "f3f88ddc91e4ed744f8754685adf0acdfbc3007e23ff58ca372845af8aef321e"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/kf2_witness_tests.rs",
+      "device": 16777231,
+      "inode": 125383698,
+      "nlink": 1,
+      "sha256": "4a805ef758361151f837159686109aa67ad46003785a667d32e4911d8a270f29"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "device": 16777231,
+      "inode": 125383700,
+      "nlink": 1,
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "device": 16777231,
+      "inode": 125383701,
+      "nlink": 1,
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "device": 16777231,
+      "inode": 125383702,
+      "nlink": 1,
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+      "device": 16777231,
+      "inode": 125383703,
+      "nlink": 1,
+      "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+      "device": 16777231,
+      "inode": 125383704,
+      "nlink": 1,
+      "sha256": "8aaace7bc8fb65a8a1f60e5e6e630ee54b62bd43ed7c108a2fe193b372b74af4"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "device": 16777231,
+      "inode": 125383705,
+      "nlink": 1,
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "device": 16777231,
+      "inode": 125383706,
+      "nlink": 1,
+      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs",
+      "device": 16777231,
+      "inode": 125383707,
+      "nlink": 1,
+      "sha256": "78bb76773dd4fd4d799b5668f21a679f0ebf9c088ec5fff655e13a0453d6dc2a"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "device": 16777231,
+      "inode": 125383708,
+      "nlink": 1,
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+      "device": 16777231,
+      "inode": 125383709,
+      "nlink": 1,
+      "sha256": "ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "device": 16777231,
+      "inode": 125383710,
+      "nlink": 1,
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "device": 16777231,
+      "inode": 125383711,
+      "nlink": 1,
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+      "device": 16777231,
+      "inode": 125383712,
+      "nlink": 1,
+      "sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "device": 16777231,
+      "inode": 125383714,
+      "nlink": 1,
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "device": 16777231,
+      "inode": 125383715,
+      "nlink": 1,
+      "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_n5_base_signature.txt",
+      "device": 16777231,
+      "inode": 125383716,
+      "nlink": 1,
+      "sha256": "00c5807dda62356b64d26391ffddd7af6e8d895e676b94053902661816480eab"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_tests.rs",
+      "device": 16777231,
+      "inode": 125383717,
+      "nlink": 1,
+      "sha256": "f827b708de329c0e2af074f281cc464f4eb44baf63824db6bdb420d62ad8aaf0"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs",
+      "device": 16777231,
+      "inode": 125383718,
+      "nlink": 1,
+      "sha256": "b23900274b77c8d472a54e1bd024013ad73f20a440e4a34209a0c39e126c1e99"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "device": 16777231,
+      "inode": 125383719,
+      "nlink": 1,
+      "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs",
+      "device": 16777231,
+      "inode": 125383721,
+      "nlink": 1,
+      "sha256": "e1b93a639c6751f9bb80af3e10f61d519711fb5210e9e5237167c67db590c2dc"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs",
+      "device": 16777231,
+      "inode": 125383723,
+      "nlink": 1,
+      "sha256": "cf241452b7a82c75e26ab248df22900317fd35b0001ec5a36bb5f5f361c55959"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2a/rf_range_models.rs",
+      "device": 16777231,
+      "inode": 125383725,
+      "nlink": 1,
+      "sha256": "3463d22784a252d18f6bc232f4c8616eefc712679c1c7f5bd8137e7413b0c7c5"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2a_checked_formation.rs",
+      "device": 16777231,
+      "inode": 125383726,
+      "nlink": 1,
+      "sha256": "0fa172eba552b24093034c59731fe50911e4e6eb411abc6b6f490028f7c3f4d9"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs",
+      "device": 16777231,
+      "inode": 125383727,
+      "nlink": 1,
+      "sha256": "9013583e1d4ff054d8429cb8a2252c8cc647c04f89e3be466c0f87df11127690"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383729,
+      "nlink": 1,
+      "sha256": "4b00b516b299a3cd5622322759166bcc57ae6150ed45a1017e19a07393528f0d"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_sample.txt",
+      "device": 16777231,
+      "inode": 125383730,
+      "nlink": 1,
+      "sha256": "533bd223cf3e2ef9e345e3ed075fb1c3c65c054eac6a170b81237d0dc534cc9f"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_summary.txt",
+      "device": 16777231,
+      "inode": 125383731,
+      "nlink": 1,
+      "sha256": "bab3b6805a0244b3a6d0ce9c161914247cda69732289e84c7fccfc7c3a9d932a"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/cases.txt",
+      "device": 16777231,
+      "inode": 125383732,
+      "nlink": 1,
+      "sha256": "75657e9344c20ab480d79b4a628a435a8a0b65e61a8ed1d8d76a67e43e41d049"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py",
+      "device": 16777231,
+      "inode": 125383733,
+      "nlink": 1,
+      "sha256": "2e4a850c119d51297ca284368cab76dadf5ad3e3cce4e3fb061b77f5fc82aec0"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal.txt",
+      "device": 16777231,
+      "inode": 125383734,
+      "nlink": 1,
+      "sha256": "7e41bf9cdf8df85aa2efdcb0d0ed6fa1c346d3bafdfdc547cbe80d44e9410f46"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal_summary.txt",
+      "device": 16777231,
+      "inode": 125383735,
+      "nlink": 1,
+      "sha256": "63ad0f619553c10d03b81d2c118daa765b41eb6106e8b9153f0ee75bdaa11c90"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs",
+      "device": 16777231,
+      "inode": 125383736,
+      "nlink": 1,
+      "sha256": "ca7ffd1ef859aecdc0c6ae62c9b4e7e653dbd03d25fcdf27e7de3264fa561a5c"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_scale.rs",
+      "device": 16777231,
+      "inode": 125383737,
+      "nlink": 1,
+      "sha256": "c19da33fe74a22818b73153d05411e47349fcf02ca7c3b9ee86f89b99ec985a3"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs",
+      "device": 16777231,
+      "inode": 125383738,
+      "nlink": 1,
+      "sha256": "824fc637c995672e810ae01c0a7020776e913beed1d7f7c645a2a769a3f0204b"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383740,
+      "nlink": 1,
+      "sha256": "3aebae45d93eb3bc017298f42d316d81a6ef2004a5e86ff414f485b418917fa9"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "device": 16777231,
+      "inode": 125383741,
+      "nlink": 1,
+      "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+      "device": 16777231,
+      "inode": 125383742,
+      "nlink": 1,
+      "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+      "device": 16777231,
+      "inode": 125383743,
+      "nlink": 1,
+      "sha256": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "device": 16777231,
+      "inode": 125383744,
+      "nlink": 1,
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "device": 16777231,
+      "inode": 125383745,
+      "nlink": 1,
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt",
+      "device": 16777231,
+      "inode": 125383746,
+      "nlink": 1,
+      "sha256": "b6beb3626298d979a99e6b3c21096fa391d6907bc295487f88d1c706c94da9d2"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "device": 16777231,
+      "inode": 125383747,
+      "nlink": 1,
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+      "device": 16777231,
+      "inode": 125383748,
+      "nlink": 1,
+      "sha256": "a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed.txt",
+      "device": 16777231,
+      "inode": 125383749,
+      "nlink": 1,
+      "sha256": "028826667311510992d8f9d2e3fa260d16485fcac095febd8288b498e20a6b59"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed_tests.rs",
+      "device": 16777231,
+      "inode": 125383750,
+      "nlink": 1,
+      "sha256": "f9bd1f58e6430a92cb9b61aac5856c4bceaac3448fb45b18948b5390ac84c0fb"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directional_span_exact.txt",
+      "device": 16777231,
+      "inode": 125383751,
+      "nlink": 1,
+      "sha256": "f11545a8f761ed90fc2a92eabd3f14047c6524c9c3aaf4437e901f0344bcaa28"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/encodings.txt",
+      "device": 16777231,
+      "inode": 125383752,
+      "nlink": 1,
+      "sha256": "70263358b79168453eb5c2955d0213bc6cb15d944cd8134119327b4365ab70e8"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/estimate.txt",
+      "device": 16777231,
+      "inode": 125383753,
+      "nlink": 1,
+      "sha256": "972b4650e6a31f9e452c15df7d5394af52dd62c21da6809167356ce65f60112e"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "device": 16777231,
+      "inode": 125383754,
+      "nlink": 1,
+      "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/formation.txt",
+      "device": 16777231,
+      "inode": 125383755,
+      "nlink": 1,
+      "sha256": "d1e2a11a0198a71e3bfa0d220255fea469222802a83274748389dba19c7db404"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "device": 16777231,
+      "inode": 125383756,
+      "nlink": 1,
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+      "device": 16777231,
+      "inode": 125383757,
+      "nlink": 1,
+      "sha256": "1bce482dccc5c4dd06292d35d97ef6a4ec0c8ba7de0f9b9cb4440558cfd3ccac"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3.txt",
+      "device": 16777231,
+      "inode": 125383758,
+      "nlink": 1,
+      "sha256": "729e7ef86ba0b61353a167a610d53910e0deddb357c71948dd742993fca6f75a"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs",
+      "device": 16777231,
+      "inode": 125383759,
+      "nlink": 1,
+      "sha256": "1c02ea1f82c7087829ab9ec6845a2f0389d1f60829fceec6c01aafa51e3d726f"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger.txt",
+      "device": 16777231,
+      "inode": 125383760,
+      "nlink": 1,
+      "sha256": "afd2e629bbd92c9586742223b9c58e4d4230949df985151e1bbade6b4dfc45c6"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+      "device": 16777231,
+      "inode": 125383761,
+      "nlink": 1,
+      "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "device": 16777231,
+      "inode": 125383762,
+      "nlink": 1,
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs",
+      "device": 16777231,
+      "inode": 125383763,
+      "nlink": 1,
+      "sha256": "201506548f494b59fa877521bf531953b57e08df802a1289d506fed603db58e6"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "device": 16777231,
+      "inode": 125383764,
+      "nlink": 1,
+      "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "device": 16777231,
+      "inode": 125383765,
+      "nlink": 1,
+      "sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/o8_states.txt",
+      "device": 16777231,
+      "inode": 125383766,
+      "nlink": 1,
+      "sha256": "70857094e753c2fd07ee331bfd4a535363a1356a507dda091eb6cc20057c197d"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt",
+      "device": 16777231,
+      "inode": 125383767,
+      "nlink": 1,
+      "sha256": "53f7176da76546eca377d1da96d4698ec5d71a624412ecadde7ffd464b2be037"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/profiles.txt",
+      "device": 16777231,
+      "inode": 125383768,
+      "nlink": 1,
+      "sha256": "15cbbe044dc82bafd6856d5411b2718dfed016732360a43b0417be48cd8793cb"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "device": 16777231,
+      "inode": 125383769,
+      "nlink": 1,
+      "sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_cases.txt",
+      "device": 16777231,
+      "inode": 125383770,
+      "nlink": 1,
+      "sha256": "7be020420dc1c5b1d0bc37ddce13f98e193e0f15c28bc317a66e0f1cd342b230"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_large.txt",
+      "device": 16777231,
+      "inode": 125383771,
+      "nlink": 1,
+      "sha256": "7e3ecee649825d99ab82fb061c2925245435ecae5de6d843cb4350e0c03d94fb"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+      "device": 16777231,
+      "inode": 125383772,
+      "nlink": 1,
+      "sha256": "1540a9675c873ed1922e685302c7ea8302d3117844aa10895b9e21e447c251f7"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
+      "device": 16777231,
+      "inode": 125383773,
+      "nlink": 1,
+      "sha256": "e57a84b56e64aa664a77d95b3fa4921fe9e79aa5d1eda9f95fee4cc6229d5c16"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "device": 16777231,
+      "inode": 125383774,
+      "nlink": 1,
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "device": 16777231,
+      "inode": 125383775,
+      "nlink": 1,
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_tests.rs",
+      "device": 16777231,
+      "inode": 125383776,
+      "nlink": 1,
+      "sha256": "dced0f7858b908c2bf66530820e4874507858d9e733a7110a07686cb4eed7802"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams.txt",
+      "device": 16777231,
+      "inode": 125383777,
+      "nlink": 1,
+      "sha256": "c36c867884ee4d1841284a990393c7c39d85a2719e1fb1ab6c91f6b5611e382e"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams_sample.txt",
+      "device": 16777231,
+      "inode": 125383778,
+      "nlink": 1,
+      "sha256": "e7789d1eb976b29dffade7e18619fb4553ee70872dec9e0fe44ffb916f94ae67"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential.txt",
+      "device": 16777231,
+      "inode": 125383779,
+      "nlink": 1,
+      "sha256": "89e0f239949d41c1c65cce9c42c4f0c510bdd07319c866beb900af7a9f240f8b"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383780,
+      "nlink": 1,
+      "sha256": "cf4bca4503272c203413ffff4d204bed6e8e102c24b7034a9d17547942d8fa24"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt",
+      "device": 16777231,
+      "inode": 125383781,
+      "nlink": 1,
+      "sha256": "b4480589b78fa4eb4cf7a71bf91c43f22dbe6ba3602845f35082c18e852cd4a6"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
+      "device": 16777231,
+      "inode": 125383782,
+      "nlink": 1,
+      "sha256": "db546b9c509954389e6107aeb9cdb81c338d4b0f7aba7a41d8b45fb723b4643e"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/verify_tests.rs",
+      "device": 16777231,
+      "inode": 125383783,
+      "nlink": 1,
+      "sha256": "3de53d2d018cb7286bed092760398b69f59c92214fcaf20c09e269feddd4d135"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "device": 16777231,
+      "inode": 125383784,
+      "nlink": 1,
+      "sha256": "94ee29a25bee27b2a21f31212a49a1ac7c6cee72796aa95a13158ab5bc0dcbc8"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383786,
+      "nlink": 1,
+      "sha256": "3b931423d9478735b1f0a24551eb1e35e64670281a04c3f28b015cd35fdc88c2"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/atan.txt",
+      "device": 16777231,
+      "inode": 125383787,
+      "nlink": 1,
+      "sha256": "55f467cb431dd34c789b93fce93a4a0bdb95025c26dabae5fd45e7804529da2d"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential.txt",
+      "device": 16777231,
+      "inode": 125383788,
+      "nlink": 1,
+      "sha256": "fdd083bfc4b597bb56406bbf0440ef64429357ca5a4c3be67ca2e300fb414fc7"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383789,
+      "nlink": 1,
+      "sha256": "8c6fb63acc06e3626335107b6d2459762e76b49addc4166a3b902d302bb751e6"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/gen_wide_vectors.py",
+      "device": 16777231,
+      "inode": 125383790,
+      "nlink": 1,
+      "sha256": "3136619e559de5aabc16b16e04b7535f283eae81dbad1283075b3e4475179b95"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/split.txt",
+      "device": 16777231,
+      "inode": 125383791,
+      "nlink": 1,
+      "sha256": "cd716781a7847879ebf58e1132719d760c29a68aa4debae8308bd3c00f10734a"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/targeted.txt",
+      "device": 16777231,
+      "inode": 125383792,
+      "nlink": 1,
+      "sha256": "a8843bfbf8e33668a9a9c9e04edabb5e155526037d865ae9208dd65e4f4a048a"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/wide_tests.rs",
+      "device": 16777231,
+      "inode": 125383793,
+      "nlink": 1,
+      "sha256": "a6e1e661bd1fdfd1edc14a60b360e36a4323fc8d756bd154cff0be2b048eb42a"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125383795,
+      "nlink": 1,
+      "sha256": "23d85546fe7a1d69ce4cb37c9dd18595881946edb8b6cd5217def78bc8f8e711"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/conversion.txt",
+      "device": 16777231,
+      "inode": 125383796,
+      "nlink": 1,
+      "sha256": "f8daaf68c39c8962337828419cb3d2bb71f152e01bb4ee0af755fbb637e2a7c6"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential.txt",
+      "device": 16777231,
+      "inode": 125383797,
+      "nlink": 1,
+      "sha256": "211fbf9912cb9a276d87a2f3ee9a927bc8e436f4cc1670bd1035c991eabd0a33"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential_sample.txt",
+      "device": 16777231,
+      "inode": 125383798,
+      "nlink": 1,
+      "sha256": "fb2bc225e3287ebd1fdd02236ca83f32c659e99b8d044547b6f9246f9c6d191a"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/eft.txt",
+      "device": 16777231,
+      "inode": 125383799,
+      "nlink": 1,
+      "sha256": "498398c18e2887d0b5b2f6d10c4a171e7ceec0a67ff96fb40bdb047811a37a30"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py",
+      "device": 16777231,
+      "inode": 125383800,
+      "nlink": 1,
+      "sha256": "ca48d1bd65540eb3da7f30acbbdd4fa553fe03fed432f2b18afd960e2ba4da29"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs",
+      "device": 16777231,
+      "inode": 125383801,
+      "nlink": 1,
+      "sha256": "81020d3add105dcc042b458e201778addd6566976a0eccb5bc12927fdda09d34"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt",
+      "device": 16777231,
+      "inode": 125383802,
+      "nlink": 1,
+      "sha256": "d50b3d308d5a88647c30cd559c2eea54354977ac6343b98aa187fcec1449471d"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt",
+      "device": 16777231,
+      "inode": 125383803,
+      "nlink": 1,
+      "sha256": "6e2343d6774446baf94f39df42a66404b1f08dca3ee6634c56bece02c1c10eec"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt",
+      "device": 16777231,
+      "inode": 125383804,
+      "nlink": 1,
+      "sha256": "9b3afcb29531a426c417d8ae01fc0072178822818df44ca63c2163781b4cc13d"
+    },
+    {
+      "copy": "K4-M11",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "device": 16777231,
+      "inode": 125383805,
+      "nlink": 1,
+      "sha256": "143f50af64cbfa3ad60f38cdab06bfde9c89dff1918cb5ff8ff2378e69cf5c26"
+    }
+  ],
+  "all_unique_inode_pairs": 464,
+  "all_nlink1": true,
+  "links_to_maintained": 0,
+  "symlink_ancestors": 0,
+  "logs_parent": "<wt>/scratch/i23/scalars_g4/logs",
+  "logs_outside_all_source_roots": true,
+  "target_parent": "<wt>/a1-diagnostic-target/g4",
+  "empty_targets": 4,
+  "empty_logs": 4,
+  "total_source_bytes": 91333353
+}

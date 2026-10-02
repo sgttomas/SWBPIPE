@@ -1,0 +1,467 @@
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs SHA256 31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987
+
+319: /// Item 6a's coupling in binary64: ê_fo = max(E_fo, fl(E_mo/L_b)),
+320: /// ê_mo = max(E_mo, fl(L_b·E_fo)); a single-node body (L_b = 0) keeps E.
+321: pub fn e_hat(e: [f64; 2], extent: f64) -> [f64; 2] {
+322:     // V-K seeded fault VK-R02 (R7-M2): ê uncoupled.
+323:     #[cfg(any(test, feature = "mutation-controls"))]
+324:     if super::seeded::active(super::seeded::Fault::R02) {
+325:         return e;
+326:     }
+327:     if extent == 0.0 {
+328:         return e;
+329:     }
+330:     let [fo, mo] = e;
+331:     [fo.max(mo / extent), mo.max(extent * fo)]
+332: }
+333: 
+334: /// ê per body from finite E (item 6a). An ê that overflows binary64 while E
+335: /// encodes (fl(L_b·E_fo) or fl(E_mo/L_b) beyond the range) is the same
+336: /// terminal case as E's own overflow (ROOT's A3b ruling): V, the estimate's
+337: /// threshold and the charge's allowance would be infinite, and no precision
+338: /// can pass, so the verification stops with `ResolutionScale` (F2a:
+339: /// `receipt_encoding`).
+340: pub fn resolution_hats(
+341:     resolution: &[[f64; 2]],
+342:     extents: &[f64],
+343: ) -> Result<Vec<[f64; 2]>, AttemptStop> {
+344:     resolution
+345:         .iter()
+346:         .zip(extents)
+347:         .enumerate()
+348:         .map(|(b, (e, &extent))| {
+349:             let hat = e_hat(*e, extent);
+350:             for (kind, v) in [(Kind::Force, hat[0]), (Kind::Moment, hat[1])] {
+351:                 if !v.is_finite() {
+352:                     return Err(AttemptStop::ResolutionScale {
+353:                         body: b as u32,
+354:                         kind,
+355:                     });
+356:                 }
+357:             }
+358:             Ok(hat)
+359:         })
+360:         .collect()
+
+1259: #[cfg(test)]
+1260: #[path = "../../../tests/retained_k4/verify_tests.rs"]
+1261: mod tests;
+
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs SHA256 ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8
+
+44:     /// R7-M2: ê uncoupled.
+45:     R02,
+46:     /// R7-M28: no shift (Uc alone).
+47:     R28,
+48:     /// A directional spring's k·n·nᵀ without the division by nᵀn.
+49:     S1,
+50:     /// Reactions with the opposite sign.
+51:     S2,
+52: }
+53: 
+54: pub(crate) const IDS: [(&str, Fault); 15] = [
+55:     ("VK-F01", Fault::F01),
+56:     ("VK-F02", Fault::F02),
+57:     ("VK-F03", Fault::F03),
+58:     ("VK-F04", Fault::F04),
+59:     ("VK-F05", Fault::F05),
+60:     ("VK-F06", Fault::F06),
+61:     ("VK-F07", Fault::F07),
+62:     ("VK-F08", Fault::F08),
+63:     ("VK-F10", Fault::F10),
+64:     ("VK-F13", Fault::F13),
+65:     ("VK-F17", Fault::F17),
+66:     ("VK-R02", Fault::R02),
+67:     ("VK-R28", Fault::R28),
+68:     ("VK-S1", Fault::S1),
+69:     ("VK-S2", Fault::S2),
+
+75: fn parse(id: &str) -> Option<Fault> {
+76:     if id.is_empty() || id == "NONE" {
+77:         return None;
+78:     }
+79:     match IDS.iter().find(|(name, _)| *name == id) {
+80:         Some((_, fault)) => Some(*fault),
+81:         None => panic!("FK_SEEDED_FAULT: unknown fault id {id:?}"),
+82:     }
+83: }
+84: 
+85: /// Whether `fault` is the process's seeded fault.
+86: pub(crate) fn active(fault: Fault) -> bool {
+87:     static SELECTED: OnceLock<Option<Fault>> = OnceLock::new();
+88:     *SELECTED.get_or_init(|| match std::env::var("FK_SEEDED_FAULT") {
+89:         Ok(id) => parse(&id),
+90:         Err(_) => None,
+91:     }) == Some(fault)
+92: }
+
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/verify_tests.rs SHA256 3de53d2d018cb7286bed092760398b69f59c92214fcaf20c09e269feddd4d135
+
+1: //! K4 tests of `retained/verify.rs` at A3a (D1 revision 5a.3, R7 §4.1.6.1
+2: //! item 6a): ê's binary64 coupling and Φ = fl↑(2^-438·ê), decided exactly,
+3: //! with its boundary at ê = 2^-584 (below it the product is subnormal and Φ is
+4: //! rounded up). E itself is tested on the models in `scale_tests.rs` (E-UNIT).
+5: use super::*;
+6: 
+7: #[allow(dead_code)]
+8: #[path = "support.rs"]
+9: mod support;
+
+42: #[test]
+43: fn e_hat_couples_force_and_moment_through_the_body_extent_in_binary64() {
+44:     assert_eq!(e_hat([1.0, 8.0], 0.0), [1.0, 8.0]);
+45:     assert_eq!(e_hat([1.0, 8.0], 2.0), [4.0, 8.0]);
+46:     assert_eq!(e_hat([5.0, 8.0], 2.0), [5.0, 10.0]);
+47:     // fl(E_mo/L_b) rounds once.
+48:     let [fo, _] = e_hat([0.0, 1.0], 3.0);
+49:     assert_eq!(fo, 1.0 / 3.0);
+50: }
+51: 
+52: #[test]
+53: fn an_e_hat_that_overflows_while_e_encodes_stops_as_e_does() {
+54:     // ROOT's A3b ruling: fl(L_b·E_fo) or fl(E_mo/L_b) beyond binary64, with E
+55:     // finite, is `ResolutionScale` for that body and kind (F2a:
+56:     // `receipt_encoding`), checked body by body, force before moment.
+57:     let big = f64::MAX / 2.0;
+58:     assert_eq!(
+59:         resolution_hats(&[[1.0, 8.0], [big, 1.0]], &[2.0, 4.0]),
+60:         Err(AttemptStop::ResolutionScale {
+61:             body: 1,
+62:             kind: Kind::Moment
+63:         })
+64:     );
+65:     assert_eq!(
+66:         resolution_hats(&[[1.0, big]], &[0.25]),
+67:         Err(AttemptStop::ResolutionScale {
+68:             body: 0,
+69:             kind: Kind::Force
+70:         })
+71:     );
+72:     // At the edge of the range ê is finite; a body of zero extent keeps E.
+73:     assert_eq!(
+74:         resolution_hats(&[[big, 1.0], [f64::MAX, f64::MAX]], &[2.0, 0.0]),
+75:         Ok(vec![[big, f64::MAX], [f64::MAX, f64::MAX]])
+76:     );
+77: }
+
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs SHA256 c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea
+
+894: /// A verification report's figures that R7 names (plan §6's "also asserted").
+895: #[derive(Debug, Default, Clone)]
+896: pub(super) struct Figures {
+897:     /// max Ŵ_q/V_q and C_q/allowance over force and moment rows (P < 1024).
+898:     pub(super) estimate: f64,
+899:     pub(super) charge: f64,
+900:     pub(super) theta: f64,
+901:     pub(super) shifts: u8,
+902:     pub(super) tries: Vec<u8>,
+903:     pub(super) uc_missing_blocks: usize,
+904:     pub(super) b_is_uc_after_three: bool,
+905: }
+906: 
+907: fn figures<const L: usize>(r: &VerificationReport<L>, prep: &CasePrep) -> Figures
+908: where
+909:     Wide<L>: SupportedWidth,
+910: {
+911:     let p = i64::from(r.precision);
+912:     let hats: Vec<[f64; 2]> = r
+913:         .resolution
+914:         .iter()
+915:         .zip(&prep.extents)
+916:         .map(|(e, &x)| e_hat(*e, x))
+917:         .collect();
+918:     let mut f = Figures::default();
+919:     for (index, meta) in prep.layout.iter().enumerate() {
+920:         let k = match meta.kind {
+921:             Kind::Force => 0,
+922:             Kind::Moment => 1,
+923:             _ => continue,
+924:         };
+925:         let e = Wide::<L>::from_f64(hats[meta.body as usize][k]).unwrap();
+926:         if let Some(w) = &r.w[index] {
+927:             f.estimate = f.estimate.max(ratio(w, &e.mul_pow2(8 - p).unwrap()));
+928:         }
+929:         if r.precision < 1024 {
+930:             if let Some(c) = &r.charge[index] {
+931:                 let mut ctx = WideContext::<L>::new(64).unwrap();
+932:                 let sixty = Wide::<L>::from_f64(60.0).unwrap();
+933:                 let allowance = ctx.mul(&e, &sixty).unwrap().mul_pow2(-p).unwrap();
+934:                 f.charge = f.charge.max(ratio(c, &allowance));
+935:             }
+936:         }
+
+1303:     let resolution = resolution_scale(&prep.layout, &e, prep.source.body_count() as usize).ok()?;
+1304:     let hat = resolution
+1305:         .iter()
+1306:         .zip(&prep.extents)
+1307:         .map(|(r, &x)| e_hat(*r, x))
+1308:         .collect();
+1309:     Some(At {
+1310:         values: solved.recovered.values.clone(),
+1311:         hat,
+1312:     })
+
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs SHA256 4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9
+
+2093:         let mut scales = scales_at(&mut ctx, layout, verification, extents, &skip)?;
+2094:         // ê per body (item 6a), and the floor at p = 512 only.
+2095:         let hats: Vec<[f64; 2]> = match report {
+2096:             Some(r) => r
+2097:                 .resolution
+2098:                 .iter()
+2099:                 .zip(extents)
+2100:                 .map(|(e, &x)| e_hat(*e, x))
+2101:                 .collect(),
+2102:             None => Vec::new(),
+2103:         };
+
+2378: /// A verification's report in binary64 (the attempt's evidence).
+2379: #[derive(Debug, Clone, PartialEq)]
+2380: pub struct VerificationSummary {
+2381:     /// [E_fo, E_mo] per body (uncoupled, rounded upward).
+2382:     pub resolution: Vec<[f64; 2]>,
+2383:     /// Per body: the largest θ_c over its blocks with data, rounded upward (0
+2384:     /// without), and B_b rounded upward (None without a block with data).
+2385:     pub theta: Vec<f64>,
+2386:     pub bound: Vec<Option<f64>>,
+2387:     pub data_blocks: usize,
+2388:     pub shift_factorizations: u8,
+2389:     pub uc_missing: Option<usize>,
+2390:     pub g_max: u32,
+2391:     pub g_violation: Option<u32>,
+2392: }
+
+3405:     /// D1 revision 5a.3 (R7 §5.8): per body, E_fo and E_mo bits (uncoupled,
+3406:     /// rounded upward, finite).
+3407:     pub resolution_scale: Vec<(u32, u64, u64)>,
+3408:     /// Per body and kind of force and moment: the worst Ŵ_q/V_q and C_q over
+3409:     /// its allowance, rounded upward.
+3410:     pub verification_estimate: Vec<(u32, Kind, f64)>,
+3411:     pub verification_charge: Vec<(u32, Kind, f64)>,
+3412:     /// Per body: the largest θ_c over its blocks with data (0 without).
+3413:     pub theta: Vec<(u32, f64)>,
+3414:     /// Per body with a block with data: B_b's bits, rounded upward (ROOT's
+3415:     /// A3-0 ruling Q9: no entry otherwise).
+3416:     pub certified_bound: Vec<(u32, u64)>,
+3417:     /// Φ_fo and Φ_mo bits per body when the selected precision is 512.
+3418:     pub floor: Option<Vec<(u32, u64, u64)>>,
+
+3746: fn rejection_reason(
+3747:     rejection: Option<Rejection>,
+3748:     layout: &[QuantityMeta],
+3749:     group: &GroupPrep,
+3750: ) -> AttemptReason {
+3751:     let row = |index: usize| layout[index];
+3752:     match rejection {
+3753:         Some(Rejection::StopRule { index }) => AttemptReason::StopRule {
+3754:             quantity: row(index).id,
+3755:             body: row(index).body,
+3756:             kind: row(index).kind,
+3757:         },
+3758:         Some(Rejection::VerificationEstimate { index }) => AttemptReason::VerificationEstimate {
+3759:             quantity: row(index).id,
+3760:             body: row(index).body,
+3761:             kind: row(index).kind,
+3762:         },
+3763:         Some(Rejection::Uc { block }) => AttemptReason::Uc {
+3764:             body: group.blocks.body[block],
+3765:         },
+3766:         Some(Rejection::Theta { block }) => AttemptReason::Theta {
+3767:             body: group.blocks.body[block],
+3768:         },
+3769:         Some(Rejection::GValidity { member }) => AttemptReason::GValidity { member },
+3770:         Some(Rejection::Charge { index }) => AttemptReason::Charge {
+3771:             quantity: row(index).id,
+3772:             body: row(index).body,
+3773:             kind: row(index).kind,
+3774:         },
+3775:         None => AttemptReason::VerificationFailed,
+3776:     }
+3777: }
+
+projects/chirality-piping/core/solver/frame_kernel/Cargo.toml SHA256 994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc
+
+1: [package]
+2: name = "open_pipe_stress_frame_kernel"
+3: version = "0.1.0"
+4: edition = "2021"
+5: description = "Code-neutral 3D frame stiffness kernel for OpenPipeStress"
+6: publish = false
+7: 
+8: [lib]
+9: path = "src/lib.rs"
+10: 
+11: [dependencies]
+12: 
+13: [features]
+14: # V-K's seeded faults (T3 D1 §4.10): only numerical_robustness's mutation run
+15: # enables this, through its own `seeded-faults` feature; no product manifest
+16: # may name it (numerical_robustness's feature-guard test).
+17: mutation-controls = []
+
+projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_seeded_faults.py SHA256 e800ccb6a90e7584513594ae2f42b305dabdbc295a7df19a1b3082ab429ab6bd
+
+27: # (id, D1 §7.3 or R7 item, expected kill kind, expected to fail) — plan §10.4.
+28: FAULTS = [
+29:     ('VK-F01', '§7.3-1', 'value or outcome', 'RF-CHAIN, RF-SKEW, RF-WEAK soft rows (NC-STORED-ASSEMBLY)'),
+30:     ('VK-F02', '§7.3-2', 'value or outcome', 'RF-CHAIN-T/A r1e-10/12 T, N, tw, ext (NC-SUBTRACT-ROUNDED)'),
+31:     ('VK-F03', '§7.3-4', 'value or outcome', 'soft roots of RF-CHAIN and RF-SKEW (NC-LOST-SOFT)'),
+32:     ('VK-F04', '§7.3-4', 'value', 'RF-SKEW, RF-INVARIANCE-ROT, RF-LARGE-ROT, RF-WEAK-W-L (NC-WRONG-TRANSFORM)'),
+33:     ('VK-F05', '§7.3-5', 'evidence', "THIN-A and THIN-B's attempts against the records"),
+34:     ('VK-F06', '§7.3-6', 'evidence or outcome', 'THIN-A and THIN-B selected at 128 (leave the expected-unresolved list)'),
+35:     ('VK-F07', '§7.3-7', 'evidence', "RF-MECH's refusals against the records"),
+36:     ('VK-F08', '§7.3-8', 'parity', 'bitwise K, sparse against dense'),
+37:     ('VK-F10', '§7.3-10', 'bit', 'the canonical bytes and the list-permutation checks'),
+38:     ('VK-F13', '§7.3-13', 'value', 'RF-CANCEL G1e80 net-governed rows (NC-FLOAT-SUM)'),
+39:     ('VK-F17', '§7.3-17', 'class', "the 51 not-covered rows' class"),
+40:     ('VK-R02', 'R7-M2', 'outcome or evidence', 'RF-LARGE-TREE-n00100-AX'),
+41:     ('VK-R28', 'R7-M28', 'evidence', 'RF-LARGE-CHAIN-n00100-AX and TREE-n00100-AX selected higher'),
+42:     ('VK-S1', 'directional', 'value', 'the directional-spring cases'),
+43:     ('VK-S2', 'NC-SIGN', 'value', 'every nonzero reaction'),
+
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs SHA256 6f52fcb93d7d0c355139ca584a9abd0b3c1c59dd5a6f140340a0ec0282b5841c
+
+34: fn attempt(a: &AttemptRecord) -> Value {
+35:     json!({
+36:         "precision": a.precision,
+37:         "role": format!("{:?}", a.role),
+38:         "outcome": format!("{:?}", a.outcome),
+39:         "residual_basis": a.residual_basis,
+40:         "corrections": a.corrections,
+41:         "gate": a.gate.as_ref().map(|g| format!("{g:?}")),
+42:         "own_work": a.work.limb_multiply_equivalents(),
+43:         "exact_sum_work": a.k4_work.limb_multiply_equivalents(),
+44:         "stages": stages(&a.stages),
+45:         "shared_work": a.shared_work,
+46:         "shared_stages": stages(&a.shared_stages),
+47:         "shared_built_here": a.shared_built_here,
+48:         "stop_rule_work": a.stop_rule_work,
+49:         "verification_work": a.verification_work,
+50:         "verification_shared_work": a.verification_shared_work,
+51:         "verification_shared_built_here": a.verification_shared_built_here,
+52:         "storage": {
+53:             "pattern_entries": a.storage.pattern_entries,
+54:             "profile_entries": a.storage.profile_entries,
+55:             "limbs_per_entry": a.storage.limbs_per_entry,
+56:         },
+57:         "verification": a.verification.as_ref().map(|v| json!({
+58:             "data_blocks": v.data_blocks,
+59:             "shift_factorizations": v.shift_factorizations,
+60:             "uc_missing": v.uc_missing,
+61:             "g_max": v.g_max,
+62:             "g_violation": v.g_violation,
+63:         })),
+64:     })
+65: }
+
+88: pub fn case_record(case: &Case, o: &CaseOutcome, t: &Tally, meter: &InvocationMeter) -> Value {
+89:     let mut r = Map::new();
+90:     r.insert("schema".into(), json!(SCHEMA));
+91:     r.insert("id".into(), json!(case.id));
+92:     r.insert("family".into(), json!(case.family));
+93:     r.insert("k4src_sha256".into(), json!(case.k4src_sha256));
+94:     r.insert("outcome".into(), json!(outcome_text(o)));
+95:     r.insert("case_limit".into(), json!(u64::MAX));
+96:     r.insert("invocation_charged".into(), json!(meter.charged()));
+97:     let attempts: Vec<Value> = match o {
+98:         CaseOutcome::Selected(s) => {
+99:             let e = s.evidence();
+100:             r.insert("selected_precision".into(), json!(e.selected_precision));
+101:             r.insert(
+102:                 "verification_precision".into(),
+103:                 json!(e.verification_precision),
+104:             );
+105:             r.insert("corrections".into(), json!(e.corrections));
+106:             r.insert("geometry".into(), json!(format!("{:?}", e.geometry)));
+107:             r.insert(
+108:                 "absolute_verified_rows".into(),
+109:                 json!(e.absolute_verified.len()),
+110:             );
+111:             r.insert("unpublishable_rows".into(), json!(e.unpublishable.len()));
+112:             r.insert("published_rows".into(), json!(s.publish().rows.len()));
+113:             e.attempts.iter().map(attempt).collect()
+114:         }
+115:         CaseOutcome::Unresolved { attempts, .. } => attempts.iter().map(attempt).collect(),
+116:         CaseOutcome::Refused { .. } => Vec::new(),
+117:     };
+118:     r.insert("attempts".into(), Value::Array(attempts));
+119:     r.insert("report".into(), report(t));
+120:     Value::Object(r)
+121: }
+
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs SHA256 e57a84b56e64aa664a77d95b3fa4921fe9e79aa5d1eda9f95fee4cc6229d5c16
+409: fn lane_large(names: &[&str]) {
+410:     let cases: Vec<R1Case> = r1_cases_from(R1_LARGE)
+411:         .into_iter()
+412:         .filter(|c| names.contains(&c.model.name.as_str()))
+413:         .collect();
+414:     assert_eq!(cases.len(), names.len());
+415:     let Lane {
+416:         tally,
+417:         failures,
+418:         floor_differences,
+419:         undiscriminating,
+420:     } = run_lane(&cases);
+421:     report_lane(&tally, &failures, &floor_differences, &undiscriminating);
+422:     assert!(failures.is_empty(), "{} reference failures", failures.len());
+423:     assert!(floor_differences.is_empty());
+424:     let t = &tally["RF-LARGE"];
+425:     assert_eq!(t.selected_at.get(&128).copied(), Some(names.len()));
+426:     assert_eq!(t.not_covered, 0);
+427:     assert!(t.passes >= 20 * names.len(), "{t:?}");
+428:     // The 10-member frames are checked in the controls test; the 100-member
+429:     // frames here (ROOT's rulings on RV19's review, RV19-2).
+430:     for name in names.iter().filter(|n| n.contains("n00100")) {
+431:         honest_large(name);
+432:     }
+433: }
+434: 
+435: /// A 100-member frame's selected publication against GEN's high-precision
+436: /// expectations (`solve_hp`), every row checked (`compare_honest`), and G5a.
+437: fn honest_large(name: &str) {
+438:     let m = models::parse_models(include_str!("models5a3.txt"))
+439:         .into_iter()
+440:         .find(|m| m.name == name)
+441:         .unwrap();
+442:     assert!(!m.exact.is_empty(), "{name}: no exact expectation");
+443:     let mut meter = InvocationMeter::new(u64::MAX);
+444:     let CaseOutcome::Selected(solve) = solve_case(m.source(), CaseLimit::new(u64::MAX), &mut meter)
+445:     else {
+446:         panic!("{name}: not selected")
+447:     };
+448:     models::g5a(&solve).unwrap_or_else(|e| panic!("{name}: G5a {e}"));
+449:     let (worst, at, compared) =
+450:         models::compare_honest(solve.publish(), solve.selected_precision(), &m.exact);
+451:     println!("{name}: claims {compared} rows, worst {worst:e} at {at}");
+452:     assert!(
+474: 
+475: #[test]
+476: fn rf_large_tree_ax_at_100_members_is_selected_at_128_and_honest() {
+477:     lane_large(&["RF-LARGE-TREE-n00100-AX"]);
+478: }
+
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs SHA256 201506548f494b59fa877521bf531953b57e08df802a1289d506fed603db58e6
+601: pub(crate) fn g5a(solve: &RetainedSolve) -> Result<(), String> {
+602:     let ev = solve.evidence();
+603:     let publication = solve.publish();
+604:     let source = solve.source();
+605:     let extents = &solve.prep.extents;
+606:     let c = f64::from_bits(0x3FF0_0000_0000_1000);
+607:     let two_m59 = f64::from_bits(0x3C40_0000_0000_0000);
+608:     let two_m60 = f64::from_bits(0x3C30_0000_0000_0000);
+701:     for &(b, k, v) in &ev.verification_estimate {
+702:         if v.is_nan() || v > 0.25 {
+703:             return Err(format!("estimate {b} {k:?} {v:e}"));
+704:         }
+705:     }
+706:     for &(b, k, v) in &ev.verification_charge {
+707:         if v.is_nan() || v > 1.0 {
+708:             return Err(format!("charge {b} {k:?} {v:e}"));
+709:         }
+710:     }
+
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs SHA256 4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9
+4505: 
+4506: #[cfg(test)]
+4507: #[path = "../../../tests/retained_k4/references_tests.rs"]
+4508: mod references_tests;

@@ -1,0 +1,506 @@
+{
+  "format": "i22-g0-commands-v1",
+  "agent": "/root/t3_recovery_manager/i22_a1",
+  "parent": "/root/t3_recovery_manager",
+  "role": "TASK",
+  "grant": {
+    "cmd": "GIT_OPTIONAL_LOCKS=0 git show 90b6bcbbf64b13975211038bf3f33bb87273e646:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I22_G0_BUILD.md",
+    "chunk_id": "cf4b78",
+    "wall_time_seconds": 0.000006667,
+    "exit_code": 0,
+    "original_token_count": 632,
+    "output": "# I22 G0 — source-pinned preparation and one build, ROOT grant\n\nROOT read I22/CHECKPOINT_0.md at SHA256\neb4da1fc3b075a65bc63edc36581d6e6f263e80f46f277aa15cef3c174f46002\nand verified its seal. The finite source/run plan is suitable to proceed to build.\nNo solver case, unit variant, repair or design change is granted by G0.\n\nAuthorize the checkpoint's scratch-only archive/copy preparation and exactly one\noffline locked build of the unchanged probe, with only its dependency path rebound\nto the archived FK source. Source is 3bddc2b05f6106e969c7cf43373b230845c7cc66;\nROOT/I22 verified it is identical to d01ad98a754698631f927709d08284c272de85e8.\nUse original probe source and two-package lock from response head 520d7dfb...\nDo not change the truthful SOURCE_COMMIT field. Record hashes and resolved features.\n\nUse the existing M5 host-wide memguard, confirmed by ROOT at PID 5387 before this\ngrant, and recheck before launch. Installed rustc 1.97.1 was verified by ROOT.\nCargo executable is the configured <home>/.cargo/bin/cargo. Preserve existing\nCARGO_HOME/RUSTUP_HOME; explicitly set toolchain and the COMMON settings.\nUnset FK_SEEDED_FAULT, RUSTFLAGS, CARGO_ENCODED_RUSTFLAGS, RUSTC_WRAPPER and\nRUSTC_WORKSPACE_WRAPPER for this job. Inspect/hash relevant config without copying\ncredentials. No install, network, lock generation or tool/config change.\n\nROOT does not adopt the proposed per-job hard RSS limits: the existing guard\nenforces the host-wide memory floor. Do not claim a per-process cap it lacks.\nThe one-member probe has a fixed small model. Use the tool-managed PTY and\n/usr/bin/time -l to supervise and record this one build; no custom wrapper.\nThe proposed 300 seconds is an operator stop/report threshold, not an automatic\nenforced deadline. If reached, interrupt this job's own PTY with the supported\ntool, verify its owned build processes have stopped and return the blocker.\nIf ordinary tool supervision is unavailable, stop and tell ROOT; do not engineer\na replacement. No build overlap with a ROOT exclusive measurement slot.\nROOT has reserved this small build slot before the records DEC-025 sweep.\n\nWrite additive I22/build_01/** plus existing owned scratch only; do not amend the\nsealed checkpoint. Return actual argv/env/config, source/probe/lock/binary hashes,\nfull stdout/stderr, exit, duration, resource observations and any supervision gap.\nAfter successful build return and wait for the separate B grant and frozen\nindependent comparator. Manager verifies returned evidence; ROOT commits.\n\n"
+  },
+  "preflight1": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "guard",
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "b1e729",
+        "wall_time_seconds": 0.000007333,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-03:21:27 /bin/bash <WT>/guard/memguard.sh\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "guard-hash",
+        "cmd": "shasum -a 256 <WT>/guard/memguard.sh",
+        "chunk_id": "88222d",
+        "wall_time_seconds": 0.000003792,
+        "exit_code": 0,
+        "original_token_count": 42,
+        "output": "ee11ea1f43f0892dd0396bfe5c68e133084c90c87abbf757ce0be723e0ca7b79  <WT>/guard/memguard.sh\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "head",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git rev-parse HEAD",
+        "chunk_id": "f10ddb",
+        "wall_time_seconds": 0.000006958,
+        "exit_code": 0,
+        "original_token_count": 11,
+        "output": "d01ad98a754698631f927709d08284c272de85e8\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "status",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git status --short",
+        "chunk_id": "6cc8aa",
+        "wall_time_seconds": 0.24288925,
+        "exit_code": 0,
+        "original_token_count": 46,
+        "output": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "source-equality",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --exit-code 3bddc2b05f6106e969c7cf43373b230845c7cc66 d01ad98a754698631f927709d08284c272de85e8 -- projects/chirality-piping/core/solver/frame_kernel",
+        "chunk_id": "61c844",
+        "wall_time_seconds": 0.000009541,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "seal",
+        "cmd": "shasum -a 256 -c projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/SHA256SUMS",
+        "chunk_id": "e5d1a9",
+        "wall_time_seconds": 0.000005042,
+        "exit_code": 2,
+        "original_token_count": 58,
+        "output": "shasum: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/SHA256SUMS: No such file or directory\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "environment",
+        "cmd": "for i22_key in HOME CARGO_HOME RUSTUP_HOME RUSTUP_TOOLCHAIN RUSTUP_AUTO_INSTALL CARGO_INCREMENTAL RUST_TEST_THREADS CARGO_NET_OFFLINE CARGO_TARGET_DIR FK_SEEDED_FAULT RUSTFLAGS CARGO_ENCODED_RUSTFLAGS RUSTC_WRAPPER RUSTC_WORKSPACE_WRAPPER; do\n  if printenv \"$i22_key\" >/dev/null; then\n    printf '%s=' \"$i22_key\"\n    printenv \"$i22_key\"\n  else\n    printf '%s=<UNSET>\\n' \"$i22_key\"\n  fi\ndone",
+        "chunk_id": "309d76",
+        "wall_time_seconds": 0.000007208,
+        "exit_code": 0,
+        "original_token_count": 91,
+        "output": "HOME=<HOME>\nCARGO_HOME=<HOME>/.cargo\nRUSTUP_HOME=<HOME>/.rustup\nRUSTUP_TOOLCHAIN=stable\nRUSTUP_AUTO_INSTALL=<UNSET>\nCARGO_INCREMENTAL=<UNSET>\nRUST_TEST_THREADS=<UNSET>\nCARGO_NET_OFFLINE=<UNSET>\nCARGO_TARGET_DIR=<UNSET>\nFK_SEEDED_FAULT=<UNSET>\nRUSTFLAGS=<UNSET>\nCARGO_ENCODED_RUSTFLAGS=<UNSET>\nRUSTC_WRAPPER=<UNSET>\nRUSTC_WORKSPACE_WRAPPER=<UNSET>\n"
+      }
+    }
+  ],
+  "preflight2": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "seal-recheck",
+        "cmd": "shasum -a 256 -c SHA256SUMS",
+        "chunk_id": "3887dd",
+        "wall_time_seconds": 0.000006958,
+        "exit_code": 0,
+        "original_token_count": 32,
+        "output": "BASIS.json: OK\nCHECKPOINT_0.md: OK\nCOMMANDS.json: OK\nORACLE_INPUTS.json: OK\nSTATIC_INPUT_CHECK.json: OK\nVERIFICATION.json: OK\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "config-inventory",
+        "cmd": "i22_dir='<WT>/scratch/i22/probe'\nwhile true; do\n  for i22_name in config config.toml; do\n    i22_config=\"$i22_dir/.cargo/$i22_name\"\n    if [ -f \"$i22_config\" ]; then\n      shasum -a 256 \"$i22_config\"\n      rg -n -o '^\\s*(\\[[^]]+\\]|[A-Za-z0-9_-]+\\s*=)' \"$i22_config\"\n    fi\n  done\n  if [ \"$i22_dir\" = / ]; then\n    break\n  fi\n  i22_dir=\"${i22_dir:h}\"\ndone\nfor i22_name in config config.toml; do\n  i22_config=\"$CARGO_HOME/$i22_name\"\n  if [ -f \"$i22_config\" ]; then\n    shasum -a 256 \"$i22_config\"\n    rg -n -o '^\\s*(\\[[^]]+\\]|[A-Za-z0-9_-]+\\s*=)' \"$i22_config\"\n  fi\ndone",
+        "chunk_id": "20f080",
+        "wall_time_seconds": 0.000007375,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "environment-keys",
+        "cmd": "env | cut -d= -f1 | rg '^(CARGO|RUST|FK_)'",
+        "chunk_id": "831543",
+        "wall_time_seconds": 0.000012542,
+        "exit_code": 0,
+        "original_token_count": 13,
+        "output": "CARGO_HOME\nRUSTUP_HOME\nRUSTUP_TOOLCHAIN\nRUST_LOG\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "toolchain",
+        "cmd": "env RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 \"$HOME/.cargo/bin/rustc\" --version --verbose",
+        "chunk_id": "bdf832",
+        "wall_time_seconds": 0.01351875,
+        "exit_code": 0,
+        "original_token_count": 48,
+        "output": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "cargo-hash",
+        "cmd": "shasum -a 256 \"$HOME/.cargo/bin/cargo\" \"$HOME/.cargo/bin/rustc\"",
+        "chunk_id": "c84612",
+        "wall_time_seconds": 0.000008083,
+        "exit_code": 0,
+        "original_token_count": 48,
+        "output": "ec1b9233e7f72990ecd8e62063fa7f6c3dfc2bec8e97f88bff165f9100ac696a  <HOME>/.cargo/bin/cargo\nec1b9233e7f72990ecd8e62063fa7f6c3dfc2bec8e97f88bff165f9100ac696a  <HOME>/.cargo/bin/rustc\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "scratch-check",
+        "cmd": "ls -ld <WT>/scratch/i22 <WT>/scratch/i22/probe <WT>/scratch/i22/source <WT>/scratch/i22/target",
+        "chunk_id": "4fad9e",
+        "wall_time_seconds": 0.000006042,
+        "exit_code": 1,
+        "original_token_count": 132,
+        "output": "ls: <WT>/scratch/i22: No such file or directory\nls: <WT>/scratch/i22/probe: No such file or directory\nls: <WT>/scratch/i22/source: No such file or directory\nls: <WT>/scratch/i22/target: No such file or directory\n"
+      }
+    }
+  ],
+  "preparation": [
+    {
+      "cmd": "mkdir -p <WT>/scratch/i22/source <WT>/scratch/i22/probe/src <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/build_01",
+      "chunk_id": "fe1cff",
+      "wall_time_seconds": 0.000006791,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "set -o pipefail\nGIT_OPTIONAL_LOCKS=0 git archive 3bddc2b05f6106e969c7cf43373b230845c7cc66 projects/chirality-piping/core/solver/frame_kernel | tar -x -C <WT>/scratch/i22/source",
+      "chunk_id": "b6d62b",
+      "wall_time_seconds": 0.050845208,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "GIT_OPTIONAL_LOCKS=0 git show 520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/src/main.rs > <WT>/scratch/i22/probe/src/main.rs",
+      "chunk_id": "875581",
+      "wall_time_seconds": 0.000006958,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "GIT_OPTIONAL_LOCKS=0 git show 520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/src/cases.rs > <WT>/scratch/i22/probe/src/cases.rs",
+      "chunk_id": "b838b0",
+      "wall_time_seconds": 0.000006333,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "GIT_OPTIONAL_LOCKS=0 git show 520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/Cargo.toml > <WT>/scratch/i22/probe/Cargo.toml",
+      "chunk_id": "c5cdc8",
+      "wall_time_seconds": 0.000007209,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "GIT_OPTIONAL_LOCKS=0 git show 520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/continuation_01/Cargo.lock > <WT>/scratch/i22/probe/Cargo.lock",
+      "chunk_id": "8c1067",
+      "wall_time_seconds": 0.000006292,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "preparation_edits": "Only scratch probe/Cargo.toml dependency path changed via apply_patch from the pinned historical source snapshot path to ../source/projects/chirality-piping/core/solver/frame_kernel.",
+  "immediate": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "guard-immediate",
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "dbf474",
+        "wall_time_seconds": 0.000006416,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-03:22:24 /bin/bash <WT>/guard/memguard.sh\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "source-manifest-count",
+        "cmd": "wc -l <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/build_01/SOURCE_SHA256SUMS",
+        "chunk_id": "7c1102",
+        "wall_time_seconds": 0.000006167,
+        "exit_code": 0,
+        "original_token_count": 77,
+        "output": "     115 <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/build_01/SOURCE_SHA256SUMS\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "grant-hash",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git show 90b6bcbbf64b13975211038bf3f33bb87273e646:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I22_G0_BUILD.md | shasum -a 256",
+        "chunk_id": "dce9aa",
+        "wall_time_seconds": 0.000006333,
+        "exit_code": 0,
+        "original_token_count": 17,
+        "output": "2c1c6e0afdd5bd1a0a96623ca75e2c7084dc8503ab0f5318e23a244e9cc8706b  -\n"
+      }
+    }
+  ],
+  "build": {
+    "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<WT>/scratch/i22/target \"$HOME/.cargo/bin/cargo\" build --offline --locked --manifest-path <WT>/scratch/i22/probe/Cargo.toml --bin a1_public_probe --no-default-features -j 4 --verbose > <WT>/scratch/i22/build.stdout 2> <WT>/scratch/i22/build.stderr",
+    "cwd": "<WT>/scratch/i22/probe",
+    "tty": true,
+    "launch_tool_timestamp_utc": "2026-10-01T04:58:43.989Z",
+    "initial_result": {
+      "chunk_id": "bdfc69",
+      "wall_time_seconds": 1.001768334,
+      "session_id": 24126,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "completion_poll": {
+      "chunk_id": "961ef2",
+      "wall_time_seconds": 0.000005958,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  },
+  "postflight": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "stdout",
+        "cmd": "cat build.stdout",
+        "chunk_id": "49b9ef",
+        "wall_time_seconds": 0.0000075,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "stderr",
+        "cmd": "cat build.stderr",
+        "chunk_id": "4f4a91",
+        "wall_time_seconds": 0.000006,
+        "exit_code": 0,
+        "original_token_count": 754,
+        "output": "   Compiling open_pipe_stress_frame_kernel v0.1.0 (<WT>/scratch/i22/source/projects/chirality-piping/core/solver/frame_kernel)\n     Running `<HOME>/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc --crate-name open_pipe_stress_frame_kernel --edition=2021 <WT>/scratch/i22/source/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type lib --emit=dep-info,metadata,link -C panic=abort -C embed-bitcode=no -C codegen-units=1 --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values(\"mutation-controls\"))' -C metadata=a0e72921c3c2782d -C extra-filename=-b947adc8722d8563 --out-dir <WT>/scratch/i22/target/debug/deps -C strip=debuginfo -L dependency=<WT>/scratch/i22/target/debug/deps`\n   Compiling a1_public_probe v0.1.0 (<WT>/scratch/i22/probe)\n     Running `<HOME>/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc --crate-name a1_public_probe --edition=2021 src/main.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C panic=abort -C embed-bitcode=no -C codegen-units=1 --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=9cd3f3fab6ae4c46 -C extra-filename=-bdadd6dd22d61ba5 --out-dir <WT>/scratch/i22/target/debug/deps -C strip=debuginfo -L dependency=<WT>/scratch/i22/target/debug/deps --extern open_pipe_stress_frame_kernel=<WT>/scratch/i22/target/debug/deps/libopen_pipe_stress_frame_kernel-b947adc8722d8563.rlib`\n    Finished `dev` profile [unoptimized] target(s) in 3.77s\n        3.80 real         3.10 user         0.42 sys\n           430161920  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n               51956  page reclaims\n                8331  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   3  signals received\n                 769  voluntary context switches\n                4239  involuntary context switches\n           261240668  instructions retired\n           119536958  cycles elapsed\n             7357040  peak memory footprint\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "raw-hashes",
+        "cmd": "shasum -a 256 build.stdout build.stderr",
+        "chunk_id": "22ccbd",
+        "wall_time_seconds": 0.000008166,
+        "exit_code": 0,
+        "original_token_count": 40,
+        "output": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  build.stdout\nfc951bf1163cc3fce3d22f17c83d3b5d757c04cd567e991aae5ad1f1dd52d6a9  build.stderr\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "probe-binary-hashes",
+        "cmd": "shasum -a 256 probe/src/main.rs probe/src/cases.rs probe/Cargo.toml probe/Cargo.lock target/debug/a1_public_probe",
+        "chunk_id": "459d06",
+        "wall_time_seconds": 0.000009208,
+        "exit_code": 0,
+        "original_token_count": 108,
+        "output": "9e054fa80fff5c2192b1bfef5ad031d24c4d9dd3ab2407b6f9df517cc74d740a  probe/src/main.rs\nb925980a3b5b3c206e9e419f6e9fd1fffdedab7feffc1173650f92ecf2ea3b8c  probe/src/cases.rs\neda372d79cdd4e368af2daa7156c63bd5e7c020f4522f8926fb0ff1446597345  probe/Cargo.toml\nca870fd55afca7aebeadd4410bb77a2a40391ac80a7ff95c36ab6b55fe66bc4d  probe/Cargo.lock\nbcbe897204ec702b99529d25e6d0213d0132af5e6086e0397fae3a8f8ef8a08f  target/debug/a1_public_probe\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "fingerprint-files",
+        "cmd": "rg --files --hidden --no-ignore target/debug/.fingerprint | rg '\\.json$'",
+        "chunk_id": "cbe587",
+        "wall_time_seconds": 0.000006333,
+        "exit_code": 0,
+        "original_token_count": 49,
+        "output": "target/debug/.fingerprint/a1_public_probe-bdadd6dd22d61ba5/bin-a1_public_probe.json\ntarget/debug/.fingerprint/open_pipe_stress_frame_kernel-b947adc8722d8563/lib-open_pipe_stress_frame_kernel.json\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "source-recheck",
+        "cmd": "shasum -a 256 -c <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/build_01/SOURCE_SHA256SUMS",
+        "chunk_id": "eebbc8",
+        "wall_time_seconds": 0.000006083,
+        "exit_code": 0,
+        "original_token_count": 2720,
+        "output": "source/projects/chirality-piping/core/solver/frame_kernel/.gitignore: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/Cargo.lock: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/README.md: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests/k1_reference.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals/tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/s11k_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/kf2_witness_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_n5_base_signature.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k2a/rf_range_models.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k2a_checked_formation.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/SHA256SUMS: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_sample.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_summary.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/cases.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal_summary.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/k5_scale.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directional_span_exact.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/encodings.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/estimate.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/formation.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/o8_states.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/profiles.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_cases.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_large.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams_sample.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential_sample.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/verify_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/SHA256SUMS: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/atan.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential_sample.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/gen_wide_vectors.py: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/split.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/targeted.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/wide_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/SHA256SUMS: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/conversion.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential_sample.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/eft.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt: OK\nsource/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs: OK\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "guard-post",
+        "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+        "chunk_id": "5bf9e4",
+        "wall_time_seconds": 0.000006959,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-03:22:49 /bin/bash <WT>/guard/memguard.sh\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "owned-build-processes",
+        "cmd": "/bin/ps -axo pid=,ppid=,comm=,args= | awk '$3 ~ /(^|\\/)(cargo|rustc|time|clang|cc|ld)$/ && index($0, \"<WT>/scratch/i22\") {print}'",
+        "chunk_id": "d9d988",
+        "wall_time_seconds": 0.000006166,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "tracked-diff",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --exit-code",
+        "chunk_id": "386347",
+        "wall_time_seconds": 0.099435167,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "cached-diff",
+        "cmd": "GIT_OPTIONAL_LOCKS=0 git diff --cached --exit-code",
+        "chunk_id": "70016e",
+        "wall_time_seconds": 0.000007292,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "seal-post",
+        "cmd": "shasum -a 256 -c SHA256SUMS",
+        "chunk_id": "6862f9",
+        "wall_time_seconds": 0.000008,
+        "exit_code": 0,
+        "original_token_count": 32,
+        "output": "BASIS.json: OK\nCHECKPOINT_0.md: OK\nCOMMANDS.json: OK\nORACLE_INPUTS.json: OK\nSTATIC_INPUT_CHECK.json: OK\nVERIFICATION.json: OK\n"
+      }
+    }
+  ],
+  "features": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "features-probe",
+        "cmd": "cat target/debug/.fingerprint/a1_public_probe-bdadd6dd22d61ba5/bin-a1_public_probe.json",
+        "chunk_id": "aa081c",
+        "wall_time_seconds": 0.000006791,
+        "exit_code": 0,
+        "original_token_count": 111,
+        "output": "{\"rustc\":11722972603611519644,\"features\":\"[]\",\"declared_features\":\"[]\",\"target\":5513478535554972921,\"profile\":8887875775441740213,\"path\":4942398508502643691,\"deps\":[[10646818785860357717,\"open_pipe_stress_frame_kernel\",false,17407063695900905363]],\"local\":[{\"CheckDepInfo\":{\"dep_info\":\"debug/.fingerprint/a1_public_probe-bdadd6dd22d61ba5/dep-bin-a1_public_probe\",\"checksum\":false}}],\"rustflags\":[],\"config\":9396254390672932401,\"compile_kind\":0}"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "features-kernel",
+        "cmd": "cat target/debug/.fingerprint/open_pipe_stress_frame_kernel-b947adc8722d8563/lib-open_pipe_stress_frame_kernel.json",
+        "chunk_id": "1674d4",
+        "wall_time_seconds": 0.0000095,
+        "exit_code": 0,
+        "original_token_count": 104,
+        "output": "{\"rustc\":11722972603611519644,\"features\":\"[]\",\"declared_features\":\"[\\\"mutation-controls\\\"]\",\"target\":10814701284944778693,\"profile\":8887875775441740213,\"path\":18354148522503868379,\"deps\":[],\"local\":[{\"CheckDepInfo\":{\"dep_info\":\"debug/.fingerprint/open_pipe_stress_frame_kernel-b947adc8722d8563/dep-lib-open_pipe_stress_frame_kernel\",\"checksum\":false}}],\"rustflags\":[],\"config\":9396254390672932401,\"compile_kind\":0}"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "id": "toolchain-feature-hashes",
+        "cmd": "shasum -a 256 \"$RUSTUP_HOME/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc\" \"$RUSTUP_HOME/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo\" target/debug/.fingerprint/a1_public_probe-bdadd6dd22d61ba5/bin-a1_public_probe.json target/debug/.fingerprint/open_pipe_stress_frame_kernel-b947adc8722d8563/lib-open_pipe_stress_frame_kernel.json",
+        "chunk_id": "da0b58",
+        "wall_time_seconds": 0.000006666,
+        "exit_code": 0,
+        "original_token_count": 150,
+        "output": "210df6794001b73ec3d453878707fa1e0bdcb63c427024a6e6574bbe5615a4da  <HOME>/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc\n7672ead309d505577c018fff2cafb3433601f073e38cbe87359ac1f7b944bbf5  <HOME>/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo\n55384b8d01b589a406fd4a729a73ed33e542d113b735b74809b7b297fdd95f79  target/debug/.fingerprint/a1_public_probe-bdadd6dd22d61ba5/bin-a1_public_probe.json\n93c85cff3a5cb20c392c559f29884ea9608c8e5de4265d5a2a1e7163cfcc88a5  target/debug/.fingerprint/open_pipe_stress_frame_kernel-b947adc8722d8563/lib-open_pipe_stress_frame_kernel.json\n"
+      }
+    }
+  ],
+  "evidence_copies": [
+    {
+      "cmd": "cp target/debug/.fingerprint/a1_public_probe-bdadd6dd22d61ba5/bin-a1_public_probe.json <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/build_01/FEATURES_PROBE.json",
+      "chunk_id": "5b2df2",
+      "wall_time_seconds": 0.000007833,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "cp target/debug/.fingerprint/open_pipe_stress_frame_kernel-b947adc8722d8563/lib-open_pipe_stress_frame_kernel.json <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/build_01/FEATURES_KERNEL.json",
+      "chunk_id": "82d33d",
+      "wall_time_seconds": 0.000006667,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "cp probe/Cargo.toml <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/build_01/Cargo.toml",
+      "chunk_id": "97c600",
+      "wall_time_seconds": 0.000007458,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "cp build.stdout <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/build_01/BUILD.stdout",
+      "chunk_id": "e70bcb",
+      "wall_time_seconds": 0.000006541,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "perl -pe 's{\\Q<WT>\\E}{<WT>}g; s{\\Q<HOME>\\E}{<HOME>}g' build.stderr > <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/build_01/BUILD.stderr.portable",
+      "chunk_id": "8af1dc",
+      "wall_time_seconds": 0.000007792,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "cmd": "set -o pipefail\nrg --files --hidden --no-ignore . | LC_ALL=C sort | xargs shasum -a 256 > <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/build_01/SCRATCH_SHA256SUMS",
+      "chunk_id": "6fcb73",
+      "wall_time_seconds": 0.067526417,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sanitization": "Machine roots replaced with <WT>, <HOME> and <APP_WORKTREE> in durable records. Raw compiler/time stdout/stderr remain unchanged in owned scratch with hashes in RETURN.md. No credentials were read or copied."
+}

@@ -1,0 +1,356 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "selected_helper_unchanged": true,
+  "selected_checker_unchanged": true,
+  "executed_copies": [
+    {
+      "id": "R34",
+      "registration": "R7_K4::D3",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+          "before_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+          "after_sha256": "69658eb86e67695eb756bbb77974465013de06385f289afe9c50b1d6e1d2f513"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R34/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "dced3ef84fc420bf32bf57c4ac95d2aae0e0d3e55d10657dfd60538a1aa8e904"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R34/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R35",
+      "registration": "R7_K4::D5",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "9dd3b64bc54697f40fca9f71b974c239c280c5a318256a139e997997b9bdee25"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R35/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "f3bcfd427a4bfa81a70ba4f7867a6795fcdf20f4344bf0989d67bc141d851a93"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R35/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R36",
+      "registration": "R7_K4::D6",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "90cb5e201b011c891ff1eb13eeaea745da0696e2a65fccd49b2ba490a6a9eb4a"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R36/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "211a9805469a8bdb8649aaef25ef74f128b5ab79827a6d15a9f0e6478d03d9c9"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R36/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R37",
+      "registration": "R7_K4::D10",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+          "before_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+          "after_sha256": "e573cb596385529a60dcacdcdebb92b4e2f70a589b4049b94726f39a1e9b9b14"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R37/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "337711a94bcdd6769557facd62b11abc234d8507fde6897ee1d2c7f053401bf1"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R37/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R38",
+      "registration": "R7_K4::D14",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+          "before_sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+          "after_sha256": "2b77809fa20ef56d47e84d570a4516bc023eff224fc706c9921450b334509a1f"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R38/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "46d3bc8ac6a137555e086c0e64cb9ef705dad9a312f1e40b6af3b04ecab6f68a"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R38/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R39",
+      "registration": "R7_K4::D16b",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+          "before_sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+          "after_sha256": "f9ac982ae25d60e1b882acf9a5579e300b1b69c1436cc5c33b46617652ac61f4"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R39/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "24b51788dee73038b44fab6333ee9eb9f29d87ede6103b8a4b791f2a1c854951"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R39/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R40",
+      "registration": "R7_K4::D20",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "f5aad009c3c9388df6758a6a4d6f9f80f8aa7488fd6c73fc28c3e65a8e1b6309"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R40/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "96c680201666fe98559ed2e47cec5ff05545be0b9c5bddcc613d7ec64fd2fbdc"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R40/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R41",
+      "registration": "R7_K4::D25",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "6d03c7ad32d4a6c333ebe4301a50bd9feb955a716621e4391552f54a9efc735a"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R41/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "9201a07e68371b5dc27d4b1916af291ddd54b002db2edc26dbbe2634143f4b8e"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R41/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R42",
+      "registration": "RV19::RV19-1R",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "ff631b1d4ffb062e0ccb8095696bf538e70bb140f29df706f1a8f86e1a667d97"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R42/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "f30d4418d711f22c867ab0a26edc35762223b8948de3550896c6968e4b1bb1a5"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R42/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R43",
+      "registration": "RV19::RV19-D4",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "17cecaafcd06c6b44727dd1d5fb70724a40a3294b32ce8dc4d7348f2b7d3c60a"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R43/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "2f6afb5cbf032a9db5927b81687776be248bfa29a5bce8863ca5289b14212960"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R43/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R44",
+      "registration": "RV19::A1R",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "5df66c8c3d7c5fdcff0f4a9d0b558bb69aab18863b59bafbfe4769d2978f6008"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R44/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "a86d645d07a81a58e89524ce97c4cf8cb5c6768d67e67bd7e6aafe486ef9f546"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R44/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R45",
+      "registration": "RV19::RV19-D1",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "4af5934d5750534dade4fcd9fba422b58545ed31bf1b16c64dd570a1a1e1cc99"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R45/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "fbe8532c9df27e991cd75d964eb9218315a21c6c1df1c6aec4b5d279f8a6a86a"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R45/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "R46",
+      "registration": "RV19::RV19-D2",
+      "files_verified": 116,
+      "postimages": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "3151195bd41cd8b6b22a960521954fc2295ec006f2e200ce21312485582fc095"
+        }
+      ],
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-protected-target/g3/R46/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "ff8dbe80165c3097db94efc4d17dfe58cb04e1ace6ac891b4020146cbab8f337"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-protected-target/g3/R46/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    }
+  ],
+  "original_E1_files_verified": 116,
+  "original_baseline": {
+    "binary": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    }
+  },
+  "prior_seal_verified": "a0667d35ac459bca6c60d4b9d5c5dd89ec3e847c53bb5fbb39c9b48ac33e8080",
+  "stop": {
+    "id": "R46",
+    "registration": "RV19::RV19-D2",
+    "frozen_criterion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988.",
+    "observed": "exact required filter selected1 test and PASS/exit0",
+    "credit": false,
+    "control": "UNRUN",
+    "later": "R47-R52 PREPARED_APPLIED_UNRUN"
+  }
+}

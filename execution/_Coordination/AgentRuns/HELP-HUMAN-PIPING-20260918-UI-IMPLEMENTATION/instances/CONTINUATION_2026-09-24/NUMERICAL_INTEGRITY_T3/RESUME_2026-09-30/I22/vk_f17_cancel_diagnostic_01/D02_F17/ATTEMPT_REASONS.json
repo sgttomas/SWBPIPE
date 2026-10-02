@@ -1,0 +1,1978 @@
+[
+  {
+    "id": "RF-CANCEL-F-G1e5-GnG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e5-GGn",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e5-nGG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e6-GnG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e6-GGn",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e6-nGG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e7-GnG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e7-GGn",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e7-nGG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e8-GnG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e8-GGn",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e8-nGG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e8-GnG-INPLANE",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e80-GnG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e80-GGn",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e80-nGG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-F-G1e80-GnG-INPLANE",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e5-GnG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e5-GGn",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e5-nGG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e6-GnG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e6-GGn",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e6-nGG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e7-GnG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e7-GGn",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e7-nGG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e8-GnG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e8-GGn",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e8-nGG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e8-GnG-ORTHO",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e8-GnG-INPLANE",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e80-GnG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e80-GGn",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e80-nGG",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CANCEL-M-G1e80-GnG-INPLANE",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 192,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 320,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })",
+        "residual_basis": 576,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  }
+]

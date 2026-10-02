@@ -1,0 +1,11 @@
+{
+  "before_test": "f93a8368b44ca0cde8e3286057d0bfa7557e5997c446a3caf21c490fb2481ffb",
+  "after_test": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+  "test_binary": "096dcce8110092a71e7dc3217451b4def920bb0a51a8aac45b83dc1c5b500f38",
+  "raw_log_hashes": {
+    "stdout": "5a72eac6ee54f02ca89a076461879a6cf0efdc2e374de975797d3c2fbe08be86",
+    "stderr": "3285de7e70e5e3cf31be6d8267b7ab60dbfb4a6b0e252d4794344836aa883a21"
+  },
+  "original_D_manifest_verified": "210847fca5044d3c89c3f29256d487d682e0c52ae5313f24f7797663aed9754e",
+  "original_D_entries_verified": 15
+}

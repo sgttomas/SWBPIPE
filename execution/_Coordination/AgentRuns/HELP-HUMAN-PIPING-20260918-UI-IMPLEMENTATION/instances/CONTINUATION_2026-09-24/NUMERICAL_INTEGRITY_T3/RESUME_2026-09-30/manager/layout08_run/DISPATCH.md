@@ -1,0 +1,5 @@
+# layout08 single-run dispatch
+
+Existing I21 resumed via collaboration.followup_task under ROOT NUM52f5d3df2abf801e5b3a20e50499f5f4de317d26 R/BRIEFS/I21_LAYOUT08_RUN.md SHAcaf4cd732be5bdb2110879921473d3b12dc99200e8863e9594e72b5e8b515e4f. Manager read full grant and RV30 layout08_03 return, verified six-entry review sealac2808c2c7a211bf8b1c19beeb361f5f3917e10718fc277bf7c1da27d1a8cbd2. Actual start13:28:20 UTC, fixed end13:48:20.
+
+One exact prospective command only after independent manager preflight/release. ROOT confirmed native path-only log correction to scratch/i21/layout08/logs/BUILD_LAYOUT08.log; all payload argv/env/cwd/target/source unchanged. Separate mkdir/check precedes launch. No repair/repeat/newtool/allocator/observer/permission/env workaround. Concurrent untimed G1 permitted; separate process/counter/target, one Cargo per slice. All raw counts/content/drop/five-layout outputs/final PASS and exit0 required; same RV30 runtime backcheck before use, no private alignment or full Emax acceptance.

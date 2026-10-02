@@ -1,0 +1,23 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -3265,11 +3265,19 @@
+             .body_scales
+             .get(meta.body as usize * 4 + meta.kind.index())
+             .filter(|&&(body, kind, _)| body == meta.body && kind == meta.kind)
+             .map(|&(_, _, bits)| f64::from_bits(bits))
+             .ok_or_else(|| certificate_error(Some(index), CertificateIssue::Shape))?;
+-        let h = publication_h(index, meta, x, v, report, meter)?;
++        let mut h = ExactWideSum::new();
++        let formed = (|| {
++            h.add_binary64(x, false)?;
++            h.add_wide(v, true)?;
++            h.make_absolute();
++            h.add_wide_scaled(&Wide::<L>::from_f64(scale)?, false, 1, -64)?;
++            Ok(())
++        })();
++        meter.collect(&h, formed)?;
+         if let Some(predicate) = publication_predicate(&h, row, scale, meter)? {
+             return Ok(PublicationDecision::Rejected { index, predicate });
+         }
+         let radius = meter.round_up(&h)?;
+         finite_nonnegative(radius).map_err(|e| certificate_error(Some(index), e))?;

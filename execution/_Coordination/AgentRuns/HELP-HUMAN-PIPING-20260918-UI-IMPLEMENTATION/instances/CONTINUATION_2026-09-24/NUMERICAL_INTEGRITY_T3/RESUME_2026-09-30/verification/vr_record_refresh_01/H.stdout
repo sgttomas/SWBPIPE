@@ -1,0 +1,42 @@
+
+running 2 tests
+test the_encoding_is_deterministic_and_independent_of_list_order ... ok
+test the_adapters_bytes_equal_the_independent_python_bytes ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 3 tests
+test emit_source_prints_the_adapters_encoding ... ok
+test w1a_admission_and_counts_file ... ok
+test w1a_prints_its_lines_and_every_parity_holds ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.47s
+
+
+running 2 tests
+test publication_failure_reasons_are_typed_at_the_public_boundary ... ok
+test a_source_built_outside_fk_is_solved_and_read_through_the_public_path ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+
+running 15 tests
+test a_build_that_stops_partway_is_checked_against_its_charged_total ... ok
+test a_stop_in_the_stop_rule_is_held_to_equality ... ok
+test every_stopped_build_leaves_nothing_unstaged ... ok
+test prefixes_stop_on_the_case_budget_after_each_segment ... ok
+test r1_large_txt_is_the_pinned_file ... ok
+test outcomes_publications_evidence_and_work_are_deterministic ... ok
+test r1_predicate_and_counts_at_100_members_chain ... ok
+test r1_predicate_and_counts_at_100_members_cont ... ok
+test r1_predicate_and_counts_at_10_members ... ok
+test the_committed_counts_carry_this_codes_estimate ... ok
+test the_estimate_equals_a_hand_derivation ... ok
+test the_solve_and_pass_terms_bind_on_the_large_models ... ok
+test the_staged_solve_equals_k4s_own_entries ... ok
+test work_by_precision_files_each_attempt_under_its_own_precision ... ok
+test r1_predicate_and_counts_at_100_members_tree ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.83s
+

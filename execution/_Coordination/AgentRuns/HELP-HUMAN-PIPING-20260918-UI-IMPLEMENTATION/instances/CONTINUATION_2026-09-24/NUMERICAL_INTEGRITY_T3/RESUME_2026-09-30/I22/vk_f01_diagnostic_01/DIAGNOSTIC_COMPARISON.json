@@ -1,0 +1,17 @@
+{
+  "cases": 30,
+  "new_rejection_sequences": {
+    "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })": 15,
+    "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })": 2,
+    "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })": 13
+  },
+  "candidate_precisions": [
+    128,
+    256,
+    512
+  ],
+  "final_verification_precision": 1024,
+  "all_NONE_records_restored": true,
+  "certificate_or_terminal_mixed_routes": false,
+  "conclusion": "Release observation supports the registered stored-assembly numerical-unavailability route through new attributable R7 rejections across every candidate; submitted to ROOT for disposition. No automatic fault credit and no retroactive debug attribution."
+}

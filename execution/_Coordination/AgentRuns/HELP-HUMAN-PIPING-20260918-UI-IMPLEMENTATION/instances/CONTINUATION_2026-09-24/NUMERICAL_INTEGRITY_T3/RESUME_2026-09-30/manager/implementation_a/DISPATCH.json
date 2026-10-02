@@ -1,0 +1,46 @@
+{
+  "record": "I22 source/test authoring checkpoint A follow-up",
+  "observed_at_utc": "2026-10-01 06:17:09 UTC",
+  "mechanism": "collaboration.followup_task",
+  "manager": "/root/t3_recovery_manager",
+  "manager_parent": "/root",
+  "child": "/root/t3_recovery_manager/i22_a1",
+  "new_child": false,
+  "role": "TASK",
+  "grant_commit": "45c2a03f45d1123ccdcfae57e208a535ee1d5d9c",
+  "grant_path": "<COORD>/<R>/BRIEFS/I22_IMPLEMENTATION_A.md",
+  "grant_sha256": "4edcfc56d22a839cf9e4fdaba4c5474c35fa3becc12a1fc9e359255a1a94e597",
+  "followup_file": "FOLLOWUP.txt",
+  "raw_transport_prompt_sha256": "9475c6c4d0a6bc46c7b5b03aa9f842b54d7217b7b7f726adeb742569ec801aa4",
+  "start_head": "0ce33d7e89a306cfc01f3ce29f421f4dbd02e716",
+  "unchanged_numerical_basis": "d01ad98a754698631f927709d08284c272de85e8",
+  "maintained_write_scope": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs"
+  ],
+  "evidence_scope": [
+    "<A1_WT>/<R>/I22/implementation_a/**",
+    "<wt>/scratch/i22/**"
+  ],
+  "authorized": "Source/test authoring and formatting exact files only. Selected bare-b H, reviewed Box/pairing/reasons and reserved M03-INTEGRITY-MP-v2; method unchanged.",
+  "not_granted": "Builds/tests/solver/probes/mutants/generator/snapshots/host jobs; no additional source, Git/index or tool writes.",
+  "start_evidence": [
+    "followup_task returned",
+    "I22 explicitly acknowledged grant/hash, verified starting HEAD, clean initial status and unchanged FK/H source",
+    "manager independently observed correct HEAD, empty tracked/staged diff and unchanged FK source"
+  ],
+  "status": "completed; authored core checkpoint returned, compilation/tests unrun",
+  "return": {
+    "path": "<A1_WT>/<R>/I22/implementation_a/RETURN.md",
+    "sha256": "b6f1831e8fbca25e2678e795476ba0a3e76bf31d8d488c48fb24413ab6824187",
+    "manifest_sha256": "de61817acb8ecc458668e92925668ecbfcc46282ab2969ed95834ac5dd228ddd",
+    "core_diff_sha256": "68cc3c998e7c987099e72f9f220f322de2486ca46ed49b00aa79f13da540b477",
+    "manager_verified_evidence_entries": 4,
+    "manager_verified_source_entries": 4,
+    "no_running_job": true
+  },
+  "I21": "idle until A1 shape settles",
+  "scope_check": "Exactly 3 approved tracked files modified and approved publication_tests.rs new; no staged changes. Direct rustfmt skip_children and diff --check pass. No compile/numerical pass."
+}

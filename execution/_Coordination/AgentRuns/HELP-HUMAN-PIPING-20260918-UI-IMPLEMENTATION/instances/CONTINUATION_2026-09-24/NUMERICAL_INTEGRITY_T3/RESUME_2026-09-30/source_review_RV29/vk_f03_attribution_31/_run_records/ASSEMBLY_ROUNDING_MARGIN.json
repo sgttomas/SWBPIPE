@@ -1,0 +1,471 @@
+{
+  "purpose": "Check deletion remains materially distinct after final nearest rounding, without calculating formed terms.",
+  "source_upper_bound": "2^20*(EA+GJ+EIy+EIz)/L*(1+1/L)^2 plus each contributing spring upper bound; deliberately exceeds B/DB/KE triangle bound.",
+  "min_soft_lower_over_total_upper": "20400623205996867/191562719614748950891945460447639987468",
+  "all_above_2^-100": true,
+  "nearest_error_budget": "Atp>=128, each rounded nonnegative total differs by <=2^-128 exacttotal; two totals error sum <=2^-127upper, strictly smaller than softlower>2^-100upper. Therefore removing the chosen positive soft contribution strictly decreases the assembled root diagonal. Difference is not claimed exactly equal to the pre-rounding spring term in SKEW.",
+  "cases": [
+    {
+      "id": "RF-CHAIN-T-n03-r1e-04",
+      "soft_lower": "216",
+      "root_sum_conservative_upper": "49000859475338445599971863/34359738368",
+      "soft_lower_over_upper": "824633720832/5444539941704271733330207",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-06",
+      "soft_lower": "607985949695017/281474976710656",
+      "root_sum_conservative_upper": "401415040821912355745949695017/281474976710656",
+      "soft_lower_over_upper": "607985949695017/401415040821912355745949695017",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-08",
+      "soft_lower": "3112888062438487/144115188075855872",
+      "root_sum_conservative_upper": "205524500900818817966008062438487/144115188075855872",
+      "soft_lower_over_upper": "3112888062438487/205524500900818817966008062438487",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-10",
+      "soft_lower": "3984496719921263/18446744073709551616",
+      "root_sum_conservative_upper": "26307136115304808305183856719921263/18446744073709551616",
+      "soft_lower_over_upper": "3984496719921263/26307136115304808305183856719921263",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-12",
+      "soft_lower": "5100155801499217/2361183241434822606848",
+      "root_sum_conservative_upper": "3367313422759015462558618235801499217/2361183241434822606848",
+      "soft_lower_over_upper": "5100155801499217/3367313422759015462558618235801499217",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-04",
+      "soft_lower": "216",
+      "root_sum_conservative_upper": "49000859475338445599971863/34359738368",
+      "soft_lower_over_upper": "824633720832/5444539941704271733330207",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-06",
+      "soft_lower": "607985949695017/281474976710656",
+      "root_sum_conservative_upper": "401415040821912355745949695017/281474976710656",
+      "soft_lower_over_upper": "607985949695017/401415040821912355745949695017",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-08",
+      "soft_lower": "3112888062438487/144115188075855872",
+      "root_sum_conservative_upper": "205524500900818817966008062438487/144115188075855872",
+      "soft_lower_over_upper": "3112888062438487/205524500900818817966008062438487",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-10",
+      "soft_lower": "3984496719921263/18446744073709551616",
+      "root_sum_conservative_upper": "26307136115304808305183856719921263/18446744073709551616",
+      "soft_lower_over_upper": "3984496719921263/26307136115304808305183856719921263",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-12",
+      "soft_lower": "5100155801499217/2361183241434822606848",
+      "root_sum_conservative_upper": "3367313422759015462558618235801499217/2361183241434822606848",
+      "soft_lower_over_upper": "5100155801499217/3367313422759015462558618235801499217",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-04",
+      "soft_lower": "216",
+      "root_sum_conservative_upper": "49000859475338445599971863/34359738368",
+      "soft_lower_over_upper": "824633720832/5444539941704271733330207",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-06",
+      "soft_lower": "607985949695017/281474976710656",
+      "root_sum_conservative_upper": "401415040821912355745949695017/281474976710656",
+      "soft_lower_over_upper": "607985949695017/401415040821912355745949695017",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-08",
+      "soft_lower": "3112888062438487/144115188075855872",
+      "root_sum_conservative_upper": "205524500900818817966008062438487/144115188075855872",
+      "soft_lower_over_upper": "3112888062438487/205524500900818817966008062438487",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-10",
+      "soft_lower": "3984496719921263/18446744073709551616",
+      "root_sum_conservative_upper": "26307136115304808305183856719921263/18446744073709551616",
+      "soft_lower_over_upper": "3984496719921263/26307136115304808305183856719921263",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-12",
+      "soft_lower": "5100155801499217/2361183241434822606848",
+      "root_sum_conservative_upper": "3367313422759015462558618235801499217/2361183241434822606848",
+      "soft_lower_over_upper": "5100155801499217/3367313422759015462558618235801499217",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-04",
+      "soft_lower": "59700",
+      "root_sum_conservative_upper": "49000859477382300277053975/34359738368",
+      "soft_lower_over_upper": "27350351740928/653344793031764003694053",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-06",
+      "soft_lower": "597",
+      "root_sum_conservative_upper": "49000859475351536660290071/34359738368",
+      "soft_lower_over_upper": "6837587935232/16333619825117178886763357",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-08",
+      "soft_lower": "6721622443850465/1125899906842624",
+      "root_sum_conservative_upper": "1605660163287653712662443850465/1125899906842624",
+      "soft_lower_over_upper": "1344324488770093/321132032657530742532488770093",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-10",
+      "soft_lower": "2150919182032149/36028797018963968",
+      "root_sum_conservative_upper": "51381125225204705864199182032149/36028797018963968",
+      "soft_lower_over_upper": "716973060677383/17127041741734901954733060677383",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-12",
+      "soft_lower": "5506353106002301/9223372036854775808",
+      "root_sum_conservative_upper": "13153568057652404156106033106002301/9223372036854775808",
+      "soft_lower_over_upper": "5506353106002301/13153568057652404156106033106002301",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-04",
+      "soft_lower": "59700",
+      "root_sum_conservative_upper": "49000859477382300277053975/34359738368",
+      "soft_lower_over_upper": "27350351740928/653344793031764003694053",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-06",
+      "soft_lower": "597",
+      "root_sum_conservative_upper": "49000859475351536660290071/34359738368",
+      "soft_lower_over_upper": "6837587935232/16333619825117178886763357",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-08",
+      "soft_lower": "6721622443850465/1125899906842624",
+      "root_sum_conservative_upper": "1605660163287653712662443850465/1125899906842624",
+      "soft_lower_over_upper": "1344324488770093/321132032657530742532488770093",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-10",
+      "soft_lower": "2150919182032149/36028797018963968",
+      "root_sum_conservative_upper": "51381125225204705864199182032149/36028797018963968",
+      "soft_lower_over_upper": "716973060677383/17127041741734901954733060677383",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-12",
+      "soft_lower": "5506353106002301/9223372036854775808",
+      "root_sum_conservative_upper": "13153568057652404156106033106002301/9223372036854775808",
+      "soft_lower_over_upper": "5506353106002301/13153568057652404156106033106002301",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-04",
+      "soft_lower": "59700",
+      "root_sum_conservative_upper": "49000859477382300277053975/34359738368",
+      "soft_lower_over_upper": "27350351740928/653344793031764003694053",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-06",
+      "soft_lower": "597",
+      "root_sum_conservative_upper": "49000859475351536660290071/34359738368",
+      "soft_lower_over_upper": "6837587935232/16333619825117178886763357",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-08",
+      "soft_lower": "6721622443850465/1125899906842624",
+      "root_sum_conservative_upper": "1605660163287653712662443850465/1125899906842624",
+      "soft_lower_over_upper": "1344324488770093/321132032657530742532488770093",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-10",
+      "soft_lower": "2150919182032149/36028797018963968",
+      "root_sum_conservative_upper": "51381125225204705864199182032149/36028797018963968",
+      "soft_lower_over_upper": "716973060677383/17127041741734901954733060677383",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-12",
+      "soft_lower": "5506353106002301/9223372036854775808",
+      "root_sum_conservative_upper": "13153568057652404156106033106002301/9223372036854775808",
+      "soft_lower_over_upper": "5506353106002301/13153568057652404156106033106002301",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+      "soft_lower": "5471873547255153/351843720888320",
+      "root_sum_conservative_upper": "32113203265758411694347255153/87960930222080",
+      "soft_lower_over_upper": "607985949695017/14272534784781516308598780068",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-08",
+      "soft_lower": "44825588099114211/28823037615171174400",
+      "root_sum_conservative_upper": "2630713611530480874945524099114211/7205759403792793600",
+      "soft_lower_over_upper": "4980620899901579/1169206049569102611086899599606316",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-12",
+      "soft_lower": "73442243541588723/472236648286964521369600",
+      "root_sum_conservative_upper": "43101611811315397920758473667541588723/118059162071741130342400",
+      "soft_lower_over_upper": "8160249282398747/19156271916140176853670432741129594988",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-04",
+      "soft_lower": "8",
+      "root_sum_conservative_upper": "5444539941703679027843359/7247757312",
+      "soft_lower_over_upper": "57982058496/5444539941703679027843359",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-08",
+      "soft_lower": "4150517416584649/5188146770730811392",
+      "root_sum_conservative_upper": "2923015123922756490362592249753947/3891110078048108544",
+      "soft_lower_over_upper": "12451552249753947/11692060495691025961450368999015788",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-12",
+      "soft_lower": "6800207735332289/85002596691653613846528",
+      "root_sum_conservative_upper": "47890679790350442134114879983205996867/63751947518740210384896",
+      "soft_lower_over_upper": "20400623205996867/191562719161401768536459519932823987468",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-04",
+      "soft_lower": "3039929748475085/35184372088832",
+      "root_sum_conservative_upper": "12845281306304215858068475085/35184372088832",
+      "soft_lower_over_upper": "607985949695017/2569056261260843171613695017",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-08",
+      "soft_lower": "4980620899901579/576460752303423488",
+      "root_sum_conservative_upper": "210457088922438471390215779901579/576460752303423488",
+      "soft_lower_over_upper": "4980620899901579/210457088922438471390215779901579",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-12",
+      "soft_lower": "8160249282398747/9444732965739290427392",
+      "root_sum_conservative_upper": "3448128944905231833662962763202398747/9444732965739290427392",
+      "soft_lower_over_upper": "8160249282398747/3448128944905231833662962763202398747",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-04",
+      "soft_lower": "144",
+      "root_sum_conservative_upper": "5444539941704490776662303/7247757312",
+      "soft_lower_over_upper": "1043677052928/5444539941704490776662303",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-08",
+      "soft_lower": "4150517416584649/288230376151711744",
+      "root_sum_conservative_upper": "5846030247845513067886050247785523/7782220156096217088",
+      "soft_lower_over_upper": "112063970247785523/5846030247845513067886050247785523",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-12",
+      "soft_lower": "6800207735332289/4722366482869645213696",
+      "root_sum_conservative_upper": "95781359580700884268372564328853971803/127503895037480420769792",
+      "soft_lower_over_upper": "183605608853971803/95781359580700884268372564328853971803",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-04",
+      "soft_lower": "5471873547255153/351843720888320",
+      "root_sum_conservative_upper": "32113203378348402378609655153/87960930222080",
+      "soft_lower_over_upper": "5471873547255153/128452813513393609514438620612",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-08",
+      "soft_lower": "44825588099114211/28823037615171174400",
+      "root_sum_conservative_upper": "2630713620753852911800299907114211/7205759403792793600",
+      "soft_lower_over_upper": "44825588099114211/10522854483015411647201199628456844",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+      "soft_lower": "73442243541588723/472236648286964521369600",
+      "root_sum_conservative_upper": "43101611962431125372587120505813588723/118059162071741130342400",
+      "soft_lower_over_upper": "73442243541588723/172406447849724501490348482023254354892",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-04",
+      "soft_lower": "8",
+      "root_sum_conservative_upper": "5444539954588580915843359/7247757312",
+      "soft_lower_over_upper": "57982058496/5444539954588580915843359",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-08",
+      "soft_lower": "4150517416584649/5188146770730811392",
+      "root_sum_conservative_upper": "2923015130840285518003674105753947/3891110078048108544",
+      "soft_lower_over_upper": "12451552249753947/11692060523361142072014696423015788",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+      "soft_lower": "6800207735332289/85002596691653613846528",
+      "root_sum_conservative_upper": "47890679903687237722986365111909996867/63751947518740210384896",
+      "soft_lower_over_upper": "20400623205996867/191562719614748950891945460447639987468",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-04",
+      "soft_lower": "3039929748475085/35184372088832",
+      "root_sum_conservative_upper": "12845281306304215858068475085/35184372088832",
+      "soft_lower_over_upper": "607985949695017/2569056261260843171613695017",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-08",
+      "soft_lower": "4980620899901579/576460752303423488",
+      "root_sum_conservative_upper": "210457088922438471390215779901579/576460752303423488",
+      "soft_lower_over_upper": "4980620899901579/210457088922438471390215779901579",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-12",
+      "soft_lower": "8160249282398747/9444732965739290427392",
+      "root_sum_conservative_upper": "3448128944905231833662962763202398747/9444732965739290427392",
+      "soft_lower_over_upper": "8160249282398747/3448128944905231833662962763202398747",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-04",
+      "soft_lower": "144",
+      "root_sum_conservative_upper": "5444539941704490776662303/7247757312",
+      "soft_lower_over_upper": "1043677052928/5444539941704490776662303",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-08",
+      "soft_lower": "4150517416584649/288230376151711744",
+      "root_sum_conservative_upper": "5846030247845513067886050247785523/7782220156096217088",
+      "soft_lower_over_upper": "112063970247785523/5846030247845513067886050247785523",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-12",
+      "soft_lower": "6800207735332289/4722366482869645213696",
+      "root_sum_conservative_upper": "95781359580700884268372564328853971803/127503895037480420769792",
+      "soft_lower_over_upper": "183605608853971803/95781359580700884268372564328853971803",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-04",
+      "soft_lower": "4302",
+      "root_sum_conservative_upper": "392007013260078612479267/1073741824",
+      "soft_lower_over_upper": "4619237326848/392007013260078612479267",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-08",
+      "soft_lower": "48436213992369687/112589990684262400",
+      "root_sum_conservative_upper": "10276228647920691075266792369687/28147497671065600",
+      "soft_lower_over_upper": "48436213992369687/41104914591682764301067169478748",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-12",
+      "soft_lower": "39678946502549247/922337203685477580800",
+      "root_sum_conservative_upper": "84182865083765904538799484102549247/230584300921369395200",
+      "soft_lower_over_upper": "39678946502549247/336731460335063618155197936410196988",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-04",
+      "soft_lower": "19900/9",
+      "root_sum_conservative_upper": "5444541230257738286502175/7247757312",
+      "soft_lower_over_upper": "641023868928/217781649210309531460087",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-08",
+      "soft_lower": "2987387752822429/13510798882111488",
+      "root_sum_conservative_upper": "22836061059966114714764975401861/30399297484750848",
+      "soft_lower_over_upper": "26886489775401861/91344244239864458859059901607444",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-12",
+      "soft_lower": "1223634023556067/55340232221128654848",
+      "root_sum_conservative_upper": "93536506101621177460669845412004603/124515522497539473408",
+      "soft_lower_over_upper": "11012706212004603/374146024406484709842679381648018412",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-04",
+      "soft_lower": "23900",
+      "root_sum_conservative_upper": "392006875828310620765475/1073741824",
+      "soft_lower_over_upper": "1026497183744/15680275033132424830619",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-08",
+      "soft_lower": "5381801554707743/2251799813685248",
+      "root_sum_conservative_upper": "822098003603280641214034707743/2251799813685248",
+      "soft_lower_over_upper": "5381801554707743/822098003603280641214034707743",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-12",
+      "soft_lower": "4408771833616583/18446744073709551616",
+      "root_sum_conservative_upper": "6734626845518030929515807993616583/18446744073709551616",
+      "soft_lower_over_upper": "4408771833616583/6734626845518030929515807993616583",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+      "soft_lower": "39800",
+      "root_sum_conservative_upper": "5444539941991907840626975/7247757312",
+      "soft_lower_over_upper": "11538429640704/217781597679676313625079",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+      "soft_lower": "8962163258467287/2251799813685248",
+      "root_sum_conservative_upper": "45672111311293311945767978616749/60798594969501696",
+      "soft_lower_over_upper": "241978407978616749/45672111311293311945767978616749",
+      "strictly_over_2^-100": true
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+      "soft_lower": "3670902070668201/9223372036854775808",
+      "root_sum_conservative_upper": "187072967931056414685420915908041427/249031044995078946816",
+      "soft_lower_over_upper": "99114355908041427/187072967931056414685420915908041427",
+      "strictly_over_2^-100": true
+    }
+  ]
+}

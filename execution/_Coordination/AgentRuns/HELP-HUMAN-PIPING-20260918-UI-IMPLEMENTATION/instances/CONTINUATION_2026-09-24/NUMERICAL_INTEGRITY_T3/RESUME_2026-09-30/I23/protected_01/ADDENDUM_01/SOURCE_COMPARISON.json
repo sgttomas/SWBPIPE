@@ -1,0 +1,110 @@
+{
+  "historical_reviewed_head": "aa83f67969c2f618034b856ba6e1fc13ae10762e",
+  "current_source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "bounded_scope": "VerifySlot definition, obtain_verify cache store/load/refusal propagation, verify_precision caller",
+  "checks": [
+    {
+      "function": "obtain_verify",
+      "identical_bytes": true,
+      "old_sha256": "de9d08e7adf0f0e8bda3d7603216e75852571101dea2fd692ceb760b081a5a42",
+      "new_sha256": "de9d08e7adf0f0e8bda3d7603216e75852571101dea2fd692ceb760b081a5a42",
+      "diff_hunks": 0
+    },
+    {
+      "function": "verify_precision",
+      "identical_bytes": false,
+      "old_sha256": "71f00f90f55c03ebcf5aacf9bb7e6651db5715b379e161cf27f29884b817f421",
+      "new_sha256": "b5b556fa86def8363ef232efd02f635c948a272e618e6a1b8dbfb92d2ed2eb9c",
+      "diff_hunks": 2
+    },
+    {
+      "definition": "VerifySlot",
+      "identical_bytes": true,
+      "old_sha256": "9c89b6b3fe6971ba735ba4d8663c8adf67fd0fc6dc04def26f18b9838bca801b",
+      "new_sha256": "9c89b6b3fe6971ba735ba4d8663c8adf67fd0fc6dc04def26f18b9838bca801b"
+    }
+  ],
+  "excerpts": {
+    "aa83f67969c2f618034b856ba6e1fc13ae10762e::obtain_verify": {
+      "revision": "aa83f67969c2f618034b856ba6e1fc13ae10762e",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "function": "obtain_verify",
+      "line": 2962,
+      "file_sha256": "472bafb8281c7d311a81dcd5da042dd0f8db998bd81cf4902e6b55409eb5a563",
+      "excerpt_sha256": "de9d08e7adf0f0e8bda3d7603216e75852571101dea2fd692ceb760b081a5a42",
+      "excerpt": "fn obtain_verify<const L: usize, const R: usize, const W: usize>(\n    slot: &mut VerifySlot<VerifyShared<L, W>>,\n    shared: &Shared<L, R>,\n    source: &PrimitiveSource,\n    group: &GroupPrep,\n    guard: StageGuard,\n) -> (\n    Result<Arc<VerifyShared<L, W>>, AttemptStop>,\n    u64,\n    bool,\n    StageWork,\n    Vec<BlockRefusal>,\n)\nwhere\n    Wide<L>: SupportedWidth,\n    Wide<R>: SupportedWidth,\n    Wide<W>: SupportedWidth,\n{\n    if let Some(cached) = slot {\n        return match cached {\n            Ok(v) => (Ok(v.clone()), v.total, false, v.stages.clone(), Vec::new()),\n            Err((stop, total, stages, refusals)) => (\n                Err(stop.clone()),\n                *total,\n                false,\n                stages.clone(),\n                refusals.clone(),\n            ),\n        };\n    }\n    let spent = build_verify_shared::<L, R, W>(shared, source, group, guard);\n    match spent.result {\n        Ok(v) => {\n            let v = Arc::new(v);\n            *slot = Some(Ok(v.clone()));\n            (Ok(v), spent.total, true, spent.stages, Vec::new())\n        }\n        Err(stop) => {\n            if !matches!(stop, AttemptStop::Budget(_)) {\n                *slot = Some(Err((\n                    stop.clone(),\n                    spent.total,\n                    spent.stages.clone(),\n                    spent.refusals.clone(),\n                )));\n            }\n            (Err(stop), spent.total, true, spent.stages, spent.refusals)\n        }\n    }\n}\n"
+    },
+    "40129a225d73860ac2a53da9a2fa73869df668f3::obtain_verify": {
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "function": "obtain_verify",
+      "line": 3783,
+      "file_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "excerpt_sha256": "de9d08e7adf0f0e8bda3d7603216e75852571101dea2fd692ceb760b081a5a42",
+      "excerpt": "fn obtain_verify<const L: usize, const R: usize, const W: usize>(\n    slot: &mut VerifySlot<VerifyShared<L, W>>,\n    shared: &Shared<L, R>,\n    source: &PrimitiveSource,\n    group: &GroupPrep,\n    guard: StageGuard,\n) -> (\n    Result<Arc<VerifyShared<L, W>>, AttemptStop>,\n    u64,\n    bool,\n    StageWork,\n    Vec<BlockRefusal>,\n)\nwhere\n    Wide<L>: SupportedWidth,\n    Wide<R>: SupportedWidth,\n    Wide<W>: SupportedWidth,\n{\n    if let Some(cached) = slot {\n        return match cached {\n            Ok(v) => (Ok(v.clone()), v.total, false, v.stages.clone(), Vec::new()),\n            Err((stop, total, stages, refusals)) => (\n                Err(stop.clone()),\n                *total,\n                false,\n                stages.clone(),\n                refusals.clone(),\n            ),\n        };\n    }\n    let spent = build_verify_shared::<L, R, W>(shared, source, group, guard);\n    match spent.result {\n        Ok(v) => {\n            let v = Arc::new(v);\n            *slot = Some(Ok(v.clone()));\n            (Ok(v), spent.total, true, spent.stages, Vec::new())\n        }\n        Err(stop) => {\n            if !matches!(stop, AttemptStop::Budget(_)) {\n                *slot = Some(Err((\n                    stop.clone(),\n                    spent.total,\n                    spent.stages.clone(),\n                    spent.refusals.clone(),\n                )));\n            }\n            (Err(stop), spent.total, true, spent.stages, spent.refusals)\n        }\n    }\n}\n"
+    },
+    "aa83f67969c2f618034b856ba6e1fc13ae10762e::verify_precision": {
+      "revision": "aa83f67969c2f618034b856ba6e1fc13ae10762e",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "function": "verify_precision",
+      "line": 3017,
+      "file_sha256": "472bafb8281c7d311a81dcd5da042dd0f8db998bd81cf4902e6b55409eb5a563",
+      "excerpt_sha256": "71f00f90f55c03ebcf5aacf9bb7e6651db5715b379e161cf27f29884b817f421",
+      "excerpt": "fn verify_precision(\n    state: &PrecisionState,\n    prep: &Arc<CasePrep>,\n    group: &Arc<GroupPrep>,\n    cache: &mut GroupCache,\n    budget: &mut CaseBudget,\n    meter: &mut InvocationMeter,\n    record: &mut AttemptRecord,\n) -> Result<VerificationState, AttemptStop> {\n    let case_room = budget.limit.saturating_sub(budget.used);\n    let invocation_room = meter.room();\n    let guard = StageGuard {\n        base: 0,\n        case_room,\n        invocation_room,\n    };\n    macro_rules! run {\n        ($slot:expr, $vslot:expr, $L:literal, $R:literal, $W:literal, $solved:expr, $variant:ident) => {{\n            let shared = match $slot {\n                Some(Ok(shared)) => shared.clone(),\n                _ => unreachable!(\"a solved state's shared stages are cached\"),\n            };\n            let (vs, vs_total, built, vs_stages, vs_refusals) =\n                obtain_verify::<$L, $R, $W>($vslot, &shared, &prep.source, group, guard);\n            record.verification_shared_work = vs_total;\n            record.verification_shared_built_here = built;\n            record.shared_stages.add(&vs_stages);\n            let invocation_spent = if built { vs_total } else { 0 };\n            budget.used = budget.used.saturating_add(vs_total);\n            meter.charge(invocation_spent);\n            // RV23-1: a stopped shared build's Uc_c refusals reach the record\n            // before its stop propagates.\n            if vs.is_err() {\n                record.bound_refusals = vs_refusals;\n            }\n            let vs = vs?;\n            // Amendment A2: the shared build's Uc_c refusals, per block.\n            record.bound_refusals = block_refusals(&vs.uc, &[]);\n            if vs_total > case_room {\n                return Err(AttemptStop::Budget(BudgetScope::Case));\n            }\n            let own_guard = StageGuard {\n                base: 0,\n                case_room: case_room - vs_total,\n                invocation_room: invocation_room.saturating_sub(invocation_spent),\n            };\n            let spent = verify_state::<$L, $R, $W>(&shared, &vs, prep, group, $solved, own_guard);\n            record.work.merge(&spent.work);\n            record.k4_work.merge(&spent.sum_work);\n            record.stages.add(&spent.stages);\n            record.verification_work = spent.total;\n            record.bound_refusals.extend(spent.refusals.iter().copied());\n            budget.used = budget.used.saturating_add(spent.total);\n            meter.charge(spent.total);\n            let state = VerificationState::$variant(Arc::new(spent.result?));\n            record.verification = Some(state.summary()?);\n            Ok(state)\n        }};\n    }\n    match state {\n        PrecisionState::P256(s) => run!(&cache.s256, &mut cache.v256, 4, 8, 8, s, V256),\n        PrecisionState::P512(s) => run!(&cache.s512, &mut cache.v512, 8, 16, 16, s, V512),\n        PrecisionState::P1024(s) => run!(&cache.s1024, &mut cache.v1024, 16, 16, 16, s, V1024),\n        PrecisionState::P128(_) => unreachable!(\"128 is never a verification\"),\n    }\n}\n"
+    },
+    "40129a225d73860ac2a53da9a2fa73869df668f3::verify_precision": {
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "function": "verify_precision",
+      "line": 3838,
+      "file_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "excerpt_sha256": "b5b556fa86def8363ef232efd02f635c948a272e618e6a1b8dbfb92d2ed2eb9c",
+      "excerpt": "fn verify_precision(\n    state: &PrecisionState,\n    prep: &Arc<CasePrep>,\n    group: &Arc<GroupPrep>,\n    cache: &mut GroupCache,\n    budget: &mut CaseBudget,\n    meter: &mut InvocationMeter,\n    record: &mut AttemptRecord,\n) -> Result<BoundVerification, AttemptStop> {\n    let case_room = budget.limit.saturating_sub(budget.used);\n    let invocation_room = meter.room();\n    let guard = StageGuard {\n        base: 0,\n        case_room,\n        invocation_room,\n    };\n    macro_rules! run {\n        ($slot:expr, $vslot:expr, $L:literal, $R:literal, $W:literal, $solved:expr, $variant:ident) => {{\n            let shared = match $slot {\n                Some(Ok(shared)) => shared.clone(),\n                _ => unreachable!(\"a solved state's shared stages are cached\"),\n            };\n            let (vs, vs_total, built, vs_stages, vs_refusals) =\n                obtain_verify::<$L, $R, $W>($vslot, &shared, &prep.source, group, guard);\n            record.verification_shared_work = vs_total;\n            record.verification_shared_built_here = built;\n            record.shared_stages.add(&vs_stages);\n            let invocation_spent = if built { vs_total } else { 0 };\n            budget.used = budget.used.saturating_add(vs_total);\n            meter.charge(invocation_spent);\n            // RV23-1: a stopped shared build's Uc_c refusals reach the record\n            // before its stop propagates.\n            if vs.is_err() {\n                record.bound_refusals = vs_refusals;\n            }\n            let vs = vs?;\n            // Amendment A2: the shared build's Uc_c refusals, per block.\n            record.bound_refusals = block_refusals(&vs.uc, &[]);\n            if vs_total > case_room {\n                return Err(AttemptStop::Budget(BudgetScope::Case));\n            }\n            let own_guard = StageGuard {\n                base: 0,\n                case_room: case_room - vs_total,\n                invocation_room: invocation_room.saturating_sub(invocation_spent),\n            };\n            let spent = verify_state::<$L, $R, $W>(&shared, &vs, prep, group, $solved, own_guard);\n            record.work.merge(&spent.work);\n            record.k4_work.merge(&spent.sum_work);\n            record.stages.add(&spent.stages);\n            record.verification_work = spent.total;\n            record.bound_refusals.extend(spent.refusals.iter().copied());\n            budget.used = budget.used.saturating_add(spent.total);\n            meter.charge(spent.total);\n            let report_state = VerificationState::$variant(Arc::new(spent.result?));\n            record.verification = Some(report_state.summary()?);\n            Ok(BoundVerification {\n                prep: prep.clone(),\n                state: (*state).clone(),\n                report: report_state,\n            })\n        }};\n    }\n    match state {\n        PrecisionState::P256(s) => run!(&cache.s256, &mut cache.v256, 4, 8, 8, s, V256),\n        PrecisionState::P512(s) => run!(&cache.s512, &mut cache.v512, 8, 16, 16, s, V512),\n        PrecisionState::P1024(s) => run!(&cache.s1024, &mut cache.v1024, 16, 16, 16, s, V1024),\n        PrecisionState::P128(_) => unreachable!(\"128 is never a verification\"),\n    }\n}\n"
+    },
+    "aa83f67969c2f618034b856ba6e1fc13ae10762e::VerifySlot": {
+      "revision": "aa83f67969c2f618034b856ba6e1fc13ae10762e",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "line": 2757,
+      "excerpt_sha256": "9c89b6b3fe6971ba735ba4d8663c8adf67fd0fc6dc04def26f18b9838bca801b",
+      "excerpt": "type VerifySlot<S> = Option<Result<Arc<S>, (AttemptStop, u64, StageWork, Vec<BlockRefusal>)>>;\n"
+    },
+    "40129a225d73860ac2a53da9a2fa73869df668f3::VerifySlot": {
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "line": 3578,
+      "excerpt_sha256": "9c89b6b3fe6971ba735ba4d8663c8adf67fd0fc6dc04def26f18b9838bca801b",
+      "excerpt": "type VerifySlot<S> = Option<Result<Arc<S>, (AttemptStop, u64, StageWork, Vec<BlockRefusal>)>>;\n"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "aa83f6796"
+      ],
+      "exit": 0,
+      "output_sha256": "dca31502d9ed53c8ad0c3033aeb954378e36b5b06e1f8d9ec0ea5a71a11e62f8"
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "aa83f67969c2f618034b856ba6e1fc13ae10762e:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs"
+      ],
+      "exit": 0,
+      "output_sha256": "472bafb8281c7d311a81dcd5da042dd0f8db998bd81cf4902e6b55409eb5a563"
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs"
+      ],
+      "exit": 0,
+      "output_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+    }
+  ],
+  "cache_path_diff_sha256": "f7864596a1e0cdf3185f0e90451563d07c88cc2e16162743ed13b8f21699e294",
+  "runtime": "NONE"
+}

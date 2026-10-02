@@ -1,0 +1,169 @@
+{
+  "record": "Manager independent B comparison-summary/raw-byte check",
+  "cases": [
+    {
+      "case": "B01",
+      "output_sha256": "f8b8781df709efdb98b17d0d689b0f5c6eb45e460dc944e45a55fac58e7e7a3e",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 128,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B02",
+      "output_sha256": "a293af61d547adba0ff93fe8d3df3824340f5c9919578e177b0f9e9cddad6c19",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 256,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B03",
+      "output_sha256": "073e7f894b07e239031e8ee7d0c04836daeabf43e4df4876cba38e4d2bdb7182",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 128,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B04",
+      "output_sha256": "09c4edc4043704d672a7ee8cecb593d749602544ca59c7903a17035ff0eadb73",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 128,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B05",
+      "output_sha256": "e99f67363834762d39d676315deef74af56d65d4c6f2ae1fe111a369474e115b",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 128,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B06",
+      "output_sha256": "8c704167c46a6901670ea76b472c16628c858d5247e7f03e4362df257bc3d571",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 128,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B07",
+      "output_sha256": "a824b99f5f24b2a0fe54962f410c8506078081fcd9275cd62b3e24ff402c39f4",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 256,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B08",
+      "output_sha256": "96aec113b5f1231738957edbfd630c789d13fbd0be9d895592abaf53400dcf8d",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 256,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B09",
+      "output_sha256": "bfc5178d8c51765d307664013839398ccb30cff8658ba87fce31ac884230927e",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 128,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B10",
+      "output_sha256": "9d9edf448803b805a58f9d74bc7116a1c07e2d1ef5b9c0221f8733dfca88d9ae",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 128,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B11",
+      "output_sha256": "ed614d95374b031d5265582fadc65b5a0a35182bff91e0a3f192b9e7a1e2bfb6",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 128,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B12",
+      "output_sha256": "5f2620a353b9f3b51d5ff46a831fd8a593e2de355d4ee8d29c88a676d90be34c",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 256,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B13",
+      "output_sha256": "ff480408836fc33c40bf4ea1da40223d1bdf54b5920beca3e1a935e5ec176f1c",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 128,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B14",
+      "output_sha256": "712d8004f5c19c11da0549dc83c8a7881331b18b0e373e6c18672201ac018893",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 256,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B15",
+      "output_sha256": "b13fb2ca9177e2cde022df772d41c589ecb0c1e4f9181fbcb5bde9e8b15e4b01",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 128,
+      "raw_hash_matches": true
+    },
+    {
+      "case": "B16",
+      "output_sha256": "787b2dcbf8ac0ceb268b6728b0d0d9ff82f27ec40e5f7782ae141177509b2dae",
+      "status": "Selected",
+      "failures": [],
+      "row_count": 37,
+      "precision": 256,
+      "raw_hash_matches": true
+    }
+  ],
+  "all_raw_hashes_match": true,
+  "rows": 592,
+  "failure_count": 0,
+  "class_counts": {
+    "AbsoluteVerified": 413,
+    "InputDerived": 176,
+    "Unpublishable": 3
+  },
+  "truth_sha256": "1772d703e032a71587b922a2f6d825718f777c9dae78d1041fbd874210ee87ea",
+  "prevalidator_sha256": "3fada0d22ec59b950af85098996de5e34befba678907394a33af025766d0ca43",
+  "raw_scale_checks": {
+    "B05_translation": "0220000000000000",
+    "B06_translation": "0230000000000000",
+    "B07_rotation": "0220000000000000",
+    "B08_rotation": "0230000000000000",
+    "B09_translation": "0000000000000000",
+    "B10_rotation": "0000000000000000"
+  },
+  "coverage_limit": "B10 has zero rotation scale but no non-input-derived rotation publication; not a zero-bound rotation-row witness. No RelativeVerified rows or p512 selection in B.",
+  "claim_boundary": "Checks provided exact-comparison reports and their actual raw bytes; no independent redesign or universal guarantee."
+}

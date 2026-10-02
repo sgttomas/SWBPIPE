@@ -1,0 +1,10 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -426,7 +426,6 @@
+         let mut num = ExactWideSum::new();
+         num.add_binary64(b, false).ok()?;
+         num.add_binary64(rounding, false).ok()?;
+-        num.add_binary64(f64::from_bits(1), false).ok()?;
+         let mut den = ExactWideSum::new();
+         den.add_binary64(1.0, false).ok()?;
+         let mut ctx = WideContext::<16>::new(1024).ok()?;

@@ -1,0 +1,121 @@
+{
+  "committed_child": "f6cdf0dd30341c72a637f4e0f404f51e4f946f94",
+  "child_seal": "569cfbfc8df69c3130f05fcb317e8b7bfb75695a34b005defd271e581680312e",
+  "copies": [
+    {
+      "copy": "BASELINE",
+      "verified_files": 116,
+      "original_test_prefix_and_corpus_preserved": true,
+      "sole_changes": "reviewed overlay"
+    },
+    {
+      "copy": "D2",
+      "verified_files": 116,
+      "original_test_prefix_and_corpus_preserved": true,
+      "sole_changes": "reviewed overlay plus frozen D2"
+    }
+  ],
+  "source_files": 232,
+  "binaries": {
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904": "da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-diagnostic-target/r33_e_row/D2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904": "220972c56b692694b827ead08ed4a8a3e54a95dd0b4ce3e7f539dc8a63321e15"
+  },
+  "runs": [
+    {
+      "kind": "build",
+      "id": "BASELINE",
+      "filter": null,
+      "start": "2026-10-01T17:31:16.149Z",
+      "end": "2026-10-01T17:31:43.722Z",
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_stderr_sha256": "8afdd9961e335de051eaa38b7370b69c0b63b7b36fd4e3165a9ad290bf727887",
+      "binary_sha256": "da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7",
+      "raw_fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+    },
+    {
+      "kind": "list",
+      "id": "BASELINE",
+      "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+      "start": "2026-10-01T17:31:43.793Z",
+      "end": "2026-10-01T17:31:44.827Z",
+      "exit": 0,
+      "stdout_sha256": "f2ad288ae86966d4c77407dea35715427bb0148920622cba9d9444616279113c",
+      "raw_stderr_sha256": "5fbaa9970e5779e58b6c1211a1790ac9c166473a6bca4614a7ed42876f202306",
+      "binary_sha256": "da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7",
+      "raw_fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+    },
+    {
+      "kind": "baseline",
+      "id": "BASELINE",
+      "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+      "start": "2026-10-01T17:31:44.902Z",
+      "end": "2026-10-01T17:31:45.290Z",
+      "exit": 0,
+      "stdout_sha256": "5edb21ac764a249bacb86d13dc9cf069e071468b3fc32d5532561b8f1d1bbad2",
+      "raw_stderr_sha256": "61b55e29584ef4835c68ec81e50d0c93810c1f5d34978a8d6b4c1a325ca44e02",
+      "binary_sha256": "da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7",
+      "raw_fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+    },
+    {
+      "kind": "build",
+      "id": "D2",
+      "filter": null,
+      "start": "2026-10-01T17:33:45.041Z",
+      "end": "2026-10-01T17:34:04.486Z",
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_stderr_sha256": "59b8f701f5afbbad7498c857067b9a183fac1ab5f6e4712fe50a2029d1f78f8f",
+      "binary_sha256": "220972c56b692694b827ead08ed4a8a3e54a95dd0b4ce3e7f539dc8a63321e15",
+      "raw_fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+    },
+    {
+      "kind": "list",
+      "id": "D2",
+      "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+      "start": "2026-10-01T17:34:04.558Z",
+      "end": "2026-10-01T17:34:05.590Z",
+      "exit": 0,
+      "stdout_sha256": "f2ad288ae86966d4c77407dea35715427bb0148920622cba9d9444616279113c",
+      "raw_stderr_sha256": "6b24767e1513de76559bdbd46f32c6a21ee5291c0f390faebc488f12d580cdac",
+      "binary_sha256": "220972c56b692694b827ead08ed4a8a3e54a95dd0b4ce3e7f539dc8a63321e15",
+      "raw_fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+    },
+    {
+      "kind": "mutant",
+      "id": "D2",
+      "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+      "start": "2026-10-01T17:34:05.667Z",
+      "end": "2026-10-01T17:34:06.054Z",
+      "exit": 101,
+      "stdout_sha256": "58287df0302e2c9c7448c96a2e439c4aafeed8a7ec0cbf9ac5d32c193b702a0a",
+      "raw_stderr_sha256": "3f13c0c119269abe18bbe052db88e2402140ca5ff6abb6bc1218a9e1d1554737",
+      "binary_sha256": "220972c56b692694b827ead08ed4a8a3e54a95dd0b4ce3e7f539dc8a63321e15",
+      "raw_fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "assertion": "thread 'structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale' (26278444) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:185:24:\nassertion `left == right` failed: N05 128 E rows\n  left: \"9b17bdf22dba9892165702f05502429745e814a39988d05b3a213bbe102c2654\"\n right: \"b88b19d13da180293e8c6788a98eca8bf77eb7801e5ffb6eaba7973105e0a30a\""
+    },
+    {
+      "kind": "control",
+      "id": "D2",
+      "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+      "start": "2026-10-01T17:34:14.169Z",
+      "end": "2026-10-01T17:34:14.559Z",
+      "exit": 0,
+      "stdout_sha256": "5edb21ac764a249bacb86d13dc9cf069e071468b3fc32d5532561b8f1d1bbad2",
+      "raw_stderr_sha256": "85871ea711f1ec7782981058ed95884bb70ec943cc9c6a73c0dae74734d8c168",
+      "binary_sha256": "da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7",
+      "raw_fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+    }
+  ],
+  "count": {
+    "builds": 2,
+    "lists": 2,
+    "baseline": 1,
+    "mutant": 1,
+    "control": 1
+  },
+  "qualified_assertion_only": "original185 N05/p128 E rows; 208/otherprecisions/unreached coverage assertion not claimed in mutant",
+  "old_N01_failure": "uncredited",
+  "status": "CHILD_VERIFIED_MANAGER_SEAL_PENDING",
+  "finished_child_check_utc": "2026-10-01T17:39:19.013638+00:00"
+}

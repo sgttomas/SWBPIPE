@@ -1,0 +1,22 @@
+
+thread 'structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision' (26323461) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:122:44:
+LOADONLY-y345 128: ResidualGate { global_dof: 9 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        9.39 real         9.28 user         0.04 sys
+            22413312  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                1725  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 622  involuntary context switches
+        111583261053  instructions retired
+         26994434853  cycles elapsed
+            13320576  peak memory footprint

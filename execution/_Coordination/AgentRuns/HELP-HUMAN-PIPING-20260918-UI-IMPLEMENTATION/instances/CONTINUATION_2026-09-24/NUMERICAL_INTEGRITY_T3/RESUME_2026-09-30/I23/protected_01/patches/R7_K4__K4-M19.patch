@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -3887,8 +3887,6 @@
+             record.stages.add(&spent.stages);
+             record.verification_work = spent.total;
+             record.bound_refusals.extend(spent.refusals.iter().copied());
+-            budget.used = budget.used.saturating_add(spent.total);
+-            meter.charge(spent.total);
+             let report_state = VerificationState::$variant(Arc::new(spent.result?));
+             record.verification = Some(report_state.summary()?);
+             Ok(BoundVerification {

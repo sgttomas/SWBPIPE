@@ -1,0 +1,4 @@
+PASS G18 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "33d8a8445333ee73de9eccbc405883027646277c394c86efebeda1e63848129c"}
+filter structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path
+aliases [('A2_ORIGINAL', 'M4a')]

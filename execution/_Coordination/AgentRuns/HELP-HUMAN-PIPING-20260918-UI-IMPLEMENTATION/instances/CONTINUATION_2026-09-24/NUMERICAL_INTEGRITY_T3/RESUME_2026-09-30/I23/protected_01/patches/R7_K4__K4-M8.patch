@@ -1,0 +1,22 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
+@@ -187,7 +187,18 @@
+     ) -> Result<(), SumRefusal> {
+         match self.net(dof) {
+             Some(net) if !net.is_zero() => {
+-                sum.add_integer(net.negative != negate, &net.magnitude, net.exponent)
++                let mag = &net.magnitude;
++                let bits = mag.len() * 64 - mag[mag.len() - 1].leading_zeros() as usize;
++                let drop = bits.saturating_sub(128);
++                let mut top: u128 = 0;
++                for i in (drop..bits).rev() {
++                    top = (top << 1) | u128::from((mag[i / 64] >> (i % 64)) & 1);
++                }
++                sum.add_integer(
++                    net.negative != negate,
++                    &[top as u64, (top >> 64) as u64],
++                    net.exponent + drop as i64,
++                )
+             }
+             _ => Ok(()),
+         }

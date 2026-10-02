@@ -1,0 +1,21 @@
+{
+  "role": "TASK RV29",
+  "parent": "ROOT /root",
+  "start_utc": "2026-10-01T18:20:24Z",
+  "completed_utc": "2026-10-01T18:28:47.845635+00:00",
+  "limit_minutes": 10,
+  "scope": "F01 source/proposal readiness plus narrow sealed stop/build provenance; no runtime or fault acceptance",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "archive": "942572ede4c15aca87b4660c7d570343e14e679e",
+  "skill": {
+    "origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "retained_selection_origin_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/preparation_01/BASIS.json"
+  },
+  "conditional_grant": {
+    "commit": "f531836de04fa81d7ed05cbbc1f2298488a4330e",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_VK_F01_EXISTING_RECORD_DIAGNOSTIC.md",
+    "sha256": "3c0820800648067460699ff3572de71af575b246b0ba7762fd72c70a83e418d2"
+  },
+  "write_fence": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/vk_f01_source_27"
+}

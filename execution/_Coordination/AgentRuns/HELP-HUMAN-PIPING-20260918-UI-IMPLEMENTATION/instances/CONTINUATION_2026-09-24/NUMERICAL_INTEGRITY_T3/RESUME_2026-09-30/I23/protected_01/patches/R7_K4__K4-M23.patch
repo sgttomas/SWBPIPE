@@ -1,0 +1,18 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
+@@ -490,10 +490,12 @@
+     let zero = Wide::<L>::ZERO;
+     let mut out = Vec::with_capacity(source.directional_springs().len());
+     for s in source.directional_springs() {
++        let dn = s.direction;
++        let nn = (dn[0] * dn[0] + dn[1] * dn[1] + dn[2] * dn[2]).sqrt();
+         let n = [
+-            lift::<L>(s.direction[0])?,
+-            lift::<L>(s.direction[1])?,
+-            lift::<L>(s.direction[2])?,
++            lift::<L>(dn[0] / nn)?,
++            lift::<L>(dn[1] / nn)?,
++            lift::<L>(dn[2] / nn)?,
+         ];
+         let norm2 = dot(ctx, sum, &n, &n)?;
+         let k = lift::<L>(s.stiffness)?;

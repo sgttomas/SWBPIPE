@@ -1,0 +1,15 @@
+{
+  "start_utc": "2026-10-01T15:08:23Z",
+  "completed_utc": "2026-10-01T15:19:22.124466+00:00",
+  "deadline_utc": "2026-10-01T15:28:23Z",
+  "mode": "Read-only Git archive/show and physical source/binary/log/fingerprint checks; existing VENV Python -B standard library and Fraction only. GIT_OPTIONAL_LOCKS=0.",
+  "writes": "Only new source_review_RV29/g2_runtime_13.",
+  "Rust_test_solver_or_build_execution": 0,
+  "patch_authorship_or_installation": 0,
+  "maintained_edits": 0,
+  "Git_index_mutations": 0,
+  "delegation": 0,
+  "G4_source_target_runtime_access": 0,
+  "inspection_note": "One presentation-only metadata read treated SOURCE_MANIFEST as a dictionary; corrected to its list schema before verification. No input/evidence/criterion changed.",
+  "integration_note": "Bound committedf1fb2a6 including ignored-build-file addition; no reliance on local-only build evidence. No numerical/code/evidence bytes changed by that integration commit."
+}

@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision' (26161230) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:185:24:
+assertion `left == right` failed: N01 128 E rows
+  left: "139fe99aa353abeb34c6c228fa13dc2190102b8f70a95cfaacb12f7a08c55c21"
+ right: "c11236a4aa72552a8a49b50e95efb5424531ce6fc2f2bfa26602d6764f022622"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.17 real         0.16 user         0.00 sys
+            18628608  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                1495  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  12  involuntary context switches
+          1886289061  instructions retired
+           500046662  cycles elapsed
+             9847168  peak memory footprint

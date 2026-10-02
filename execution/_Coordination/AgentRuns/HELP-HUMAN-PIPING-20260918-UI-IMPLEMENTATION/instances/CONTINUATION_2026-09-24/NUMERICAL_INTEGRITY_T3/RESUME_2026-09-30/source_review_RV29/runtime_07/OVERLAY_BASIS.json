@@ -1,0 +1,41 @@
+{
+  "packet": "I23/discriminators_02",
+  "files": [
+    {
+      "path": "I23/discriminators_02/DIAGNOSTIC_ADDITIONS.rs",
+      "sha256": "1ff786998511373e54bf0df68877d49434bf05c48eaefc20fc06d6ee141d2aad"
+    },
+    {
+      "path": "I23/discriminators_02/OVERLAY_MAP.json",
+      "sha256": "df4ea2ff1cce389ae59dba737dd1dd2063f0949af3f16ff8cb0ecc16bdbb8ed2"
+    },
+    {
+      "path": "I23/discriminators_02/PROVENANCE.json",
+      "sha256": "d569c52f1944590757ea2aa91ff4eaae1f3d5d1ff058691cf561d0323dcf2e52"
+    },
+    {
+      "path": "I23/discriminators_02/RATIONALE.md",
+      "sha256": "0c4cc99d0a80c106e38ff97b6642a33cc045d5c26b3695abbc36a5378d60d709"
+    },
+    {
+      "path": "I23/discriminators_02/RETURN.md",
+      "sha256": "18af873742940091554b9764b20edbbfc3b750824bc331b6af6921fe78d2bb71"
+    },
+    {
+      "path": "I23/discriminators_02/SHA256SUMS",
+      "sha256": "7bee1eb4f29d29baa52bbfd391dc9f0e60ef965ed9a1def596bf96a6f100bc93"
+    },
+    {
+      "path": "I23/discriminators_02/SOURCE_WARRANTS.json",
+      "sha256": "6e7e4f7463f3b2d60c0137e5af3935e3f324be28bb5b995a919377cf39537a80"
+    },
+    {
+      "path": "I23/discriminators_02/VALIDATION.json",
+      "sha256": "1282046fb4fec9d7035db820d0a87c0569a8e8edc4eded90f73a9eb572ba0d4b"
+    },
+    {
+      "path": "I23/discriminators_02/diagnostics.patch",
+      "sha256": "5ef176143af79c127e0b7998e4d54e54738db473a6b7f5285cde4a1e02599f2d"
+    }
+  ]
+}

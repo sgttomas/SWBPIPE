@@ -1,0 +1,977 @@
+{
+  "schema": "i22-g1-summary-v1",
+  "status": "16 cases complete; no false publication",
+  "cases": [
+    {
+      "case": "B01",
+      "status": "Selected",
+      "selection": [
+        "128",
+        "256"
+      ],
+      "lme": "1088017",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [
+        "D:9"
+      ],
+      "zero_bound_rows": [
+        "E:1:I:0",
+        "E:1:I:1",
+        "E:1:I:2",
+        "E:1:J:0",
+        "E:1:J:1",
+        "E:1:J:2",
+        "R:0",
+        "R:1",
+        "R:2",
+        "R:6",
+        "R:7",
+        "R:8"
+      ],
+      "stdout_sha256": "f8b8781df709efdb98b17d0d689b0f5c6eb45e460dc944e45a55fac58e7e7a3e",
+      "scales": [
+        [
+          "Translation",
+          "0310000000000000"
+        ],
+        [
+          "Rotation",
+          "0000000000000001"
+        ],
+        [
+          "Force",
+          "0000000000000000"
+        ],
+        [
+          "Moment",
+          "0000000000000005"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B02",
+      "status": "Selected",
+      "selection": [
+        "256",
+        "512"
+      ],
+      "lme": "2015063",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [
+        "D:6",
+        "M:1"
+      ],
+      "zero_bound_rows": [
+        "E:1:I:3",
+        "E:1:I:4",
+        "E:1:I:5",
+        "E:1:J:3",
+        "E:1:J:4",
+        "E:1:J:5",
+        "R:3",
+        "R:4",
+        "R:5",
+        "R:9",
+        "R:10",
+        "R:11"
+      ],
+      "stdout_sha256": "a293af61d547adba0ff93fe8d3df3824340f5c9919578e177b0f9e9cddad6c19",
+      "scales": [
+        [
+          "Translation",
+          "0000000000000001"
+        ],
+        [
+          "Rotation",
+          "0310000000000000"
+        ],
+        [
+          "Force",
+          "0000000000000005"
+        ],
+        [
+          "Moment",
+          "0000000000000000"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B03",
+      "status": "Selected",
+      "selection": [
+        "128",
+        "256"
+      ],
+      "lme": "999009",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [
+        "D:9"
+      ],
+      "zero_bound_rows": [],
+      "stdout_sha256": "073e7f894b07e239031e8ee7d0c04836daeabf43e4df4876cba38e4d2bdb7182",
+      "scales": [
+        [
+          "Translation",
+          "0000000000000001"
+        ],
+        [
+          "Rotation",
+          "0000000000000001"
+        ],
+        [
+          "Force",
+          "0000000000000005"
+        ],
+        [
+          "Moment",
+          "0000000000000005"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B04",
+      "status": "Selected",
+      "selection": [
+        "128",
+        "256"
+      ],
+      "lme": "1052981",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [
+        "D:6",
+        "M:1"
+      ],
+      "zero_bound_rows": [],
+      "stdout_sha256": "09c4edc4043704d672a7ee8cecb593d749602544ca59c7903a17035ff0eadb73",
+      "scales": [
+        [
+          "Translation",
+          "0000000000000001"
+        ],
+        [
+          "Rotation",
+          "0000000000000001"
+        ],
+        [
+          "Force",
+          "0000000000000005"
+        ],
+        [
+          "Moment",
+          "0000000000000005"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B05",
+      "status": "Selected",
+      "selection": [
+        "128",
+        "256"
+      ],
+      "lme": "1087693",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [
+        "D:9"
+      ],
+      "zero_bound_rows": [
+        "E:1:I:0",
+        "E:1:I:1",
+        "E:1:I:2",
+        "E:1:J:0",
+        "E:1:J:1",
+        "E:1:J:2",
+        "R:0",
+        "R:1",
+        "R:2",
+        "R:6",
+        "R:7",
+        "R:8"
+      ],
+      "stdout_sha256": "e99f67363834762d39d676315deef74af56d65d4c6f2ae1fe111a369474e115b",
+      "scales": [
+        [
+          "Translation",
+          "0220000000000000"
+        ],
+        [
+          "Rotation",
+          "0000000000000001"
+        ],
+        [
+          "Force",
+          "0000000000000000"
+        ],
+        [
+          "Moment",
+          "0000000000000005"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B06",
+      "status": "Selected",
+      "selection": [
+        "128",
+        "256"
+      ],
+      "lme": "1087693",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [
+        "D:9"
+      ],
+      "zero_bound_rows": [
+        "E:1:I:0",
+        "E:1:I:1",
+        "E:1:I:2",
+        "E:1:J:0",
+        "E:1:J:1",
+        "E:1:J:2",
+        "R:0",
+        "R:1",
+        "R:2",
+        "R:6",
+        "R:7",
+        "R:8"
+      ],
+      "stdout_sha256": "8c704167c46a6901670ea76b472c16628c858d5247e7f03e4362df257bc3d571",
+      "scales": [
+        [
+          "Translation",
+          "0230000000000000"
+        ],
+        [
+          "Rotation",
+          "0000000000000001"
+        ],
+        [
+          "Force",
+          "0000000000000000"
+        ],
+        [
+          "Moment",
+          "0000000000000005"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B07",
+      "status": "Selected",
+      "selection": [
+        "256",
+        "512"
+      ],
+      "lme": "2014975",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [
+        "D:6",
+        "M:1"
+      ],
+      "zero_bound_rows": [
+        "E:1:I:3",
+        "E:1:I:4",
+        "E:1:I:5",
+        "E:1:J:3",
+        "E:1:J:4",
+        "E:1:J:5",
+        "R:3",
+        "R:4",
+        "R:5",
+        "R:9",
+        "R:10",
+        "R:11"
+      ],
+      "stdout_sha256": "a824b99f5f24b2a0fe54962f410c8506078081fcd9275cd62b3e24ff402c39f4",
+      "scales": [
+        [
+          "Translation",
+          "0000000000000001"
+        ],
+        [
+          "Rotation",
+          "0220000000000000"
+        ],
+        [
+          "Force",
+          "0000000000000005"
+        ],
+        [
+          "Moment",
+          "0000000000000000"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B08",
+      "status": "Selected",
+      "selection": [
+        "256",
+        "512"
+      ],
+      "lme": "2015198",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [
+        "D:6",
+        "M:1"
+      ],
+      "zero_bound_rows": [
+        "E:1:I:3",
+        "E:1:I:4",
+        "E:1:I:5",
+        "E:1:J:3",
+        "E:1:J:4",
+        "E:1:J:5",
+        "R:3",
+        "R:4",
+        "R:5",
+        "R:9",
+        "R:10",
+        "R:11"
+      ],
+      "stdout_sha256": "96aec113b5f1231738957edbfd630c789d13fbd0be9d895592abaf53400dcf8d",
+      "scales": [
+        [
+          "Translation",
+          "0000000000000001"
+        ],
+        [
+          "Rotation",
+          "0230000000000000"
+        ],
+        [
+          "Force",
+          "0000000000000005"
+        ],
+        [
+          "Moment",
+          "0000000000000000"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B09",
+      "status": "Selected",
+      "selection": [
+        "128",
+        "256"
+      ],
+      "lme": "999320",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [
+        "D:9"
+      ],
+      "zero_bound_rows": [
+        "M:0",
+        "M:1"
+      ],
+      "stdout_sha256": "bfc5178d8c51765d307664013839398ccb30cff8658ba87fce31ac884230927e",
+      "scales": [
+        [
+          "Translation",
+          "0000000000000000"
+        ],
+        [
+          "Rotation",
+          "0000000000000001"
+        ],
+        [
+          "Force",
+          "0334000000000000"
+        ],
+        [
+          "Moment",
+          "0000000000000005"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B10",
+      "status": "Selected",
+      "selection": [
+        "128",
+        "256"
+      ],
+      "lme": "1088785",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [
+        "D:6",
+        "M:1"
+      ],
+      "zero_bound_rows": [],
+      "stdout_sha256": "9d9edf448803b805a58f9d74bc7116a1c07e2d1ef5b9c0221f8733dfca88d9ae",
+      "scales": [
+        [
+          "Translation",
+          "0000000000000001"
+        ],
+        [
+          "Rotation",
+          "0000000000000000"
+        ],
+        [
+          "Force",
+          "0000000000000005"
+        ],
+        [
+          "Moment",
+          "0334000000000000"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B11",
+      "status": "Selected",
+      "selection": [
+        "128",
+        "256"
+      ],
+      "lme": "1088044",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [],
+      "zero_bound_rows": [
+        "E:1:I:0",
+        "E:1:I:1",
+        "E:1:I:2",
+        "E:1:J:0",
+        "E:1:J:1",
+        "E:1:J:2",
+        "R:0",
+        "R:1",
+        "R:2",
+        "R:6",
+        "R:7",
+        "R:8"
+      ],
+      "stdout_sha256": "ed614d95374b031d5265582fadc65b5a0a35182bff91e0a3f192b9e7a1e2bfb6",
+      "scales": [
+        [
+          "Translation",
+          "0310000000000000"
+        ],
+        [
+          "Rotation",
+          "0000000000000001"
+        ],
+        [
+          "Force",
+          "0000000000000000"
+        ],
+        [
+          "Moment",
+          "0000000000000004"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B12",
+      "status": "Selected",
+      "selection": [
+        "256",
+        "512"
+      ],
+      "lme": "2012982",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [],
+      "zero_bound_rows": [
+        "E:1:I:3",
+        "E:1:I:4",
+        "E:1:I:5",
+        "E:1:J:3",
+        "E:1:J:4",
+        "E:1:J:5",
+        "R:3",
+        "R:4",
+        "R:5",
+        "R:9",
+        "R:10",
+        "R:11"
+      ],
+      "stdout_sha256": "5f2620a353b9f3b51d5ff46a831fd8a593e2de355d4ee8d29c88a676d90be34c",
+      "scales": [
+        [
+          "Translation",
+          "0000000000000001"
+        ],
+        [
+          "Rotation",
+          "0310000000000000"
+        ],
+        [
+          "Force",
+          "0000000000000004"
+        ],
+        [
+          "Moment",
+          "0000000000000000"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B13",
+      "status": "Selected",
+      "selection": [
+        "128",
+        "256"
+      ],
+      "lme": "1088101",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [],
+      "zero_bound_rows": [
+        "E:1:I:0",
+        "E:1:I:1",
+        "E:1:I:2",
+        "E:1:J:0",
+        "E:1:J:1",
+        "E:1:J:2",
+        "R:0",
+        "R:1",
+        "R:2",
+        "R:6",
+        "R:7",
+        "R:8"
+      ],
+      "stdout_sha256": "ff480408836fc33c40bf4ea1da40223d1bdf54b5920beca3e1a935e5ec176f1c",
+      "scales": [
+        [
+          "Translation",
+          "0650000000000000"
+        ],
+        [
+          "Rotation",
+          "0010000000000000"
+        ],
+        [
+          "Force",
+          "0000000000000000"
+        ],
+        [
+          "Moment",
+          "0030000000000000"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B14",
+      "status": "Selected",
+      "selection": [
+        "256",
+        "512"
+      ],
+      "lme": "2012982",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "AbsoluteVerified": 26
+      },
+      "nonzero_error_rows": [],
+      "zero_bound_rows": [
+        "E:1:I:3",
+        "E:1:I:4",
+        "E:1:I:5",
+        "E:1:J:3",
+        "E:1:J:4",
+        "E:1:J:5",
+        "R:3",
+        "R:4",
+        "R:5",
+        "R:9",
+        "R:10",
+        "R:11"
+      ],
+      "stdout_sha256": "712d8004f5c19c11da0549dc83c8a7881331b18b0e373e6c18672201ac018893",
+      "scales": [
+        [
+          "Translation",
+          "0010000000000000"
+        ],
+        [
+          "Rotation",
+          "0650000000000000"
+        ],
+        [
+          "Force",
+          "0030000000000000"
+        ],
+        [
+          "Moment",
+          "0000000000000000"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B15",
+      "status": "Selected",
+      "selection": [
+        "128",
+        "256"
+      ],
+      "lme": "1087854",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "Unpublishable": 1,
+        "AbsoluteVerified": 25
+      },
+      "nonzero_error_rows": [],
+      "zero_bound_rows": [
+        "M:0",
+        "M:1",
+        "E:1:I:0",
+        "E:1:I:1",
+        "E:1:I:2",
+        "E:1:J:0",
+        "E:1:J:1",
+        "E:1:J:2",
+        "R:0",
+        "R:1",
+        "R:2",
+        "R:6",
+        "R:7",
+        "R:8"
+      ],
+      "stdout_sha256": "b13fb2ca9177e2cde022df772d41c589ecb0c1e4f9181fbcb5bde9e8b15e4b01",
+      "scales": [
+        [
+          "Translation",
+          "0000000000000000"
+        ],
+        [
+          "Rotation",
+          "0000000000000000"
+        ],
+        [
+          "Force",
+          "0000000000000000"
+        ],
+        [
+          "Moment",
+          "0000000000000002"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    },
+    {
+      "case": "B16",
+      "status": "Selected",
+      "selection": [
+        "256",
+        "512"
+      ],
+      "lme": "2012550",
+      "corrections": "0",
+      "rows": 37,
+      "classes": {
+        "InputDerived": 11,
+        "Unpublishable": 2,
+        "AbsoluteVerified": 24
+      },
+      "nonzero_error_rows": [],
+      "zero_bound_rows": [
+        "M:0",
+        "E:1:I:3",
+        "E:1:I:4",
+        "E:1:I:5",
+        "E:1:J:3",
+        "E:1:J:4",
+        "E:1:J:5",
+        "R:3",
+        "R:4",
+        "R:5",
+        "R:9",
+        "R:10",
+        "R:11"
+      ],
+      "stdout_sha256": "787b2dcbf8ac0ceb268b6728b0d0d9ff82f27ec40e5f7782ae141177509b2dae",
+      "scales": [
+        [
+          "Translation",
+          "0000000000000000"
+        ],
+        [
+          "Rotation",
+          "0000000000000000"
+        ],
+        [
+          "Force",
+          "0000000000000002"
+        ],
+        [
+          "Moment",
+          "0000000000000000"
+        ]
+      ],
+      "run_exit": 0,
+      "compare_exit": 0,
+      "guard_before": 0,
+      "guard_after": 0,
+      "identity": {
+        "format": true,
+        "case": true,
+        "source": true,
+        "limits": true,
+        "source_selected_equal": true
+      }
+    }
+  ],
+  "cases_unrun": [
+    "C17",
+    "C18",
+    "C19",
+    "C20",
+    "C21",
+    "C22",
+    "C23",
+    "C24"
+  ],
+  "gaps": [
+    "No RelativeVerified row",
+    "No p512 selected floor witness",
+    "B10 zero rotation scale has no non-input-derived rotation row",
+    "No isolated nonexact raw force/moment coupling drivers",
+    "No source-unit or output-unit experiment",
+    "No product/native witness",
+    "No independent source-encoding decoder or retained-state replay",
+    "No general exclusion proof or A1 design closure"
+  ],
+  "aggregate": {
+    "cases": 16,
+    "row_records": 592,
+    "published_values": 589,
+    "input_derived": 176,
+    "absolute_verified": 413,
+    "relative_verified": 0,
+    "unpublishable": 3,
+    "nonzero_publication_error_rows": 15
+  }
+}

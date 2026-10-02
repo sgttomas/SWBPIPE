@@ -1,0 +1,11 @@
+
+running 1 test
+test structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle ... FAILED
+
+failures:
+
+failures:
+    structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
+

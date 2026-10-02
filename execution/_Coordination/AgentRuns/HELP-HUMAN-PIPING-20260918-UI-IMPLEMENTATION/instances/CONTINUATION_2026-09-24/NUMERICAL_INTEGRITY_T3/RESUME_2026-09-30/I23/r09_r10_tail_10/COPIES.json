@@ -1,0 +1,48 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "copies": [
+    {
+      "name": "BASELINE",
+      "source_root": "<wt>/scratch/i23/r09_r10_tail/BASELINE",
+      "target": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE",
+      "logs": "<wt>/scratch/i23/r09_r10_tail/logs/BASELINE",
+      "manifest": "<wt>/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "files": 116,
+      "production_fault_applied": false,
+      "only_changed_file": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "combined_test_sha256": "039a43e1fe0f9bc51fec0e99e5aaf59b468acd32fce80631c0df1c797c43ba8a",
+      "original_plus_R09_exact_prefix": true,
+      "targets_empty": true,
+      "logs_empty": true
+    },
+    {
+      "name": "K4-M2",
+      "source_root": "<wt>/scratch/i23/r09_r10_tail/K4-M2",
+      "target": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2",
+      "logs": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M2",
+      "manifest": "<wt>/scratch/i23/r09_r10_tail/K4-M2/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "files": 116,
+      "production_fault_applied": false,
+      "only_changed_file": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "combined_test_sha256": "039a43e1fe0f9bc51fec0e99e5aaf59b468acd32fce80631c0df1c797c43ba8a",
+      "original_plus_R09_exact_prefix": true,
+      "targets_empty": true,
+      "logs_empty": true
+    },
+    {
+      "name": "K4-M3",
+      "source_root": "<wt>/scratch/i23/r09_r10_tail/K4-M3",
+      "target": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3",
+      "logs": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M3",
+      "manifest": "<wt>/scratch/i23/r09_r10_tail/K4-M3/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "files": 116,
+      "production_fault_applied": false,
+      "only_changed_file": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "combined_test_sha256": "039a43e1fe0f9bc51fec0e99e5aaf59b468acd32fce80631c0df1c797c43ba8a",
+      "original_plus_R09_exact_prefix": true,
+      "targets_empty": true,
+      "logs_empty": true
+    }
+  ],
+  "old_R09_only_copies": "Preserved; no reuse or modification"
+}

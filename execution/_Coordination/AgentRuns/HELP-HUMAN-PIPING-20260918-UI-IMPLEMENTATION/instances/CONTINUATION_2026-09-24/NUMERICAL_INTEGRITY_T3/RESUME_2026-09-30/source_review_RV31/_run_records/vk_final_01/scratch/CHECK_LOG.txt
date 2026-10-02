@@ -1,0 +1,3 @@
+{"packet_counts": {"I22/vk_runtime_10": 48, "manager/vk_runtime_10": 5, "source_review_RV29/vk_r02_plan_42": 8, "source_review_RV29/vk_s2_mapping_40": 8, "I23/vk_prep_05": 13}, "all_candidate_bound": true}
+PASS physical VR189/FK116 exact inventory/hash/mode; source review citations; distinct artifacts/raw fingerprints/dependencies.
+PASS all nine commands/env/streams/timing; normal complete records and family/parity restoration; exact R28/R02/scalar witnesses.

@@ -1,0 +1,2 @@
+PASS:17 commands'rawEVIDENCE=4builds/5exactlists/2baselinePASS/3mappedfaultfailures/3controlsPASS;8tests oneeach.5actualbinaryhashes/rawfingerprints/explicitNONE/guards verified.
+M11 reached requiredline404 tuple aftersetup; actualcorrections0vs1. Originalunoverlaidcontrolpassed; no earlierreachgap orcompilerfailure credited.

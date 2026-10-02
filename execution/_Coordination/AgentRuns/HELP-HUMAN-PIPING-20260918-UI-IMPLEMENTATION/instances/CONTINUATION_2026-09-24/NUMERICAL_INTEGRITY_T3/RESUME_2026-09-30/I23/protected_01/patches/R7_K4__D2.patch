@@ -1,0 +1,12 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -1842,6 +1842,9 @@
+         // the gate and before recovery.
+         #[cfg(test)]
+         seed::apply(&mut ctx, &mut u)?;
++        for v in u.iter_mut() {
++            *v = Wide::<L>::from_f64(super::recover::publish_value(v).value().unwrap_or(0.0))?;
++        }
+         let base = t3 - lme(&ctx) - sum.work().limb_multiply_equivalents();
+         let recovered = recover(
+             &mut ctx,

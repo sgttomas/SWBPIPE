@@ -1,0 +1,11 @@
+{
+  "candidate": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1",
+  "prior_candidate": "3cf296e36645d97e4c657c8ad1a6322bc4163f16",
+  "brief_origin": "COORD@0236cf0969:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_CHECKPOINT_C.md",
+  "brief_sha256": "79c527fbfe1b11bd667e0b4cafb6088db138a91a69d0b443d103360bd19eabb6",
+  "prior_instruction_skill_basis": "../preparation_01/BASIS.json",
+  "prior_ledger": "../candidate_01/LEDGER_SHA256SUMS",
+  "prior_ledger_sha256": "8fe24165f9905950280a78c672bada583d819d3946b95abcaa28d574ff38209b",
+  "execution_mechanism": "existing Codex exec session 31225, one cargo invocation",
+  "test_inputs": "default fixture inputs; no source/test edits or generation"
+}

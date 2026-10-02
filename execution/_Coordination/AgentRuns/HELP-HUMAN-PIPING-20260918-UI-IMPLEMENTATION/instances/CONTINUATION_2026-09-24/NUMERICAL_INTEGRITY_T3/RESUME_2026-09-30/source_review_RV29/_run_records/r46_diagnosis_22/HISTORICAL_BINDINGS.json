@@ -1,0 +1,34 @@
+{
+  "bindings": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "historical_5a46a6278_byte_identical": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt",
+      "sha256": "b6beb3626298d979a99e6b3c21096fa391d6907bc295487f88d1c706c94da9d2",
+      "historical_5a46a6278_byte_identical": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "full_current_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "row_bound_function_sha256": "da409c856c54ea5eaa29e4c1aeb2a4022810a86031b035c746ba782bea170faa",
+      "historical_row_bound_byte_identical": true
+    }
+  ],
+  "historical_fault_script": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REVIEW/_run_records/k4_review/final/mutations/rv19_mut.py.txt",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "sha256": "09b83beed0ea8442b68e08e69d3b3521eb661efabb301922669d89375227fbae",
+    "line": 20
+  },
+  "same_fault_reconstructed_postimage": "3151195bd41cd8b6b22a960521954fc2295ec006f2e200ce21312485582fc095",
+  "current_patch_sha256": "1017231c7a4f3a1b9986a9d07264de215411ceafb503b21c33572cc582387c21",
+  "old_log_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REVIEW/_run_records/k4_review/delta/mutations/logs/RV19-D2.log",
+  "old_log_sha256": "b57f075f862863b67cded1a7a7ea9131ca8b58e737c6483376aaf916b1c3e21c",
+  "old_focused_unit_test": "PASS",
+  "old_actual_killing_filter": "structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit",
+  "old_assertion": "classification_tests.rs96/set19 row20 bound_bits2 vs3",
+  "source_mapping_error": "Recovered focused amendment filter is not the historical killing filter; fault itself is unchanged and non-equivalent."
+}

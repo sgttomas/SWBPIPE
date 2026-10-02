@@ -1,0 +1,1750 @@
+[
+  {
+    "id": "RF-CANCEL-F-G1e5-GnG",
+    "source_sha256": "2e0c0485c0a81f3225a5e53e493e0b08db86f2572bc2897e73cb2e19aa2eb7f7",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e5-GGn",
+    "source_sha256": "4996a20d203838eb5513b1945b4e00f5fe6a7d842727c1680c69f5a2e8835e9d",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e5-nGG",
+    "source_sha256": "e7bd5bac69e453bb344e7928654f0ae32f4f4c730f74c2f1ad80602ec5889276",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e6-GnG",
+    "source_sha256": "fc4b5ccfea1bd1c4b436bce849d43693de93857a3f8f8422099f97b9afc71e92",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e6-GGn",
+    "source_sha256": "4a9f0ce35e50bcfac8f3882e15fe1e7d75a3bfab0d7c68e7f62f5fc377fc8b02",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e6-nGG",
+    "source_sha256": "36f476728df2e80ae98a54c790ec48022bdc48a6bb20a3aeb32b278e9eea6fae",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e7-GnG",
+    "source_sha256": "91af98aceebac4597daede4fe1e0e4c244e333b14f737808bded067dd6faec4f",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e7-GGn",
+    "source_sha256": "2cc1a4764d0fe31ac4e9fe23176db98918925d1660c764e62d145cebc80f5a5f",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e7-nGG",
+    "source_sha256": "202b425b2503838dd02d47398f915e93d6a0aca8f8648771dced4d1773a422a2",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e8-GnG",
+    "source_sha256": "fbc822b3dd381c8976a0dc382f4cf4c314e0d1796b7412187d2157b1d0224060",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e8-GGn",
+    "source_sha256": "e854eb91d04e507f43c6fdbe3af27ffd11c5cf22181a4ab580ecf271d4a12138",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e8-nGG",
+    "source_sha256": "328c40de7e134b81642e0ef99cf1e9b58104f66d66115c81a681ebfe411fd4da",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+    "source_sha256": "65f98c687fdc493893a4c323e5bc95d48ab1d24c0bf676c74fc0b93ca3bfa6ae",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e8-GnG-INPLANE",
+    "source_sha256": "67faa69dc2327aaa157d66d24020dd307fade6d99e62bda6a0d6e7a13853e14c",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e80-GnG",
+    "source_sha256": "3e9ae180e300647a6b0a38473fa7ab8beaeacdc68e2656bf2aef9f84a0ca09ba",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e80-GGn",
+    "source_sha256": "06f84bba7ed5f50420a6b9db629c4cb7658addc1f46ee28c95adf671fc18ff3d",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e80-nGG",
+    "source_sha256": "5bd3d341d8a684f89a1227f130609bffb64f0fd44dd8ceb88c1525725b340e8c",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+    "source_sha256": "b05da6d8109589f03f17157dcf182aeecbe9f2ae0ee7d82593fc35ff9026e4a6",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-F-G1e80-GnG-INPLANE",
+    "source_sha256": "0cf88d3b842bbcc10085c666548b583d6a3e71c6ade96ac3421ef665a8b1b8b9",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e5-GnG",
+    "source_sha256": "3214c9d20d132b6146469b5bb80e6b5cec20cef0ec0db85b329bb89506d3022a",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e5-GGn",
+    "source_sha256": "6c64d2e362fba2d19b3aaccabe5668a2bbcafc3247527e7c50d0253f55de6e54",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e5-nGG",
+    "source_sha256": "33b024816d7a21892ef6606bbbdb950136f68c4235d8e6cebd1e701616394695",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e6-GnG",
+    "source_sha256": "1f88b3796eb7ef7a0f19de2a20df797668e4d1d328528e1ee4526dee02a98771",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e6-GGn",
+    "source_sha256": "4bf74e0e3cd28d000ce75dd714832d26bdd0869d6a5e076af1126e9e998ff336",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e6-nGG",
+    "source_sha256": "f66e7f492850b8d677b07e1b02909f074acd49e8d22bedb69b5600dc2a116e67",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e7-GnG",
+    "source_sha256": "c5229359e41028a363e0ff62acae7d642a11b786873ec97fe1d114a4d207c46a",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e7-GGn",
+    "source_sha256": "444adbb37c60507f044b748edd89d16ac318b399e05e051d6444032f51871778",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e7-nGG",
+    "source_sha256": "266b7c7ed01f3005c79f95d2b28c97b9d07f96e2b73879fae67682befd003d43",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e8-GnG",
+    "source_sha256": "8563b21e543b81ef4906f6973dff4549334f4fcd5825d0abe74d63db98d3a3a2",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e8-GGn",
+    "source_sha256": "cbc72c41abb0e41fd525dcb02a4b254a7169f9cf744d7fe4a462ebc136d514ce",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e8-nGG",
+    "source_sha256": "e79afc173f534572be04b1e27466a33523cf48fa81ff81b53ff6aa632c0666ed",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e8-GnG-ORTHO",
+    "source_sha256": "9a0bcaa2ab9622fab993f1df582d06325b9e0ddc8822cfa686c1b5d57e1eb513",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e8-GnG-INPLANE",
+    "source_sha256": "22842a94197b1207b082137af24810c119e1ee2a093a1242d629bceaffeba023",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e80-GnG",
+    "source_sha256": "915c044d6bc67fb67d8122dc8b6c4a47b48683c59a88a0585a53cb6a369ab8ec",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e80-GGn",
+    "source_sha256": "bac06890aa530985394337bea2072454fb7bbb1ef6cdd39083ec439b9fe3366c",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e80-nGG",
+    "source_sha256": "56477119fc290ee12d39b18580df8176bbb82ed03fcd929bfa1f4d0c6a6ff16d",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+    "source_sha256": "f99f14b6889a4f179ca54d3075049e2e6dfa84b5f5cb76a5bac98fbc5ac8b38f",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  },
+  {
+    "id": "RF-CANCEL-M-G1e80-GnG-INPLANE",
+    "source_sha256": "1afa033c40afd75f97fa6538ad908c8b6c4c7b104a9e7fe8fb78788eb22d4490",
+    "NONE_sequence": [
+      [
+        128,
+        "Candidate",
+        "Accepted"
+      ],
+      [
+        256,
+        "Verification",
+        "Verified"
+      ]
+    ],
+    "F17_sequence": [
+      [
+        128,
+        "Candidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        256,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        512,
+        "VerificationThenCandidate",
+        "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+      ],
+      [
+        1024,
+        "Verification",
+        "Solved"
+      ]
+    ],
+    "diagnostic_source_inference": "Named PublicationEnclosure is emitted only after standing R7 Ok(true), by the reviewed relative branch. All candidates fail PublicRelative at the actual recorded row.",
+    "not_exposed": [
+      "draft value/class",
+      "exactH/radius",
+      "later unchecked-row predicates"
+    ],
+    "CLASS_credit": false,
+    "independent_prevention_qualification": "PENDING"
+  }
+]

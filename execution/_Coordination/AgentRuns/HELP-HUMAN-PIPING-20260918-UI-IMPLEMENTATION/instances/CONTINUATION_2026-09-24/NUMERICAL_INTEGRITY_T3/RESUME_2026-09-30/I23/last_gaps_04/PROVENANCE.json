@@ -1,0 +1,92 @@
+{
+  "role": "existing TASK Type2 I23",
+  "native_agent": "/root/i23_protected_prep",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "native followup_task; no children",
+  "start_utc": "2026-10-01T13:35:22Z",
+  "return_boundary_utc": "2026-10-01T13:39:17Z",
+  "elapsed_seconds": 235.4,
+  "ceiling_utc": "2026-10-01T13:55:22Z",
+  "brief": {
+    "requested_NUM_revision": "0b020c5d93412c3d5b798dea4af414a75aad53f7",
+    "actual_read": "NUM working-tree bytes at supplied path; no Git command used",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I23_LAST_GAPS_04.md",
+    "sha256": "8c8bccd31a466cc1630252bd59a4e39c3ef60d2f7e57e5e0eb64937afcb78e4c"
+  },
+  "carried_instructions": [
+    {
+      "path": "AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I23_PROTECTED_PREP.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "09ff7d95a7b3273d250b317ee502ba7dc71f46b4d0dfb071d69590840420532f"
+    }
+  ],
+  "source_archive": {
+    "path": "<wt>/scratch/i23/discriminators_g2/immutable_40129_fk.tar",
+    "sha256": "25c4d1299803d4b60770ea9cc7487564f4e40c6bc93400c2bb607d5241a0aa95"
+  },
+  "reviewer_inputs": {
+    "GAPS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/GAPS.json",
+      "sha256": "1eb06e808e9396f8197cdf531f3fb7be179af3f5ca479216c39ce46880155b56"
+    },
+    "ARITHMETIC_WITNESSES.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/ARITHMETIC_WITNESSES.json",
+      "sha256": "fd2ac76b8235402db6a818dbd721937f595c65a23a1719fa4e17561db9ae4337"
+    },
+    "SHA256SUMS": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/SHA256SUMS",
+      "sha256": "91be123e9de71fa40c61869fb61e689561365548bec76632f2e975b2aca3b697"
+    }
+  },
+  "original_registration": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/_run_records/c/mutants.py",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "sha256": "be74c80468b2e4b263a755f29cdfbd7b5921fb87da92ded62e672d685e9294ce",
+    "line": 401
+  },
+  "parent_scope_confirmation": "ROOT confirmed: preserve SPRING-CARRIED unchanged as existing one-free-DOF pattern carrier; rederive exact scaling/condition steps; helper/setup assertions distinct from qualifying rcond equality; no runtime inference.",
+  "script": {
+    "path": "<wt>/scratch/i23/last_gaps_04/prepare.py",
+    "sha256": "abb957a6bfaa885dec2cb243f87f3276c69d502566c42dd3e5eedd6bde565390"
+  },
+  "command": [
+    "<VENV>/bin/python",
+    "-B",
+    "<wt>/scratch/i23/last_gaps_04/prepare.py"
+  ],
+  "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "write_fences": [
+    "<A1>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/last_gaps_04",
+    "<wt>/scratch/i23/last_gaps_04"
+  ],
+  "enforcement": "Prompt scope on shared unrestricted filesystem, not OS sandbox",
+  "counts": {
+    "Git_commands": 0,
+    "Git_index_writes": 0,
+    "Rust": 0,
+    "solver": 0,
+    "maintained_edits": 0,
+    "delegation": 0
+  },
+  "prior_protected_seal_unchanged": "026823c7ad17e0415f679c37ef5dd854a05086e963e82c2aa3bd752b083e497e"
+}

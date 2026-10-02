@@ -1,0 +1,6 @@
+
+running 1 test
+test structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 390 filtered out; finished in 34.35s
+

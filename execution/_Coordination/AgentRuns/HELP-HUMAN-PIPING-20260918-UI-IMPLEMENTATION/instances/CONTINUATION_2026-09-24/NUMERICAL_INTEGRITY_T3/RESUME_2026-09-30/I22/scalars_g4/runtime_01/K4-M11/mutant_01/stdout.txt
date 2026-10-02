@@ -1,0 +1,11 @@
+
+running 1 test
+test structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis ... FAILED
+
+failures:
+
+failures:
+    structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.04s
+

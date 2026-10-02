@@ -1,0 +1,8 @@
+# V-K bounded runtime dispatch
+
+G3 runtime obligations completed/sealed/slot-free with separate preserved tail/R33/restoredR46 evidence. Full conditional NUM196547c22be60f164394378ea118c5367c69fbde R/BRIEFS/A1_VK_RUNTIME_01.md reread. Existing I22 actually resumed via collaboration.followup_task; actual start17:53:50 UTC2026-10-01, hard end18:38:50.
+
+Frozen I23 vk_prep_05 basis942572 (40129-identical source,11 independently reviewed observation paths),189 files. Manager read full RV29 vk_prep_10 review and actual whole-family scope:53 fresh processes plus two distinct builds. First seeded-faults debug adapter/lane/parity harnesses; then normal seeded-faults release vk_records example. Each build awaits independent manager release; direct schedule awaits artifact pinning and separate release. Full raw fingerprints retained, no rounded numeric IDs.
+
+Only fixed fault values/argv/filters/field projections qualify; F17CLASS three InputDerived exceptions, F06 specificTHIN R7 verdict, UNKNOWN exact unsupported value. Whole-family execution counts matter despite --show. One A1 Cargo, same installed/offline/locked4/2/guard; five-minute inspection/stop and45-minute total, no automatic extension. No --write/new collector/driver/patch/test/example/criterion/tool/source/Git/index/delegation change. Final acceptance remains ROOT-owned.
+ROOT native records update: A1 53d42d712d69bf1b1eddeefa7b98ec3f52fc20ad committed G3 runtime06;9ef9508dea8205297631299b3c384a3cd5185bef moves13 RV29 packets byte-preservingly under _run_records. REVIEW_EVIDENCE_RELOCATION_2026-10-01.json maps old/current prefixes. vk_prep_10/I23 prep/runtime sources/binaries/active evidence are unchanged. Historical fields stay historical; no repair/copyback or grant change.

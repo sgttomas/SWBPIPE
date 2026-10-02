@@ -1,0 +1,25 @@
+{
+  "calculation": {
+    "H_low": -1074,
+    "H_high": 0,
+    "b2_exponent": 1,
+    "b1_exponent": 0,
+    "H_span": 1075,
+    "b2_minus_H_span": 1076,
+    "b1_minus_H_span": 1075,
+    "b2_anchor_shift": 1075,
+    "b2_shift_new_used": 19,
+    "b2_shift_lme": 38
+  },
+  "source_candidate": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1",
+  "identical_helpers_at_candidate_01": "3cf296e36645d97e4c657c8ad1a6322bc4163f16",
+  "source_sha256": {
+    "adaptive.rs": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+    "wide_sum.rs": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188"
+  },
+  "old_ledger_manifest_sha256": "8fe24165f9905950280a78c672bada583d819d3946b95abcaa28d574ff38209b",
+  "old_packet_seal_intact": true,
+  "timestamp_utc": "2026-10-01T07:09:11.167855+00:00",
+  "trigger": "ROOT reported author PC40 max_span mismatch after prior independent ledger freeze; RV29 then rederived the maximum from pinned source, without using the observed counter as arithmetic input.",
+  "executed": "Existing VENV Python -B, standard-library integer arithmetic only; no Rust rerun."
+}

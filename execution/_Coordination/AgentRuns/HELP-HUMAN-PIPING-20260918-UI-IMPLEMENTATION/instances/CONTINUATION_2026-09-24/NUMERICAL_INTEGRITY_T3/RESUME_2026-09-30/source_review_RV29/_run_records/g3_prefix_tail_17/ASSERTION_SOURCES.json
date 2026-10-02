@@ -1,0 +1,103 @@
+[
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+    "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+    "ranges": [
+      {
+        "start": 99,
+        "end": 135,
+        "text": "pub(super) fn scale_at<const L: usize, const R: usize>(\n    p: u32,\n    q: u32,\n    prep: &CasePrep,\n    group: &GroupPrep,\n    recs: &[Vec<&str>],\n) where\n    Wide<L>: SupportedWidth,\n    Wide<R>: SupportedWidth,\n{\n    let name = recs[0][1];\n    let guard = StageGuard::unlimited();\n    let shared = build_shared::<L, R>(p, q, &prep.source, group, guard).result;\n    let solved = shared\n        .as_ref()\n        .map_err(|s| s.clone())\n        .and_then(|sh| solve_case_at::<L, R>(sh, prep, group, guard).result);\n    if recs[0][3] == \"stop\" {\n        let stop = solved.expect_err(name);\n        assert_eq!(stop_name(&stop), recs[0][4], \"{name} {p}\");\n        return;\n    }\n    let shared = shared.unwrap();\n    let solved = solved.unwrap_or_else(|e| panic!(\"{name} {p}: {e:?}\"));\n    assert_eq!(\n        solved.corrections.to_string(),\n        recs[0][4],\n        \"{name} {p} corrections\"\n    );\n    let mut ctx = WideContext::<L>::new(p).unwrap();\n    let mut sum = ExactWideSum::new();\n    let source = &prep.source;\n    let bounded: Vec<BoundedCoefficients<L>> = shared.members.iter().map(|m| m.bounded()).collect();\n    let abar = assemble_bounded(\n        &mut ctx,\n        &mut sum,\n        &guard,"
+      },
+      {
+        "start": 176,
+        "end": 203,
+        "text": "            \"abar\" => {\n                let mut entries: Vec<(usize, usize, usize)> = group.structure.entries().collect();\n                entries.sort_unstable();\n                let lines: Vec<String> = entries\n                    .iter()\n                    .map(|&(r, c, index)| format!(\"{r} {c} {}\", tok(&abar[index])))\n                    .collect();\n                assert_eq!(digest(&lines), f[3], \"{name} {p} \u0100\");\n            }\n            \"erows\" => assert_eq!(digest(&erows), f[3], \"{name} {p} E rows\"),\n            \"erow\" => explicit.push(format!(\"{} {}\", f[3], f[4])),\n            \"ebody\" => {\n                let b: usize = f[3].parse().unwrap();\n                let eh = e_hat(resolution[b], prep.extents[b]);\n                let values = [\n                    resolution[b][0],\n                    resolution[b][1],\n                    eh[0],\n                    eh[1],\n                    phi_512(eh[0]),\n                    phi_512(eh[1]),\n                ];\n                let got: Vec<String> = values\n                    .iter()\n                    .map(|v| format!(\"{:016x}\", v.to_bits()))\n                    .collect();\n                assert_eq!(got, f[4..10].to_vec(), \"{name} {p} body {b}\");\n            }"
+      },
+      {
+        "start": 625,
+        "end": 652,
+        "text": "    // BLOCK-PRESC: the unloaded block's only data is its pattern coupling to\n    // the nonzero prescription ux(2) = 1e-3 (its state is exactly zero).\n    let (prep, g) = blocks_of(\"BLOCK-PRESC\");\n    assert_eq!(g.blocks.len(), 2);\n    let u = vec![Wide::<4>::ZERO; prep.source.dof_count()];\n    let presc: Vec<bool> = (0..prep.source.dof_count())\n        .map(|d| prep.source.constraint(d).is_some_and(|v| v != 0.0))\n        .collect();\n    let with = data_blocks(\n        &g.blocks,\n        &g.ordering,\n        &g.structure,\n        &prep.ledger,\n        &presc,\n        &u,\n    );\n    let without = data_blocks(\n        &g.blocks,\n        &g.ordering,\n        &g.structure,\n        &prep.ledger,\n        &vec![false; presc.len()],\n        &u,\n    );\n    // Block 0 carries the load; block 1 has data only through the coupling.\n    assert_eq!(with, vec![true, true]);\n    assert_eq!(without, vec![true, false]);\n}"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+    "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+    "ranges": [
+      {
+        "start": 1029,
+        "end": 1055,
+        "text": "    let r = report.unwrap_or_else(|e| panic!(\"{name} {p}: {e:?}\"));\n    let head = &recs[0];\n    let got = [\n        r.q_w.to_string(),\n        r.uc_missing.map_or(\"-\".to_string(), |b| b.to_string()),\n        r.g_violation.map_or(\"-\".to_string(), |g| g.to_string()),\n    ];\n    assert_eq!(got.to_vec(), head[4..7].to_vec(), \"{name} {p} chg\");\n    let mut blocks_seen = 0;\n    let mut bodies_seen = 0;\n    for f in &recs[1..] {\n        match f[0] {\n            \"chgrows\" => {\n                let r_hat: Vec<Option<Wide<L>>> = r.r_hat.iter().map(|v| Some(*v)).collect();\n                let delta: Vec<Option<Wide<L>>> = r.delta.iter().map(|v| Some(*v)).collect();\n                let got = [\n                    rows_digest(&r_hat),\n                    rows_digest(&delta),\n                    rows_digest(&r.w),\n                    rows_digest(&r.a_s),\n                    rows_digest(&r.charge),\n                    rows_digest(&r.w_plus),\n                ];\n                let labels = [\"r\u0302\", \"\u03b4\u0302\", \"\u0174\", \"\u2016\u0101_q S\u2016\u2081\", \"C\", \"W\u207a\"];\n                for (k, label) in labels.iter().enumerate() {\n                    assert_eq!(got[k], f[3 + k], \"{name} {p} {label}\");\n                }"
+      },
+      {
+        "start": 1485,
+        "end": 1525,
+        "text": "fn verdict<const L: usize>(\n    layout: &[QuantityMeta],\n    candidate: &Wide<L>,\n    verification: &Wide<L>,\n    r: &VerificationReport<L>,\n) -> Option<Rejection>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    let d = decide(\n        layout,\n        &[0.0],\n        std::slice::from_ref(candidate),\n        std::slice::from_ref(verification),\n        r,\n        StageGuard::unlimited(),\n    );\n    assert!(d.result.is_ok(), \"{:?}\", d.result);\n    d.rejection\n}\n\n#[test]\nfn sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order() {\n    let layout = force_row();\n    let one = Wide::<4>::ONE;\n    let zero = Wide::<4>::ZERO;\n    let half = one.mul_pow2(-1).unwrap();\n    let e = support::pow2(-4);\n    let big_p = 256i64;\n    let mut ctx = WideContext::<4>::new(256).unwrap();\n    // (a), force kind: |\u0394| = \u03b5\u00b7M \u2212 V with M = 1 and V = \u00ea\u00b72^(8\u2212P) = 2^-252.\n    let v = Wide::<4>::from_f64(e).unwrap().mul_pow2(8 - big_p).unwrap();\n    let delta = ctx.sub(&one.mul_pow2(-64).unwrap(), &v).unwrap();\n    let candidate = ctx.add(&one, &delta).unwrap();\n    let clean = report(256, e, Some(zero), Some(zero), None, zero);\n    assert_eq!(verdict(&layout, &candidate, &one, &clean), None);\n    let above = ulp_above(&candidate, big_p);\n    assert_eq!(\n        verdict(&layout, &above, &one, &clean),\n        Some(Rejection::StopRule { index: 0 })\n    );"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+    "sha256": "94ee29a25bee27b2a21f31212a49a1ac7c6cee72796aa95a13158ab5bc0dcbc8",
+    "ranges": [
+      {
+        "start": 85,
+        "end": 117,
+        "text": "fn run_targeted<const L: usize>(p: u32, terms: &[&str], expect: &str) -> bool\nwhere\n    Wide<L>: SupportedWidth,\n{\n    let mut c = ctx::<L>(p);\n    let mut sum = ExactWideSum::new();\n    let mut refused = None;\n    for t in terms {\n        if let Err(r) = add_term(&mut sum, &mut c, t) {\n            refused = Some(r);\n            break;\n        }\n    }\n    let got = match refused {\n        Some(r) => r,\n        None => match sum.round(&mut c) {\n            Ok(v) => {\n                assert_eq!(tok(&v), expect, \"p {p} terms {terms:?}\");\n                if expect == \"Z+\" {\n                    assert!(!v.is_sign_negative(), \"exact zero must be +0\");\n                }\n                return true;\n            }\n            Err(r) => r,\n        },\n    };\n    let expected = match expect {\n        \"refuse:span\" => SumRefusal::Span,\n        \"refuse:exponent\" => SumRefusal::Exponent,\n        other => panic!(\"p {p} terms {terms:?}: refused {got:?}, expected {other}\"),\n    };\n    assert_eq!(got, expected, \"p {p} terms {terms:?}\");\n    false"
+      },
+      {
+        "start": 158,
+        "end": 220,
+        "text": "#[test]\nfn rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it() {\n    let mut c = ctx::<4>(128);\n    let one_plus = w_value::<4>(false, 0, &[1, 1 << 63]); // 1 + 2^-127\n    let half = w_value::<4>(false, -128, &[1]);\n    let far = w_value::<4>(true, -400, &[1]);\n    let mut sum = ExactWideSum::new();\n    for t in [&one_plus, &half, &far] {\n        sum.add_wide(t, false).unwrap();\n    }\n    let once = sum.round(&mut c).unwrap();\n    assert_eq!(tok(&once), tok(&one_plus));\n    // The fold at p (the mutant K4-M1's arithmetic) gives 1 + 2^-126.\n    let a = c.add(&one_plus, &half).unwrap();\n    let folded = c.add(&a, &far).unwrap();\n    assert_ne!(tok(&folded), tok(&once));\n}\n\n#[test]\nfn zero_negation_absolute_value_and_reuse() {\n    let mut c = ctx::<8>(320);\n    let mut sum = ExactWideSum::new();\n    let x = lift::<8>(-3.5);\n    sum.add_wide(&x, false).unwrap();\n    sum.add_binary64(3.5, false).unwrap();\n    assert!(sum.is_zero());\n    let z = sum.round(&mut c).unwrap();\n    assert!(z.is_zero() && !z.is_sign_negative());\n    sum.clear();\n    let empty = sum.round(&mut c).unwrap();\n    assert!(empty.is_zero() && !empty.is_sign_negative());\n    sum.add_binary64(-2.0, false).unwrap();\n    assert_eq!(sum.signum(), -1);\n    sum.make_absolute();\n    assert_eq!(tok(&sum.round(&mut c).unwrap()), tok(&lift::<8>(2.0)));\n    sum.negate();\n    assert_eq!(tok(&sum.round(&mut c).unwrap()), tok(&lift::<8>(-2.0)));\n    // add_scaled: 3\u00b72^5\u00b7(\u22122) + 192 = 0 exactly.\n    let mut other = ExactWideSum::new();\n    other.add_scaled(&sum, false, 3, 5).unwrap();\n    other.add_binary64(192.0, false).unwrap();\n    assert!(other.is_zero());\n    // Work is charged (term limbs, nettings, the from_integer length).\n    let w = sum.work();\n    assert!(w.term_limbs > 0 && w.net_limbs > 0 && w.rounded_limbs > 0);\n    assert_eq!(\n        w.limb_multiply_equivalents(),\n        w.term_limbs + w.shift_limbs + w.net_limbs + w.rounded_limbs\n    );\n}\n\n#[test]\nfn a_refused_span_adds_nothing() {\n    let mut c = ctx::<4>(128);\n    let mut sum = ExactWideSum::new();\n    sum.add_binary64(1.0, false).unwrap();\n    let far = w_value::<4>(false, -8128, &[1]);\n    assert_eq!(sum.add_wide(&far, false), Err(SumRefusal::Span));\n    // The value is unchanged by the refused term.\n    assert_eq!(tok(&sum.round(&mut c).unwrap()), tok(&lift::<4>(1.0)));\n    let near = w_value::<4>(false, -8127, &[1]);\n    sum.add_wide(&near, false).unwrap();\n    assert_eq!(sum.work().max_span_bits, 8128);"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+    "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922",
+    "ranges": [
+      {
+        "start": 99,
+        "end": 126,
+        "text": "#[test]\nfn the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero() {\n    let rows = rows();\n    assert!(rows.len() > 400);\n    let mut cancelled = 0;\n    for row in &rows {\n        let acc = accumulate(&row.values);\n        let (negative, magnitude, exponent) = acc.net_parts();\n        assert_eq!(exponent, -2148, \"the 2^-2148 quantum\");\n        assert_eq!(magnitude.len(), 68);\n        let got = canonical(negative, &magnitude, exponent);\n        assert_eq!(got, row.net, \"{:?}\", row.values);\n        if magnitude.iter().all(|&l| l == 0) {\n            assert!(!negative, \"a zero is (+, 0)\");\n            cancelled += 1;\n        }\n        // Netting agrees with the accumulator's own sign.\n        assert_eq!(\n            acc.signum(),\n            if magnitude.iter().all(|&l| l == 0) {\n                0\n            } else if negative {\n                -1\n            } else {\n                1\n            }\n        );\n    }"
+      },
+      {
+        "start": 232,
+        "end": 297,
+        "text": "fn the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie() {\n    // A member along x, L = 1, E\u00b7A = 2^20 (so EA/L = 2^20 exactly at any p);\n    // u_j prescribed at 2^-20, so \u2212K_ij\u00b7u_j = 1 exactly; the ledger at u_i is\n    // 2^-128 + 2^-400. The exact rhs 1 + 2^-128 + 2^-400 rounds up at p = 128 to\n    // 1 + 2^-127; the ledger rounded to p first (2^-128: its tail is 272 bits\n    // below) would make a tie that rounds to even, 1 (the mutant K4-M8).\n    let member = StraightMember {\n        id: 1,\n        node_i: 0,\n        node_j: 1,\n        elastic_modulus: 1024.0,\n        shear_modulus: 1.0,\n        area: 1024.0,\n        second_moment_y: 1.0,\n        second_moment_z: 1.0,\n        torsion_constant: 1.0,\n        y_reference: [0.0, 0.0, 1.0],\n    };\n    let mut parts = SourceParts {\n        nodes: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],\n        members: vec![member],\n        ..Default::default()\n    };\n    for c in 1..6 {\n        parts.constraints.push(Constraint {\n            dof: dof(0, c),\n            value: 0.0,\n        });\n    }\n    for c in 0..6 {\n        parts.constraints.push(Constraint {\n            dof: dof(1, c),\n            value: if c == 0 { support::pow2(-20) } else { 0.0 },\n        });\n    }\n    parts.loads.push(NodalLoad {\n        dof: dof(0, 0),\n        value: support::pow2(-128),\n        source_id: \"a\".into(),\n    });\n    parts.loads.push(NodalLoad {\n        dof: dof(0, 0),\n        value: support::pow2(-400),\n        source_id: \"b\".into(),\n    });\n    let source = PrimitiveSource::new(parts).unwrap();\n    let ledger = RetainedLedger::from_source(&source).unwrap();\n    let structure = Structure::new(&source).unwrap();\n    let mut c = ctx::<4>(128);\n    let mut sum = ExactWideSum::new();\n    let guard = StageGuard::unlimited();\n    let members = form_members(&mut c, &mut sum, &guard, &source).unwrap();\n    let k = assemble(&mut c, &mut sum, &guard, &source, &structure, &members, &[]).unwrap();\n    let kij = k[structure.pattern.find(0, 6).unwrap()];\n    assert_eq!(tok(&kij), tok(&lift::<4>(-(support::pow2(20)))));\n    let u: Vec<Wide<4>> = (0..source.dof_count())\n        .map(|g| lift::<4>(source.constraint(g).unwrap_or(0.0)))\n        .collect();\n    let rhs = reduced_rhs(&mut c, &mut sum, &source, &structure, &k, &ledger, &[0], &u).unwrap();\n    let expect = w_value::<4>(false, 0, &[1, 1 << 63]); // 1 + 2^-127\n    assert_eq!(tok(&rhs[0]), tok(&expect));\n    // The ledger's projection alone loses the tail (so a pre-rounded ledger\n    // would give the tie's even neighbour, 1).\n    let projected = ledger.project(0, &mut c).unwrap();\n    assert_eq!(tok(&projected), tok(&lift::<4>(support::pow2(-128))));\n}"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+    "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+    "ranges": [
+      {
+        "start": 3,
+        "end": 5,
+        "text": "abar N01 128 a0f66e76549d2721e95a08c338fab289bdb0b08869389a1ea91277aded74bc5c\nerows N01 128 c11236a4aa72552a8a49b50e95efb5424531ce6fc2f2bfa26602d6764f022622\nebody N01 128 0 4112d6cd33637a1c 40c9640000000001 4112d6cd33637a1c 4122d6cd33637a1c 25b2d6cd33637a1c 25c2d6cd33637a1c"
+      },
+      {
+        "start": 853,
+        "end": 853,
+        "text": "scale TWO-SPAN 128 state 1"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "ranges": [
+      {
+        "start": 407,
+        "end": 407,
+        "text": "chgrows PRESCRIBED 256 ba6334008b8c9fc424b18957ff428d17b458500c85f3785979961032de21ea78 8f2dea73719a91f321c7bef9a4aa1513cd3e3dd4c4654616d38ca86296cf3505 854f72fcb29c53de07f8ffa0db13edcae5658166a0bf39f1bad0924997b922be 1326a8567b2bb561fcadd5833fbadf048e91586cb8108737afa22733b38af1f3 388f3f28e20dad370ee8317cb68c3189ecffed5f57d8334ca07b6d2e7b878e32 1e2d1adb1012800043f14df523c434643448b9dc60e03742bbcd79fdaeac821b"
+      },
+      {
+        "start": 1172,
+        "end": 1172,
+        "text": "chgrows SEEDED-COMMON 256 8471078ce047965a13a8f045f729f4845dff7181dcfddcfc14f60b6fa6b08a58 3a4e3dfdbcd96ada32b25fd8897d8ff626db1244fa46d33ae52069bc5c0d448e a9700ca32b9170048bd1de22a465db845d6271822f3cfcd82ba759a810e60187 98e9463bca0646d7fbd8c6b1960a6f8796f5db8ed849960c9bf215756d3095c3 d348bc104165a680f478e15fa6e10e31f3ea4f99ec5aa28e48b535253bc50bd4 bd2f34cea6cc70df7179fad9955757da57984239563121e69aab085d4acd9737"
+      }
+    ]
+  }
+]

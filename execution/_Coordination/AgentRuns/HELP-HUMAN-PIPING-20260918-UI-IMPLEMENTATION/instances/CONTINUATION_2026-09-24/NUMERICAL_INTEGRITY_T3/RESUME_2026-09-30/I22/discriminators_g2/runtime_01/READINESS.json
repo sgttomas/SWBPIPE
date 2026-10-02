@@ -1,0 +1,116 @@
+{
+  "start_utc": "2026-10-01T14:44:27Z",
+  "fixed_end_utc": "2026-10-01T15:14:27Z",
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "seals": [
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/discriminators_g2/SHA256SUMS",
+      "sha256": "97076c043e99328ef7aa3cd68088e468bc35431e26b375fa03262d3fcabd8d26",
+      "entries_verified": 7
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/runtime_07/SHA256SUMS",
+      "sha256": "abf0c03a6142d6924db0ff901f719441c5db640b2c76b6278de54838a7ccbdf5",
+      "entries_verified": 7
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/runtime_07/unit_erratum_01/SHA256SUMS",
+      "sha256": "f8eab7f648c45f1b330f9e692c9845f81c46418380599c18bccba4b96418645d",
+      "entries_verified": 2
+    }
+  ],
+  "source_manifest_sha256": "17e2ec926c1b59db4f2a7bf5da752b9bab5df3f6cbb0e3d2ef6ad2febda8221e",
+  "copies_sha256": "d3fb48b752c64c0ee7828fa52b3a3d8ace202d016b91bcce7f11e7d52554a6de",
+  "proposal_sha256": "9c685af550e4e3c14684812e9352e65eef2874bf7c8f1cabcaa823dadf10c8c9",
+  "overlay_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+  "archive_sha256": "25c4d1299803d4b60770ea9cc7487564f4e40c6bc93400c2bb607d5241a0aa95",
+  "copies": [
+    {
+      "id": "BASELINE",
+      "source": "<wt>/scratch/i23/discriminators_g2/sources/BASELINE",
+      "target": "<wt>/a1-diagnostic-target/g2/BASELINE",
+      "file_count": 116,
+      "matches_prepared_manifest": true,
+      "no_symlinks_or_hardlinks": true,
+      "target_empty": true
+    },
+    {
+      "id": "R7-M25",
+      "source": "<wt>/scratch/i23/discriminators_g2/sources/R7-M25",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M25",
+      "file_count": 116,
+      "matches_prepared_manifest": true,
+      "no_symlinks_or_hardlinks": true,
+      "target_empty": true
+    },
+    {
+      "id": "R7-M26",
+      "source": "<wt>/scratch/i23/discriminators_g2/sources/R7-M26",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M26",
+      "file_count": 116,
+      "matches_prepared_manifest": true,
+      "no_symlinks_or_hardlinks": true,
+      "target_empty": true
+    },
+    {
+      "id": "R7-M28",
+      "source": "<wt>/scratch/i23/discriminators_g2/sources/R7-M28",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M28",
+      "file_count": 116,
+      "matches_prepared_manifest": true,
+      "no_symlinks_or_hardlinks": true,
+      "target_empty": true
+    },
+    {
+      "id": "R7-M29",
+      "source": "<wt>/scratch/i23/discriminators_g2/sources/R7-M29",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M29",
+      "file_count": 116,
+      "matches_prepared_manifest": true,
+      "no_symlinks_or_hardlinks": true,
+      "target_empty": true
+    },
+    {
+      "id": "R7-M3",
+      "source": "<wt>/scratch/i23/discriminators_g2/sources/R7-M3",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M3",
+      "file_count": 116,
+      "matches_prepared_manifest": true,
+      "no_symlinks_or_hardlinks": true,
+      "target_empty": true
+    },
+    {
+      "id": "R7-M4",
+      "source": "<wt>/scratch/i23/discriminators_g2/sources/R7-M4",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M4",
+      "file_count": 116,
+      "matches_prepared_manifest": true,
+      "no_symlinks_or_hardlinks": true,
+      "target_empty": true
+    },
+    {
+      "id": "R7-M5",
+      "source": "<wt>/scratch/i23/discriminators_g2/sources/R7-M5",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M5",
+      "file_count": 116,
+      "matches_prepared_manifest": true,
+      "no_symlinks_or_hardlinks": true,
+      "target_empty": true
+    },
+    {
+      "id": "R7-M9",
+      "source": "<wt>/scratch/i23/discriminators_g2/sources/R7-M9",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M9",
+      "file_count": 116,
+      "matches_prepared_manifest": true,
+      "no_symlinks_or_hardlinks": true,
+      "target_empty": true
+    }
+  ],
+  "unique_file_inodes": 1044,
+  "log_root": "<wt>/scratch/i23/discriminators_g2/runtime_01/logs",
+  "log_mode": "0o755",
+  "guard": "5387     1 03-13:09:40 /bin/bash <wt>/guard/memguard.sh",
+  "status": "AWAITING_MANAGER_BASELINE_COPY_RELEASE",
+  "rust_started": false
+}

@@ -1,0 +1,38 @@
+{
+  "before_sha256": "3708de522804fc325280e11857ef93509e7885404f836017d8e6b5b70a533e85",
+  "after_sha256": "b6313acb720917b3bfb549a049aacfe9097bf95f224ec7c001afc794164c1029",
+  "check_body_sha256": "fb78e41a07d518f9e709af48c8fccfcda10fad1d7dde281457d9aad91101e9d5",
+  "full_copy_scan": true,
+  "frozen_group_and_compile_binding": true,
+  "nonzero_throws_before_Cargo": true,
+  "postchecks_unchanged": true,
+  "exercises": [
+    {
+      "kind": "KNOWN_MISMATCH",
+      "source": "<wt>/scratch/i22/protected_g3/R15",
+      "expected": "frozen postimage against still-original source",
+      "exit_code": 1,
+      "raw_output": "Traceback (most recent call last):\n  File \"<stdin>\", line 26, in <module>\nAssertionError: ('POSTIMAGE', 'projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs')\n",
+      "threw_before_launch": true,
+      "continuation_marker_reached": false,
+      "actual_Rust_launches": 0,
+      "fake_manager_release": false,
+      "file_tampering": false
+    },
+    {
+      "kind": "MATCHING_SOURCE",
+      "source": "<wt>/scratch/i22/protected_g3/R15",
+      "expected": "original preimage against same original source",
+      "exit_code": 0,
+      "raw_output": "{\"status\": \"PASS\", \"id\": \"R15\", \"files\": 116, \"baseline_binary_sha256\": \"cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a\", \"guard_pid\": 5387}\n",
+      "threw_before_launch": false,
+      "continuation_marker_reached": true,
+      "actual_Rust_launches": 0,
+      "fake_manager_release": false,
+      "file_tampering": false
+    }
+  ],
+  "runtime_calls": 0,
+  "release_fabrication": false,
+  "file_tampering": false
+}

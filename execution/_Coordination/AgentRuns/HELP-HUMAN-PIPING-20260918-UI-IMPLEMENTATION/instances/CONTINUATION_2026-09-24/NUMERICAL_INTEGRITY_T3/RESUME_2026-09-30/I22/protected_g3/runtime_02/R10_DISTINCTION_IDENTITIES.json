@@ -1,0 +1,54 @@
+{
+  "runtime_id": "R10",
+  "registration": "R7_K4::K4-M3",
+  "frozen_criterion": "sum_targeted line2: 1+2^-128+2^-133 at p128 rounds up rather than truncating to1.",
+  "required": {
+    "line": 2,
+    "text": "sum 4 128 3 w:+8p0 w:+8p-128 w:+8p-133 = +80000000000000000000000000000001p0"
+  },
+  "first_reached": {
+    "line": 1,
+    "text": "sum 4 128 3 w:+80000000000000000000000000000001p0 w:+8p-128 w:-8p-400 = +80000000000000000000000000000001p0"
+  },
+  "corpus_sha256": "b4480589b78fa4eb4cf7a71bf91c43f22dbe6ba3602845f35082c18e852cd4a6",
+  "expected_witness_reached": false,
+  "control": "UNRUN",
+  "verdict": "NO_KILL_UNEXPECTED_WITNESS",
+  "source_files_verified": 232,
+  "R10_postimages": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "before_sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+      "after_sha256": "e76bcc7baf9395e588b7b6f2af42b02f45438ee86c03283637126ef09581e7d2"
+    }
+  ],
+  "binaries": {
+    "R10": {
+      "binary": {
+        "path": "<wt>/a1-protected-target/g3/R10/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "914d2eff3aad028a3165bf71219911c45964e2ef9a27293ff205447dd8f180b8"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-protected-target/g3/R10/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    "BASELINE_LIB": {
+      "binary": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    }
+  },
+  "prior_seal_verified": "cee82ef1f15fddb6cbb98ec872d35b863a52345724fac832ab753f8792adc3e3"
+}

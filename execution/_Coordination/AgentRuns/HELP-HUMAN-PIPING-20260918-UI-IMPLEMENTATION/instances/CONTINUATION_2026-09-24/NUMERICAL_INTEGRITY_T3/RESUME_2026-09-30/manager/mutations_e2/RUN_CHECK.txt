@@ -1,0 +1,4 @@
+PASS:73 stdout/stderr records match evidence; one named test each.38 intended failures,35 passes (1 initial+33 baseline-return+1 PM16c negative control).
+PASS:33 frozen variants semantic kills; source/postimage/patch/test/lock and34 exact binary hashes verified, empty feature/rustflag fingerprints and postrun guards.
+Manager read all semantic verdicts/failure loci and full accounting outputs. E1 PM03 original compiler failure remains separate.
+Initial manager hash check did not resolve RUN_TARGET alias and stopped before validation; corrected alias binding then verified all records. No source change or Rust run by manager.

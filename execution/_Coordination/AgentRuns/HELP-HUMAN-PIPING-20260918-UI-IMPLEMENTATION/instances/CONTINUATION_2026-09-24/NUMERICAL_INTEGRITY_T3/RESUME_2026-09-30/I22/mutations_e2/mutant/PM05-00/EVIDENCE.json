@@ -1,0 +1,43 @@
+{
+  "stdout": "\nrunning 1 test\ntest structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families ... FAILED\n\nfailures:\n\n---- structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families stdout ----\n\nthread 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' (24726587) panicked at src/structural/retained/../../../tests/retained_k4/publication_tests.rs:65:5:\nassertion `left == right` failed\n  left: -1\n right: 0\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s\n\n",
+  "stderr": "   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.67s\n     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)\nerror: test failed, to rerun pass `--lib`\n       12.18 real        14.32 user         0.53 sys\n          1253769216  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              154948  page reclaims\n                7771  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   2  signals received\n                 246  voluntary context switches\n                8137  involuntary context switches\n           205866990  instructions retired\n            75186716  cycles elapsed\n             6291936  peak memory footprint\n",
+  "stdout_sha256": "d95096c1af5d8e29dfd1b11ce6dba53e02b8fc092440031f4ef94c549cfe6e8c",
+  "stderr_raw_sha256": "e1c3e4ee5a861865000b986b350f8b2f582a499b055afcea408430277af475d8",
+  "source_sha256": "f0615e7a5c11caf9019f2c2d9f1dfea8597b5b63326889d9440f6da78472dc7f",
+  "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+  "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "binary": {
+    "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "790d34c1bc9765a9ae92e60421cac9960eaf4003085e63e78111a61bb65fc3ce"
+  },
+  "features": [
+    {
+      "path": "<RUN_TARGET>/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "metadata": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 8945848500906766827,
+        "path": 10763286916239946207,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/dep-test-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "guard_after": {
+    "exit": 0,
+    "stdout": " 5387     1 03-07:54:21 /bin/bash <HOME>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+  }
+}

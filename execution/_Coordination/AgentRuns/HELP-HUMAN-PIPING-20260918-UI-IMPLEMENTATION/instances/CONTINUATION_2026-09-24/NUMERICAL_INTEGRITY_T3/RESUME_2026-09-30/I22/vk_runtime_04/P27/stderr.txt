@@ -1,0 +1,22 @@
+
+thread 'rf_weak' (26827324) panicked at tests/lane.rs:75:5:
+RF-WEAK: 20 failures
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        1.63 real         1.62 user         0.00 sys
+             9256960  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 902  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  54  involuntary context switches
+         19743916442  instructions retired
+          4689160137  cycles elapsed
+             5538128  peak memory footprint

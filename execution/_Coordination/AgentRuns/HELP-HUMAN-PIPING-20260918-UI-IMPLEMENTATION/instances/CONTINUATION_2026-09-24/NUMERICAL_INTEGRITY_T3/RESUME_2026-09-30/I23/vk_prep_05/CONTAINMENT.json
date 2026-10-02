@@ -1,0 +1,1151 @@
+{
+  "archive_root": "<wt>/scratch/i23/vk_prep/archive",
+  "target_root": "<wt>/a1-vk-target",
+  "log_root": "<wt>/scratch/i23/vk_prep/logs",
+  "exact_host_bindings": {
+    "path": "<wt>/scratch/i23/vk_prep/logs/HOST_PATHS.json",
+    "sha256": "37e377a051d5eb7ef9eb376bd34c1333cb162cc3b9b2be4dbd1c3da7bed6bafd"
+  },
+  "archive_files": 189,
+  "inodes": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/.gitignore",
+      "device": 16777231,
+      "inode": 125384779,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "device": 16777231,
+      "inode": 125384780,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "device": 16777231,
+      "inode": 125384781,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/README.md",
+      "device": 16777231,
+      "inode": 125384782,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+      "device": 16777231,
+      "inode": 125384784,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs",
+      "device": 16777231,
+      "inode": 125384786,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests/k1_reference.rs",
+      "device": 16777231,
+      "inode": 125384788,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "device": 16777231,
+      "inode": 125384789,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs",
+      "device": 16777231,
+      "inode": 125384790,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "device": 16777231,
+      "inode": 125384791,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "device": 16777231,
+      "inode": 125384792,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "device": 16777231,
+      "inode": 125384794,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs",
+      "device": 16777231,
+      "inode": 125384796,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals/tests.rs",
+      "device": 16777231,
+      "inode": 125384798,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/s11k_tests.rs",
+      "device": 16777231,
+      "inode": 125384799,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs",
+      "device": 16777231,
+      "inode": 125384800,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs",
+      "device": 16777231,
+      "inode": 125384801,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/kf2_witness_tests.rs",
+      "device": 16777231,
+      "inode": 125384802,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "device": 16777231,
+      "inode": 125384804,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "device": 16777231,
+      "inode": 125384805,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "device": 16777231,
+      "inode": 125384806,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+      "device": 16777231,
+      "inode": 125384807,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+      "device": 16777231,
+      "inode": 125384808,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "device": 16777231,
+      "inode": 125384809,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "device": 16777231,
+      "inode": 125384810,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs",
+      "device": 16777231,
+      "inode": 125384811,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "device": 16777231,
+      "inode": 125384812,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+      "device": 16777231,
+      "inode": 125384813,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "device": 16777231,
+      "inode": 125384814,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "device": 16777231,
+      "inode": 125384815,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+      "device": 16777231,
+      "inode": 125384816,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "device": 16777231,
+      "inode": 125384818,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "device": 16777231,
+      "inode": 125384819,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_n5_base_signature.txt",
+      "device": 16777231,
+      "inode": 125384820,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_tests.rs",
+      "device": 16777231,
+      "inode": 125384821,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs",
+      "device": 16777231,
+      "inode": 125384822,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "device": 16777231,
+      "inode": 125384823,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs",
+      "device": 16777231,
+      "inode": 125384825,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs",
+      "device": 16777231,
+      "inode": 125384827,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2a/rf_range_models.rs",
+      "device": 16777231,
+      "inode": 125384829,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2a_checked_formation.rs",
+      "device": 16777231,
+      "inode": 125384830,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs",
+      "device": 16777231,
+      "inode": 125384831,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125384833,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_sample.txt",
+      "device": 16777231,
+      "inode": 125384834,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_summary.txt",
+      "device": 16777231,
+      "inode": 125384835,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/cases.txt",
+      "device": 16777231,
+      "inode": 125384836,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py",
+      "device": 16777231,
+      "inode": 125384837,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal.txt",
+      "device": 16777231,
+      "inode": 125384838,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal_summary.txt",
+      "device": 16777231,
+      "inode": 125384839,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs",
+      "device": 16777231,
+      "inode": 125384840,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/k5_scale.rs",
+      "device": 16777231,
+      "inode": 125384841,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs",
+      "device": 16777231,
+      "inode": 125384842,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125384844,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "device": 16777231,
+      "inode": 125384845,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+      "device": 16777231,
+      "inode": 125384846,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+      "device": 16777231,
+      "inode": 125384847,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "device": 16777231,
+      "inode": 125384848,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "device": 16777231,
+      "inode": 125384849,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt",
+      "device": 16777231,
+      "inode": 125384850,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "device": 16777231,
+      "inode": 125384851,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+      "device": 16777231,
+      "inode": 125384852,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed.txt",
+      "device": 16777231,
+      "inode": 125384853,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed_tests.rs",
+      "device": 16777231,
+      "inode": 125384854,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directional_span_exact.txt",
+      "device": 16777231,
+      "inode": 125384855,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/encodings.txt",
+      "device": 16777231,
+      "inode": 125384856,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/estimate.txt",
+      "device": 16777231,
+      "inode": 125384857,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "device": 16777231,
+      "inode": 125384858,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/formation.txt",
+      "device": 16777231,
+      "inode": 125384859,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "device": 16777231,
+      "inode": 125384860,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+      "device": 16777231,
+      "inode": 125384861,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3.txt",
+      "device": 16777231,
+      "inode": 125384862,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs",
+      "device": 16777231,
+      "inode": 125384863,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger.txt",
+      "device": 16777231,
+      "inode": 125384864,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+      "device": 16777231,
+      "inode": 125384865,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "device": 16777231,
+      "inode": 125384866,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs",
+      "device": 16777231,
+      "inode": 125384867,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "device": 16777231,
+      "inode": 125384868,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "device": 16777231,
+      "inode": 125384869,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/o8_states.txt",
+      "device": 16777231,
+      "inode": 125384870,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt",
+      "device": 16777231,
+      "inode": 125384871,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/profiles.txt",
+      "device": 16777231,
+      "inode": 125384872,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "device": 16777231,
+      "inode": 125384873,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_cases.txt",
+      "device": 16777231,
+      "inode": 125384874,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_large.txt",
+      "device": 16777231,
+      "inode": 125384875,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+      "device": 16777231,
+      "inode": 125384876,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
+      "device": 16777231,
+      "inode": 125384877,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "device": 16777231,
+      "inode": 125384878,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "device": 16777231,
+      "inode": 125384879,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_tests.rs",
+      "device": 16777231,
+      "inode": 125384880,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams.txt",
+      "device": 16777231,
+      "inode": 125384881,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams_sample.txt",
+      "device": 16777231,
+      "inode": 125384882,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential.txt",
+      "device": 16777231,
+      "inode": 125384883,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential_sample.txt",
+      "device": 16777231,
+      "inode": 125384884,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt",
+      "device": 16777231,
+      "inode": 125384885,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
+      "device": 16777231,
+      "inode": 125384886,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/verify_tests.rs",
+      "device": 16777231,
+      "inode": 125384887,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "device": 16777231,
+      "inode": 125384888,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125384890,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/atan.txt",
+      "device": 16777231,
+      "inode": 125384891,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential.txt",
+      "device": 16777231,
+      "inode": 125384892,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential_sample.txt",
+      "device": 16777231,
+      "inode": 125384893,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/gen_wide_vectors.py",
+      "device": 16777231,
+      "inode": 125384894,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/split.txt",
+      "device": 16777231,
+      "inode": 125384895,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/targeted.txt",
+      "device": 16777231,
+      "inode": 125384896,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/wide_tests.rs",
+      "device": 16777231,
+      "inode": 125384897,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125384899,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/conversion.txt",
+      "device": 16777231,
+      "inode": 125384900,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential.txt",
+      "device": 16777231,
+      "inode": 125384901,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential_sample.txt",
+      "device": 16777231,
+      "inode": 125384902,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/eft.txt",
+      "device": 16777231,
+      "inode": 125384903,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py",
+      "device": 16777231,
+      "inode": 125384904,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs",
+      "device": 16777231,
+      "inode": 125384905,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt",
+      "device": 16777231,
+      "inode": 125384906,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt",
+      "device": 16777231,
+      "inode": 125384907,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt",
+      "device": 16777231,
+      "inode": 125384908,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "device": 16777231,
+      "inode": 125384909,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/.gitignore",
+      "device": 16777231,
+      "inode": 125384911,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock",
+      "device": 16777231,
+      "inode": 125384912,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+      "device": 16777231,
+      "inode": 125384913,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/README.md",
+      "device": 16777231,
+      "inode": 125384914,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "device": 16777231,
+      "inode": 125384916,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs",
+      "device": 16777231,
+      "inode": 125384917,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/structural/k1_tests.rs",
+      "device": 16777231,
+      "inode": 125384919,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock",
+      "device": 16777231,
+      "inode": 125384923,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+      "device": 16777231,
+      "inode": 125384924,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/README.md",
+      "device": 16777231,
+      "inode": 125384925,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125384927,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/absolute_range_rows.json",
+      "device": 16777231,
+      "inode": 125384928,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/engine_vectors.jsonl",
+      "device": 16777231,
+      "inode": 125384929,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/expected_unresolved.json",
+      "device": 16777231,
+      "inode": 125384930,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/gen_vk_cases.py",
+      "device": 16777231,
+      "inode": 125384931,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+      "device": 16777231,
+      "inode": 125384932,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/not_covered.json",
+      "device": 16777231,
+      "inode": 125384933,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_cancel.jsonl",
+      "device": 16777231,
+      "inode": 125384934,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_chain.jsonl",
+      "device": 16777231,
+      "inode": 125384935,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_finite.jsonl",
+      "device": 16777231,
+      "inode": 125384936,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_invariance.jsonl",
+      "device": 16777231,
+      "inode": 125384937,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_large.jsonl",
+      "device": 16777231,
+      "inode": 125384938,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_mech.jsonl",
+      "device": 16777231,
+      "inode": 125384939,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "device": 16777231,
+      "inode": 125384940,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "device": 16777231,
+      "inode": 125384941,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_weak.jsonl",
+      "device": 16777231,
+      "inode": 125384942,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_zero.jsonl",
+      "device": 16777231,
+      "inode": 125384943,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_records.rs",
+      "device": 16777231,
+      "inode": 125384945,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+      "device": 16777231,
+      "inode": 125384946,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/harness/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125384949,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/harness/harness_matrix.jsonl",
+      "device": 16777231,
+      "inode": 125384950,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125384952,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/invariance.json",
+      "device": 16777231,
+      "inode": 125384953,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/parity.json",
+      "device": 16777231,
+      "inode": 125384954,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_cancel.json",
+      "device": 16777231,
+      "inode": 125384955,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_chain.json",
+      "device": 16777231,
+      "inode": 125384956,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_finite.json",
+      "device": 16777231,
+      "inode": 125384957,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_invariance.json",
+      "device": 16777231,
+      "inode": 125384958,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+      "device": 16777231,
+      "inode": 125384959,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "device": 16777231,
+      "inode": 125384960,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+      "device": 16777231,
+      "inode": 125384961,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_skew.json",
+      "device": 16777231,
+      "inode": 125384962,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_weak.json",
+      "device": 16777231,
+      "inode": 125384963,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_zero.json",
+      "device": 16777231,
+      "inode": 125384964,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/seeded/SHA256SUMS",
+      "device": 16777231,
+      "inode": 125384966,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/seeded/evidence.json",
+      "device": 16777231,
+      "inode": 125384967,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/seeded/kill_matrix.jsonl",
+      "device": 16777231,
+      "inode": 125384968,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/check_fault_sites.py",
+      "device": 16777231,
+      "inode": 125384970,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_harness_mutants.py",
+      "device": 16777231,
+      "inode": 125384971,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_seeded_faults.py",
+      "device": 16777231,
+      "inode": 125384972,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py",
+      "device": 16777231,
+      "inode": 125384973,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py",
+      "device": 16777231,
+      "inode": 125384974,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "device": 16777231,
+      "inode": 125384976,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/compare.rs",
+      "device": 16777231,
+      "inode": 125384977,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/exact.rs",
+      "device": 16777231,
+      "inode": 125384978,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/floor.rs",
+      "device": 16777231,
+      "inode": 125384979,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/invariance.rs",
+      "device": 16777231,
+      "inode": 125384980,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+      "device": 16777231,
+      "inode": 125384981,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lib.rs",
+      "device": 16777231,
+      "inode": 125384982,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/parity.rs",
+      "device": 16777231,
+      "inode": 125384983,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/rcm.rs",
+      "device": 16777231,
+      "inode": 125384984,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs",
+      "device": 16777231,
+      "inode": 125384985,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
+      "device": 16777231,
+      "inode": 125384986,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/sha256.rs",
+      "device": 16777231,
+      "inode": 125384987,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/adapter.rs",
+      "device": 16777231,
+      "inode": 125384989,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/engine.rs",
+      "device": 16777231,
+      "inode": 125384990,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/feature_guard.rs",
+      "device": 16777231,
+      "inode": 125384991,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/files.rs",
+      "device": 16777231,
+      "inode": 125384992,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/invariance.rs",
+      "device": 16777231,
+      "inode": 125384993,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+      "device": 16777231,
+      "inode": 125384994,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/parity.rs",
+      "device": 16777231,
+      "inode": 125384995,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/rcm.rs",
+      "device": 16777231,
+      "inode": 125384996,
+      "nlink": 1
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs",
+      "device": 16777231,
+      "inode": 125384997,
+      "nlink": 1
+    }
+  ],
+  "all_nlink1": true,
+  "no_maintained_links": true,
+  "no_symlinks_or_symlink_ancestors": true,
+  "logs_outside_archive": true,
+  "target_empty": true
+}

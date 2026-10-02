@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs
+@@ -452,7 +452,7 @@
+     Wide<L>: SupportedWidth,
+ {
+     sum.clear();
+-    sum.add_wide_scaled(pivot, false, 1, i64::from(p))?;
++    sum.add_wide_scaled(pivot, false, 1, i64::from(p.min(53)))?;
+     sum.add_wide_scaled(pivot, true, m, 0)?;
+     sum.add_wide_scaled(scale, true, 64 * m, 0)?;
+     Ok(sum.signum() > 0)

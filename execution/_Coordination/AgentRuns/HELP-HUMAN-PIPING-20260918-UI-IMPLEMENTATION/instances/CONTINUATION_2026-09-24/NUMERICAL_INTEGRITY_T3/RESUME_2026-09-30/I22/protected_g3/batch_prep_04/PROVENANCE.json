@@ -1,0 +1,38 @@
+{
+  "role": "TASK Type2",
+  "task": "/root/t3_recovery_manager/i22_a1",
+  "parent": "/root/t3_recovery_manager",
+  "no_child": true,
+  "grant": {
+    "commit": "076253e8baaabc930767ac25732786b6bcfcaeb9",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_G3_BATCH_PREPARATION.md",
+    "sha256": "08dd60a4e0bd2f81836e1795319e22b68b90809e122c76c6ea9543f7e92b757b"
+  },
+  "start_utc": "2026-10-01T16:17:11Z",
+  "check_limit_utc": "2026-10-01T16:22:11Z",
+  "check_completed_utc": "2026-10-01T16:20:18.429Z",
+  "source_patches_completed_utc": "2026-10-01T16:23:33.259Z",
+  "completed_utc": "2026-10-01T16:26:28.835Z",
+  "preparation_end_utc": "2026-10-01T16:32:11Z",
+  "old_runtime_end_utc": "2026-10-01T16:23:26Z",
+  "old_window_closed": true,
+  "prior_runtime03_seal": {
+    "entries": 73,
+    "return_sha256": "0470f803847e31274a5599895cbd3b2ed0281e4aec7f2ab29d3ef130576ef33f",
+    "seal_sha256": "84c361b1bd2590cf4d0c560961955975210681261e5525fe9ca17cc8ef27d44a"
+  },
+  "current_helper_sha256": "b6313acb720917b3bfb549a049aacfe9097bf95f224ec7c001afc794164c1029",
+  "source_mutations": 38,
+  "complete_files_verified": 4852,
+  "conditional_release_proposals": 38,
+  "proposed_filters": 39,
+  "proposed_controls": 39,
+  "rust_build_test_control_calls": 0,
+  "manager_releases_fabricated": 0,
+  "runtime_authority": false,
+  "no_new_tool_driver_framework": true,
+  "no_file_tampering_for_check_exercises": true,
+  "no_maintained_edits": true,
+  "no_git_index_writes": true,
+  "manager_independent_check": "Manager reported PASS16:24:55 on all38 copies/4852files, exact protected bindings, paths/inodes/targets/logs, both baseline binaries/fingerprints,116 E1 files and guard; individual proposals only, none released."
+}

@@ -1,0 +1,14 @@
+{
+  "patch_exit_code": 0,
+  "raw_patch_log_hashes": {
+    "stdout": "8b5a6c1f8a82d3ee09e53fbe7ddc2e83234027a3691ebc79122ccb7ecd05a7fa",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed_postimage_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+  "expected_postimage_sha256": "053e9d2fe628707e29e38f04733736386fc1ad2490e96bc7b09ef16bc161bf3e",
+  "source_unchanged": true,
+  "readiness_seal_verified": "61c51e169bff21dd116a472e42f49be0468b77207b648b55c086d03830c04b30",
+  "baseline_binary_preserved": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+  "no_group_binary_built": true,
+  "owned_jobs_running": 0
+}

@@ -1,0 +1,20 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
+@@ -702,7 +702,16 @@
+                 )?,
+             }
+         }
+-        values[index] = sum.round(ctx)?;
++        let mut acc = Wide::<L>::ZERO;
++        for item in &structure.items[structure.starts[index]..structure.starts[index + 1]] {
++            let v = match *item {
++                Contribution::Member { member, a, b } => *members[member as usize].ke(a as usize, b as usize),
++                Contribution::Spring { spring } => Wide::<L>::from_f64(source.springs()[spring as usize].stiffness)?,
++                Contribution::Directional { spring, a, b } => directional[spring as usize].k[a as usize][b as usize],
++            };
++            acc = ctx.add(&acc, &v)?;
++        }
++        values[index] = acc;
+         // V-K seeded fault VK-F03 (§7.3-4): the smallest contribution to a
+         // diagonal entry dropped (R1's NC-LOST-SOFT).
+         #[cfg(any(test, feature = "mutation-controls"))]

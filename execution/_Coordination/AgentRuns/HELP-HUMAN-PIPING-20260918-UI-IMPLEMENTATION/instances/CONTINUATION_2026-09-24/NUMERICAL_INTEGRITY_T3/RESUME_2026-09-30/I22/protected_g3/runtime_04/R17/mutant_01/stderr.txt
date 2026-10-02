@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision' (26118124) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:185:24:
+assertion `left == right` failed: GS-TRANS-y345 128 E rows
+  left: "6f248ae87d63c9ac22bf79824b6657cb356f3d2c8da194301d785a4b06cac7bb"
+ right: "7ec6dac7eaca9d010eb65bdacbfe8cde5da08c03a59245182ceac5e47abc74aa"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+       10.00 real         9.89 user         0.05 sys
+            23134208  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                1768  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                1050  involuntary context switches
+        119220600131  instructions retired
+         28918951825  cycles elapsed
+            14188928  peak memory footprint

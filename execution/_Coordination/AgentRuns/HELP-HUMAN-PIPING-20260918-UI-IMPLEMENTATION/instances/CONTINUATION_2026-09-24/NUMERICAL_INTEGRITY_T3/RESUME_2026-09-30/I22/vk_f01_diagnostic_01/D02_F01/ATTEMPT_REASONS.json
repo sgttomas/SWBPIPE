@@ -1,0 +1,1802 @@
+[
+  {
+    "id": "RF-CHAIN-T-n03-r1e-04",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n03-r1e-06",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n03-r1e-08",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n03-r1e-10",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n03-r1e-12",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n05-r1e-04",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n05-r1e-06",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n05-r1e-08",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n05-r1e-10",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n05-r1e-12",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n10-r1e-04",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n10-r1e-06",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n10-r1e-08",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n10-r1e-10",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-T-n10-r1e-12",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n03-r1e-04",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n03-r1e-06",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n03-r1e-08",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n03-r1e-10",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n03-r1e-12",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n05-r1e-04",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n05-r1e-06",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n05-r1e-08",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n05-r1e-10",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n05-r1e-12",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n10-r1e-04",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n10-r1e-06",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n10-r1e-08",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 1,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n10-r1e-10",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "RF-CHAIN-A-n10-r1e-12",
+    "outcome": "Unresolved Ceiling [Restrained]",
+    "attempts": [
+      {
+        "precision": 128,
+        "role": "Candidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 192,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": null
+      },
+      {
+        "precision": 256,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 320,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 512,
+        "role": "VerificationThenCandidate",
+        "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })",
+        "residual_basis": 576,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      },
+      {
+        "precision": 1024,
+        "role": "Verification",
+        "outcome": "Solved",
+        "residual_basis": 1024,
+        "gate": "Coalesced",
+        "corrections": 0,
+        "verification": {
+          "data_blocks": 1,
+          "g_max": 0,
+          "g_violation": null,
+          "shift_factorizations": 0,
+          "uc_missing": null
+        }
+      }
+    ]
+  }
+]

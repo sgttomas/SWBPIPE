@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64 ... FAILED
+
+failures:
+
+---- structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64 stdout ----
+
+thread 'structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64' (25516017) panicked at src/structural/retained/../../../tests/retained_k4/verify_tests.rs:45:5:
+assertion `left == right` failed
+  left: [1.0, 8.0]
+ right: [4.0, 8.0]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
+

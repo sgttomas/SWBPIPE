@@ -1,0 +1,3 @@
+PASS75commands/37tests raw and artifact hashes,20 binary identities/raw fingerprints/env/exits/exact selection; R33 control absent. {'build': 19, 'control': 18, 'list': 19, 'mutant': 19}
+PASS38prepared copies/4852files preserve exact frozen postimages and protected inputs; R34-R52 targets/logs empty APPLIED_UNRUN.
+PASS exact individual release artifact preserved; later conditions unsatisfied after R33 criterion stop.

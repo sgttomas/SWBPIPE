@@ -1,0 +1,11 @@
+{
+  "checked_utc": "2026-10-01T23:06:49.656383+00:00",
+  "source189_bytes_modes_unchanged": true,
+  "laneartifact_rawfingerprint_dependencies_unchanged": true,
+  "no_owned_process": true,
+  "guard": "5387     1 03-21:30:30 /bin/bash <wt>/guard/memguard.sh",
+  "grant_ref": "31fa111715f84070c9330faf71d47a0410f6bf08:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_VK_S2_RETARGET.md",
+  "grant_sha256": "33232ef446495f025d2e4a17b7b0a88e4355ed05b815f1adacc45f5784c2f50a",
+  "direct_calls": 4,
+  "builds": 0
+}

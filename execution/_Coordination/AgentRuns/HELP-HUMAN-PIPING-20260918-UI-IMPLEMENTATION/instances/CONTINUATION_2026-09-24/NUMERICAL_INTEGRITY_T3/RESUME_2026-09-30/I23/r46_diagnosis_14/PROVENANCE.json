@@ -1,0 +1,59 @@
+{
+  "role": "existing TASKType2 I23",
+  "agent": "/root/i23_protected_prep",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "native followup_task; no descendants",
+  "start_utc": "2026-10-01T17:26:45Z",
+  "return_boundary_utc": "2026-10-01T17:30:18Z",
+  "elapsed_seconds": 213.1,
+  "deadline_utc": "2026-10-01T17:36:45Z",
+  "brief": {
+    "requested_NUM_revision": "5293da04d3987e1fa9dd9b6d54ff156a1bf0c39c",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I23_R46_SURVIVOR_DIAGNOSIS.md",
+    "actual_read": "supplied NUM working-tree bytes",
+    "sha256": "52c6a8a23e54ab880bd5c2da67b772183742e5d8b72b3be343c7276610341248"
+  },
+  "carried_instructions": [
+    {
+      "path": "AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I23_PROTECTED_PREP.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "09ff7d95a7b3273d250b317ee502ba7dc71f46b4d0dfb071d69590840420532f"
+    }
+  ],
+  "command": "<VENV>/bin/python -B - (inline exact arithmetic/evidence cell in native transcript)",
+  "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "write_fence": "<A1>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r46_diagnosis_14 only",
+  "independence": "No message to/read of the parallel RV29 survivor review; only historical RV19 records and frozen candidate inputs were read. Parent progress notice did not coordinate expectations with reviewer.",
+  "counts": {
+    "Git": 0,
+    "index": 0,
+    "Rust": 0,
+    "runtime": 0,
+    "solver": 0,
+    "patch_application": 0,
+    "copy_preparation": 0,
+    "maintained_edits": 0,
+    "delegation": 0
+  },
+  "lookup_note": "Historical final/mutations/logs/RV19-D2.log was absent; named earlier delta/mutations/logs/RV19-D2.log supplies the historical unit-pass/set19-failure record. No broader script recovery was done."
+}

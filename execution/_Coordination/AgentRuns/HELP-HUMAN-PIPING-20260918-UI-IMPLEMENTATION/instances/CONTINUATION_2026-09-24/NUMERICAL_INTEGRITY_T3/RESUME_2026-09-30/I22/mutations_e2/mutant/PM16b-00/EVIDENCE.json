@@ -1,0 +1,43 @@
+{
+  "stdout": "\nrunning 1 test\ntest structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection ... FAILED\n\nfailures:\n\n---- structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection stdout ----\n\nthread 'structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection' (24782362) panicked at src/structural/retained/../../../tests/retained_k4/publication_tests.rs:575:5:\nassertion `left == right` failed\n  left: 18212\n right: 18103\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s\n\n",
+  "stderr": "   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)\nwarning: unused variable: `before`\n    --> src/structural/retained/adaptive.rs:2812:9\n     |\n2812 |         before: SumWork,\n     |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_before`\n     |\n     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default\n\nwarning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.90s\n     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)\nerror: test failed, to rerun pass `--lib`\n        8.79 real        13.63 user         0.36 sys\n          1253982208  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              161375  page reclaims\n                 118  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   2  signals received\n                 126  voluntary context switches\n                1379  involuntary context switches\n           206540524  instructions retired\n            73095436  cycles elapsed\n             6226376  peak memory footprint\n",
+  "stdout_sha256": "99edee05394f6748c3867932a90f625a61dd78d336b28a83040ce7e7827c3800",
+  "stderr_raw_sha256": "f6a94112a3ddd618cf5d8eaa0ec986bbb17910d7e5fcda52b3510e2327b7ecbf",
+  "source_sha256": "0e76fe7ac19799b44506f377612db7c2af932119186309767cfdd94f296b72e8",
+  "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+  "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "binary": {
+    "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "df4b9bc29e5a181579565ca6c5ea2dc10d522323823a974e2dc95cc9ec5829cb"
+  },
+  "features": [
+    {
+      "path": "<RUN_TARGET>/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "metadata": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 8945848500906766827,
+        "path": 10763286916239946207,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/dep-test-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "guard_after": {
+    "exit": 0,
+    "stdout": " 5387     1 03-08:09:58 /bin/bash <HOME>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+  }
+}

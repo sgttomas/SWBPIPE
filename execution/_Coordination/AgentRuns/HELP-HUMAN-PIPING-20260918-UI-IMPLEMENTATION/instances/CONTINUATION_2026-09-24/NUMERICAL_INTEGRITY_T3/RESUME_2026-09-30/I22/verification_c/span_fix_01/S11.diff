@@ -1,0 +1,13 @@
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+index 2db8d8dedd..b649f51c37 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+@@ -269,7 +269,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
+     ("FK/structural/retained/recover.rs", "recover", 0, "K4: every action, reaction and magnitude one p-bit exact expansion, rounded once (reactions include the ledger exactly)"),
+     ("FK/structural/retained/adaptive.rs", "residual_rows", 1, "integer: product count m_i of the exact residual at p + 64 (the residual itself is one exact expansion)"),
+     ("FK/structural/retained/adaptive.rs", "solve_case_at", 1, "integer: correction count"),
+-    ("FK/structural/retained/adaptive.rs", "run_schedule", 5, "integer: schedule index and stop-rule work counts"),
++    ("FK/structural/retained/adaptive.rs", "run_schedule", 6, "integer: schedule index and stop-rule work counts; certificate-rejection escalation adds c += 1"),
+     ("FK/structural/retained/adaptive.rs", "add", 19, "integer: StageWork::add, stage work counts (5a.3)"),
+     ("FK/structural/retained/adaptive.rs", "bounded_fallback", 2, "integer: product count m_i; a max over the rows' 64-bit approximate ratios (a prefilter: the worst bounded ratio is compared exactly) (5a.3)"),
+     ("FK/structural/retained/adaptive.rs", "stop_rule", 0, "K4: exact differences and scales decided exactly"),

@@ -1,0 +1,12 @@
+{
+  "verified_utc": "2026-10-01T20:53:49.377025+00:00",
+  "child_seal": "d5b60c2048f745c4cb2614a625d30a020c7acc7a1da0675f50f6eb9146b55a00",
+  "verified_child_payloads": 23,
+  "return_sha256": "fcf202e2a7e8eca5d9cffc5ca30ebad1b8e68eca85c87b11666aeed9baf550a7",
+  "source_files_reverified": 189,
+  "artifacts_and_dependency_fingerprints_unchanged": true,
+  "all_six_raw_streams_equal_child_copies": true,
+  "guard": "  PID  PPID     ELAPSED COMMAND\n 5387     1 03-19:17:30 /bin/bash <wt>/guard/memguard.sh\n",
+  "active_owned_processes": [],
+  "slot_released": true
+}

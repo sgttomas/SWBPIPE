@@ -1,0 +1,11 @@
+
+running 1 test
+test structural::retained::ledger::tests::canonical_encodings_equal_the_generators_independent_bytes ... FAILED
+
+failures:
+
+failures:
+    structural::retained::ledger::tests::canonical_encodings_equal_the_generators_independent_bytes
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.25s
+

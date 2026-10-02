@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::classification_tests::stress_scales_and_intensified_factors_match_bit_for_bit' (26233428) panicked at src/structural/retained/../../../tests/retained_k4/classification_tests.rs:195:17:
+assertion `left == right` failed: kint 4009fb5a1e624000 40125f3753c0eaa2
+  left: 4614495657693167616
+ right: 4616857259241171618
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.01 real         0.01 user         0.00 sys
+             4898816  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 656  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  10  involuntary context switches
+           178031134  instructions retired
+            50458989  cycles elapsed
+             1737040  peak memory footprint

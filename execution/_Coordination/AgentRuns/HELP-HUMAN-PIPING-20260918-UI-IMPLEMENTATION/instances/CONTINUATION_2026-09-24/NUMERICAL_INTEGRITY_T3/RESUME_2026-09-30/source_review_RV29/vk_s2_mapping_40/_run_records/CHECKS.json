@@ -1,0 +1,2987 @@
+{
+  "candidate": "115379481430a1d56148fdbe743185ab29fd2dfa",
+  "zero_reaction_references": [
+    {
+      "case": "RF-CHAIN-T-n03-r1e-04",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-04",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-04",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-04",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-04",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-06",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-06",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-06",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-06",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-06",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-08",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-08",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-08",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-08",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-08",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-10",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-10",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-10",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-10",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-10",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-12",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-12",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-12",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-12",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-12",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-04",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-04",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-04",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-04",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-04",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-06",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-06",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-06",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-06",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-06",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-08",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-08",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-08",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-08",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-08",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-10",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-10",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-10",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-10",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-10",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-12",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-12",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-12",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-12",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-12",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-04",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-04",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-04",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-04",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-04",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-06",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-06",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-06",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-06",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-06",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-08",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-08",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-08",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-08",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-08",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-10",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-10",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-10",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-10",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-10",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-12",
+      "row": [
+        "R.N0.UX",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-12",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-12",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-12",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-12",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-04",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-04",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-04",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-04",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-04",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-06",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-06",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-06",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-06",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-06",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-08",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-08",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-08",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-08",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-08",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-10",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-10",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-10",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-10",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-10",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-12",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-12",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-12",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-12",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-12",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-04",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-04",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-04",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-04",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-04",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-06",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-06",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-06",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-06",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-06",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-08",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-08",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-08",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-08",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-08",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-10",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-10",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-10",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-10",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-10",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-12",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-12",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-12",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-12",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-12",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-04",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-04",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-04",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-04",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-04",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-06",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-06",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-06",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-06",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-06",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-08",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-08",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-08",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-08",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-08",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-10",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-10",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-10",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-10",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-10",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-12",
+      "row": [
+        "R.N0.UY",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        1
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-12",
+      "row": [
+        "R.N0.UZ",
+        "0",
+        "force",
+        null
+      ],
+      "dof": [
+        0,
+        2
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-12",
+      "row": [
+        "R.N0.RX",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-12",
+      "row": [
+        "R.N0.RY",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        4
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-12",
+      "row": [
+        "R.N0.RZ",
+        "0",
+        "moment",
+        null
+      ],
+      "dof": [
+        0,
+        5
+      ]
+    }
+  ],
+  "loaded_spring_dofs": [
+    {
+      "case": "RF-CHAIN-T-n03-r1e-04",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-06",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-08",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-10",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n03-r1e-12",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-04",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-06",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-08",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-10",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n05-r1e-12",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-04",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-06",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-08",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-10",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-T-n10-r1e-12",
+      "unconstrained_spring_dof": [
+        0,
+        3
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-04",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-06",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-08",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-10",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n03-r1e-12",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-04",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-06",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-08",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-10",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n05-r1e-12",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-04",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-06",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-08",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-10",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "RF-CHAIN-A-n10-r1e-12",
+      "unconstrained_spring_dof": [
+        0,
+        0
+      ]
+    }
+  ],
+  "nonzero_finite_reactions": [
+    {
+      "case": "RF-FINITE-THIRDS-O0",
+      "row": [
+        "R.N0.UX",
+        "-1.000000000000000000000000000000000000000e+1",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O0",
+      "row": [
+        "R.N0.UY",
+        "-5.000000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O0",
+      "row": [
+        "R.N0.UZ",
+        "3.000000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O0",
+      "row": [
+        "R.N0.RX",
+        "-2.000000000000000000000000000000000000000e+0",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O0",
+      "row": [
+        "R.N0.RY",
+        "-1.000000000000000000000000000000000000000e+1",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O0",
+      "row": [
+        "R.N0.RZ",
+        "-1.666666666666666666666666666666666666667e+1",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e3",
+      "row": [
+        "R.N0.UX",
+        "-1.000000000000000000000000000000000000000e+1",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e3",
+      "row": [
+        "R.N0.UY",
+        "-5.000000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e3",
+      "row": [
+        "R.N0.UZ",
+        "3.000000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e3",
+      "row": [
+        "R.N0.RX",
+        "-2.000000000000000000000000000000000000000e+0",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e3",
+      "row": [
+        "R.N0.RY",
+        "-1.000000000000000000000000000000000000000e+1",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e3",
+      "row": [
+        "R.N0.RZ",
+        "-1.666666666666666666666666666666666666667e+1",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e6",
+      "row": [
+        "R.N0.UX",
+        "-1.000000000000000000000000000000000000000e+1",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e6",
+      "row": [
+        "R.N0.UY",
+        "-5.000000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e6",
+      "row": [
+        "R.N0.UZ",
+        "3.000000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e6",
+      "row": [
+        "R.N0.RX",
+        "-2.000000000000000000000000000000000000000e+0",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e6",
+      "row": [
+        "R.N0.RY",
+        "-1.000000000000000000000000000000000000000e+1",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRDS-O1e6",
+      "row": [
+        "R.N0.RZ",
+        "-1.666666666666666666666666666666666666667e+1",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-TENTHS-O1e6",
+      "row": [
+        "R.N0.UX",
+        "-1.000000000000000000000000000000000000000e+1",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-TENTHS-O1e6",
+      "row": [
+        "R.N0.UY",
+        "-5.000000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-TENTHS-O1e6",
+      "row": [
+        "R.N0.UZ",
+        "3.000000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-TENTHS-O1e6",
+      "row": [
+        "R.N0.RX",
+        "-2.000000000000000000000000000000000000000e+0",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-TENTHS-O1e6",
+      "row": [
+        "R.N0.RY",
+        "-3.000000000000000000000000000000000000000e+0",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-TENTHS-O1e6",
+      "row": [
+        "R.N0.RZ",
+        "-5.000000000000000000000000000000000000000e+0",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRTIETHS-O1e6",
+      "row": [
+        "R.N0.UX",
+        "-1.000000000000000000000000000000000000000e+1",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRTIETHS-O1e6",
+      "row": [
+        "R.N0.UY",
+        "-5.000000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRTIETHS-O1e6",
+      "row": [
+        "R.N0.UZ",
+        "3.000000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRTIETHS-O1e6",
+      "row": [
+        "R.N0.RX",
+        "-2.000000000000000000000000000000000000000e+0",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRTIETHS-O1e6",
+      "row": [
+        "R.N0.RY",
+        "-1.000000000116415321826934814453125000000e+0",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-THIRTIETHS-O1e6",
+      "row": [
+        "R.N0.RZ",
+        "-1.666666666860692203044891357421875000000e+0",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-ROT-Q9-NONMULT",
+      "row": [
+        "R.N0.UX",
+        "-8.888888888888888888888888888888888888889e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-ROT-Q9-NONMULT",
+      "row": [
+        "R.N0.UY",
+        "-1.111111111111111111111111111111111111111e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-ROT-Q9-NONMULT",
+      "row": [
+        "R.N0.UZ",
+        "-4.444444444444444444444444444444444444444e+0",
+        "force",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-ROT-Q9-NONMULT",
+      "row": [
+        "R.N0.RX",
+        "-7.000000000000000000000000000000000000000e+0",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-ROT-Q9-NONMULT",
+      "row": [
+        "R.N0.RY",
+        "2.400000000000000000000000000000000000000e+1",
+        "moment",
+        null
+      ]
+    },
+    {
+      "case": "RF-FINITE-ROT-Q9-NONMULT",
+      "row": [
+        "R.N0.RZ",
+        "8.000000000000000000000000000000000000000e+0",
+        "moment",
+        null
+      ]
+    }
+  ],
+  "zero_reference_identity": "abs(x-0) = abs(-x-0); unchanged 1e-9*max(abs(0),scale) RHS",
+  "P35_evidence": {
+    "process_id": "P35",
+    "phase": "FAULT_TEST",
+    "registered_id": "VK-S2",
+    "argv": [
+      "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+      "--exact",
+      "rf_chain",
+      "--test-threads=2",
+      "--nocapture"
+    ],
+    "environment": {
+      "RUSTUP_TOOLCHAIN": "1.97.1",
+      "RUSTUP_AUTO_INSTALL": "0",
+      "CARGO_INCREMENTAL": "0",
+      "RUST_TEST_THREADS": "2",
+      "FK_SEEDED_FAULT": "VK-S2"
+    },
+    "fresh_process": true,
+    "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+    "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P35.stdout",
+    "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P35.stderr",
+    "qualifying_condition": "Named nonzero reaction numerical predicate failure caused by sign reversal.",
+    "actual_scope": {
+      "route": "whole existing lane family, one run_case per case; final record comparison retained",
+      "family": "RF-CHAIN",
+      "cases": 30,
+      "max_members": 10,
+      "parity_calls": 0
+    },
+    "status": "COMPLETED",
+    "runtime_authorized": true,
+    "test_source": {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+      "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+    },
+    "registered_kind": "value",
+    "registered_target": "every nonzero reaction",
+    "qualification": null,
+    "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=VK-S2 '<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5' '--exact' 'rf_chain' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P35.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P35.stderr'",
+    "binary": {
+      "key": "lane",
+      "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+      "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+      "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+    },
+    "guard_before": "5387     1 03-20:48:27 /bin/bash <wt>/guard/memguard.sh\n",
+    "launch_utc": "2026-10-01T22:24:46.461Z",
+    "tool_initial": {
+      "chunk_id": "7b98bf",
+      "wall_time_seconds": 1.0016014580000001,
+      "session_id": 12604,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "tool_completion": {
+      "chunk_id": "b8b711",
+      "wall_time_seconds": 1.2166e-05,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "verdict": "STOP_REQUIRED_SURVIVOR",
+    "semantic_review": "VK-S2 exactrf_chain test passed1/exit0:30selected,2700passes60zeros,82/38controls,zero namednonzero-reaction numericalfailure andoriginalstoredrecord equality. RequiredVALUE witness absent. ImmediateSTOP,noP36orlater/no retry/diagnostic.",
+    "completed_utc": "2026-10-01T22:25:45.567Z",
+    "raw_hashes": {
+      "stdout": "d95b50cd4d8238164909039865925411735a2c75376f81fc33b350f08e157893",
+      "stderr": "d543f520e961cc04b86ff608ae6cab5fc94c00217c6abe3d23333073b0650799"
+    },
+    "hard_end": "2026-10-01T22:48:20Z"
+  },
+  "P35_credit": false,
+  "expired_P36_prelaunch": {
+    "receipt_start_utc": "2026-10-01 22:34:02 UTC",
+    "hard_end_utc": "2026-10-01 22:39:02 UTC",
+    "verified_utc": "2026-10-01T22:39:40.377386+00:00",
+    "grant": "b53da26cec2b4e30d26e8946ba90ef6d2bfb721d",
+    "grant_sha256": "d61c704b477aa3e566740b7d8c152ca6de40fb84823b774ad295062e16537a25",
+    "source_files": 189,
+    "inventory_exact": true,
+    "bindings": [
+      {
+        "key": "parity",
+        "path": "<wt>/a1-vk-target/debug/deps/parity-ce8cf2272dfb2c0a",
+        "sha256": "646e4276acbba7cdb039ca9a1f93eb161977570f9adb6fd8657d32cec9ac6b65",
+        "profile": {
+          "opt_level": "0",
+          "debuginfo": 2,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": true
+        },
+        "cargo_features": [
+          "seeded-faults"
+        ],
+        "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-ce8cf2272dfb2c0a/test-integration-test-parity.json",
+        "fingerprint_sha256": "11cd0f0a4405b01e12154ed660ac34700cec0b09dad3775ea397f2f8b1e46bb1"
+      },
+      {
+        "key": "lane",
+        "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+        "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+        "profile": {
+          "opt_level": "0",
+          "debuginfo": 2,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": true
+        },
+        "cargo_features": [
+          "seeded-faults"
+        ],
+        "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+        "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+      },
+      {
+        "key": "adapter",
+        "path": "<wt>/a1-vk-target/debug/deps/adapter-9707c21df3a9f00d",
+        "sha256": "dfd771acb65db91b7358f9c101b3c175dc8dd11594be4d9ab45b610a420d7b1f",
+        "profile": {
+          "opt_level": "0",
+          "debuginfo": 2,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": true
+        },
+        "cargo_features": [
+          "seeded-faults"
+        ],
+        "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-9707c21df3a9f00d/test-integration-test-adapter.json",
+        "fingerprint_sha256": "3db748e52330d5605951c5d28588eb1d681d8270bc7fa5fac04320a144db59f2"
+      },
+      {
+        "path": "<wt>/a1-vk-target/debug/.fingerprint/open_pipe_stress_frame_kernel-585b62c046a4ab70/lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "62648b9d47b487ab172c8c7d33023fefc7e6ec36e0587a2dcb56813bdf4df21f",
+        "features": "[\"mutation-controls\"]"
+      },
+      {
+        "path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-56408c87e609fc36/lib-piping_numerical_robustness.json",
+        "sha256": "6f2fed930fdc2c9916cafa17fd9362b87a750c9f0d86bb6f884aef7eb60207e0",
+        "features": "[\"seeded-faults\"]"
+      },
+      {
+        "path": "<wt>/a1-vk-target/debug/.fingerprint/open_pipe_stress_sparse_direct-366e95824ced84f8/lib-open_pipe_stress_sparse_direct.json",
+        "sha256": "eb16b2c193703575cdfb4c99fdbf54fcbef0e666461e722f7d5088e569f13dde",
+        "features": "[]"
+      }
+    ],
+    "schedule_sha256": "2bb936decaba11d00afafa71e42e12b1c0e0ca2007b39b99c036827f38ca6289",
+    "original_P36": {
+      "process_id": "P36",
+      "phase": "RETURNED_NONE_TEST",
+      "registered_id": "NONE",
+      "argv": [
+        "<PINNED_LANE_TEST_BINARY>",
+        "--exact",
+        "rf_chain",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "fresh_process": true,
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P36.stdout",
+      "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P36.stderr",
+      "qualifying_condition": "Exactly one test passes after VK-S2 trial; do not infer return from initial baseline.",
+      "actual_scope": {
+        "route": "whole existing lane family, one run_case per case; final record comparison retained",
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "parity_calls": 0
+      },
+      "status": "UNRUN",
+      "runtime_authorized": false,
+      "returns_for": "VK-S2"
+    },
+    "two_streams_unused": true,
+    "guard": "  PID  PPID     ELAPSED COMMAND\n 5387     1 03-21:03:21 /bin/bash <wt>/guard/memguard.sh\n",
+    "host": "Apple M5 Max\n137438953472\n",
+    "owned_jobs": [],
+    "release": "Exactly original P36 NONE rf_chain after immediate child checks, no follow-on."
+  },
+  "expired_release_inoperative": true,
+  "plan_seal": "b84614ba3c846af85f9931659cf965510d7eac58a3129ec7e5b231be379d7b7d",
+  "plan_sha256": "1c0f517b73b2bc394bec83c7c134a4e0984880e8b75fb62dd6015425d1ee1957",
+  "plan_source_bindings": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_chain.jsonl",
+      "sha256": "0006e7a5ca4cf4d96c9284a5b09622902c3a71c07f24607924127062f10a1757"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_finite.jsonl",
+      "sha256": "92a6ea403f4bb33efdfa43078386cc0befdb272b2ccf9d8fa2f7d1f231b1de98"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_chain.json",
+      "sha256": "8feb6901d48639b184d5d93a9814ea27d8b97ae862ea2293f90ed962288e2572"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_finite.json",
+      "sha256": "b09de0e89254035fef5f1b2670be57f3da34e2e6352ff389b72d126388cd9ba9"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+      "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+      "sha256": "ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8"
+    }
+  ],
+  "189_source_files": true,
+  "plan_calls": [
+    [
+      "P36",
+      "rf_chain",
+      "NONE"
+    ],
+    [
+      "D01_NONE_BEFORE",
+      "rf_finite",
+      "NONE"
+    ],
+    [
+      "D02_S2",
+      "rf_finite",
+      "VK-S2"
+    ],
+    [
+      "D03_NONE_RETURN",
+      "rf_finite",
+      "NONE"
+    ]
+  ],
+  "plan_streams": [
+    "<wt>/scratch/i23/vk_prep/logs/P36.stdout",
+    "<wt>/scratch/i23/vk_prep/logs/P36.stderr",
+    "<wt>/scratch/i23/vk_prep/logs/s2_retarget_01/D01_NONE_BEFORE.stdout",
+    "<wt>/scratch/i23/vk_prep/logs/s2_retarget_01/D01_NONE_BEFORE.stderr",
+    "<wt>/scratch/i23/vk_prep/logs/s2_retarget_01/D02_S2.stdout",
+    "<wt>/scratch/i23/vk_prep/logs/s2_retarget_01/D02_S2.stderr",
+    "<wt>/scratch/i23/vk_prep/logs/s2_retarget_01/D03_NONE_RETURN.stdout",
+    "<wt>/scratch/i23/vk_prep/logs/s2_retarget_01/D03_NONE_RETURN.stderr"
+  ],
+  "baseline_projections": [
+    {
+      "id": "RF-RANGE-THIN-A",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "selected_precision": null,
+      "attempts": [
+        {
+          "precision": 128,
+          "role": "Candidate",
+          "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+          "gate": "Coalesced",
+          "residual_basis": 192,
+          "verification": null
+        },
+        {
+          "precision": 256,
+          "role": "VerificationThenCandidate",
+          "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+          "gate": "Coalesced",
+          "residual_basis": 320,
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 0,
+            "uc_missing": null
+          }
+        },
+        {
+          "precision": 512,
+          "role": "VerificationThenCandidate",
+          "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+          "gate": "Coalesced",
+          "residual_basis": 576,
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 0,
+            "uc_missing": null
+          }
+        },
+        {
+          "precision": 1024,
+          "role": "Verification",
+          "outcome": "Solved",
+          "gate": "Coalesced",
+          "residual_basis": 1024,
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 0,
+            "uc_missing": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-THIN-B",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "selected_precision": null,
+      "attempts": [
+        {
+          "precision": 128,
+          "role": "Candidate",
+          "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+          "gate": "Coalesced",
+          "residual_basis": 192,
+          "verification": null
+        },
+        {
+          "precision": 256,
+          "role": "VerificationThenCandidate",
+          "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+          "gate": "Coalesced",
+          "residual_basis": 320,
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 0,
+            "uc_missing": null
+          }
+        },
+        {
+          "precision": 512,
+          "role": "VerificationThenCandidate",
+          "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+          "gate": "Coalesced",
+          "residual_basis": 576,
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 0,
+            "uc_missing": null
+          }
+        },
+        {
+          "precision": 1024,
+          "role": "Verification",
+          "outcome": "Solved",
+          "gate": "Coalesced",
+          "residual_basis": 1024,
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 0,
+            "uc_missing": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "outcome": "Selected at 128",
+      "selected_precision": 128,
+      "attempts": [
+        {
+          "precision": 128,
+          "role": "Candidate",
+          "outcome": "Accepted",
+          "gate": "Coalesced",
+          "residual_basis": 192,
+          "verification": null
+        },
+        {
+          "precision": 256,
+          "role": "Verification",
+          "outcome": "Verified",
+          "gate": "Coalesced",
+          "residual_basis": 320,
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 1,
+            "uc_missing": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "outcome": "Selected at 128",
+      "selected_precision": 128,
+      "attempts": [
+        {
+          "precision": 128,
+          "role": "Candidate",
+          "outcome": "Accepted",
+          "gate": "Coalesced",
+          "residual_basis": 192,
+          "verification": null
+        },
+        {
+          "precision": 256,
+          "role": "Verification",
+          "outcome": "Verified",
+          "gate": "Coalesced",
+          "residual_basis": 320,
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 1,
+            "uc_missing": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "RF-MECH-LINE122-TORQUE",
+      "outcome": "Refused MechanismWitnessed { body: 0 } []",
+      "selected_precision": null,
+      "attempts": []
+    },
+    {
+      "id": "RF-MECH-LINE122-PERP",
+      "outcome": "Refused MechanismWitnessed { body: 0 } []",
+      "selected_precision": null,
+      "attempts": []
+    },
+    {
+      "id": "RF-MECH-LINE122-UNLOADED",
+      "outcome": "Refused MechanismWitnessed { body: 0 } []",
+      "selected_precision": null,
+      "attempts": []
+    },
+    {
+      "id": "RF-MECH-LINE345-RZ",
+      "outcome": "Refused MechanismWitnessed { body: 0 } []",
+      "selected_precision": null,
+      "attempts": []
+    },
+    {
+      "id": "RF-MECH-K0",
+      "outcome": "Refused MechanismWitnessed { body: 0 } []",
+      "selected_precision": null,
+      "attempts": []
+    },
+    {
+      "id": "RF-MECH-DISC-CHAIN100",
+      "outcome": "Refused MechanismWitnessed { body: 1 } []",
+      "selected_precision": null,
+      "attempts": []
+    },
+    {
+      "id": "RF-MECH-DISC-CHAIN100-SPRING",
+      "outcome": "Refused MechanismWitnessed { body: 1 } []",
+      "selected_precision": null,
+      "attempts": []
+    },
+    {
+      "id": "RF-MECH-LINE-IN-CHAIN1000",
+      "outcome": "Refused MechanismWitnessed { body: 1 } []",
+      "selected_precision": null,
+      "attempts": []
+    }
+  ],
+  "actual_future_results": "UNRUN; no predicted kills"
+}

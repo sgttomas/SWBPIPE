@@ -1,0 +1,33 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+warning: variable does not need to be mutable
+    --> src/structural/retained/bound.rs:1290:26
+     |
+1290 |     let (mut uc_missing, mut stop) = (None, None);
+     |                          ----^^^^
+     |                          |
+     |                          help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.01s
+     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+error: test failed, to rerun pass `--lib`
+        8.87 real        13.62 user         0.41 sys
+          1357414400  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              165794  page reclaims
+                 119  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   2  signals received
+                  17  voluntary context switches
+                1899  involuntary context switches
+           207688002  instructions retired
+            76063682  cycles elapsed
+             6210016  peak memory footprint
