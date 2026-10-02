@@ -4441,3 +4441,33 @@ reviewed artifact, not timing/calibration or a scale grant. No matrix compiler/r
 shares this quiet acquisition slot; other active work is read-only review.
 The historical full-publication comparison stays held; the owner has a concrete
 scoped proposal and has not yet answered. No dependent acceptance is assumed.
+
+
+## Current V-K semantic review and D mechanical grant (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV37 vk_semantics_01 RETURN and verified718 payloads
+under seal4d195d574d100a98ebc06f10b97154480f28cbdf8aa80c81bdef48236354cc65.
+Accept its current fifteen-ID plus UNKNOWN semantic coverage within its stated
+source, feature, profile, controls and observed/unreached-result limits. D's
+mechanical matrix remains outstanding and supplies no substitute semantic credit.
+
+[Correction to I27/vk_runtime_05 RETURN's RF-WEAK summary: RV37 independently
+verified thirteen quantity-level CLASS mismatch lines across ten distinct
+protected case/row comparisons. Three bending-magnitude comparisons each yield
+Ry and Rz lines. The original51-comparison roster and three InputDerived
+exceptions remain unchanged. This corrects summary wording only; preserve the
+original sealed evidence.] Same-reviewer wording confirmation follows.
+
+I26 input_qualification_04 has completed its two authorized processes and
+released the quiet slot. ROOT read RETURN and COMMAND_SCOPE_ADDENDUM, verified
+the20-payload base and separate addendum seals, and committed both. The return
+reports full row139 seed/context correspondence; independent RV36 backcheck is
+commissioned before final disposition. No ordinary solve, admission, rho or
+measurement result is claimed. Other models remain unqualified.
+
+Release only I27 D under R/BRIEFS/I27_VK_MECHANICAL_07.md for45 minutes. The
+archive must include the original feature guard's complete manifest-discovery
+scope and release checker. The unchanged full runner, normal control, all
+registered IDs and UNKNOWN are required; any timeout or bad result stops the
+owned process group. No new tool, source change or scale run is granted.
+The owner historical-publication comparison question remains pending.
