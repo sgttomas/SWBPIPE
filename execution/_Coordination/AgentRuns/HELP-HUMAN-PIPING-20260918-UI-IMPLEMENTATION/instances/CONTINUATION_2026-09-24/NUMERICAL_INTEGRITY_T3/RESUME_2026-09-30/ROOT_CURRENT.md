@@ -40,26 +40,34 @@ REVIEW_RV37/vk_mechanical_03. Runtime and review are stopped. Fresh composite
 source review REVIEW_RV38/composite_source_01 is accepted at source scope with
 no actionable maintained-source finding; later measurements/gates need coverage.
 
-I26 /root/i26_uc_witness has the sole quiet/timed slot for original W1-T2 under
-BRIEFS/I26_T2_MEASUREMENTS_07.md. Receipt06:07:47 UTC, runtime stop/reap cutoff
-06:32:47, final return06:37:47. First acquire the six named100-member inputs and
-pass complete field/context checks; then run the unchanged original T2 once.
-Active packet I26/t2_measurements_07 is unsealed and unaccepted. No T3/T4 or new
-tool/source work is granted. Preserve old working-journal bytes as a prefix.
+I26 /root/i26_uc_witness has the sole quiet/timed slot for original W1-T3 under
+BRIEFS/I26_T3_MEASUREMENTS_08.md. Receipt06:32:51 UTC, hard runtime stop/reap
+cutoff07:12:51, final return07:17:51. First acquire the six named1000-member
+inputs and pass complete checks, then original unchanged T3 once if eligible.
+Active packet I26/t3_measurements_08 is unsealed and unaccepted. No T4/10000
+product construction or new tool/source work is granted. Preserve journal prefix.
 
 W1-T1 finite observations are accepted through REVIEW_RV34/t1_measurements_02
-and t1_disposition_03, with explicit ROOT rulings. Its required external live
-inspections did not occur: the tier finished before first inspection. Full
-independent retrospective checks pass. That process failure remains historical;
-there is no live-compliance or performed-successful-group-scan claim. Immutable
-raw snapshot: MEASUREMENTS/W1_T1/_run_records/records.tar.gz. No retry occurred.
+and t1_disposition_03, with explicit ROOT rulings. Required external live checks
+did not occur; complete independent retrospective checks pass. Keep the failure,
+narrow cleanup credit and filesystem-time provenance visible. Immutable raw
+snapshot: MEASUREMENTS/W1_T1/_run_records/records.tar.gz. No retry occurred.
+
+W1-T2 finite observations are accepted through REVIEW_RV34/t2_measurements_04.
+The author base RETURN's sparse All12 Passed cell is wrong: its sealed
+OUTCOME_CORRECTION must accompany it. Actual12 sparse runs are8 Sensitive and4
+Passed; all12 W1 select128/verify256. No numerical reclassification occurred.
+Baseline was inspected while active after two rows; per-row checks were post-run.
+Immutable raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz, with
+all earlier T1 bytes preserved. These100-member rows can supply eligible later
+calibration under unchanged policy; no future admission is predicted.
 
 Other bounded workers/reviewers have returned and no automatic follow-on exists.
 
 ## Remaining path and holds
 
-The small-tier contexts and finite T1 observations are qualified; T2 is active
-under its own conditional input gate. T3/T4 contexts and measurements are pending.
+T1/T2 finite observations are accepted. T3 is active under its own conditional
+input gate; T4 contexts, measurements and owner comparison disposition are pending.
 The original runner enumerates catalogue metadata before filtering a tier and
 does not itself reject a failed tier no-op or enforce full seed correspondence
 on each prepass. These inherited execution limits are disclosed in the latest
