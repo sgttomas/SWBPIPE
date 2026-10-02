@@ -62,34 +62,37 @@ class counts. Process classificationok does not mean numerical Passed.
 Baseline/progress observations retain their actual limited timing. Immutable T2
 raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz.
 
-## Current bounded assignment
+## Current closeout
 
-I26 reports the original T4 normal tier complete and reaped, first observed at
-15:33:50.997 UTC, and the unchanged comparator complete by15:35:41.750 UTC.
-These author results remain provisional pending a sealed return and independent
-review. No further runtime is granted. The original normal cutoff was extended
-explicitly by ROOT bf234cf6 for only the remaining original CONT family; the
-condition was met before the old cutoff. Its final return deadline is16:00:52.
-The extension is not compliance with the original deadline.
+RV34 t4_measurements_07 returned and stopped at16:18:48 UTC. ROOT read the full
+RETURN, verified its31-payload seal282d49093e6ea08c7fc0a72cab150a44371a00be0b9709874014779d2ba1bfeb
+and accepted finite T4 observations plus the owner-adopted comparison. Per-attempt
+work/storage and whole-call heap windows span the reached512/1024 attempts;
+precision-isolated/internal-phase peaks remain unavailable. Eight RSS projection
+misses are mandatory input to later W1 policy; projection is not an upper guarantee.
+All full new dumps and earlier journal prefixes remain preserved.
 
-ROOT preserves the raw delta before any subsequent journal append. RV34's prepared
-t4_measurements_07 review will inspect committed immutable evidence. I28's prepared
-final D assignment will assemble the complete return after ROOT dispatch. The
-historical evidence placement plan is prepared under REVIEW_RV38/placement_plan_02;
-actual movement waits for the author to seal and release the current assignment.
-This support work changes custody/navigation only, not numerical evidence bytes.
+I28 returned the complete revisable D package at16:12:01, now committed at
+0e66a4323296fac876cf2d9460e85c5372774c1a. ROOT updates its accepted T4 references
+and freezes it for RV39. RV39's complete source/custody/current-record review
+and D substance review have no actionable finding so far. Its final delta is
+pending; new-check cutoff16:35:18, return16:40:18 UTC. No other TASK is active.
+The final exact-head gates are not yet run. Maintained source remains81c038.
 
-Readiness is independently accepted under REVIEW_RV34/t4_readiness_06; raw
-qualification archive is MEASUREMENTS/W1_T4_READINESS. Owner adoption is confirmed
-by REVIEW_RV36/comparison_adoption_04. I28/closeout_index_03 remains a revisable
-draft/index, not final acceptance.
+Historical evidence placement is complete under verification/k6c_record_placement_01/
+_run_records/RELOCATION.json. Old locations are navigation; sealed historical
+consumers use the frozen original tree or recovered original-relative layout.
+All original bytes/manifests/modes verify. Existing-classifier changed-file checks
+have no remaining finding; actual GEN-8 remains. No raw evidence or build target
+was pruned. The previous sweep target and generated worktree sweep were preserved;
+the existing Mac sweep checkout is clean and the next target will be fresh.
 
 ## Remaining path and holds
 
 W1-T1/W1-T2/W1-T3 finite observations are accepted. The owner comparison
 amendment is now approved under OWNER_CHECKPOINTS/K6C_PUBLISHED_ROWS_ADOPTION_2026-10-02.md.
-Its original proposal remains historical. This authorizes scoped comparison;
-actual data, independent review and all unchanged numerical/merge gates remain.
+Its original proposal remains historical. Actual scoped comparison and independent
+review are now accepted; all unchanged final merge gates remain.
 The workstream is active. No new owner prompt is needed for that same decision.
 The original runner enumerates catalogue metadata before filtering a tier and
 does not itself reject a failed tier no-op or enforce full seed correspondence
@@ -101,8 +104,8 @@ and grants no source repair or new host tool.
 
 Fresh W1-T1/T2/T3 chronology/calibration and required T3 prefixes are established.
 T4 input/readiness evidence is accepted; the normal/comparison runtime has stopped.
-Author custody, actual result/comparison review and final closure remain.
-Preserve all numeric admission holds and the VR largest-size backstop; do not force a deferred run. Required W1-T4, complete K6c return and
+Author custody and actual result/comparison review are accepted; final closure remains.
+Preserve all numeric admission holds and the VR largest-size backstop; do not force a deferred run. Final K6c return disposition and
 independent final review, full-SHA hosted CI, exact-final-head Mac DEC-025 and
 GEN-8 remain outstanding. K6c is not complete and no PR is ready to merge.
 
