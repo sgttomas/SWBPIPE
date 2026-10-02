@@ -1,6 +1,6 @@
 # T3 current checkpoint
 
-ROOT / HELP_HUMAN execution state, 2026-10-02 05:17 UTC. This is a revisable
+ROOT / HELP_HUMAN execution state, 2026-10-02 UTC. This is a revisable
 recovery index, not a new instruction, accepted numerical result or release.
 The owner resumed after the graceful halt. Continue under the standing bounded
 delegation/Git/host rules and append-only ROOT_RULINGS_V1.md.
@@ -28,36 +28,38 @@ in numerics for missing evidence on the K6c branch.
   REVIEW_RV36/ordinary_artifacts_01, FINAL_SHA256SUMS.
 - V-K semantic coverage: REVIEW_RV37/vk_semantics_01 and02. The RF-WEAK summary
   correction is additive and confirmed; sealed author evidence is unchanged.
-- First small ordinary input/count/context acquisition: I26/input_qualification_04
-  and REVIEW_RV36/input_qualification_03. Only that finite context is qualified;
-  no normal solve, admission, performance or rho result follows.
+- Small-tier ordinary input/count/context acquisition: I26/input_qualification_04
+  and REVIEW_RV36/input_qualification_03, then I26/t1_inputs_05 and ROOT raw-field
+  checks. All fifteen finite T1 contexts are qualified; these counts-only records
+  supply no normal solve, admission, performance or rho result.
 
 ## Current bounded assignments
 
-I27 /root/i27_vr_phase_witness owns the sole Cargo lane for full mechanical
-V-K matrix D, under BRIEFS/I27_VK_MECHANICAL_07.md. Receipt05:09:10 UTC,
-new-runtime cutoff05:49:10, final return05:54:10. Original runner launched once;
-normal control passed, fault rows in progress. No timeout or bad row may be
-accepted; executor must stop/reap and return truthfully at the boundary.
-Canonical active packet I27/vk_mechanical_07. It is unsealed and unaccepted.
+I27's full mechanical V-K matrix D is independently closed by
+REVIEW_RV37/vk_mechanical_03. Runtime and review are stopped. Fresh composite
+source review REVIEW_RV38/composite_source_01 is accepted at source scope with
+no actionable maintained-source finding; later measurements/gates need coverage.
 
-Fresh RV38 /root/rv38_composite_source completed the complete maintained K6c
-source review and returned at05:23:52 UTC. REVIEW_RV38/composite_source_01 has
-no actionable maintained-source finding and is accepted at source scope. Its
-coverage excludes later measurements and final external gates, which remain.
+I26 /root/i26_uc_witness has the sole quiet/timed slot for original W1-T1 under
+BRIEFS/I26_T1_MEASUREMENTS_06.md. Receipt05:36:25 UTC, runtime stop/reap cutoff
+06:01:25, final return06:06:25. Active packet I26/t1_measurements_06 is unsealed
+and unaccepted. All fifteen small-tier input contexts were qualified before this
+grant; the live baseline/record checks and matched-window measurements remain
+part of the active assignment. No later tier or new tool/source change is granted.
+
 Other bounded workers/reviewers have returned and no automatic follow-on exists.
 
 ## Remaining path and holds
 
-The other small-tier seed contexts need complete field checks before reliance.
+The small-tier contexts are qualified; larger-tier contexts remain unqualified.
 The original runner enumerates catalogue metadata before filtering a tier and
 does not itself reject a failed tier no-op or enforce full seed correspondence
 on each prepass. These inherited execution limits are disclosed in the latest
-ROOT ruling. No automatic T1 grant, source repair or new host tool is authorized
-by this index. The next grant must name exact construction/measurement scope,
-successful baseline, qualified seeds and stop conditions.
+ROOT ruling. The explicit T1 grant accounts for that inherited catalogue work and requires
+actual baseline validation, repeated field checks and truthful stops. This index
+itself supplies no authority and grants no source repair or new host tool.
 
-Then acquire fresh W1-T1, T2 and T3 chronology/calibration/prefix evidence before
+Complete fresh W1-T1, T2 and T3 chronology/calibration/prefix evidence before
 ROOT considers T4. Preserve all numeric admission holds and the VR largest-size
 backstop; do not force a deferred run. Required W1-T4, complete K6c return and
 independent final review, full-SHA hosted CI, exact-final-head Mac DEC-025 and

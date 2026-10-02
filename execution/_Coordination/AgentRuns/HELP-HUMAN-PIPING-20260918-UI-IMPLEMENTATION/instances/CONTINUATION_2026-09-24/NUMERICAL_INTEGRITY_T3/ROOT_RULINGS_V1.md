@@ -4529,3 +4529,53 @@ explicit index operation or maintained delta is reported, and all maintained
 postimages match the frozen candidate. Preserve that distinction alongside the
 actual native parentage/write-fence record; do not rewrite it into a blanket
 no-Git-writes history.
+
+
+## Small-tier inputs qualified; first measurements bounded (ROOT, 2026-10-02 UTC)
+
+ROOT read I26 t1_inputs_05 RETURN and verified all93 payloads under
+seal86a3c7c98c17e68d7d65f3c3a674779674735fc6ab198440eebb321e8a801c4c.
+ROOT also independently parsed every raw acquisition with duplicate-key rejection,
+checked all37 consumed fields and20 invariants against each model's own immutable
+seed, fresh estimate fields, actual planned argv/start metadata, zero repeats,
+no dump and empty normal records. The preserved ROOT_T1_INPUT_CHECK_20261002.json
+reports these new checks. Together with independently reviewed row139, accept
+finite input correspondence for all fifteen T1 models and their bound contexts.
+No normal solve or measurement was performed by those acquisitions.
+
+Prepare original W1-T1 under R/BRIEFS/I26_T1_MEASUREMENTS_06.md. ROOT's separate
+explicit lane-release message starts its30-minute grant. This knowingly includes
+the unchanged runner's complete Python catalogue metadata enumeration; no larger
+product solve/count or tier is granted by that bookkeeping. Actual baseline
+success is externally checked before relying on its measurements; invalid
+baseline means stop and no accepted results, including any provisional process
+started before detection. Complete seed qualification precedes tier reliance,
+and every new normal/binding record is checked again. No runner patch, host
+tool, policy/tolerance change or protected-comparison waiver is commissioned.
+
+I27's mechanical matrix has returned, ROOT read its full RETURN and verified
+all80 payloads under seale032d1a49db4f92458b12e18c9644cf388f891c9007e152d92211f720a4ed8dc.
+Its runtime is stopped/reaped. RV37 independently reviews it; no full mechanical
+acceptance is inferred until that review returns. Composite source review stands.
+The owner KF3 historical-publication comparison question remains pending.
+
+
+## Full V-K mechanical matrix closed (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV37 vk_mechanical_03 RETURN and verified its12 payloads
+under seal1d98a8a25ac596458b84e998a46cb512194243c6184df723e7e8f1f7f93d78ed.
+Accept D's complete original mechanical matrix at maintained81c038. The report's
+row table and full-log analysis establish the normal suite, registered failures,
+UNKNOWN panic, completed exits and absence of timeouts; its source/artifact and
+process paragraphs bind full scope and reap. No unresolved actionable finding
+remains. The suppressed initial-build stream remains a disclosed inference from
+unchanged runner control flow and later actual artifacts, not an invented event.
+
+D adds no semantic credit; independently accepted A/B/C witnesses and their
+normal restoration carry that separate obligation. Both V-K semantic and full
+mechanical checks are now accounted for this K6c source candidate. This closes
+neither ordinary measurements nor final K6c/gates or engineering acceptance.
+
+The first ordinary W1-T1 grant is active with I26, receipt05:36:25 UTC, runtime
+cutoff06:01:25 and return06:06:25. It has the sole quiet/timed slot under the
+existing guard. No later tier grant or owner comparison amendment is implied.
