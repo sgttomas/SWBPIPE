@@ -1,0 +1,114 @@
+[
+  {
+    "source_commit": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+    "source_path": "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+    "local_snapshot": "k6_runner_908.py",
+    "sha256": "ab240220f1c23d4178ebcb2321b299004650cdef4b607de09fb9d151128abf27",
+    "command": [
+      "git",
+      "show",
+      "9086964a1fb656a76cda6d1002d8594efa636fdc:projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py"
+    ],
+    "environment": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "source_commit": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+    "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py",
+    "local_snapshot": "vk_scale_runner_908.py",
+    "sha256": "a4ed5c143a74caa99d9165109d9058b394fd4276d81936bae351231d38ffd6fb",
+    "command": [
+      "git",
+      "show",
+      "9086964a1fb656a76cda6d1002d8594efa636fdc:projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py"
+    ],
+    "environment": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "source_commit": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+    "source_path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/h_envelope.rs",
+    "local_snapshot": "h_envelope_908.rs",
+    "sha256": "eb7410a4eef9f1d9b0ff9607986fbac133329e65377010be16c25f802fd2979f",
+    "command": [
+      "git",
+      "show",
+      "9086964a1fb656a76cda6d1002d8594efa636fdc:projects/chirality-piping/core/solver/performance_harness/src/k6/w1/h_envelope.rs"
+    ],
+    "environment": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "source_commit": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+    "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs",
+    "local_snapshot": "vr_envelope_908.rs",
+    "sha256": "8997aaafb92a02c22324915a07836ec7ee50a51e71a6e64a46e884d646dcc293",
+    "command": [
+      "git",
+      "show",
+      "9086964a1fb656a76cda6d1002d8594efa636fdc:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs"
+    ],
+    "environment": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "source_commit": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+    "source_path": "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+    "local_snapshot": "h_main_908.rs",
+    "sha256": "e72cb08ee2ad27b3f291d1303330f0cc4099a1ea8ff770cde5225fa3c9995df2",
+    "command": [
+      "git",
+      "show",
+      "9086964a1fb656a76cda6d1002d8594efa636fdc:projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs"
+    ],
+    "environment": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b",
+    "source_path": "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+    "local_snapshot": "k6_runner_historical_4eeb.py.txt",
+    "sha256": "94f20955a6176c1859531bc2b7e1ecc5545eab4fcbc1051f95079540d01ecab1",
+    "command": [
+      "git",
+      "show",
+      "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b:projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py"
+    ],
+    "environment": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b",
+    "source_path": "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+    "local_snapshot": "h_main_historical_4eeb.rs.txt",
+    "sha256": "2c98ffcb4887b12533e29f5fd0dec765c84d54f3d5292d2d6a184d9606ef74a1",
+    "command": [
+      "git",
+      "show",
+      "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b:projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs"
+    ],
+    "environment": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "exit_code": 0,
+    "stderr": ""
+  }
+]

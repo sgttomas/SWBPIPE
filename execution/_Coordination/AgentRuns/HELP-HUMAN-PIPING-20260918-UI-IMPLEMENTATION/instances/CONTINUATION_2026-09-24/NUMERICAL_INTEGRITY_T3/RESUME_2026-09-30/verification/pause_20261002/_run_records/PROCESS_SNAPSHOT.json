@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-02T02:37:47.415006+00:00",
+  "argv": [
+    "pgrep",
+    "-fl",
+    "cargo|rustc|k6_observe|vk_scale|memguard|run_seeded_faults|run_harness_mutants"
+  ],
+  "exit": 0,
+  "stdout": "5387 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+  "stderr": "",
+  "interpretation": "Only standing memguard5387 matched; no owned experiment/build/solver process observed."
+}

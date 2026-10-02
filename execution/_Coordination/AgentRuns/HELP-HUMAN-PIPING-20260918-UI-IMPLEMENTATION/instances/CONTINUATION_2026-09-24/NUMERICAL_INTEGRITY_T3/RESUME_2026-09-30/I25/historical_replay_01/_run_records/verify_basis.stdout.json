@@ -1,0 +1,109 @@
+{
+  "seals": 10,
+  "payloads": 326,
+  "historical_input_hashes": 39,
+  "stdout_hashes": 102,
+  "raw_heap_objects": 1892,
+  "kinds": [
+    "binary64",
+    "counts",
+    "rcm",
+    "report",
+    "stage",
+    "stage_begin",
+    "start",
+    "summary",
+    "w1"
+  ],
+  "example": [
+    {
+      "dataset": "K6B",
+      "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "kind": "start",
+      "stage": null,
+      "repeat": null,
+      "heaps": {
+        "heap_cap_bytes": 8053063680
+      }
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "kind": "stage_begin",
+      "stage": "w1_source",
+      "repeat": 0,
+      "heaps": {
+        "heap_current": 5840
+      }
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "kind": "stage",
+      "stage": "w1_source",
+      "repeat": 0,
+      "heaps": {
+        "heap_current_begin": 5776,
+        "heap_current_end": 8552,
+        "heap_peak": 13884,
+        "heap_peak_move": 13884
+      }
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "kind": "stage_begin",
+      "stage": "w1_solve",
+      "repeat": 0,
+      "heaps": {
+        "heap_current": 8616
+      }
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "kind": "stage",
+      "stage": "w1_solve",
+      "repeat": 0,
+      "heaps": {
+        "heap_current_begin": 8552,
+        "heap_current_end": 784812,
+        "heap_peak": 1098747,
+        "heap_peak_move": 1167611
+      }
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "kind": "stage_begin",
+      "stage": "w1_source",
+      "repeat": 1,
+      "heaps": {
+        "heap_current": 7480
+      }
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "kind": "stage",
+      "stage": "w1_source",
+      "repeat": 1,
+      "heaps": {
+        "heap_current_begin": 7416,
+        "heap_current_end": 10192,
+        "heap_peak": 15524,
+        "heap_peak_move": 15524
+      }
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "kind": "stage_begin",
+      "stage": "w1_solve",
+      "repeat": 1,
+      "heaps": {
+        "heap_current": 10256
+      }
+    }
+  ]
+}

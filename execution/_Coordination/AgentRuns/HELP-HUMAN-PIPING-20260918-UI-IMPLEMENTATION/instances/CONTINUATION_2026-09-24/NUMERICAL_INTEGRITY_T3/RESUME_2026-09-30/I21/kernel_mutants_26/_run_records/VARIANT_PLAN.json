@@ -1,0 +1,107 @@
+{
+  "ordered_variants": [
+    {
+      "id": "NONE",
+      "family": "control",
+      "description": "Unmodified exact908 core archive. Both fixed test selections must pass.",
+      "old": null,
+      "new": null
+    },
+    {
+      "id": "M01_NL_ONE_VECTOR",
+      "family": "nl_pass at/bt/ct",
+      "description": "Omit one equal-width nl_pass vector: folded at+bt+ct 3*f*w becomes2*f*w. This is one missing-vector mutation, not three independent kills.",
+      "old": "let shift_extra = max(&[f * w, 3 * f * w, f * w + bc * w + start]);",
+      "new": "let shift_extra = max(&[f * w, 2 * f * w, f * w + bc * w + start]);"
+    },
+    {
+      "id": "M02_NL_ALL_THREE",
+      "family": "nl_pass at/bt/ct",
+      "description": "Omit the complete nl_pass at+bt+ct contribution at its active phase alternative (3*f*w becomes zero); factor-work and ct/maxima/next alternatives remain.",
+      "old": "let shift_extra = max(&[f * w, 3 * f * w, f * w + bc * w + start]);",
+      "new": "let shift_extra = max(&[f * w, zero, f * w + bc * w + start]);"
+    },
+    {
+      "id": "M03_DEAD_WORK",
+      "family": "dead work",
+      "description": "Incorrectly retain factor work through nl_pass: its simultaneous helper branch becomes4*f*w instead of3*f*w. Over-count; exact identity failure only, not a measured-underbound claim.",
+      "old": "let shift_extra = max(&[f * w, 3 * f * w, f * w + bc * w + start]);",
+      "new": "let shift_extra = max(&[f * w, 4 * f * w, f * w + bc * w + start]);"
+    },
+    {
+      "id": "M04_OPTION_REPORT_PLUS8",
+      "family": "Option+8",
+      "description": "Add the incorrect eight-byte Option surcharge to live Option-backed verification report row arrays only. Other Wide-backed owners and unused compatibility constants stay unchanged.",
+      "old": "let report = 344 + 5 * q * w + (f + c) * w + REPORT_BLOCK[vi] * bc + BODY[vi] * b + res;",
+      "new": "let report = 344 + 5 * q * (w + 8) + (f + c) * w + REPORT_BLOCK[vi] * bc + BODY[vi] * b + res;"
+    },
+    {
+      "id": "M05_UC_C_OVERLAP",
+      "family": "Uc c overlap",
+      "description": "Drop one retained f*w c buffer from Uc construction's c+at+bt+ct=4*f*w overlap, leaving3*f*w plus existing row-map and later output alternatives.",
+      "old": "m * COEFFICIENT[i] + 16 * bc + (4 * f * w + 4 * f).max(2 * f * w + 2 * bc * w),",
+      "new": "m * COEFFICIENT[i] + 16 * bc + (3 * f * w + 4 * f).max(2 * f * w + 2 * bc * w),"
+    },
+    {
+      "id": "M06_RES_EXACT",
+      "family": "RES",
+      "description": "Replace growing RES capacity with exact16B at the active retained owner.",
+      "old": "let res = g(16, b);",
+      "new": "let res = 16 * b;"
+    },
+    {
+      "id": "M07_TOP_DROP",
+      "family": "TOP/HATCHECK",
+      "description": "Drop TOP phase alternative; patch to be materialized only if earlier variants do not survive."
+    },
+    {
+      "id": "M08_HATCHECK_DROP",
+      "family": "TOP/HATCHECK",
+      "description": "Drop HATCHECK phase alternative; patch to be materialized only if earlier variants do not survive."
+    },
+    {
+      "id": "M09_SUMMARY_MISSING",
+      "family": "moved summary",
+      "description": "Miss the prepaid40B moved summary per verification attempt."
+    },
+    {
+      "id": "M10_SUMMARY_DOUBLE",
+      "family": "moved summary",
+      "description": "Count the prepaid moved40B summary a second time."
+    },
+    {
+      "id": "M11_ACTIVE_OLD_DROP",
+      "family": "current realloc old",
+      "description": "Remove one current old surcharge from active Pair::new arithmetic."
+    },
+    {
+      "id": "M12_REBUILD_OLD_DROP",
+      "family": "old/new rebuild",
+      "description": "Drop the original table in the standalone tracker old-table/new-kept overlap."
+    }
+  ],
+  "test_selections": [
+    {
+      "name": "kernel_reference_suite",
+      "args": [
+        "--test",
+        "k6c_envelope",
+        "--",
+        "--test-threads=2"
+      ]
+    },
+    {
+      "name": "h33_exact_fields",
+      "args": [
+        "--test",
+        "k6b_w1",
+        "the_committed_counts_carry_this_codes_estimate",
+        "--",
+        "--exact",
+        "--test-threads=2"
+      ]
+    }
+  ],
+  "stop_rule": "Stop at first surviving required mutant; no altered tests; compile failure is not a kill.",
+  "semantic_note": "M01 is one folded equal-size missing vector, M02 removes the entire original three-vector contribution. Neither is counted as three independent kills."
+}

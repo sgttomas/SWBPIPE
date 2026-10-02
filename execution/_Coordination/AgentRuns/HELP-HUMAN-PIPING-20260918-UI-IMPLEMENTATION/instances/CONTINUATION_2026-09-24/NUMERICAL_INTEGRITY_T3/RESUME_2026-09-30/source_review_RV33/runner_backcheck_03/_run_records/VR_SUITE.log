@@ -1,0 +1,20 @@
+test_a_failure_on_a_covered_row_still_stops (test_vk_scale_runner.Kf3AvailabilityException.test_a_failure_on_a_covered_row_still_stops) ... ok
+test_a_process_that_did_not_complete_still_stops (test_vk_scale_runner.Kf3AvailabilityException.test_a_process_that_did_not_complete_still_stops) ... ok
+test_a_published_row_voids_the_exception (test_vk_scale_runner.Kf3AvailabilityException.test_a_published_row_voids_the_exception) ... ok
+test_a_selected_case_with_no_failure_does_not_stop (test_vk_scale_runner.Kf3AvailabilityException.test_a_selected_case_with_no_failure_does_not_stop) ... ok
+test_any_other_unresolved_reason_still_stops (test_vk_scale_runner.Kf3AvailabilityException.test_any_other_unresolved_reason_still_stops) ... ok
+test_every_other_check_still_applies_under_the_exception (test_vk_scale_runner.Kf3AvailabilityException.test_every_other_check_still_applies_under_the_exception) ... ok
+test_exact_sum_span_at_10000_members_is_recorded_and_the_tier_continues (test_vk_scale_runner.Kf3AvailabilityException.test_exact_sum_span_at_10000_members_is_recorded_and_the_tier_continues) ... ok
+test_exact_sum_span_below_10000_members_still_stops (test_vk_scale_runner.Kf3AvailabilityException.test_exact_sum_span_below_10000_members_still_stops) ... ok
+test_actual_case_and_model_path_are_rebound_before_admission (test_vk_scale_runner.LaunchContextBinding.test_actual_case_and_model_path_are_rebound_before_admission) ... ok
+test_failed_or_incomplete_binding_never_uses_old_estimate (test_vk_scale_runner.LaunchContextBinding.test_failed_or_incomplete_binding_never_uses_old_estimate) ... ok
+test_plan_stays_process_free (test_vk_scale_runner.LaunchContextBinding.test_plan_stays_process_free) ... ok
+test_tier_admission_and_record_denominator_use_the_refreshed_context (test_vk_scale_runner.LaunchContextBinding.test_tier_admission_and_record_denominator_use_the_refreshed_context) ... ok
+test_approval_and_ascent_holds_have_only_the_tier_noop (test_vk_scale_runner.ModelEligibilityBeforeLaunch.test_approval_and_ascent_holds_have_only_the_tier_noop) ... ok
+test_approved_recorded_model_rebinds_before_numeric_use_with_original_caps (test_vk_scale_runner.ModelEligibilityBeforeLaunch.test_approved_recorded_model_rebinds_before_numeric_use_with_original_caps) ... ok
+test_legacy_admission_priority_and_estimate_diagnostics_remain (test_vk_scale_runner.ModelEligibilityBeforeLaunch.test_legacy_admission_priority_and_estimate_diagnostics_remain) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.022s
+
+OK

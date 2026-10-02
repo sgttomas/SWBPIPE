@@ -1,0 +1,10 @@
+--- prior908_reproducer
++++ repaired10315_reproducer
+@@ -14,5 +14,5 @@
+  with mock.patch.object(r,'schedule',return_value=[run]),mock.patch.object(r,'launch',side_effect=fake_launch),mock.patch.object(r,'baseline_run',return_value={'rss':{}}),mock.patch.object(r,'wait_for_quiet_host',return_value={}),mock.patch.object(r,'admission',side_effect=admission):
+   result=r.run_tier(run['tier'],'NOT_EXECUTED_BINARY',str(counts_path),folder,'candidate','tree',log=lambda *args:None)
+  rows=r.run_entries(r.read_records(folder))
+-result={'candidate':'9086964a1fb656a76cda6d1002d8594efa636fdc','run':run,'events':events,'records':rows,'expected':'ascent hold checked before any model counts prepass launch','observed':'counts-only launch precedes deferred ascent decision; normal process not launched','no_real_subprocesses':True}
+-(out/'RUNNER_HOLD_REPRO.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2));assert events[0]['event']=='launch' and events[0]['counts_only'];assert events[1]['result']['reason'].startswith('deferred:ascent_previous_size_not_recorded')
++result={'candidate':'10315a8167c47f43aa41402beb88ed2c70e62cf2','run':run,'events':events,'records':rows,'expected':'ascent hold checked before any model counts prepass launch','observed':'no model-specific prepass, numeric admission or normal launch; recorded ascent hold','no_real_subprocesses':True}
++(out/'RUNNER_HOLD_REPRO.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2));assert events==[];assert rows[-1]['classification']=='not_run';assert rows[-1]['admission']['reason'].startswith('deferred:ascent_previous_size_not_recorded');assert rows[-1]['admission']['estimate_adm_bytes'] is None

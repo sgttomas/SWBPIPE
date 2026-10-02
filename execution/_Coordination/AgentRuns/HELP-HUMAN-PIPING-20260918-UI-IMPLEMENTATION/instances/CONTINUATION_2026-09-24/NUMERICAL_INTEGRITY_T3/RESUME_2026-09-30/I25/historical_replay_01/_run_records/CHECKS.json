@@ -1,0 +1,10 @@
+{
+  "time_utc": "2026-10-02T02:20:29.325467+00:00",
+  "rows": 102,
+  "all_summary_and_prefix_peaks_below_reference_bounds": true,
+  "all_eligible_denominators_replaced": true,
+  "only_prior_observations_used": true,
+  "independent_old_replay_mismatch_count": 0,
+  "counterfactual_decision_differences": 0,
+  "counterfactual_lost_calibration_rows": 0
+}

@@ -1,0 +1,34 @@
+{
+  "pure_admission_comparisons": {
+    "H": 13968,
+    "VR": 1512
+  },
+  "mismatches": [],
+  "plan_checks": [
+    {
+      "runner": "H",
+      "counts": null,
+      "equal": true,
+      "rows": 270
+    },
+    {
+      "runner": "H",
+      "counts": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV33/runner_backcheck_03/_run_records/candidate/projects/chirality-piping/core/solver/performance_harness/observations/k6b/counts.jsonl",
+      "equal": true,
+      "rows": 270
+    },
+    {
+      "runner": "VR",
+      "approve_10000": false,
+      "equal": true,
+      "rows": 18
+    },
+    {
+      "runner": "VR",
+      "approve_10000": true,
+      "equal": true,
+      "rows": 18
+    }
+  ],
+  "method": "Independent bounded comparisons over all schedules, missing/absent/small/half-cap/over-cap estimates, require-ascent and approval settings, and absent/None/not_run/ok/error/timeout/abort prior attempts; no model-specific subprocess, product count/solver, or Cargo execution; schedule helpers retain their existing Python model metadata construction."
+}

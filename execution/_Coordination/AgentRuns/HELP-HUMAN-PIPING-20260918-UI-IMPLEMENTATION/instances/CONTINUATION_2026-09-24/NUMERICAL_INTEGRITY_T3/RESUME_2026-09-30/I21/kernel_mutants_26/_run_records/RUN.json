@@ -1,0 +1,16 @@
+{
+  "native": "/root/i21_kernel_resume",
+  "parent": "/root",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native child, direct ROOT follow-up",
+  "receipt_utc": "2026-10-02 02:13:18 UTC",
+  "new_variant_cutoff_utc": "2026-10-02 02:53:18 UTC",
+  "hard_end_utc": "2026-10-02 02:58:18 UTC",
+  "source_revision": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+  "no_maintained_edits": true,
+  "no_Git_index_writes": true,
+  "no_delegation": true,
+  "target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-kernel-mutants26-target",
+  "build_lane": "ROOT confirms RV33 and RV32 Cargo work ended; reserved for this NONE/mutant lane; no performance slot.",
+  "stop_rule": "Stop at first surviving required mutant; compilation errors are not kills; no test edits mid-programme."
+}

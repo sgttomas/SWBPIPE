@@ -1,0 +1,30 @@
+{
+  "base": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+  "candidate": "10315a8167c47f43aa41402beb88ed2c70e62cf2",
+  "paths": [
+    "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+    "projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py"
+  ],
+  "exact_four_paths": true,
+  "rust_changed": false,
+  "postimages": [
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+      "sha256": "4cfbd86c2ba293c7d67202120c44fe94f5d30b9938f283d8d55e25f0c5686840"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py",
+      "sha256": "b26005824731798eb3ebca5dc68ed6e388923ed1067371f113fc6354fceb1500"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py",
+      "sha256": "84c383bedc930feb123d796b41b859e27c9657e81b95909dca2d0c18dc6d2b86"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py",
+      "sha256": "fd50b1e26bd1da2abf1a0c325571a5fb565dbf31c2a75d8e453297463d6b7132"
+    }
+  ]
+}

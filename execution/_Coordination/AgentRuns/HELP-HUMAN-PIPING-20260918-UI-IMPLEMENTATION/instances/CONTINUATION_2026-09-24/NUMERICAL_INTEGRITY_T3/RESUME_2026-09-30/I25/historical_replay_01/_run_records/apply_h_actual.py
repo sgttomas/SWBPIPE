@@ -1,0 +1,10 @@
+from inspect import *
+s=read(REC/'replay.py')
+s=s.replace("import ast,re,types,copy,datetime", "import ast,re,types,copy,datetime\nH_ACTUAL = '--h-actual' in sys.argv\nBINDINGS={x['run_id']:x for x in js(REC/'H_ACTUAL_LAUNCH_BINDING.json')['rows']} if H_ACTUAL else {}\nPREFIX='ACTUAL_H_' if H_ACTUAL else ''")
+s=s.replace("return variants[0]['totals']['all']['moving_bytes']", "return variants[0]['totals']['all']['moving_bytes'] + (BINDINGS[run['run_id']]['actual_minus_reference_bytes'] if H_ACTUAL else 0)")
+s=s.replace("mid=run['model'];rid=run['run_id'];e=corrected(dataset,run);historical=original[(dataset,rid)]", "mid=run['model'];rid=run['run_id'];e=corrected(dataset,run);historical=original[(dataset,rid)]\n  qual='conditional ordinary-production profile; actual H historical retained arguments bound' if H_ACTUAL and dataset=='K6B' else 'conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved'")
+s=s.replace("'status':'conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved'", "'status':qual")
+s=s.replace("'status':'conditional same-caller reference envelope comparison, not historical executable attestation'", "'status':qual + '; not historical executable attestation'")
+s=s.replace("variant=next(v for v in HROWS[mid]['launch_variants'] if v['run_id']==rid);t=variant['totals']['all']", "variant=copy.deepcopy(next(v for v in HROWS[mid]['launch_variants'] if v['run_id']==rid));t=variant['totals']['all']\n   if H_ACTUAL:\n    delta=BINDINGS[rid]['actual_minus_reference_bytes']\n    variant['Hfixed']+=delta\n    for key in t:\n     if t[key]!=0:t[key]+=delta\n    p['historical_retained_argument_bytes']=BINDINGS[rid]['retained_string_utf8_bytes']\n    p['actual_minus_reference_bytes']=delta")
+s=s.replace("save('REPLAY.json'", "save(PREFIX+'REPLAY.json'").replace("save('PEAK_COMPARISONS.json'", "save(PREFIX+'PEAK_COMPARISONS.json'").replace("save('COUNTERFACTUAL.json'", "save(PREFIX+'COUNTERFACTUAL.json'").replace("save('SUMMARY.json'", "save(PREFIX+'SUMMARY.json'").replace("save('CHECKS.json'", "save(PREFIX+'CHECKS.json'")
+(REC/'replay.py').write_text(s)

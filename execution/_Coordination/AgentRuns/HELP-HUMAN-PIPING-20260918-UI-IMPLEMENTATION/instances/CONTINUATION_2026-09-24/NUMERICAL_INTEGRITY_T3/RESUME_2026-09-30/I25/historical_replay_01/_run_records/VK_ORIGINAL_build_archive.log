@@ -1,0 +1,10 @@
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling memchr v2.8.3
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/vk-mut/b/src/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/vk-mut/b/src/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling piping_numerical_robustness v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/vk-mut/b/src/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `release` profile [optimized] target(s) in 12.53s
+rc=0 seconds=12

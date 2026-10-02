@@ -1,0 +1,69 @@
+{
+  "source_revision": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+  "archive_command": [
+    "git",
+    "archive",
+    "--format=tar",
+    "9086964a1fb656a76cda6d1002d8594efa636fdc",
+    "AGENTS.md",
+    "agents/AGENT_TASK.md",
+    "projects/chirality-piping/AGENTS.md",
+    "projects/chirality-piping/core",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/k0_assembly_16/DESIGN_AND_PLAN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_05/KERNEL_LEDGER.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_06/CORRECTION.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/DESCRIPTOR_MAP.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md"
+  ],
+  "environment_overrides": {
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  "source_repo": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+  "archive_tar": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i21-kernel-mutants-26/source.tar",
+  "archive_sha256": "c57c44b641191986c8488daf8bf31422ef53574ed806e8ad37b8e72271630284",
+  "archive_bytes": 35502080,
+  "archive_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i21-kernel-mutants-26/archive",
+  "archive_scope": "Complete core subtree plus supplied instructions and selected proof/brief files; no mutable worktree input copied.",
+  "origins": [
+    {
+      "revision": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "revision": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "revision": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "revision": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/k0_assembly_16/DESIGN_AND_PLAN.md",
+      "sha256": "263a368314f8786ec1716cf9a6dd8408073857321faa890e3334d8b5488a2223"
+    },
+    {
+      "revision": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_05/KERNEL_LEDGER.md",
+      "sha256": "9f561fbfe88e2691ba90aa41ffadecd14c4e3149be3ade3cdcff3bf789ec8836"
+    },
+    {
+      "revision": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_06/CORRECTION.md",
+      "sha256": "e224a53327dd3b0a3ecbcc74ff938b06d3895b400274628aeb8c77df681b2a07"
+    },
+    {
+      "revision": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/DESCRIPTOR_MAP.md",
+      "sha256": "e56fb9767188f161c96aaeac0c221b004a8ad065719248669bbb9907716d4c33"
+    },
+    {
+      "revision": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md",
+      "sha256": "d0ae59f52fc5812b50350a8ea7b9736b5d3d61c4deecb4f1b936ec0c5a2c0b7f"
+    }
+  ]
+}

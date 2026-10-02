@@ -1,0 +1,8 @@
+{
+  "evidence_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_mutants_26",
+  "scratch_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i21-kernel-mutants-26",
+  "target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-kernel-mutants26-target",
+  "maintained_edits": [],
+  "archive_source_mutation_only": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs; restored from immutable tar after each variant",
+  "raw_metadata_rule": "All metadata, patches and logs under _run_records; human return at packet root."
+}

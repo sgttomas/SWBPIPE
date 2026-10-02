@@ -1,0 +1,7 @@
+{
+  "checked_utc": "2026-10-02T02:31:45.022408+00:00",
+  "archive_files_checked": 572,
+  "mismatches": [],
+  "no_further_build_after_M05": true,
+  "target_state": "Last compiled test artifacts are M05, with recorded hashes. Source archive is restored to NONE; target is diagnostic only."
+}

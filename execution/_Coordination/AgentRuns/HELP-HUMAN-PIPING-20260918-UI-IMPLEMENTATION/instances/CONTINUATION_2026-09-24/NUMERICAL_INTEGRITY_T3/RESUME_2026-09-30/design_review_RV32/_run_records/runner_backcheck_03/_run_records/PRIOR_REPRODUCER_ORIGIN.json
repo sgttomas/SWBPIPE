@@ -1,0 +1,5 @@
+{
+  "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/vr_implementation_02/_run_records/runner_hold_reproduction.py",
+  "sha256": "b9619fa9d66239ef15a47d667c847473be3a65a3d41201f3572b3bcc9fe57495",
+  "change": "same V3-unapproved and V2-no-ascent scenarios, new clean source root, expected counts launches6->0, assert one noop baseline"
+}

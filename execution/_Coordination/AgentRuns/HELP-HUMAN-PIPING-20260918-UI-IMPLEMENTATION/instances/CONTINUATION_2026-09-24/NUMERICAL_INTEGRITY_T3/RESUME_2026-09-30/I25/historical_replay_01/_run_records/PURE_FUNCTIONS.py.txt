@@ -1,0 +1,194 @@
+RF_LARGE_SIZES = (10, 100, 1000, 10000)
+
+Q5_GRID_SIDES = (16, 32, 64, 96, 128)
+
+N2_MODES = ('dense', 'lane-lu')
+
+N2_REFUSAL_MEMBERS = 10000
+
+RHO_DEFAULT = 2.0
+
+RSS_TO_FOOTPRINT_DEFAULT = 1.45
+
+PROJECTED_RSS_FRACTION = 0.8
+
+RHO_MIN_MEMBERS_FOR_LARGE = 100
+
+LARGE_MEMBERS = 1000
+
+P1_LINUX_PEAK_MIB = {
+    ('RF-LARGE-CHAIN-n00010-AX', 'sparse'): 34.4, ('RF-LARGE-CHAIN-n00010-AX', 'dense'): 34.4,
+    ('RF-LARGE-CHAIN-n00010-ROT', 'sparse'): 34.4, ('RF-LARGE-CHAIN-n00010-ROT', 'dense'): 34.4,
+    ('RF-LARGE-TREE-n00010-AX', 'sparse'): 34.4, ('RF-LARGE-TREE-n00010-AX', 'dense'): 34.4,
+    ('RF-LARGE-TREE-n00010-ROT', 'sparse'): 34.6, ('RF-LARGE-TREE-n00010-ROT', 'dense'): 34.4,
+    ('RF-LARGE-CONT-n00010-AX', 'sparse'): 34.4, ('RF-LARGE-CONT-n00010-AX', 'dense'): 34.4,
+    ('RF-LARGE-CONT-n00010-ROT', 'sparse'): 34.4, ('RF-LARGE-CONT-n00010-ROT', 'dense'): 34.4,
+    ('RF-LARGE-CHAIN-n00100-AX', 'sparse'): 49.6, ('RF-LARGE-CHAIN-n00100-AX', 'dense'): 49.9,
+    ('RF-LARGE-CHAIN-n00100-ROT', 'sparse'): 49.8, ('RF-LARGE-CHAIN-n00100-ROT', 'dense'): 50.1,
+    ('RF-LARGE-TREE-n00100-AX', 'sparse'): 50.5, ('RF-LARGE-TREE-n00100-AX', 'dense'): 50.5,
+    ('RF-LARGE-TREE-n00100-ROT', 'sparse'): 52.6, ('RF-LARGE-TREE-n00100-ROT', 'dense'): 52.6,
+    ('RF-LARGE-CONT-n00100-AX', 'sparse'): 52.3, ('RF-LARGE-CONT-n00100-AX', 'dense'): 51.6,
+    ('RF-LARGE-CONT-n00100-ROT', 'sparse'): 52.7, ('RF-LARGE-CONT-n00100-ROT', 'dense'): 51.7,
+    ('RF-LARGE-CHAIN-n01000-AX', 'sparse'): 3605.2, ('RF-LARGE-CHAIN-n01000-AX', 'dense'): 3605.2,
+    ('RF-LARGE-CHAIN-n01000-ROT', 'sparse'): 3606.5, ('RF-LARGE-CHAIN-n01000-ROT', 'dense'): 3606.7,
+    ('RF-LARGE-TREE-n01000-AX', 'sparse'): 3608.7, ('RF-LARGE-TREE-n01000-AX', 'dense'): 3609.1,
+    ('RF-LARGE-TREE-n01000-ROT', 'sparse'): 3617.2, ('RF-LARGE-TREE-n01000-ROT', 'dense'): 3617.2,
+    ('RF-LARGE-CONT-n01000-AX', 'sparse'): 3372.8, ('RF-LARGE-CONT-n01000-AX', 'dense'): 3373.0,
+    ('RF-LARGE-CONT-n01000-ROT', 'sparse'): 3377.2, ('RF-LARGE-CONT-n01000-ROT', 'dense'): 3377.2,
+}
+
+def members_of(model_id):
+    m = re.search(r'-n(\d{5})-', model_id)
+    if m:
+        return int(m.group(1))
+    return len(model(model_id).members)
+
+def refusal_by_name(model_id, mode, members):
+    """The never-run refusals, by name (host rule; ROOT's rulings Q12 and on RV16-N4)."""
+    if mode in N2_MODES and members >= N2_REFUSAL_MEMBERS:
+        return 'never:n2_mode_at_or_above_10000_members'
+    if mode == 'lane-id' and model_id.startswith('RF-LARGE-CONT-n10000-'):
+        return 'never:cont_n10000_identity_lane'
+    return None
+
+def estimate_key(mode):
+    return 'estimate_adm_bytes_' + mode.replace('-', '_')
+
+def measured_ratio(record, baseline_rss_bytes):
+    """The RSS-based ρ (the A1-stop rule, kept for comparison): max(RSS net of the no-op
+    baseline, move-model heap peak) / E_adm."""
+    estimate = record.get('estimate_adm_bytes')
+    if not estimate:
+        return None
+    rss = record.get('peak_rss_bytes')
+    rss_net = max(0, rss - (baseline_rss_bytes or 0)) if rss is not None else 0
+    heap = record.get('repeats_heap_peak_move') or 0
+    return max(rss_net, heap) / estimate
+
+def peak_footprint(record):
+    return (record.get('rss') or {}).get('time_peak_footprint_bytes')
+
+def measured_footprint_ratio(record, baseline_footprint_bytes):
+    """ρ as ruled at the B2 stop: max(macOS peak footprint net of the no-op baseline's, move-model
+    heap peak) / E_adm. Where no footprint was recorded (not macOS), RSS stands in."""
+    estimate = record.get('estimate_adm_bytes')
+    if not estimate:
+        return None
+    footprint = peak_footprint(record)
+    if footprint is None:
+        return measured_ratio(record, baseline_footprint_bytes)
+    net = max(0, footprint - (baseline_footprint_bytes or 0))
+    heap = record.get('repeats_heap_peak_move') or 0
+    return max(net, heap) / estimate
+
+def rss_to_footprint(record):
+    footprint, rss = peak_footprint(record), record.get('peak_rss_bytes')
+    return rss / footprint if footprint and rss else None
+
+def previous_size(model_id):
+    """The ascent's previous size of the same family, orientation and mode (None at the bottom)."""
+    if model_id.startswith('RF-LARGE-'):
+        n = members_of(model_id)
+        k = RF_LARGE_SIZES.index(n)
+        return None if k == 0 else model_id.replace('-n%05d-' % n, '-n%05d-' % RF_LARGE_SIZES[k - 1])
+    if model_id.startswith('K6-GRID-'):
+        side = int(model_id[len('K6-GRID-'):].split('x')[0])
+        k = Q5_GRID_SIDES.index(side)
+        return None if k == 0 else 'K6-GRID-%dx%d' % (Q5_GRID_SIDES[k - 1], Q5_GRID_SIDES[k - 1])
+    if model_id.startswith('K6-CEIL-'):
+        return 'RF-LARGE-CHAIN-n01000-AX'
+    return None
+
+def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True, baseline_footprint_bytes=None):
+    """ROOT's K6 ruling Q3, with N9, the A1-stop ruling Q2 and the B2-stop ruling: ρ on the
+    macOS footprint (the RSS-based ρ recorded beside it), and projected RSS <= 0.8 C.
+
+    counts: {model: counts line}; measured: runner records so far.
+    Returns a dict with decision (never / admitted / deferred), reason, the
+    estimate, ρ and the C/2 bound.
+    """
+    model_id, mode, members = run['model'], run['mode'], run['members']
+    measured = [r for r in run_entries(measured) if 'family' in r]
+    half = run['rss_cap_bytes'] // 2
+    out = {'decision': None, 'reason': None, 'estimate_adm_bytes': None, 'rho': None, 'rho_rss': None,
+           'half_cap_bytes': half, 'footprint_estimate_bytes': None, 'rss_to_footprint': None,
+           'projected_rss_bytes': None, 'projected_rss_limit_bytes': int(PROJECTED_RSS_FRACTION * run['rss_cap_bytes'])}
+    never = refusal_by_name(model_id, mode, members)
+    if never:
+        out.update(decision='never', reason=never)
+        return out
+    line = counts.get(model_id)
+    if line is None:
+        out.update(decision='deferred', reason='deferred:no_counts_line')
+        return out
+    estimate = line.get(estimate_key(mode))
+    if estimate is None:
+        # K6's own counts lines carry no W1 estimate (K6b).
+        out.update(decision='deferred', reason='deferred:no_estimate_for_mode_in_counts_line')
+        return out
+    out['estimate_adm_bytes'] = estimate
+    previous = previous_size(model_id)
+    if require_ascent and previous is not None:
+        done = [r for r in measured if r['model'] == previous and r['mode'] == mode
+                and r.get('classification') not in (None, 'not_run')]
+        if not done:
+            out.update(decision='deferred', reason='deferred:ascent_previous_size_not_recorded (%s)' % previous)
+            return out
+    floor = RHO_MIN_MEMBERS_FOR_LARGE if members >= LARGE_MEMBERS else 0
+    same = [r for r in measured if r['family'] == run['family'] and r['mode'] == mode
+            and floor <= r['members'] < members and r.get('classification') == 'ok']
+    footprint_ratios = [x for x in (measured_footprint_ratio(r, baseline_footprint_bytes) for r in same)
+                        if x is not None]
+    rss_ratios = [x for x in (measured_ratio(r, baseline_rss_bytes) for r in same) if x is not None]
+    rho = max(footprint_ratios) if footprint_ratios else RHO_DEFAULT
+    out['rho'] = rho
+    out['rho_rss'] = max(rss_ratios) if rss_ratios else RHO_DEFAULT
+    measured_rf = [x for x in (rss_to_footprint(r) for r in same) if x is not None]
+    if mode == 'dense':
+        measured_rf.append(RSS_TO_FOOTPRINT_DEFAULT)
+    rf = max(measured_rf) if measured_rf else RSS_TO_FOOTPRINT_DEFAULT
+    out['rss_to_footprint'] = rf
+    p1 = P1_LINUX_PEAK_MIB.get((model_id, mode))
+    if p1 is not None and p1 * MIB <= half:
+        footprint_estimate = max(int(p1 * MIB), estimate)
+        branch = 'p1_linux_peak %.1f MiB <= C/2' % p1
+    elif estimate * rho <= half:
+        footprint_estimate = int(estimate * rho)
+        branch = 'estimate %d B x rho %.3f <= C/2' % (estimate, rho)
+    else:
+        out.update(decision='deferred', reason='deferred:estimate_fails_admission (%d B x rho %.3f > C/2)'
+                   % (estimate, rho))
+        return out
+    projected = int(footprint_estimate * rf)
+    out.update(footprint_estimate_bytes=footprint_estimate, projected_rss_bytes=projected)
+    # The binary's own backstop (k6_observe, 'estimate_exceeds_half_cap'): it refuses a run whose
+    # admission estimate exceeds half the heap cap, independently of the runner. A row the runner
+    # would admit but the binary would refuse is deferred by name here (ROOT's ruling after
+    # W1-T4's stop), so every admitted row is one the binary also admits.
+    if estimate > run['heap_cap_bytes'] // 2:
+        out.update(decision='deferred', reason='deferred:binary_backstop_refuses (estimate %d B > heap cap / 2 = %d B)'
+                   % (estimate, run['heap_cap_bytes'] // 2))
+        return out
+    if projected > out['projected_rss_limit_bytes']:
+        out.update(decision='deferred', reason='deferred:projected_rss_exceeds_0.8C (%d B x %.3f = %d B > %d B)'
+                   % (footprint_estimate, rf, projected, out['projected_rss_limit_bytes']))
+        return out
+    out.update(decision='admitted', reason='%s; projected RSS %d B <= 0.8C' % (branch, projected))
+    return out
+
+def run_entries(records):
+    """The rows of records.jsonl that describe one scheduled run (not cross-mode rows)."""
+    return [r for r in records if 'order' in r and 'mode' in r and 'model' in r]
+
+def admission(run, counts, records, baseline_rss, baseline_footprint, approve_10000):
+    line = counts.get(run['model'])
+    if line is None or line.get('estimate_max_bytes') is None:
+        return {'decision': 'deferred', 'reason': 'deferred:no_counts_line'}
+    if line['estimate_max_bytes'] > run['heap_cap_bytes'] // 2:
+        return {'decision': 'deferred', 'reason': "deferred:the binary's backstop would refuse "
+                '(estimate %d B > half the heap cap %d B)' % (line['estimate_max_bytes'],
+                                                               run['heap_cap_bytes'] // 2)}
+    if run['conditional'] and not approve_10000:
+        return {'decision': 'deferred', 'reason': 'deferred:10000_members_needs_root_approval'}
+    return k6.admission(run, counts, records, baseline_rss, require_ascent=run['members'] > 100,
+                        baseline_footprint_bytes=baseline_footprint)

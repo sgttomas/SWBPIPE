@@ -1,0 +1,3650 @@
+[
+  {
+    "dataset": "K6B",
+    "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n00010-AX",
+    "old_estimate_bytes": 22715996,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 1100387,
+    "historical_moving": 1169251,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21662424,
+    "moving_bound": 22743768,
+    "fixed": 87548,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 922214,
+    "prefix_requested_bound": 21662811,
+    "prefix_requested_slack": 20740597,
+    "prefix_moving_observed": 922214,
+    "prefix_moving_bound": 22744155,
+    "prefix_moving_slack": 21821941,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 394504,
+        "moving_observed": 396160,
+        "requested_bound": 21662811,
+        "moving_bound": 22744155
+      },
+      "w1_prefix_2": {
+        "requested_observed": 672792,
+        "moving_observed": 679528,
+        "requested_bound": 21662811,
+        "moving_bound": 22744155
+      },
+      "w1_prefix_3": {
+        "requested_observed": 922214,
+        "moving_observed": 922214,
+        "requested_bound": 21662811,
+        "moving_bound": 22744155
+      },
+      "w1_solve": {
+        "requested_observed": 1100387,
+        "moving_observed": 1169251,
+        "requested_bound": 21662424,
+        "moving_bound": 22743768
+      },
+      "w1_source": {
+        "requested_observed": 15524,
+        "moving_observed": 15524,
+        "requested_bound": 18733,
+        "moving_bound": 18733
+      }
+    },
+    "requested_slack": 20562037,
+    "moving_slack": 21574517
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "141_RF-LARGE-CHAIN-n00010-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n00010-AX",
+    "old_estimate_bytes": 22715996,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 1100243,
+    "historical_moving": 1169107,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21662280,
+    "moving_bound": 22743624,
+    "fixed": 87017,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 1100243,
+        "moving_observed": 1169107,
+        "requested_bound": 21662280,
+        "moving_bound": 22743624
+      },
+      "w1_source": {
+        "requested_observed": 15380,
+        "moving_observed": 15380,
+        "requested_bound": 18589,
+        "moving_bound": 18589
+      }
+    },
+    "requested_slack": 20562037,
+    "moving_slack": 21574517
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "144_RF-LARGE-CHAIN-n00010-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n00010-ROT",
+    "old_estimate_bytes": 22715996,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 1096086,
+    "historical_moving": 1164950,
+    "historical_retained_argument_bytes": 202,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21662427,
+    "moving_bound": 22743771,
+    "fixed": 87551,
+    "reference_persistent_argument_bytes": 347,
+    "prefix_requested_observed": 922217,
+    "prefix_requested_bound": 21662814,
+    "prefix_requested_slack": 20740597,
+    "prefix_moving_observed": 922217,
+    "prefix_moving_bound": 22744158,
+    "prefix_moving_slack": 21821941,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 394507,
+        "moving_observed": 396163,
+        "requested_bound": 21662814,
+        "moving_bound": 22744158
+      },
+      "w1_prefix_2": {
+        "requested_observed": 672795,
+        "moving_observed": 679531,
+        "requested_bound": 21662814,
+        "moving_bound": 22744158
+      },
+      "w1_prefix_3": {
+        "requested_observed": 922217,
+        "moving_observed": 922217,
+        "requested_bound": 21662814,
+        "moving_bound": 22744158
+      },
+      "w1_solve": {
+        "requested_observed": 1096086,
+        "moving_observed": 1164950,
+        "requested_bound": 21662427,
+        "moving_bound": 22743771
+      },
+      "w1_source": {
+        "requested_observed": 15527,
+        "moving_observed": 15527,
+        "requested_bound": 18736,
+        "moving_bound": 18736
+      }
+    },
+    "requested_slack": 20566341,
+    "moving_slack": 21578821
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "146_RF-LARGE-CHAIN-n00010-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n00010-ROT",
+    "old_estimate_bytes": 22715996,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 1095941,
+    "historical_moving": 1164805,
+    "historical_retained_argument_bytes": 57,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21662282,
+    "moving_bound": 22743626,
+    "fixed": 87019,
+    "reference_persistent_argument_bytes": 112,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 1095941,
+        "moving_observed": 1164805,
+        "requested_bound": 21662282,
+        "moving_bound": 22743626
+      },
+      "w1_source": {
+        "requested_observed": 15382,
+        "moving_observed": 15382,
+        "requested_bound": 18591,
+        "moving_bound": 18591
+      }
+    },
+    "requested_slack": 20566341,
+    "moving_slack": 21578821
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "147_RF-LARGE-TREE-n00010-AX_w1a",
+    "model": "RF-LARGE-TREE-n00010-AX",
+    "old_estimate_bytes": 22715568,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 996721,
+    "historical_moving": 1031153,
+    "historical_retained_argument_bytes": 198,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21660893,
+    "moving_bound": 22742237,
+    "fixed": 86017,
+    "reference_persistent_argument_bytes": 343,
+    "prefix_requested_observed": 921844,
+    "prefix_requested_bound": 21661280,
+    "prefix_requested_slack": 20739436,
+    "prefix_moving_observed": 921844,
+    "prefix_moving_bound": 22742624,
+    "prefix_moving_slack": 21820780,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 394134,
+        "moving_observed": 394134,
+        "requested_bound": 21661280,
+        "moving_bound": 22742624
+      },
+      "w1_prefix_2": {
+        "requested_observed": 672422,
+        "moving_observed": 672422,
+        "requested_bound": 21661280,
+        "moving_bound": 22742624
+      },
+      "w1_prefix_3": {
+        "requested_observed": 921844,
+        "moving_observed": 921844,
+        "requested_bound": 21661280,
+        "moving_bound": 22742624
+      },
+      "w1_solve": {
+        "requested_observed": 996721,
+        "moving_observed": 1031153,
+        "requested_bound": 21660893,
+        "moving_bound": 22742237
+      },
+      "w1_source": {
+        "requested_observed": 15358,
+        "moving_observed": 15358,
+        "requested_bound": 18566,
+        "moving_bound": 18566
+      }
+    },
+    "requested_slack": 20664172,
+    "moving_slack": 21711084
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "149_RF-LARGE-TREE-n00010-AX_w1a",
+    "model": "RF-LARGE-TREE-n00010-AX",
+    "old_estimate_bytes": 22715568,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 996578,
+    "historical_moving": 1031010,
+    "historical_retained_argument_bytes": 55,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21660750,
+    "moving_bound": 22742094,
+    "fixed": 85487,
+    "reference_persistent_argument_bytes": 110,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 996578,
+        "moving_observed": 1031010,
+        "requested_bound": 21660750,
+        "moving_bound": 22742094
+      },
+      "w1_source": {
+        "requested_observed": 15215,
+        "moving_observed": 15215,
+        "requested_bound": 18423,
+        "moving_bound": 18423
+      }
+    },
+    "requested_slack": 20664172,
+    "moving_slack": 21711084
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "152_RF-LARGE-TREE-n00010-ROT_w1a",
+    "model": "RF-LARGE-TREE-n00010-ROT",
+    "old_estimate_bytes": 22717280,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 947988,
+    "historical_moving": 965204,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21666944,
+    "moving_bound": 22748288,
+    "fixed": 92068,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 924759,
+    "prefix_requested_bound": 21667331,
+    "prefix_requested_slack": 20742572,
+    "prefix_moving_observed": 924759,
+    "prefix_moving_bound": 22748675,
+    "prefix_moving_slack": 21823916,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 397049,
+        "moving_observed": 397049,
+        "requested_bound": 21667331,
+        "moving_bound": 22748675
+      },
+      "w1_prefix_2": {
+        "requested_observed": 675337,
+        "moving_observed": 675337,
+        "requested_bound": 21667331,
+        "moving_bound": 22748675
+      },
+      "w1_prefix_3": {
+        "requested_observed": 924759,
+        "moving_observed": 924759,
+        "requested_bound": 21667331,
+        "moving_bound": 22748675
+      },
+      "w1_solve": {
+        "requested_observed": 947988,
+        "moving_observed": 965204,
+        "requested_bound": 21666944,
+        "moving_bound": 22748288
+      },
+      "w1_source": {
+        "requested_observed": 15921,
+        "moving_observed": 15921,
+        "requested_bound": 19161,
+        "moving_bound": 19161
+      }
+    },
+    "requested_slack": 20718956,
+    "moving_slack": 21783084
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "154_RF-LARGE-TREE-n00010-ROT_w1a",
+    "model": "RF-LARGE-TREE-n00010-ROT",
+    "old_estimate_bytes": 22717280,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 947844,
+    "historical_moving": 965060,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21666800,
+    "moving_bound": 22748144,
+    "fixed": 91537,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 947844,
+        "moving_observed": 965060,
+        "requested_bound": 21666800,
+        "moving_bound": 22748144
+      },
+      "w1_source": {
+        "requested_observed": 15777,
+        "moving_observed": 15777,
+        "requested_bound": 19017,
+        "moving_bound": 19017
+      }
+    },
+    "requested_slack": 20718956,
+    "moving_slack": 21783084
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "155_RF-LARGE-CONT-n00010-AX_w1a",
+    "model": "RF-LARGE-CONT-n00010-AX",
+    "old_estimate_bytes": 22643925,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 1273608,
+    "historical_moving": 1411336,
+    "historical_retained_argument_bytes": 198,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21592616,
+    "moving_bound": 22673960,
+    "fixed": 89485,
+    "reference_persistent_argument_bytes": 343,
+    "prefix_requested_observed": 959540,
+    "prefix_requested_bound": 21593003,
+    "prefix_requested_slack": 20633463,
+    "prefix_moving_observed": 1028404,
+    "prefix_moving_bound": 22674347,
+    "prefix_moving_slack": 21645943,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 384086,
+        "moving_observed": 384086,
+        "requested_bound": 21593003,
+        "moving_bound": 22674347
+      },
+      "w1_prefix_2": {
+        "requested_observed": 662374,
+        "moving_observed": 662374,
+        "requested_bound": 21593003,
+        "moving_bound": 22674347
+      },
+      "w1_prefix_3": {
+        "requested_observed": 959540,
+        "moving_observed": 1028404,
+        "requested_bound": 21593003,
+        "moving_bound": 22674347
+      },
+      "w1_solve": {
+        "requested_observed": 1273608,
+        "moving_observed": 1411336,
+        "requested_bound": 21592616,
+        "moving_bound": 22673960
+      },
+      "w1_source": {
+        "requested_observed": 15864,
+        "moving_observed": 15864,
+        "requested_bound": 19148,
+        "moving_bound": 19148
+      }
+    },
+    "requested_slack": 20319008,
+    "moving_slack": 21262624
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "157_RF-LARGE-CONT-n00010-AX_w1a",
+    "model": "RF-LARGE-CONT-n00010-AX",
+    "old_estimate_bytes": 22643925,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 1273465,
+    "historical_moving": 1411193,
+    "historical_retained_argument_bytes": 55,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21592473,
+    "moving_bound": 22673817,
+    "fixed": 88955,
+    "reference_persistent_argument_bytes": 110,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 1273465,
+        "moving_observed": 1411193,
+        "requested_bound": 21592473,
+        "moving_bound": 22673817
+      },
+      "w1_source": {
+        "requested_observed": 15721,
+        "moving_observed": 15721,
+        "requested_bound": 19005,
+        "moving_bound": 19005
+      }
+    },
+    "requested_slack": 20319008,
+    "moving_slack": 21262624
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "160_RF-LARGE-CONT-n00010-ROT_w1a",
+    "model": "RF-LARGE-CONT-n00010-ROT",
+    "old_estimate_bytes": 22645423,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 1270471,
+    "historical_moving": 1408199,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21597871,
+    "moving_bound": 22679215,
+    "fixed": 94740,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 960707,
+    "prefix_requested_bound": 21598258,
+    "prefix_requested_slack": 20637551,
+    "prefix_moving_observed": 1029571,
+    "prefix_moving_bound": 22679602,
+    "prefix_moving_slack": 21650031,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 385253,
+        "moving_observed": 385253,
+        "requested_bound": 21598258,
+        "moving_bound": 22679602
+      },
+      "w1_prefix_2": {
+        "requested_observed": 663541,
+        "moving_observed": 663541,
+        "requested_bound": 21598258,
+        "moving_bound": 22679602
+      },
+      "w1_prefix_3": {
+        "requested_observed": 960707,
+        "moving_observed": 1029571,
+        "requested_bound": 21598258,
+        "moving_bound": 22679602
+      },
+      "w1_solve": {
+        "requested_observed": 1270471,
+        "moving_observed": 1408199,
+        "requested_bound": 21597871,
+        "moving_bound": 22679215
+      },
+      "w1_source": {
+        "requested_observed": 16317,
+        "moving_observed": 16317,
+        "requested_bound": 19629,
+        "moving_bound": 19629
+      }
+    },
+    "requested_slack": 20327400,
+    "moving_slack": 21271016
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "162_RF-LARGE-CONT-n00010-ROT_w1a",
+    "model": "RF-LARGE-CONT-n00010-ROT",
+    "old_estimate_bytes": 22645423,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 1270327,
+    "historical_moving": 1408055,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21597727,
+    "moving_bound": 22679071,
+    "fixed": 94209,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 1270327,
+        "moving_observed": 1408055,
+        "requested_bound": 21597727,
+        "moving_bound": 22679071
+      },
+      "w1_source": {
+        "requested_observed": 16173,
+        "moving_observed": 16173,
+        "requested_bound": 19485,
+        "moving_bound": 19485
+      }
+    },
+    "requested_slack": 20327400,
+    "moving_slack": 21271016
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "163_DEC053_invented-cantilever-chain-8_w1a",
+    "model": "DEC053:invented-cantilever-chain-8",
+    "old_estimate_bytes": 22148046,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 938147,
+    "historical_moving": 1007011,
+    "historical_retained_argument_bytes": 220,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21080273,
+    "moving_bound": 22171857,
+    "fixed": 66727,
+    "reference_persistent_argument_bytes": 365,
+    "prefix_requested_observed": 742000,
+    "prefix_requested_bound": 21080660,
+    "prefix_requested_slack": 20338660,
+    "prefix_moving_observed": 742000,
+    "prefix_moving_bound": 22172244,
+    "prefix_moving_slack": 21430244,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 318322,
+        "moving_observed": 352754,
+        "requested_bound": 21080660,
+        "moving_bound": 22172244
+      },
+      "w1_prefix_2": {
+        "requested_observed": 541162,
+        "moving_observed": 541162,
+        "requested_bound": 21080660,
+        "moving_bound": 22172244
+      },
+      "w1_prefix_3": {
+        "requested_observed": 742000,
+        "moving_observed": 742000,
+        "requested_bound": 21080660,
+        "moving_bound": 22172244
+      },
+      "w1_solve": {
+        "requested_observed": 938147,
+        "moving_observed": 1007011,
+        "requested_bound": 21080273,
+        "moving_bound": 22171857
+      },
+      "w1_source": {
+        "requested_observed": 13780,
+        "moving_observed": 13780,
+        "requested_bound": 16802,
+        "moving_bound": 16802
+      }
+    },
+    "requested_slack": 20142126,
+    "moving_slack": 21164846
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "165_DEC053_invented-cantilever-chain-8_w1a",
+    "model": "DEC053:invented-cantilever-chain-8",
+    "old_estimate_bytes": 22148046,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 937993,
+    "historical_moving": 1006857,
+    "historical_retained_argument_bytes": 66,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 21080119,
+    "moving_bound": 22171703,
+    "fixed": 66186,
+    "reference_persistent_argument_bytes": 121,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 937993,
+        "moving_observed": 1006857,
+        "requested_bound": 21080119,
+        "moving_bound": 22171703
+      },
+      "w1_source": {
+        "requested_observed": 13626,
+        "moving_observed": 13626,
+        "requested_bound": 16648,
+        "moving_bound": 16648
+      }
+    },
+    "requested_slack": 20142126,
+    "moving_slack": 21164846
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "168_DEC053_invented-cantilever-chain-24_w1a",
+    "model": "DEC053:invented-cantilever-chain-24",
+    "old_estimate_bytes": 26683087,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 2850278,
+    "historical_moving": 3125734,
+    "historical_retained_argument_bytes": 222,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 25656106,
+    "moving_bound": 26716970,
+    "fixed": 175472,
+    "reference_persistent_argument_bytes": 367,
+    "prefix_requested_observed": 2178147,
+    "prefix_requested_bound": 25656493,
+    "prefix_requested_slack": 23478346,
+    "prefix_moving_observed": 2178147,
+    "prefix_moving_bound": 26717357,
+    "prefix_moving_slack": 24539210,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 917981,
+        "moving_observed": 917981,
+        "requested_bound": 25656493,
+        "moving_bound": 26717357
+      },
+      "w1_prefix_2": {
+        "requested_observed": 1579421,
+        "moving_observed": 1579421,
+        "requested_bound": 25656493,
+        "moving_bound": 26717357
+      },
+      "w1_prefix_3": {
+        "requested_observed": 2178147,
+        "moving_observed": 2178147,
+        "requested_bound": 25656493,
+        "moving_bound": 26717357
+      },
+      "w1_solve": {
+        "requested_observed": 2850278,
+        "moving_observed": 3125734,
+        "requested_bound": 25656106,
+        "moving_bound": 26716970
+      },
+      "w1_source": {
+        "requested_observed": 21126,
+        "moving_observed": 21126,
+        "requested_bound": 25768,
+        "moving_bound": 25768
+      }
+    },
+    "requested_slack": 22805828,
+    "moving_slack": 23591236
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "170_DEC053_invented-cantilever-chain-24_w1a",
+    "model": "DEC053:invented-cantilever-chain-24",
+    "old_estimate_bytes": 26683087,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 2850123,
+    "historical_moving": 3125579,
+    "historical_retained_argument_bytes": 67,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 25655951,
+    "moving_bound": 26716815,
+    "fixed": 174930,
+    "reference_persistent_argument_bytes": 122,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 2850123,
+        "moving_observed": 3125579,
+        "requested_bound": 25655951,
+        "moving_bound": 26716815
+      },
+      "w1_source": {
+        "requested_observed": 20971,
+        "moving_observed": 20971,
+        "requested_bound": 25613,
+        "moving_bound": 25613
+      }
+    },
+    "requested_slack": 22805828,
+    "moving_slack": 23591236
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "171_DEC053_invented-cantilever-chain-48_w1a",
+    "model": "DEC053:invented-cantilever-chain-48",
+    "old_estimate_bytes": 33485647,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 5627646,
+    "historical_moving": 6178558,
+    "historical_retained_argument_bytes": 222,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 32507138,
+    "moving_bound": 33527042,
+    "fixed": 335600,
+    "reference_persistent_argument_bytes": 367,
+    "prefix_requested_observed": 4327619,
+    "prefix_requested_bound": 32507525,
+    "prefix_requested_slack": 28179906,
+    "prefix_moving_observed": 4327619,
+    "prefix_moving_bound": 33527429,
+    "prefix_moving_slack": 29199810,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 1815325,
+        "moving_observed": 1815325,
+        "requested_bound": 32507525,
+        "moving_bound": 33527429
+      },
+      "w1_prefix_2": {
+        "requested_observed": 3133597,
+        "moving_observed": 3133597,
+        "requested_bound": 32507525,
+        "moving_bound": 33527429
+      },
+      "w1_prefix_3": {
+        "requested_observed": 4327619,
+        "moving_observed": 4327619,
+        "requested_bound": 32507525,
+        "moving_bound": 33527429
+      },
+      "w1_solve": {
+        "requested_observed": 5627646,
+        "moving_observed": 6178558,
+        "requested_bound": 32507138,
+        "moving_bound": 33527042
+      },
+      "w1_source": {
+        "requested_observed": 32006,
+        "moving_observed": 32006,
+        "requested_bound": 39048,
+        "moving_bound": 39048
+      }
+    },
+    "requested_slack": 26879492,
+    "moving_slack": 27348484
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "173_DEC053_invented-cantilever-chain-48_w1a",
+    "model": "DEC053:invented-cantilever-chain-48",
+    "old_estimate_bytes": 33485647,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 5627491,
+    "historical_moving": 6178403,
+    "historical_retained_argument_bytes": 67,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 32506983,
+    "moving_bound": 33526887,
+    "fixed": 335058,
+    "reference_persistent_argument_bytes": 122,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 5627491,
+        "moving_observed": 6178403,
+        "requested_bound": 32506983,
+        "moving_bound": 33526887
+      },
+      "w1_source": {
+        "requested_observed": 31851,
+        "moving_observed": 31851,
+        "requested_bound": 38893,
+        "moving_bound": 38893
+      }
+    },
+    "requested_slack": 26879492,
+    "moving_slack": 27348484
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "176_DEC053_invented-grid-frame-4x3_w1a",
+    "model": "DEC053:invented-grid-frame-4x3",
+    "old_estimate_bytes": 24271872,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 1432034,
+    "historical_moving": 1466466,
+    "historical_retained_argument_bytes": 212,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 23215386,
+    "moving_bound": 24296730,
+    "fixed": 114439,
+    "reference_persistent_argument_bytes": 357,
+    "prefix_requested_observed": 1406334,
+    "prefix_requested_bound": 23215773,
+    "prefix_requested_slack": 21809439,
+    "prefix_moving_observed": 1440766,
+    "prefix_moving_bound": 24297117,
+    "prefix_moving_slack": 22856351,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 598168,
+        "moving_observed": 598168,
+        "requested_bound": 23215773,
+        "moving_bound": 24297117
+      },
+      "w1_prefix_2": {
+        "requested_observed": 1040384,
+        "moving_observed": 1040384,
+        "requested_bound": 23215773,
+        "moving_bound": 24297117
+      },
+      "w1_prefix_3": {
+        "requested_observed": 1406334,
+        "moving_observed": 1440766,
+        "requested_bound": 23215773,
+        "moving_bound": 24297117
+      },
+      "w1_solve": {
+        "requested_observed": 1432034,
+        "moving_observed": 1466466,
+        "requested_bound": 23215386,
+        "moving_bound": 24296730
+      },
+      "w1_source": {
+        "requested_observed": 18978,
+        "moving_observed": 18978,
+        "requested_bound": 22446,
+        "moving_bound": 22446
+      }
+    },
+    "requested_slack": 21783352,
+    "moving_slack": 22830264
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "178_DEC053_invented-grid-frame-4x3_w1a",
+    "model": "DEC053:invented-grid-frame-4x3",
+    "old_estimate_bytes": 24271872,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 1431884,
+    "historical_moving": 1466316,
+    "historical_retained_argument_bytes": 62,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 23215236,
+    "moving_bound": 24296580,
+    "fixed": 113902,
+    "reference_persistent_argument_bytes": 117,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 1431884,
+        "moving_observed": 1466316,
+        "requested_bound": 23215236,
+        "moving_bound": 24296580
+      },
+      "w1_source": {
+        "requested_observed": 18828,
+        "moving_observed": 18828,
+        "requested_bound": 22296,
+        "moving_bound": 22296
+      }
+    },
+    "requested_slack": 21783352,
+    "moving_slack": 22830264
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "179_DEC053_invented-grid-frame-6x8_w1a",
+    "model": "DEC053:invented-grid-frame-6x8",
+    "old_estimate_bytes": 42166017,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 7182775,
+    "historical_moving": 7182775,
+    "historical_retained_argument_bytes": 212,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 41151153,
+    "moving_bound": 42171057,
+    "fixed": 464964,
+    "reference_persistent_argument_bytes": 357,
+    "prefix_requested_observed": 7182899,
+    "prefix_requested_bound": 41151540,
+    "prefix_requested_slack": 33968641,
+    "prefix_moving_observed": 7182899,
+    "prefix_moving_bound": 42171444,
+    "prefix_moving_slack": 34988545,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 2980873,
+        "moving_observed": 2980873,
+        "requested_bound": 41151540,
+        "moving_bound": 42171444
+      },
+      "w1_prefix_2": {
+        "requested_observed": 5116049,
+        "moving_observed": 5116049,
+        "requested_bound": 41151540,
+        "moving_bound": 42171444
+      },
+      "w1_prefix_3": {
+        "requested_observed": 7182899,
+        "moving_observed": 7182899,
+        "requested_bound": 41151540,
+        "moving_bound": 42171444
+      },
+      "w1_solve": {
+        "requested_observed": 7182775,
+        "moving_observed": 7182775,
+        "requested_bound": 41151153,
+        "moving_bound": 42171057
+      },
+      "w1_source": {
+        "requested_observed": 47970,
+        "moving_observed": 47970,
+        "requested_bound": 55744,
+        "moving_bound": 55744
+      }
+    },
+    "requested_slack": 33968378,
+    "moving_slack": 34988282
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "181_DEC053_invented-grid-frame-6x8_w1a",
+    "model": "DEC053:invented-grid-frame-6x8",
+    "old_estimate_bytes": 42166017,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 7182625,
+    "historical_moving": 7182625,
+    "historical_retained_argument_bytes": 62,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 41151003,
+    "moving_bound": 42170907,
+    "fixed": 464427,
+    "reference_persistent_argument_bytes": 117,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 7182625,
+        "moving_observed": 7182625,
+        "requested_bound": 41151003,
+        "moving_bound": 42170907
+      },
+      "w1_source": {
+        "requested_observed": 47820,
+        "moving_observed": 47820,
+        "requested_bound": 55594,
+        "moving_bound": 55594
+      }
+    },
+    "requested_slack": 33968378,
+    "moving_slack": 34988282
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "184_DEC053_invented-grid-frame-7x8_w1a",
+    "model": "DEC053:invented-grid-frame-7x8",
+    "old_estimate_bytes": 46422139,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 8633183,
+    "historical_moving": 8633183,
+    "historical_retained_argument_bytes": 212,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 45547925,
+    "moving_bound": 46485909,
+    "fixed": 577340,
+    "reference_persistent_argument_bytes": 357,
+    "prefix_requested_observed": 8633307,
+    "prefix_requested_bound": 45548312,
+    "prefix_requested_slack": 36915005,
+    "prefix_moving_observed": 8633307,
+    "prefix_moving_bound": 46486296,
+    "prefix_moving_slack": 37852989,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 3566849,
+        "moving_observed": 3566849,
+        "requested_bound": 45548312,
+        "moving_bound": 46486296
+      },
+      "w1_prefix_2": {
+        "requested_observed": 6119961,
+        "moving_observed": 6119961,
+        "requested_bound": 45548312,
+        "moving_bound": 46486296
+      },
+      "w1_prefix_3": {
+        "requested_observed": 8633307,
+        "moving_observed": 8633307,
+        "requested_bound": 45548312,
+        "moving_bound": 46486296
+      },
+      "w1_solve": {
+        "requested_observed": 8633183,
+        "moving_observed": 8633183,
+        "requested_bound": 45547925,
+        "moving_bound": 46485909
+      },
+      "w1_source": {
+        "requested_observed": 52282,
+        "moving_observed": 52282,
+        "requested_bound": 60856,
+        "moving_bound": 60856
+      }
+    },
+    "requested_slack": 36914742,
+    "moving_slack": 37852726
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "186_DEC053_invented-grid-frame-7x8_w1a",
+    "model": "DEC053:invented-grid-frame-7x8",
+    "old_estimate_bytes": 46422139,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 8633033,
+    "historical_moving": 8633033,
+    "historical_retained_argument_bytes": 62,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 45547775,
+    "moving_bound": 46485759,
+    "fixed": 576803,
+    "reference_persistent_argument_bytes": 117,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 8633033,
+        "moving_observed": 8633033,
+        "requested_bound": 45547775,
+        "moving_bound": 46485759
+      },
+      "w1_source": {
+        "requested_observed": 52132,
+        "moving_observed": 52132,
+        "requested_bound": 60706,
+        "moving_bound": 60706
+      }
+    },
+    "requested_slack": 36914742,
+    "moving_slack": 37852726
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "187_DEC053_invented-grid-frame-5x5_w1a",
+    "model": "DEC053:invented-grid-frame-5x5",
+    "old_estimate_bytes": 30491975,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 3340563,
+    "historical_moving": 3340563,
+    "historical_retained_argument_bytes": 212,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 29447054,
+    "moving_bound": 30507918,
+    "fixed": 238108,
+    "reference_persistent_argument_bytes": 357,
+    "prefix_requested_observed": 3340687,
+    "prefix_requested_bound": 29447441,
+    "prefix_requested_slack": 26106754,
+    "prefix_moving_observed": 3340687,
+    "prefix_moving_bound": 30508305,
+    "prefix_moving_slack": 27167618,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 1421289,
+        "moving_observed": 1421289,
+        "requested_bound": 29447441,
+        "moving_bound": 30508305
+      },
+      "w1_prefix_2": {
+        "requested_observed": 2446889,
+        "moving_observed": 2446889,
+        "requested_bound": 29447441,
+        "moving_bound": 30508305
+      },
+      "w1_prefix_3": {
+        "requested_observed": 3340687,
+        "moving_observed": 3340687,
+        "requested_bound": 29447441,
+        "moving_bound": 30508305
+      },
+      "w1_solve": {
+        "requested_observed": 3340563,
+        "moving_observed": 3340563,
+        "requested_bound": 29447054,
+        "moving_bound": 30507918
+      },
+      "w1_source": {
+        "requested_observed": 28722,
+        "moving_observed": 28722,
+        "requested_bound": 33684,
+        "moving_bound": 33684
+      }
+    },
+    "requested_slack": 26106491,
+    "moving_slack": 27167355
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "189_DEC053_invented-grid-frame-5x5_w1a",
+    "model": "DEC053:invented-grid-frame-5x5",
+    "old_estimate_bytes": 30491975,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 3340413,
+    "historical_moving": 3340413,
+    "historical_retained_argument_bytes": 62,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 29446904,
+    "moving_bound": 30507768,
+    "fixed": 237571,
+    "reference_persistent_argument_bytes": 117,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 3340413,
+        "moving_observed": 3340413,
+        "requested_bound": 29446904,
+        "moving_bound": 30507768
+      },
+      "w1_source": {
+        "requested_observed": 28572,
+        "moving_observed": 28572,
+        "requested_bound": 33534,
+        "moving_bound": 33534
+      }
+    },
+    "requested_slack": 26106491,
+    "moving_slack": 27167355
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "192_DEC053_invented-cantilever-chain-32_w1a",
+    "model": "DEC053:invented-cantilever-chain-32",
+    "old_estimate_bytes": 28950607,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 3552238,
+    "historical_moving": 3827694,
+    "historical_retained_argument_bytes": 222,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 27905906,
+    "moving_bound": 28966770,
+    "fixed": 220912,
+    "reference_persistent_argument_bytes": 367,
+    "prefix_requested_observed": 2900355,
+    "prefix_requested_bound": 27906293,
+    "prefix_requested_slack": 25005938,
+    "prefix_moving_observed": 2900355,
+    "prefix_moving_bound": 28967157,
+    "prefix_moving_slack": 26066802,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 1226909,
+        "moving_observed": 1226909,
+        "requested_bound": 27906293,
+        "moving_bound": 28967157
+      },
+      "w1_prefix_2": {
+        "requested_observed": 2107293,
+        "moving_observed": 2107293,
+        "requested_bound": 27906293,
+        "moving_bound": 28967157
+      },
+      "w1_prefix_3": {
+        "requested_observed": 2900355,
+        "moving_observed": 2900355,
+        "requested_bound": 27906293,
+        "moving_bound": 28967157
+      },
+      "w1_solve": {
+        "requested_observed": 3552238,
+        "moving_observed": 3827694,
+        "requested_bound": 27905906,
+        "moving_bound": 28966770
+      },
+      "w1_source": {
+        "requested_observed": 24326,
+        "moving_observed": 24326,
+        "requested_bound": 29768,
+        "moving_bound": 29768
+      }
+    },
+    "requested_slack": 24353668,
+    "moving_slack": 25139076
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "194_DEC053_invented-cantilever-chain-32_w1a",
+    "model": "DEC053:invented-cantilever-chain-32",
+    "old_estimate_bytes": 28950607,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 3552083,
+    "historical_moving": 3827539,
+    "historical_retained_argument_bytes": 67,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 27905751,
+    "moving_bound": 28966615,
+    "fixed": 220370,
+    "reference_persistent_argument_bytes": 122,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 3552083,
+        "moving_observed": 3827539,
+        "requested_bound": 27905751,
+        "moving_bound": 28966615
+      },
+      "w1_source": {
+        "requested_observed": 24171,
+        "moving_observed": 24171,
+        "requested_bound": 29613,
+        "moving_bound": 29613
+      }
+    },
+    "requested_slack": 24353668,
+    "moving_slack": 25139076
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "195_DEC053_invented-grid-frame-5x6_w1a",
+    "model": "DEC053:invented-grid-frame-5x6",
+    "old_estimate_bytes": 32976135,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 4163175,
+    "historical_moving": 4214527,
+    "historical_retained_argument_bytes": 212,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 31998627,
+    "moving_bound": 33018531,
+    "fixed": 301356,
+    "reference_persistent_argument_bytes": 357,
+    "prefix_requested_observed": 4163299,
+    "prefix_requested_bound": 31999014,
+    "prefix_requested_slack": 27835715,
+    "prefix_moving_observed": 4163299,
+    "prefix_moving_bound": 33018918,
+    "prefix_moving_slack": 28855619,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 1757793,
+        "moving_observed": 1757793,
+        "requested_bound": 31999014,
+        "moving_bound": 33018918
+      },
+      "w1_prefix_2": {
+        "requested_observed": 3011273,
+        "moving_observed": 3011273,
+        "requested_bound": 31999014,
+        "moving_bound": 33018918
+      },
+      "w1_prefix_3": {
+        "requested_observed": 4163299,
+        "moving_observed": 4163299,
+        "requested_bound": 31999014,
+        "moving_bound": 33018918
+      },
+      "w1_solve": {
+        "requested_observed": 4163175,
+        "moving_observed": 4214527,
+        "requested_bound": 31998627,
+        "moving_bound": 33018531
+      },
+      "w1_source": {
+        "requested_observed": 30466,
+        "moving_observed": 30466,
+        "requested_bound": 35928,
+        "moving_bound": 35928
+      }
+    },
+    "requested_slack": 27835452,
+    "moving_slack": 28804004
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "197_DEC053_invented-grid-frame-5x6_w1a",
+    "model": "DEC053:invented-grid-frame-5x6",
+    "old_estimate_bytes": 32976135,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 4163025,
+    "historical_moving": 4214377,
+    "historical_retained_argument_bytes": 62,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 31998477,
+    "moving_bound": 33018381,
+    "fixed": 300819,
+    "reference_persistent_argument_bytes": 117,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 4163025,
+        "moving_observed": 4214377,
+        "requested_bound": 31998477,
+        "moving_bound": 33018381
+      },
+      "w1_source": {
+        "requested_observed": 30316,
+        "moving_observed": 30316,
+        "requested_bound": 35778,
+        "moving_bound": 35778
+      }
+    },
+    "requested_slack": 27835452,
+    "moving_slack": 28804004
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n00100-AX",
+    "old_estimate_bytes": 48225602,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 11460050,
+    "historical_moving": 12561874,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 47336642,
+    "moving_bound": 48274626,
+    "fixed": 681116,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 8991827,
+    "prefix_requested_bound": 47337029,
+    "prefix_requested_slack": 38345202,
+    "prefix_moving_observed": 8991827,
+    "prefix_moving_bound": 48275013,
+    "prefix_moving_slack": 39283186,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 3768637,
+        "moving_observed": 3768637,
+        "requested_bound": 47337029,
+        "moving_bound": 48275013
+      },
+      "w1_prefix_2": {
+        "requested_observed": 6510045,
+        "moving_observed": 6510045,
+        "requested_bound": 47337029,
+        "moving_bound": 48275013
+      },
+      "w1_prefix_3": {
+        "requested_observed": 8991827,
+        "moving_observed": 8991827,
+        "requested_bound": 47337029,
+        "moving_bound": 48275013
+      },
+      "w1_solve": {
+        "requested_observed": 11460050,
+        "moving_observed": 12561874,
+        "requested_bound": 47336642,
+        "moving_bound": 48274626
+      },
+      "w1_source": {
+        "requested_observed": 59283,
+        "moving_observed": 59283,
+        "requested_bound": 69091,
+        "moving_bound": 69091
+      }
+    },
+    "requested_slack": 35876592,
+    "moving_slack": 35712752
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n00100-AX",
+    "old_estimate_bytes": 48225602,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 11459906,
+    "historical_moving": 12561730,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 47336498,
+    "moving_bound": 48274482,
+    "fixed": 680585,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 11459906,
+        "moving_observed": 12561730,
+        "requested_bound": 47336498,
+        "moving_bound": 48274482
+      },
+      "w1_source": {
+        "requested_observed": 59139,
+        "moving_observed": 59139,
+        "requested_bound": 68947,
+        "moving_bound": 68947
+      }
+    },
+    "requested_slack": 35876592,
+    "moving_slack": 35712752
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n00100-ROT",
+    "old_estimate_bytes": 48225602,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 11455749,
+    "historical_moving": 12557573,
+    "historical_retained_argument_bytes": 202,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 47336645,
+    "moving_bound": 48274629,
+    "fixed": 681119,
+    "reference_persistent_argument_bytes": 347,
+    "prefix_requested_observed": 8991830,
+    "prefix_requested_bound": 47337032,
+    "prefix_requested_slack": 38345202,
+    "prefix_moving_observed": 8991830,
+    "prefix_moving_bound": 48275016,
+    "prefix_moving_slack": 39283186,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 3768640,
+        "moving_observed": 3768640,
+        "requested_bound": 47337032,
+        "moving_bound": 48275016
+      },
+      "w1_prefix_2": {
+        "requested_observed": 6510048,
+        "moving_observed": 6510048,
+        "requested_bound": 47337032,
+        "moving_bound": 48275016
+      },
+      "w1_prefix_3": {
+        "requested_observed": 8991830,
+        "moving_observed": 8991830,
+        "requested_bound": 47337032,
+        "moving_bound": 48275016
+      },
+      "w1_solve": {
+        "requested_observed": 11455749,
+        "moving_observed": 12557573,
+        "requested_bound": 47336645,
+        "moving_bound": 48274629
+      },
+      "w1_source": {
+        "requested_observed": 59286,
+        "moving_observed": 59286,
+        "requested_bound": 69094,
+        "moving_bound": 69094
+      }
+    },
+    "requested_slack": 35880896,
+    "moving_slack": 35717056
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "206_RF-LARGE-CHAIN-n00100-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n00100-ROT",
+    "old_estimate_bytes": 48225602,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 11455604,
+    "historical_moving": 12557428,
+    "historical_retained_argument_bytes": 57,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 47336500,
+    "moving_bound": 48274484,
+    "fixed": 680587,
+    "reference_persistent_argument_bytes": 112,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 11455604,
+        "moving_observed": 12557428,
+        "requested_bound": 47336500,
+        "moving_bound": 48274484
+      },
+      "w1_source": {
+        "requested_observed": 59141,
+        "moving_observed": 59141,
+        "requested_bound": 68949,
+        "moving_bound": 68949
+      }
+    },
+    "requested_slack": 35880896,
+    "moving_slack": 35717056
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "207_RF-LARGE-TREE-n00100-AX_w1a",
+    "model": "RF-LARGE-TREE-n00100-AX",
+    "old_estimate_bytes": 48233550,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 9817953,
+    "historical_moving": 10093409,
+    "historical_retained_argument_bytes": 198,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 47364769,
+    "moving_bound": 48302753,
+    "fixed": 709243,
+    "reference_persistent_argument_bytes": 343,
+    "prefix_requested_observed": 8998162,
+    "prefix_requested_bound": 47365156,
+    "prefix_requested_slack": 38366994,
+    "prefix_moving_observed": 8998162,
+    "prefix_moving_bound": 48303140,
+    "prefix_moving_slack": 39304978,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 3774972,
+        "moving_observed": 3774972,
+        "requested_bound": 47365156,
+        "moving_bound": 48303140
+      },
+      "w1_prefix_2": {
+        "requested_observed": 6516380,
+        "moving_observed": 6516380,
+        "requested_bound": 47365156,
+        "moving_bound": 48303140
+      },
+      "w1_prefix_3": {
+        "requested_observed": 8998162,
+        "moving_observed": 8998162,
+        "requested_bound": 47365156,
+        "moving_bound": 48303140
+      },
+      "w1_solve": {
+        "requested_observed": 9817953,
+        "moving_observed": 10093409,
+        "requested_bound": 47364769,
+        "moving_bound": 48302753
+      },
+      "w1_source": {
+        "requested_observed": 61814,
+        "moving_observed": 61814,
+        "requested_bound": 71894,
+        "moving_bound": 71894
+      }
+    },
+    "requested_slack": 37546816,
+    "moving_slack": 38209344
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "209_RF-LARGE-TREE-n00100-AX_w1a",
+    "model": "RF-LARGE-TREE-n00100-AX",
+    "old_estimate_bytes": 48233550,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 9817810,
+    "historical_moving": 10093266,
+    "historical_retained_argument_bytes": 55,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 47364626,
+    "moving_bound": 48302610,
+    "fixed": 708713,
+    "reference_persistent_argument_bytes": 110,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 9817810,
+        "moving_observed": 10093266,
+        "requested_bound": 47364626,
+        "moving_bound": 48302610
+      },
+      "w1_source": {
+        "requested_observed": 61671,
+        "moving_observed": 61671,
+        "requested_bound": 71751,
+        "moving_bound": 71751
+      }
+    },
+    "requested_slack": 37546816,
+    "moving_slack": 38209344
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "212_RF-LARGE-TREE-n00100-ROT_w1a",
+    "model": "RF-LARGE-TREE-n00100-ROT",
+    "old_estimate_bytes": 48252026,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 9261396,
+    "historical_moving": 9536852,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 47431156,
+    "moving_bound": 48369140,
+    "fixed": 775630,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 9014037,
+    "prefix_requested_bound": 47431543,
+    "prefix_requested_slack": 38417506,
+    "prefix_moving_observed": 9014037,
+    "prefix_moving_bound": 48369527,
+    "prefix_moving_slack": 39355490,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 3790847,
+        "moving_observed": 3790847,
+        "requested_bound": 47431543,
+        "moving_bound": 48369527
+      },
+      "w1_prefix_2": {
+        "requested_observed": 6532255,
+        "moving_observed": 6532255,
+        "requested_bound": 47431543,
+        "moving_bound": 48369527
+      },
+      "w1_prefix_3": {
+        "requested_observed": 9014037,
+        "moving_observed": 9014037,
+        "requested_bound": 47431543,
+        "moving_bound": 48369527
+      },
+      "w1_solve": {
+        "requested_observed": 9261396,
+        "moving_observed": 9536852,
+        "requested_bound": 47431156,
+        "moving_bound": 48369140
+      },
+      "w1_source": {
+        "requested_observed": 72389,
+        "moving_observed": 72389,
+        "requested_bound": 79413,
+        "moving_bound": 79413
+      }
+    },
+    "requested_slack": 38169760,
+    "moving_slack": 38832288
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "214_RF-LARGE-TREE-n00100-ROT_w1a",
+    "model": "RF-LARGE-TREE-n00100-ROT",
+    "old_estimate_bytes": 48252026,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 9261252,
+    "historical_moving": 9536708,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 47431012,
+    "moving_bound": 48368996,
+    "fixed": 775099,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 9261252,
+        "moving_observed": 9536708,
+        "requested_bound": 47431012,
+        "moving_bound": 48368996
+      },
+      "w1_source": {
+        "requested_observed": 72245,
+        "moving_observed": 72245,
+        "requested_bound": 79269,
+        "moving_bound": 79269
+      }
+    },
+    "requested_slack": 38169760,
+    "moving_slack": 38832288
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "215_RF-LARGE-CONT-n00100-AX_w1a",
+    "model": "RF-LARGE-CONT-n00100-AX",
+    "old_estimate_bytes": 47465317,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 11176732,
+    "historical_moving": 12278556,
+    "historical_retained_argument_bytes": 198,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 46553544,
+    "moving_bound": 47491528,
+    "fixed": 741036,
+    "reference_persistent_argument_bytes": 343,
+    "prefix_requested_observed": 8487561,
+    "prefix_requested_bound": 46553931,
+    "prefix_requested_slack": 38066370,
+    "prefix_moving_observed": 8487561,
+    "prefix_moving_bound": 47491915,
+    "prefix_moving_slack": 39004354,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 3643905,
+        "moving_observed": 3643905,
+        "requested_bound": 46553931,
+        "moving_bound": 47491915
+      },
+      "w1_prefix_2": {
+        "requested_observed": 6385313,
+        "moving_observed": 6385313,
+        "requested_bound": 46553931,
+        "moving_bound": 47491915
+      },
+      "w1_prefix_3": {
+        "requested_observed": 8487561,
+        "moving_observed": 8487561,
+        "requested_bound": 46553931,
+        "moving_bound": 47491915
+      },
+      "w1_solve": {
+        "requested_observed": 11176732,
+        "moving_observed": 12278556,
+        "requested_bound": 46553544,
+        "moving_bound": 47491528
+      },
+      "w1_source": {
+        "requested_observed": 67578,
+        "moving_observed": 67578,
+        "requested_bound": 78812,
+        "moving_bound": 78812
+      }
+    },
+    "requested_slack": 35376812,
+    "moving_slack": 35212972
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "217_RF-LARGE-CONT-n00100-AX_w1a",
+    "model": "RF-LARGE-CONT-n00100-AX",
+    "old_estimate_bytes": 47465317,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 11176589,
+    "historical_moving": 12278413,
+    "historical_retained_argument_bytes": 55,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 46553401,
+    "moving_bound": 47491385,
+    "fixed": 740506,
+    "reference_persistent_argument_bytes": 110,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 11176589,
+        "moving_observed": 12278413,
+        "requested_bound": 46553401,
+        "moving_bound": 47491385
+      },
+      "w1_source": {
+        "requested_observed": 67435,
+        "moving_observed": 67435,
+        "requested_bound": 78669,
+        "moving_bound": 78669
+      }
+    },
+    "requested_slack": 35376812,
+    "moving_slack": 35212972
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "220_RF-LARGE-CONT-n00100-ROT_w1a",
+    "model": "RF-LARGE-CONT-n00100-ROT",
+    "old_estimate_bytes": 47477142,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 11180626,
+    "historical_moving": 12282450,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 46594082,
+    "moving_bound": 47532066,
+    "fixed": 781574,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 8495759,
+    "prefix_requested_bound": 46594469,
+    "prefix_requested_slack": 38098710,
+    "prefix_moving_observed": 8495759,
+    "prefix_moving_bound": 47532453,
+    "prefix_moving_slack": 39036694,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 3652103,
+        "moving_observed": 3652103,
+        "requested_bound": 46594469,
+        "moving_bound": 47532453
+      },
+      "w1_prefix_2": {
+        "requested_observed": 6393511,
+        "moving_observed": 6393511,
+        "requested_bound": 46594469,
+        "moving_bound": 47532453
+      },
+      "w1_prefix_3": {
+        "requested_observed": 8495759,
+        "moving_observed": 8495759,
+        "requested_bound": 46594469,
+        "moving_bound": 47532453
+      },
+      "w1_solve": {
+        "requested_observed": 11180626,
+        "moving_observed": 12282450,
+        "requested_bound": 46594082,
+        "moving_bound": 47532066
+      },
+      "w1_source": {
+        "requested_observed": 73615,
+        "moving_observed": 73615,
+        "requested_bound": 81675,
+        "moving_bound": 81675
+      }
+    },
+    "requested_slack": 35413456,
+    "moving_slack": 35249616
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "222_RF-LARGE-CONT-n00100-ROT_w1a",
+    "model": "RF-LARGE-CONT-n00100-ROT",
+    "old_estimate_bytes": 47477142,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 11180482,
+    "historical_moving": 12282306,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 46593938,
+    "moving_bound": 47531922,
+    "fixed": 781043,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 11180482,
+        "moving_observed": 12282306,
+        "requested_bound": 46593938,
+        "moving_bound": 47531922
+      },
+      "w1_source": {
+        "requested_observed": 73471,
+        "moving_observed": 73471,
+        "requested_bound": 81531,
+        "moving_bound": 81531
+      }
+    },
+    "requested_slack": 35413456,
+    "moving_slack": 35249616
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "223_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "old_estimate_bytes": 303321608,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 89981314,
+    "historical_moving": 89981314,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 329804785,
+    "moving_bound": 347433969,
+    "fixed": 6415396,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 89981438,
+    "prefix_requested_bound": 329805172,
+    "prefix_requested_slack": 239823734,
+    "prefix_moving_observed": 89981438,
+    "prefix_moving_bound": 347434356,
+    "prefix_moving_slack": 257452918,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 37920184,
+        "moving_observed": 37920184,
+        "requested_bound": 329805172,
+        "moving_bound": 347434356
+      },
+      "w1_prefix_2": {
+        "requested_observed": 65292792,
+        "moving_observed": 65292792,
+        "requested_bound": 329805172,
+        "moving_bound": 347434356
+      },
+      "w1_prefix_3": {
+        "requested_observed": 89981438,
+        "moving_observed": 89981438,
+        "requested_bound": 329805172,
+        "moving_bound": 347434356
+      },
+      "w1_solve": {
+        "requested_observed": 89981314,
+        "moving_observed": 89981314,
+        "requested_bound": 329804785,
+        "moving_bound": 347433969
+      },
+      "w1_source": {
+        "requested_observed": 508584,
+        "moving_observed": 508584,
+        "requested_bound": 589769,
+        "moving_bound": 589769
+      }
+    },
+    "requested_slack": 239823471,
+    "moving_slack": 257452655
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "225_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "old_estimate_bytes": 303321608,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 89981170,
+    "historical_moving": 89981170,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 329804641,
+    "moving_bound": 347433825,
+    "fixed": 6414865,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 89981170,
+        "moving_observed": 89981170,
+        "requested_bound": 329804641,
+        "moving_bound": 347433825
+      },
+      "w1_source": {
+        "requested_observed": 508440,
+        "moving_observed": 508440,
+        "requested_bound": 589625,
+        "moving_bound": 589625
+      }
+    },
+    "requested_slack": 239823471,
+    "moving_slack": 257452655
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "228_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "old_estimate_bytes": 303321608,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 89981317,
+    "historical_moving": 89981317,
+    "historical_retained_argument_bytes": 202,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 329804788,
+    "moving_bound": 347433972,
+    "fixed": 6415399,
+    "reference_persistent_argument_bytes": 347,
+    "prefix_requested_observed": 89981441,
+    "prefix_requested_bound": 329805175,
+    "prefix_requested_slack": 239823734,
+    "prefix_moving_observed": 89981441,
+    "prefix_moving_bound": 347434359,
+    "prefix_moving_slack": 257452918,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 37920187,
+        "moving_observed": 37920187,
+        "requested_bound": 329805175,
+        "moving_bound": 347434359
+      },
+      "w1_prefix_2": {
+        "requested_observed": 65292795,
+        "moving_observed": 65292795,
+        "requested_bound": 329805175,
+        "moving_bound": 347434359
+      },
+      "w1_prefix_3": {
+        "requested_observed": 89981441,
+        "moving_observed": 89981441,
+        "requested_bound": 329805175,
+        "moving_bound": 347434359
+      },
+      "w1_solve": {
+        "requested_observed": 89981317,
+        "moving_observed": 89981317,
+        "requested_bound": 329804788,
+        "moving_bound": 347433972
+      },
+      "w1_source": {
+        "requested_observed": 508587,
+        "moving_observed": 508587,
+        "requested_bound": 589772,
+        "moving_bound": 589772
+      }
+    },
+    "requested_slack": 239823471,
+    "moving_slack": 257452655
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "230_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "old_estimate_bytes": 303321608,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 89981172,
+    "historical_moving": 89981172,
+    "historical_retained_argument_bytes": 57,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 329804643,
+    "moving_bound": 347433827,
+    "fixed": 6414867,
+    "reference_persistent_argument_bytes": 112,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 89981172,
+        "moving_observed": 89981172,
+        "requested_bound": 329804643,
+        "moving_bound": 347433827
+      },
+      "w1_source": {
+        "requested_observed": 508442,
+        "moving_observed": 508442,
+        "requested_bound": 589627,
+        "moving_bound": 589627
+      }
+    },
+    "requested_slack": 239823471,
+    "moving_slack": 257452655
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "231_RF-LARGE-TREE-n01000-AX_w1a",
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "old_estimate_bytes": 303412682,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 90054540,
+    "historical_moving": 90054540,
+    "historical_retained_argument_bytes": 198,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 330125580,
+    "moving_bound": 347754764,
+    "fixed": 6736191,
+    "reference_persistent_argument_bytes": 343,
+    "prefix_requested_observed": 90054664,
+    "prefix_requested_bound": 330125967,
+    "prefix_requested_slack": 240071303,
+    "prefix_moving_observed": 90054664,
+    "prefix_moving_bound": 347755151,
+    "prefix_moving_slack": 257700487,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 37993410,
+        "moving_observed": 37993410,
+        "requested_bound": 330125967,
+        "moving_bound": 347755151
+      },
+      "w1_prefix_2": {
+        "requested_observed": 65366018,
+        "moving_observed": 65366018,
+        "requested_bound": 330125967,
+        "moving_bound": 347755151
+      },
+      "w1_prefix_3": {
+        "requested_observed": 90054664,
+        "moving_observed": 90054664,
+        "requested_bound": 330125967,
+        "moving_bound": 347755151
+      },
+      "w1_solve": {
+        "requested_observed": 90054540,
+        "moving_observed": 90054540,
+        "requested_bound": 330125580,
+        "moving_bound": 347754764
+      },
+      "w1_source": {
+        "requested_observed": 539104,
+        "moving_observed": 539104,
+        "requested_bound": 620462,
+        "moving_bound": 620462
+      }
+    },
+    "requested_slack": 240071040,
+    "moving_slack": 257700224
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "233_RF-LARGE-TREE-n01000-AX_w1a",
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "old_estimate_bytes": 303412682,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 90054397,
+    "historical_moving": 90054397,
+    "historical_retained_argument_bytes": 55,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 330125437,
+    "moving_bound": 347754621,
+    "fixed": 6735661,
+    "reference_persistent_argument_bytes": 110,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 90054397,
+        "moving_observed": 90054397,
+        "requested_bound": 330125437,
+        "moving_bound": 347754621
+      },
+      "w1_source": {
+        "requested_observed": 538961,
+        "moving_observed": 538961,
+        "requested_bound": 620319,
+        "moving_bound": 620319
+      }
+    },
+    "requested_slack": 240071040,
+    "moving_slack": 257700224
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "236_RF-LARGE-TREE-n01000-ROT_w1a",
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "old_estimate_bytes": 303597422,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 90211647,
+    "historical_moving": 90211647,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 330784531,
+    "moving_bound": 348413715,
+    "fixed": 7395142,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 90211771,
+    "prefix_requested_bound": 330784918,
+    "prefix_requested_slack": 240573147,
+    "prefix_moving_observed": 90211771,
+    "prefix_moving_bound": 348414102,
+    "prefix_moving_slack": 258202331,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 38150517,
+        "moving_observed": 38150517,
+        "requested_bound": 330784918,
+        "moving_bound": 348414102
+      },
+      "w1_prefix_2": {
+        "requested_observed": 65523125,
+        "moving_observed": 65523125,
+        "requested_bound": 330784918,
+        "moving_bound": 348414102
+      },
+      "w1_prefix_3": {
+        "requested_observed": 90211771,
+        "moving_observed": 90211771,
+        "requested_bound": 330784918,
+        "moving_bound": 348414102
+      },
+      "w1_solve": {
+        "requested_observed": 90211647,
+        "moving_observed": 90211647,
+        "requested_bound": 330784531,
+        "moving_bound": 348413715
+      },
+      "w1_source": {
+        "requested_observed": 641583,
+        "moving_observed": 641583,
+        "requested_bound": 690953,
+        "moving_bound": 690953
+      }
+    },
+    "requested_slack": 240572884,
+    "moving_slack": 258202068
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "238_RF-LARGE-TREE-n01000-ROT_w1a",
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "old_estimate_bytes": 303597422,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 90211503,
+    "historical_moving": 90211503,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 330784387,
+    "moving_bound": 348413571,
+    "fixed": 7394611,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 90211503,
+        "moving_observed": 90211503,
+        "requested_bound": 330784387,
+        "moving_bound": 348413571
+      },
+      "w1_source": {
+        "requested_observed": 641439,
+        "moving_observed": 641439,
+        "requested_bound": 690809,
+        "moving_bound": 690809
+      }
+    },
+    "requested_slack": 240572884,
+    "moving_slack": 258202068
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "239_RF-LARGE-CONT-n01000-AX_w1a",
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "old_estimate_bytes": 295679900,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 85127810,
+    "historical_moving": 85127810,
+    "historical_retained_argument_bytes": 198,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 319594488,
+    "moving_bound": 337223672,
+    "fixed": 7095339,
+    "reference_persistent_argument_bytes": 343,
+    "prefix_requested_observed": 85127934,
+    "prefix_requested_bound": 319594875,
+    "prefix_requested_slack": 234466941,
+    "prefix_moving_observed": 85127934,
+    "prefix_moving_bound": 337224059,
+    "prefix_moving_slack": 252096125,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 36756678,
+        "moving_observed": 36756678,
+        "requested_bound": 319594875,
+        "moving_bound": 337224059
+      },
+      "w1_prefix_2": {
+        "requested_observed": 64129286,
+        "moving_observed": 64129286,
+        "requested_bound": 319594875,
+        "moving_bound": 337224059
+      },
+      "w1_prefix_3": {
+        "requested_observed": 85127934,
+        "moving_observed": 85127934,
+        "requested_bound": 319594875,
+        "moving_bound": 337224059
+      },
+      "w1_solve": {
+        "requested_observed": 85127810,
+        "moving_observed": 85127810,
+        "requested_bound": 319594488,
+        "moving_bound": 337223672
+      },
+      "w1_source": {
+        "requested_observed": 607910,
+        "moving_observed": 607910,
+        "requested_bound": 685536,
+        "moving_bound": 685536
+      }
+    },
+    "requested_slack": 234466678,
+    "moving_slack": 252095862
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "241_RF-LARGE-CONT-n01000-AX_w1a",
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "old_estimate_bytes": 295679900,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 85127667,
+    "historical_moving": 85127667,
+    "historical_retained_argument_bytes": 55,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 319594345,
+    "moving_bound": 337223529,
+    "fixed": 7094809,
+    "reference_persistent_argument_bytes": 110,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 85127667,
+        "moving_observed": 85127667,
+        "requested_bound": 319594345,
+        "moving_bound": 337223529
+      },
+      "w1_source": {
+        "requested_observed": 607767,
+        "moving_observed": 607767,
+        "requested_bound": 685393,
+        "moving_bound": 685393
+      }
+    },
+    "requested_slack": 234466678,
+    "moving_slack": 252095862
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "244_RF-LARGE-CONT-n01000-ROT_w1a",
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "old_estimate_bytes": 295795460,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 85227657,
+    "historical_moving": 85227657,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 320007845,
+    "moving_bound": 337637029,
+    "fixed": 7508696,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 85227781,
+    "prefix_requested_bound": 320008232,
+    "prefix_requested_slack": 234780451,
+    "prefix_moving_observed": 85227781,
+    "prefix_moving_bound": 337637416,
+    "prefix_moving_slack": 252409635,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 36856525,
+        "moving_observed": 36856525,
+        "requested_bound": 320008232,
+        "moving_bound": 337637416
+      },
+      "w1_prefix_2": {
+        "requested_observed": 64229133,
+        "moving_observed": 64229133,
+        "requested_bound": 320008232,
+        "moving_bound": 337637416
+      },
+      "w1_prefix_3": {
+        "requested_observed": 85227781,
+        "moving_observed": 85227781,
+        "requested_bound": 320008232,
+        "moving_bound": 337637416
+      },
+      "w1_solve": {
+        "requested_observed": 85227657,
+        "moving_observed": 85227657,
+        "requested_bound": 320007845,
+        "moving_bound": 337637029
+      },
+      "w1_source": {
+        "requested_observed": 673517,
+        "moving_observed": 673517,
+        "requested_bound": 730813,
+        "moving_bound": 730813
+      }
+    },
+    "requested_slack": 234780188,
+    "moving_slack": 252409372
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "246_RF-LARGE-CONT-n01000-ROT_w1a",
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "old_estimate_bytes": 295795460,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 85227513,
+    "historical_moving": 85227513,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 320007701,
+    "moving_bound": 337636885,
+    "fixed": 7508165,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 85227513,
+        "moving_observed": 85227513,
+        "requested_bound": 320007701,
+        "moving_bound": 337636885
+      },
+      "w1_source": {
+        "requested_observed": 673373,
+        "moving_observed": 673373,
+        "requested_bound": 730669,
+        "moving_bound": 730669
+      }
+    },
+    "requested_slack": 234780188,
+    "moving_slack": 252409372
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "247_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n10000-AX",
+    "old_estimate_bytes": 2856520478,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 872145243,
+    "historical_moving": 872145243,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3125422233,
+    "moving_bound": 3266455705,
+    "fixed": 63700940,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 648383541,
+    "prefix_requested_bound": 3125422620,
+    "prefix_requested_slack": 2477039079,
+    "prefix_moving_observed": 648383541,
+    "prefix_moving_bound": 3266456092,
+    "prefix_moving_slack": 2618072551,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 374698933,
+        "moving_observed": 374698933,
+        "requested_bound": 3125422620,
+        "moving_bound": 3266456092
+      },
+      "w1_prefix_2": {
+        "requested_observed": 648383541,
+        "moving_observed": 648383541,
+        "requested_bound": 3125422620,
+        "moving_bound": 3266456092
+      },
+      "w1_solve": {
+        "requested_observed": 872145243,
+        "moving_observed": 872145243,
+        "requested_bound": 3125422233,
+        "moving_bound": 3266455705
+      },
+      "w1_source": {
+        "requested_observed": 6187785,
+        "moving_observed": 6187785,
+        "requested_bound": 7001023,
+        "moving_bound": 7001023
+      }
+    },
+    "requested_slack": 2253276990,
+    "moving_slack": 2394310462
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "249_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n10000-AX",
+    "old_estimate_bytes": 2856520478,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 872145099,
+    "historical_moving": 872145099,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3125422089,
+    "moving_bound": 3266455561,
+    "fixed": 63700409,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 872145099,
+        "moving_observed": 872145099,
+        "requested_bound": 3125422089,
+        "moving_bound": 3266455561
+      },
+      "w1_source": {
+        "requested_observed": 6187641,
+        "moving_observed": 6187641,
+        "requested_bound": 7000879,
+        "moving_bound": 7000879
+      }
+    },
+    "requested_slack": 2253276990,
+    "moving_slack": 2394310462
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "252_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n10000-ROT",
+    "old_estimate_bytes": 2856520478,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 872145246,
+    "historical_moving": 872145246,
+    "historical_retained_argument_bytes": 202,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3125422236,
+    "moving_bound": 3266455708,
+    "fixed": 63700943,
+    "reference_persistent_argument_bytes": 347,
+    "prefix_requested_observed": 648383544,
+    "prefix_requested_bound": 3125422623,
+    "prefix_requested_slack": 2477039079,
+    "prefix_moving_observed": 648383544,
+    "prefix_moving_bound": 3266456095,
+    "prefix_moving_slack": 2618072551,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 374698936,
+        "moving_observed": 374698936,
+        "requested_bound": 3125422623,
+        "moving_bound": 3266456095
+      },
+      "w1_prefix_2": {
+        "requested_observed": 648383544,
+        "moving_observed": 648383544,
+        "requested_bound": 3125422623,
+        "moving_bound": 3266456095
+      },
+      "w1_solve": {
+        "requested_observed": 872145246,
+        "moving_observed": 872145246,
+        "requested_bound": 3125422236,
+        "moving_bound": 3266455708
+      },
+      "w1_source": {
+        "requested_observed": 6187788,
+        "moving_observed": 6187788,
+        "requested_bound": 7001026,
+        "moving_bound": 7001026
+      }
+    },
+    "requested_slack": 2253276990,
+    "moving_slack": 2394310462
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "254_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n10000-ROT",
+    "old_estimate_bytes": 2856520478,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 872145101,
+    "historical_moving": 872145101,
+    "historical_retained_argument_bytes": 57,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3125422091,
+    "moving_bound": 3266455563,
+    "fixed": 63700411,
+    "reference_persistent_argument_bytes": 112,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 872145101,
+        "moving_observed": 872145101,
+        "requested_bound": 3125422091,
+        "moving_bound": 3266455563
+      },
+      "w1_source": {
+        "requested_observed": 6187643,
+        "moving_observed": 6187643,
+        "requested_bound": 7000881,
+        "moving_bound": 7000881
+      }
+    },
+    "requested_slack": 2253276990,
+    "moving_slack": 2394310462
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "255_RF-LARGE-TREE-n10000-AX_w1a",
+    "model": "RF-LARGE-TREE-n10000-AX",
+    "old_estimate_bytes": 2857448446,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 872945764,
+    "historical_moving": 872945764,
+    "historical_retained_argument_bytes": 198,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3128746374,
+    "moving_bound": 3269779846,
+    "fixed": 67025081,
+    "reference_persistent_argument_bytes": 343,
+    "prefix_requested_observed": 649184062,
+    "prefix_requested_bound": 3128746761,
+    "prefix_requested_slack": 2479562699,
+    "prefix_moving_observed": 649184062,
+    "prefix_moving_bound": 3269780233,
+    "prefix_moving_slack": 2620596171,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 375499454,
+        "moving_observed": 375499454,
+        "requested_bound": 3128746761,
+        "moving_bound": 3269780233
+      },
+      "w1_prefix_2": {
+        "requested_observed": 649184062,
+        "moving_observed": 649184062,
+        "requested_bound": 3128746761,
+        "moving_bound": 3269780233
+      },
+      "w1_solve": {
+        "requested_observed": 872945764,
+        "moving_observed": 872945764,
+        "requested_bound": 3128746374,
+        "moving_bound": 3269779846
+      },
+      "w1_source": {
+        "requested_observed": 6551122,
+        "moving_observed": 6551122,
+        "requested_bound": 7370060,
+        "moving_bound": 7370060
+      }
+    },
+    "requested_slack": 2255800610,
+    "moving_slack": 2396834082
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "257_RF-LARGE-TREE-n10000-AX_w1a",
+    "model": "RF-LARGE-TREE-n10000-AX",
+    "old_estimate_bytes": 2857448446,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 872945621,
+    "historical_moving": 872945621,
+    "historical_retained_argument_bytes": 55,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3128746231,
+    "moving_bound": 3269779703,
+    "fixed": 67024551,
+    "reference_persistent_argument_bytes": 110,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 872945621,
+        "moving_observed": 872945621,
+        "requested_bound": 3128746231,
+        "moving_bound": 3269779703
+      },
+      "w1_source": {
+        "requested_observed": 6550979,
+        "moving_observed": 6550979,
+        "requested_bound": 7369917,
+        "moving_bound": 7369917
+      }
+    },
+    "requested_slack": 2255800610,
+    "moving_slack": 2396834082
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "260_RF-LARGE-TREE-n10000-ROT_w1a",
+    "model": "RF-LARGE-TREE-n10000-ROT",
+    "old_estimate_bytes": 2859306986,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 874420207,
+    "historical_moving": 874420207,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3135272813,
+    "moving_bound": 3276306285,
+    "fixed": 73551520,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 650658505,
+    "prefix_requested_bound": 3135273200,
+    "prefix_requested_slack": 2484614695,
+    "prefix_moving_observed": 650658505,
+    "prefix_moving_bound": 3276306672,
+    "prefix_moving_slack": 2625648167,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 376973897,
+        "moving_observed": 376973897,
+        "requested_bound": 3135273200,
+        "moving_bound": 3276306672
+      },
+      "w1_prefix_2": {
+        "requested_observed": 650658505,
+        "moving_observed": 650658505,
+        "requested_bound": 3135273200,
+        "moving_bound": 3276306672
+      },
+      "w1_solve": {
+        "requested_observed": 874420207,
+        "moving_observed": 874420207,
+        "requested_bound": 3135272813,
+        "moving_bound": 3276306285
+      },
+      "w1_source": {
+        "requested_observed": 7469969,
+        "moving_observed": 7469969,
+        "requested_bound": 7977999,
+        "moving_bound": 7977999
+      }
+    },
+    "requested_slack": 2260852606,
+    "moving_slack": 2401886078
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "262_RF-LARGE-TREE-n10000-ROT_w1a",
+    "model": "RF-LARGE-TREE-n10000-ROT",
+    "old_estimate_bytes": 2859306986,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 874420063,
+    "historical_moving": 874420063,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3135272669,
+    "moving_bound": 3276306141,
+    "fixed": 73550989,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 874420063,
+        "moving_observed": 874420063,
+        "requested_bound": 3135272669,
+        "moving_bound": 3276306141
+      },
+      "w1_source": {
+        "requested_observed": 7469825,
+        "moving_observed": 7469825,
+        "requested_bound": 7977855,
+        "moving_bound": 7977855
+      }
+    },
+    "requested_slack": 2260852606,
+    "moving_slack": 2401886078
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "263_RF-LARGE-CONT-n10000-AX_w1a",
+    "model": "RF-LARGE-CONT-n10000-AX",
+    "old_estimate_bytes": 2777832333,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 853553881,
+    "historical_moving": 853553881,
+    "historical_retained_argument_bytes": 198,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3028657099,
+    "moving_bound": 3169690571,
+    "fixed": 75890046,
+    "reference_persistent_argument_bytes": 343,
+    "prefix_requested_observed": 853554005,
+    "prefix_requested_bound": 3028657486,
+    "prefix_requested_slack": 2175103481,
+    "prefix_moving_observed": 853554005,
+    "prefix_moving_bound": 3169690958,
+    "prefix_moving_slack": 2316136953,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 369906749,
+        "moving_observed": 369906749,
+        "requested_bound": 3028657486,
+        "moving_bound": 3169690958
+      },
+      "w1_prefix_2": {
+        "requested_observed": 643591357,
+        "moving_observed": 643591357,
+        "requested_bound": 3028657486,
+        "moving_bound": 3169690958
+      },
+      "w1_prefix_3": {
+        "requested_observed": 853554005,
+        "moving_observed": 853554005,
+        "requested_bound": 3028657486,
+        "moving_bound": 3169690958
+      },
+      "w1_solve": {
+        "requested_observed": 853553881,
+        "moving_observed": 853553881,
+        "requested_bound": 3028657099,
+        "moving_bound": 3169690571
+      },
+      "w1_source": {
+        "requested_observed": 7202920,
+        "moving_observed": 7202920,
+        "requested_bound": 8044292,
+        "moving_bound": 8044292
+      }
+    },
+    "requested_slack": 2175103218,
+    "moving_slack": 2316136690
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "265_RF-LARGE-CONT-n10000-AX_w1a",
+    "model": "RF-LARGE-CONT-n10000-AX",
+    "old_estimate_bytes": 2777832333,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 853553738,
+    "historical_moving": 853553738,
+    "historical_retained_argument_bytes": 55,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3028656956,
+    "moving_bound": 3169690428,
+    "fixed": 75889516,
+    "reference_persistent_argument_bytes": 110,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 853553738,
+        "moving_observed": 853553738,
+        "requested_bound": 3028656956,
+        "moving_bound": 3169690428
+      },
+      "w1_source": {
+        "requested_observed": 7202777,
+        "moving_observed": 7202777,
+        "requested_bound": 8044149,
+        "moving_bound": 8044149
+      }
+    },
+    "requested_slack": 2175103218,
+    "moving_slack": 2316136690
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "268_RF-LARGE-CONT-n10000-ROT_w1a",
+    "model": "RF-LARGE-CONT-n10000-ROT",
+    "old_estimate_bytes": 2778990028,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 854522511,
+    "historical_moving": 854522511,
+    "historical_retained_argument_bytes": 200,
+    "actual_minus_reference_bytes": -145,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3032773419,
+    "moving_bound": 3173806891,
+    "fixed": 80006366,
+    "reference_persistent_argument_bytes": 345,
+    "prefix_requested_observed": 644559945,
+    "prefix_requested_bound": 3032773806,
+    "prefix_requested_slack": 2388213861,
+    "prefix_moving_observed": 644559945,
+    "prefix_moving_bound": 3173807278,
+    "prefix_moving_slack": 2529247333,
+    "stage_checks": {
+      "w1_prefix_1": {
+        "requested_observed": 370875337,
+        "moving_observed": 370875337,
+        "requested_bound": 3032773806,
+        "moving_bound": 3173807278
+      },
+      "w1_prefix_2": {
+        "requested_observed": 644559945,
+        "moving_observed": 644559945,
+        "requested_bound": 3032773806,
+        "moving_bound": 3173807278
+      },
+      "w1_solve": {
+        "requested_observed": 854522511,
+        "moving_observed": 854522511,
+        "requested_bound": 3032773419,
+        "moving_bound": 3173806891
+      },
+      "w1_source": {
+        "requested_observed": 7824775,
+        "moving_observed": 7824775,
+        "requested_bound": 8474127,
+        "moving_bound": 8474127
+      }
+    },
+    "requested_slack": 2178250908,
+    "moving_slack": 2319284380
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "270_RF-LARGE-CONT-n10000-ROT_w1a",
+    "model": "RF-LARGE-CONT-n10000-ROT",
+    "old_estimate_bytes": 2778990028,
+    "status": "conditional ordinary-production profile; actual H historical retained arguments bound; not historical executable attestation",
+    "historical_requested": 854522367,
+    "historical_moving": 854522367,
+    "historical_retained_argument_bytes": 56,
+    "actual_minus_reference_bytes": -55,
+    "metric_window": "H source/solve staged summary; separate outer prefix",
+    "requested_bound": 3032773275,
+    "moving_bound": 3173806747,
+    "fixed": 80005835,
+    "reference_persistent_argument_bytes": 111,
+    "prefix_requested_observed": null,
+    "prefix_requested_bound": null,
+    "prefix_requested_slack": null,
+    "prefix_moving_observed": null,
+    "prefix_moving_bound": null,
+    "prefix_moving_slack": null,
+    "stage_checks": {
+      "w1_solve": {
+        "requested_observed": 854522367,
+        "moving_observed": 854522367,
+        "requested_bound": 3032773275,
+        "moving_bound": 3173806747
+      },
+      "w1_source": {
+        "requested_observed": 7824631,
+        "moving_observed": 7824631,
+        "requested_bound": 8473983,
+        "moving_bound": 8473983
+      }
+    },
+    "requested_slack": 2178250908,
+    "moving_slack": 2319284380
+  },
+  {
+    "dataset": "VK",
+    "run_id": "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n00100-AX",
+    "old_estimate_bytes": 48490166,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 11758154,
+    "historical_moving": 12859978,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 47579334,
+    "moving_bound": 48517318,
+    "fixed": 1396731,
+    "model_component": 493462,
+    "requested_slack": 35821180,
+    "moving_slack": 35657340
+  },
+  {
+    "dataset": "VK",
+    "run_id": "02_RF-LARGE-CHAIN-n00100-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n00100-ROT",
+    "old_estimate_bytes": 48490166,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 11698420,
+    "historical_moving": 12800244,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 47579864,
+    "moving_bound": 48517848,
+    "fixed": 1397253,
+    "model_component": 493462,
+    "requested_slack": 35881444,
+    "moving_slack": 35717604
+  },
+  {
+    "dataset": "VK",
+    "run_id": "03_RF-LARGE-TREE-n00100-AX_w1a",
+    "model": "RF-LARGE-TREE-n00100-AX",
+    "old_estimate_bytes": 48499782,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 10048985,
+    "historical_moving": 10324441,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 47593007,
+    "moving_bound": 48530991,
+    "fixed": 1410412,
+    "model_component": 495325,
+    "requested_slack": 37544022,
+    "moving_slack": 38206550
+  },
+  {
+    "dataset": "VK",
+    "run_id": "04_RF-LARGE-TREE-n00100-ROT_w1a",
+    "model": "RF-LARGE-TREE-n00100-ROT",
+    "old_estimate_bytes": 48522171,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 9500554,
+    "historical_moving": 9776010,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 47674412,
+    "moving_bound": 48612396,
+    "fixed": 1491809,
+    "model_component": 499740,
+    "requested_slack": 38173858,
+    "moving_slack": 38836386
+  },
+  {
+    "dataset": "VK",
+    "run_id": "05_RF-LARGE-CONT-n00100-AX_w1a",
+    "model": "RF-LARGE-CONT-n00100-AX",
+    "old_estimate_bytes": 47751492,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 11421015,
+    "historical_moving": 12522839,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 46807471,
+    "moving_bound": 47745455,
+    "fixed": 1496214,
+    "model_component": 527575,
+    "requested_slack": 35386456,
+    "moving_slack": 35222616
+  },
+  {
+    "dataset": "VK",
+    "run_id": "06_RF-LARGE-CONT-n00100-ROT_w1a",
+    "model": "RF-LARGE-CONT-n00100-ROT",
+    "old_estimate_bytes": 47765820,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 11438758,
+    "historical_moving": 12540582,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 46859140,
+    "moving_bound": 47797124,
+    "fixed": 1547875,
+    "model_component": 530408,
+    "requested_slack": 35420382,
+    "moving_slack": 35256542
+  },
+  {
+    "dataset": "VK",
+    "run_id": "07_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "old_estimate_bytes": 305951366,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 90121465,
+    "historical_moving": 90121465,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 337948600,
+    "moving_bound": 481972600,
+    "fixed": 11325253,
+    "model_component": 4908168,
+    "requested_slack": 247827135,
+    "moving_slack": 391851135
+  },
+  {
+    "dataset": "VK",
+    "run_id": "08_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "old_estimate_bytes": 305951366,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 90122198,
+    "historical_moving": 90122198,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 337949334,
+    "moving_bound": 481973334,
+    "fixed": 11325986,
+    "model_component": 4908168,
+    "requested_slack": 247827136,
+    "moving_slack": 391851136
+  },
+  {
+    "dataset": "VK",
+    "run_id": "09_RF-LARGE-TREE-n01000-AX_w1a",
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "old_estimate_bytes": 306061410,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 90219285,
+    "historical_moving": 90219285,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 337985943,
+    "moving_bound": 482009943,
+    "fixed": 11684315,
+    "model_component": 4929796,
+    "requested_slack": 247766658,
+    "moving_slack": 391790658
+  },
+  {
+    "dataset": "VK",
+    "run_id": "10_RF-LARGE-TREE-n01000-ROT_w1a",
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "old_estimate_bytes": 306285110,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 90416322,
+    "historical_moving": 90416322,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 338031093,
+    "moving_bound": 482055093,
+    "fixed": 12413208,
+    "model_component": 4974592,
+    "requested_slack": 247614771,
+    "moving_slack": 391638771
+  },
+  {
+    "dataset": "VK",
+    "run_id": "11_RF-LARGE-CONT-n01000-AX_w1a",
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "old_estimate_bytes": 298528275,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 85333270,
+    "historical_moving": 85333270,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 319903830,
+    "moving_bound": 337533014,
+    "fixed": 12408812,
+    "model_component": 5252856,
+    "requested_slack": 234570560,
+    "moving_slack": 252199744
+  },
+  {
+    "dataset": "VK",
+    "run_id": "12_RF-LARGE-CONT-n01000-ROT_w1a",
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "old_estimate_bytes": 298668178,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 85458955,
+    "historical_moving": 85458955,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 320362221,
+    "moving_bound": 337991405,
+    "fixed": 12867195,
+    "model_component": 5280944,
+    "requested_slack": 234903266,
+    "moving_slack": 252532450
+  },
+  {
+    "dataset": "VK",
+    "run_id": "13_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n10000-AX",
+    "old_estimate_bytes": 2882802230,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 872783268,
+    "historical_moving": 872783268,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 29394128434,
+    "moving_bound": 43794368434,
+    "fixed": 112396350,
+    "model_component": 49367450,
+    "requested_slack": 28521345166,
+    "moving_slack": 42921585166
+  },
+  {
+    "dataset": "VK",
+    "run_id": "14_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n10000-ROT",
+    "old_estimate_bytes": 2882802230,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 872784035,
+    "historical_moving": 872784035,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 29394129202,
+    "moving_bound": 43794369202,
+    "fixed": 112397117,
+    "model_component": 49367450,
+    "requested_slack": 28521345167,
+    "moving_slack": 42921585167
+  },
+  {
+    "dataset": "VK",
+    "run_id": "15_RF-LARGE-TREE-n10000-AX_w1a",
+    "model": "RF-LARGE-TREE-n10000-AX",
+    "old_estimate_bytes": 2883922498,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 873802158,
+    "historical_moving": 873802158,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 29394368050,
+    "moving_bound": 43794608050,
+    "fixed": 116081586,
+    "model_component": 49590982,
+    "requested_slack": 28520565892,
+    "moving_slack": 42920805892
+  },
+  {
+    "dataset": "VK",
+    "run_id": "16_RF-LARGE-TREE-n10000-ROT_w1a",
+    "model": "RF-LARGE-TREE-n10000-ROT",
+    "old_estimate_bytes": 2886171220,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 875510273,
+    "historical_moving": 875510273,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 29394825566,
+    "moving_bound": 43795065566,
+    "fixed": 123150061,
+    "model_component": 50048156,
+    "requested_slack": 28519315293,
+    "moving_slack": 42919555293
+  },
+  {
+    "dataset": "VK",
+    "run_id": "17_RF-LARGE-CONT-n10000-AX_w1a",
+    "model": "RF-LARGE-CONT-n10000-AX",
+    "old_estimate_bytes": 2806302708,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 856125957,
+    "historical_moving": 856125957,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 16793033660,
+    "moving_bound": 24893213660,
+    "fixed": 128281335,
+    "model_component": 52824473,
+    "requested_slack": 15936907703,
+    "moving_slack": 24037087703
+  },
+  {
+    "dataset": "VK",
+    "run_id": "18_RF-LARGE-CONT-n10000-ROT_w1a",
+    "model": "RF-LARGE-CONT-n10000-ROT",
+    "old_estimate_bytes": 2807703146,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 857315151,
+    "historical_moving": 857315151,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 16793318994,
+    "moving_bound": 24893498994,
+    "fixed": 132810167,
+    "model_component": 53109896,
+    "requested_slack": 15936003843,
+    "moving_slack": 24036183843
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n00100-AX",
+    "old_estimate_bytes": 48490166,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 11758314,
+    "historical_moving": 12860138,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 47579334,
+    "moving_bound": 48517318,
+    "fixed": 1396731,
+    "model_component": 493462,
+    "requested_slack": 35821020,
+    "moving_slack": 35657180
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "02_RF-LARGE-CHAIN-n00100-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n00100-ROT",
+    "old_estimate_bytes": 48490166,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 11698580,
+    "historical_moving": 12800404,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 47579864,
+    "moving_bound": 48517848,
+    "fixed": 1397253,
+    "model_component": 493462,
+    "requested_slack": 35881284,
+    "moving_slack": 35717444
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "03_RF-LARGE-TREE-n00100-AX_w1a",
+    "model": "RF-LARGE-TREE-n00100-AX",
+    "old_estimate_bytes": 48499782,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 10049145,
+    "historical_moving": 10324601,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 47593007,
+    "moving_bound": 48530991,
+    "fixed": 1410412,
+    "model_component": 495325,
+    "requested_slack": 37543862,
+    "moving_slack": 38206390
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "04_RF-LARGE-TREE-n00100-ROT_w1a",
+    "model": "RF-LARGE-TREE-n00100-ROT",
+    "old_estimate_bytes": 48522171,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 9500714,
+    "historical_moving": 9776170,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 47674412,
+    "moving_bound": 48612396,
+    "fixed": 1491809,
+    "model_component": 499740,
+    "requested_slack": 38173698,
+    "moving_slack": 38836226
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "05_RF-LARGE-CONT-n00100-AX_w1a",
+    "model": "RF-LARGE-CONT-n00100-AX",
+    "old_estimate_bytes": 47751492,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 11421175,
+    "historical_moving": 12522999,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 46807471,
+    "moving_bound": 47745455,
+    "fixed": 1496214,
+    "model_component": 527575,
+    "requested_slack": 35386296,
+    "moving_slack": 35222456
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "06_RF-LARGE-CONT-n00100-ROT_w1a",
+    "model": "RF-LARGE-CONT-n00100-ROT",
+    "old_estimate_bytes": 47765820,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 11438918,
+    "historical_moving": 12540742,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 46859140,
+    "moving_bound": 47797124,
+    "fixed": 1547875,
+    "model_component": 530408,
+    "requested_slack": 35420222,
+    "moving_slack": 35256382
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "07_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "old_estimate_bytes": 305951366,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 90121641,
+    "historical_moving": 90121641,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 337948600,
+    "moving_bound": 481972600,
+    "fixed": 11325253,
+    "model_component": 4908168,
+    "requested_slack": 247826959,
+    "moving_slack": 391850959
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "08_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "old_estimate_bytes": 305951366,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 90122374,
+    "historical_moving": 90122374,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 337949334,
+    "moving_bound": 481973334,
+    "fixed": 11325986,
+    "model_component": 4908168,
+    "requested_slack": 247826960,
+    "moving_slack": 391850960
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "09_RF-LARGE-TREE-n01000-AX_w1a",
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "old_estimate_bytes": 306061410,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 90219461,
+    "historical_moving": 90219461,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 337985943,
+    "moving_bound": 482009943,
+    "fixed": 11684315,
+    "model_component": 4929796,
+    "requested_slack": 247766482,
+    "moving_slack": 391790482
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "10_RF-LARGE-TREE-n01000-ROT_w1a",
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "old_estimate_bytes": 306285110,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 90416498,
+    "historical_moving": 90416498,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 338031093,
+    "moving_bound": 482055093,
+    "fixed": 12413208,
+    "model_component": 4974592,
+    "requested_slack": 247614595,
+    "moving_slack": 391638595
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "11_RF-LARGE-CONT-n01000-AX_w1a",
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "old_estimate_bytes": 298528275,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 85333366,
+    "historical_moving": 85333366,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 319903830,
+    "moving_bound": 337533014,
+    "fixed": 12408812,
+    "model_component": 5252856,
+    "requested_slack": 234570464,
+    "moving_slack": 252199648
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "12_RF-LARGE-CONT-n01000-ROT_w1a",
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "old_estimate_bytes": 298668178,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 85459051,
+    "historical_moving": 85459051,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 320362221,
+    "moving_bound": 337991405,
+    "fixed": 12867195,
+    "model_component": 5280944,
+    "requested_slack": 234903170,
+    "moving_slack": 252532354
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "13_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n10000-AX",
+    "old_estimate_bytes": 2882802230,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 895090914,
+    "historical_moving": 895090914,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 29394128434,
+    "moving_bound": 43794368434,
+    "fixed": 112396350,
+    "model_component": 49367450,
+    "requested_slack": 28499037520,
+    "moving_slack": 42899277520
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "14_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n10000-ROT",
+    "old_estimate_bytes": 2882802230,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 895091681,
+    "historical_moving": 895091681,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 29394129202,
+    "moving_bound": 43794369202,
+    "fixed": 112397117,
+    "model_component": 49367450,
+    "requested_slack": 28499037521,
+    "moving_slack": 42899277521
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "15_RF-LARGE-TREE-n10000-AX_w1a",
+    "model": "RF-LARGE-TREE-n10000-AX",
+    "old_estimate_bytes": 2883922498,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 3030269132,
+    "historical_moving": 3030269132,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 29394368050,
+    "moving_bound": 43794608050,
+    "fixed": 116081586,
+    "model_component": 49590982,
+    "requested_slack": 26364098918,
+    "moving_slack": 40764338918
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "16_RF-LARGE-TREE-n10000-ROT_w1a",
+    "model": "RF-LARGE-TREE-n10000-ROT",
+    "old_estimate_bytes": 2886171220,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 3031977247,
+    "historical_moving": 3031977247,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 29394825566,
+    "moving_bound": 43795065566,
+    "fixed": 123150061,
+    "model_component": 50048156,
+    "requested_slack": 26362848319,
+    "moving_slack": 40763088319
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "17_RF-LARGE-CONT-n10000-AX_w1a",
+    "model": "RF-LARGE-CONT-n10000-AX",
+    "old_estimate_bytes": 2806302708,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 856126053,
+    "historical_moving": 856126053,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 16793033660,
+    "moving_bound": 24893213660,
+    "fixed": 128281335,
+    "model_component": 52824473,
+    "requested_slack": 15936907607,
+    "moving_slack": 24037087607
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "18_RF-LARGE-CONT-n10000-ROT_w1a",
+    "model": "RF-LARGE-CONT-n10000-ROT",
+    "old_estimate_bytes": 2807703146,
+    "status": "conditional reference-launch arithmetic; actual historical launch/profile qualification unresolved; not historical executable attestation",
+    "historical_requested": 857315247,
+    "historical_moving": 857315247,
+    "metric_window": "VR global summary including parse/output/RCM/parity",
+    "requested_bound": 16793318994,
+    "moving_bound": 24893498994,
+    "fixed": 132810167,
+    "model_component": 53109896,
+    "requested_slack": 15936003747,
+    "moving_slack": 24036183747
+  }
+]

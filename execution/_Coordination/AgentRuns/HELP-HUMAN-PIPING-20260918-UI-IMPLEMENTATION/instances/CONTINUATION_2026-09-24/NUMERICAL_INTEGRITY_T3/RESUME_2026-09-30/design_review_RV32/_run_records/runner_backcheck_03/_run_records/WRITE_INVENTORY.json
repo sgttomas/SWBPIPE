@@ -1,0 +1,26 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/runner_backcheck_03",
+  "sealed_files": [
+    "RETURN.md",
+    "_run_records/.gitignore",
+    "_run_records/BASE_ADMISSION_SOURCES.json",
+    "_run_records/BINDING.json",
+    "_run_records/EXECUTION.md",
+    "_run_records/POSTIMAGE_RECHECK.json",
+    "_run_records/PRIOR_REPRODUCER_ORIGIN.json",
+    "_run_records/REVIEWED_DIFF.patch",
+    "_run_records/REVIEWED_POSTIMAGES.tar.gz",
+    "_run_records/VERIFICATION.json",
+    "_run_records/WRITE_INVENTORY.json",
+    "_run_records/admission_backcheck.json",
+    "_run_records/admission_backcheck.py",
+    "_run_records/h_tests.log",
+    "_run_records/prior_reproducer_backcheck.json",
+    "_run_records/prior_reproducer_backcheck.py",
+    "_run_records/stub_V2/metadata.json",
+    "_run_records/stub_V3/metadata.json",
+    "_run_records/vr_tests.log"
+  ],
+  "unsealed_cache": "_run_records/clean",
+  "other_writes": []
+}

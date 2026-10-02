@@ -1,0 +1,172 @@
+{
+  "candidate": "10315a8167c47f43aa41402beb88ed2c70e62cf2",
+  "argv": [
+    "git",
+    "archive",
+    "10315a8167c47f43aa41402beb88ed2c70e62cf2",
+    "projects/chirality-piping/core/solver/performance_harness/runner",
+    "projects/chirality-piping/core/solver/performance_harness/observations",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+  "environment_overrides": {
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  "archive": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV33/runner_backcheck_03/_run_records/candidate",
+  "tar_sha256": "4330463da2ab6664f34089ad868fd74768ae44b757d89fa2d456153e65f5154f",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/SHA256SUMS",
+      "sha256": "363de394a296f2a07ce3392fdd340c5ff04371ff2730d78492941738bb980f1d"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/counts.jsonl",
+      "sha256": "9b57e516ff26c51e5446b35959cd6bec50a8e9162f830e5d44fbf37cce2462b0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/k6_packet.json",
+      "sha256": "b5419aee28d2736b84fe3f0a36d7e2850a21a1c59634a21e0580e69e632eb27f"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/DEC053_invented-cantilever-chain-24.k6model",
+      "sha256": "3f4ce47ab8398a0804358133a89c51196bbb7d3d1c0d7058cf7442a542f29539"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/DEC053_invented-cantilever-chain-32.k6model",
+      "sha256": "09ef77ad46567ac7794082e4e85aca165b032ab545c9ffcbc7882d0e86bef062"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/DEC053_invented-cantilever-chain-48.k6model",
+      "sha256": "036491a2046a23d1b347fd6abb6b83ad391db7cc4a968749660f1597201dab6c"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/DEC053_invented-cantilever-chain-8.k6model",
+      "sha256": "cf8c10fc294cb226fddd70a132ed0bc4e536b44ec386f17a5434a38f431df126"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/DEC053_invented-grid-frame-4x3.k6model",
+      "sha256": "f38fec6f38c76112d29e7b72a5ee477c642327bc79c93ff572c62a53f5da12dd"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/DEC053_invented-grid-frame-5x5.k6model",
+      "sha256": "da4e6fa1c0841e2eee15940fc4d0e35590e09e74978b89f439a0f8a219d2b4d9"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/DEC053_invented-grid-frame-5x6.k6model",
+      "sha256": "349604115079bd0a06abdb58c577ac473e58b67dc635d3baaa5fb66190a6296a"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/DEC053_invented-grid-frame-6x8.k6model",
+      "sha256": "e0410b06ee062cfbc95100a225a1aad14d83950c96c42bbf94f6c6c907442bb3"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/DEC053_invented-grid-frame-7x8.k6model",
+      "sha256": "52e07a787bdf404ed3154ea3450afdadd617a3acd5cf22dc48387ff8f87002a1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-CHAIN-n00010-AX.k6model",
+      "sha256": "f9f113020c54edb2dd48f6f832a01e0ba77cbb704cc24c07f51ef88f0da05f2e"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-CHAIN-n00010-ROT.k6model",
+      "sha256": "1e2f00bdcba836989b389807ce1f5be2322e6406cd693d554018fbc854a07b15"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-CHAIN-n00100-AX.k6model",
+      "sha256": "791f8c541fc55f5d4666eed03af3b0bbc7dfcca2390bf6cce33fcb39da7a44f6"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-CHAIN-n00100-ROT.k6model",
+      "sha256": "343c60ff63af7eced2ee7028effbb3d78f1cb5b24effa363d00b7ed791df1639"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-CONT-n00010-AX.k6model",
+      "sha256": "a80cf616fab5c7e855980182da7b7e84857dc15d9c0cd41e5d8f989585a49be4"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-CONT-n00010-ROT.k6model",
+      "sha256": "f0c6c96d0d4f2b35ded4aac90ba78e01f4f4079b4a6891f093082524cf2cd560"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-CONT-n00100-AX.k6model",
+      "sha256": "f2c4687642a6f3afc1e489edcfd020ad28b22a2ba4ce31e7026a7fc32104391a"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-CONT-n00100-ROT.k6model",
+      "sha256": "c7aa0602649d2db47e4d1eaadfd1e79b3550f427c3fbed30aaa0a0ebe52c8dab"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-TREE-n00010-AX.k6model",
+      "sha256": "485a8258b5822529a982d7af566b2b3e44473503291955e77a7103c4def2ebcb"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-TREE-n00010-ROT.k6model",
+      "sha256": "8aaa7412e9ba5b51efce78769a272bb4db9429b4857fee24e2063d52a077873a"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-TREE-n00100-AX.k6model",
+      "sha256": "4cf6cce6f6ef81051517381ce99b43428e73276f9dc35909e85725dd1d53e659"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models/RF-LARGE-TREE-n00100-ROT.k6model",
+      "sha256": "6af54c3e5cde44bfccaae62a3a647e0d053e6f621101c4e57275f0751c33dfde"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6/models_sha256.txt",
+      "sha256": "a4cd05eb46650b597a331db0aef03fbd91a618f3f3a43d0afad8efad04167098"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6b/SHA256SUMS",
+      "sha256": "a1d05b21ec50a56ae0be45ee098d36cdde736aa58f4f532914a5960146788b2d"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6b/counts.jsonl",
+      "sha256": "29e4aba283a4edeb3287d72598d7f37d29ed65799959f89005cf58bcf1d4a9f4"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6b/k6b_packet.json",
+      "sha256": "f97ea23955428c33f86bdaa4cee565b7a8349baea82fa178f3dcb5a72e424269"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6b/sources.txt",
+      "sha256": "149e588c6ea99de946ab8f992d17c880ffef81c0f6eb0151c7ba9f58393a7ad9"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+      "sha256": "4cfbd86c2ba293c7d67202120c44fe94f5d30b9938f283d8d55e25f0c5686840"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/k6b_analysis.py",
+      "sha256": "9b2be1fde14d17da8081779fe550c189e7c838de6ad04de5c3eac2eaba847eac"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/k6b_sources.py",
+      "sha256": "b56da1e3c52f04697c85897af5b246552eb250e67453236a1b929dc850925f75"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py",
+      "sha256": "b26005824731798eb3ebca5dc68ed6e388923ed1067371f113fc6354fceb1500"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/check_fault_sites.py",
+      "sha256": "70da9416365dbc1ee2da436ce69ec583123307fd77e3e22aa82e5be6da5b0194"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_harness_mutants.py",
+      "sha256": "e66a80e14506fa335151105c992492ee03179fcb447bf2ed1e27a4b1dd70ae32"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_seeded_faults.py",
+      "sha256": "e800ccb6a90e7584513594ae2f42b305dabdbc295a7df19a1b3082ab429ab6bd"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py",
+      "sha256": "84c383bedc930feb123d796b41b859e27c9657e81b95909dca2d0c18dc6d2b86"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py",
+      "sha256": "fd50b1e26bd1da2abf1a0c325571a5fb565dbf31c2a75d8e453297463d6b7132"
+    }
+  ],
+  "scope": "Frozen Python runner dependencies and observations only; no Rust build"
+}

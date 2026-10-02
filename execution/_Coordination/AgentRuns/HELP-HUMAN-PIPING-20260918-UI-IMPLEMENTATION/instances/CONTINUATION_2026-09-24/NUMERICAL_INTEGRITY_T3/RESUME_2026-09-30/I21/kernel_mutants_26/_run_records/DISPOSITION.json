@@ -1,0 +1,74 @@
+{
+  "status": "STOPPED_FIRST_SURVIVOR_AND_OWNER_GRACEFUL_HALT",
+  "results": [
+    {
+      "id": "NONE",
+      "verdict": "CONTROL_PASS",
+      "description": "Unmodified exact908 core archive. Both fixed test selections must pass."
+    },
+    {
+      "id": "M01_NL_ONE_VECTOR",
+      "verdict": "KILLED_BY_ASSERTION",
+      "description": "Omit one equal-width nl_pass vector: folded at+bt+ct 3*f*w becomes2*f*w. This is one missing-vector mutation, not three independent kills."
+    },
+    {
+      "id": "M02_NL_ALL_THREE",
+      "verdict": "KILLED_BY_ASSERTION",
+      "description": "Omit the complete nl_pass at+bt+ct contribution at its active phase alternative (3*f*w becomes zero); factor-work and ct/maxima/next alternatives remain."
+    },
+    {
+      "id": "M03_DEAD_WORK",
+      "verdict": "KILLED_BY_ASSERTION",
+      "description": "Incorrectly retain factor work through nl_pass: its simultaneous helper branch becomes4*f*w instead of3*f*w. Over-count; exact identity failure only, not a measured-underbound claim."
+    },
+    {
+      "id": "M04_OPTION_REPORT_PLUS8",
+      "verdict": "KILLED_BY_ASSERTION",
+      "description": "Add the incorrect eight-byte Option surcharge to live Option-backed verification report row arrays only. Other Wide-backed owners and unused compatibility constants stay unchanged."
+    },
+    {
+      "id": "M05_UC_C_OVERLAP",
+      "verdict": "SURVIVED",
+      "description": "Drop one retained f*w c buffer from Uc construction's c+at+bt+ct=4*f*w overlap, leaving3*f*w plus existing row-map and later output alternatives."
+    },
+    {
+      "id": "M06_RES_EXACT",
+      "verdict": "UNEXECUTED_AFTER_FIRST_SURVIVOR",
+      "description": "Replace growing RES capacity with exact16B at the active retained owner."
+    },
+    {
+      "id": "M07_TOP_DROP",
+      "verdict": "UNEXECUTED_AFTER_FIRST_SURVIVOR",
+      "description": "Drop TOP phase alternative; patch to be materialized only if earlier variants do not survive."
+    },
+    {
+      "id": "M08_HATCHECK_DROP",
+      "verdict": "UNEXECUTED_AFTER_FIRST_SURVIVOR",
+      "description": "Drop HATCHECK phase alternative; patch to be materialized only if earlier variants do not survive."
+    },
+    {
+      "id": "M09_SUMMARY_MISSING",
+      "verdict": "UNEXECUTED_AFTER_FIRST_SURVIVOR",
+      "description": "Miss the prepaid40B moved summary per verification attempt."
+    },
+    {
+      "id": "M10_SUMMARY_DOUBLE",
+      "verdict": "UNEXECUTED_AFTER_FIRST_SURVIVOR",
+      "description": "Count the prepaid moved40B summary a second time."
+    },
+    {
+      "id": "M11_ACTIVE_OLD_DROP",
+      "verdict": "UNEXECUTED_AFTER_FIRST_SURVIVOR",
+      "description": "Remove one current old surcharge from active Pair::new arithmetic."
+    },
+    {
+      "id": "M12_REBUILD_OLD_DROP",
+      "verdict": "UNEXECUTED_AFTER_FIRST_SURVIVOR",
+      "description": "Drop the original table in the standalone tracker old-table/new-kept overlap."
+    }
+  ],
+  "wider_scope": "VR stale-port/caller mutants separately owned; broader programme not accepted by this return.",
+  "new_witness": "Parent proposed one only for separate later assessment. No new witness/test/repair was executed.",
+  "first_survivor": "M05_UC_C_OVERLAP",
+  "build_lane": "Released; no further Cargo run after M05."
+}

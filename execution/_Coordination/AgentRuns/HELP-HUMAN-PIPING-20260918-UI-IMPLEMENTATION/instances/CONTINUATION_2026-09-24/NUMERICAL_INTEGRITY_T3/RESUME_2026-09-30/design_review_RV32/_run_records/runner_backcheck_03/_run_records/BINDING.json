@@ -1,0 +1,177 @@
+{
+  "base": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+  "candidate": "10315a8167c47f43aa41402beb88ed2c70e62cf2",
+  "author_seal": "49bf3e38ff68144cc49fa918a84fa5dfdcfe0eab2c021b4d42a197f5ad181ab6",
+  "payloads": [
+    {
+      "path": "RETURN.md",
+      "expected": "8377b39b6c4174254b862a75227af0901ab4919afe2216d1ab1ee5305190c23e",
+      "actual": "8377b39b6c4174254b862a75227af0901ab4919afe2216d1ab1ee5305190c23e",
+      "match": true
+    },
+    {
+      "path": "_run_records/BASE_AND_PRESERVATION.json",
+      "expected": "be740c08a93ebe83085ef400d34f2c4131b5657031f945db3585dc39e288ae06",
+      "actual": "be740c08a93ebe83085ef400d34f2c4131b5657031f945db3585dc39e288ae06",
+      "match": true
+    },
+    {
+      "path": "_run_records/BRIEF.txt",
+      "expected": "6ccf20874410b9f25b66b60eea18cfaef4b0f8d884ebff0240b5cf033fb55309",
+      "actual": "6ccf20874410b9f25b66b60eea18cfaef4b0f8d884ebff0240b5cf033fb55309",
+      "match": true
+    },
+    {
+      "path": "_run_records/DIFF_CHECK.txt",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "match": true
+    },
+    {
+      "path": "_run_records/EXECUTION.md",
+      "expected": "3142910f2a1656d64d1eb9a054d5b1fb821b893a15a100bdbf33cba5a22ee8ac",
+      "actual": "3142910f2a1656d64d1eb9a054d5b1fb821b893a15a100bdbf33cba5a22ee8ac",
+      "match": true
+    },
+    {
+      "path": "_run_records/FULL_DIFF.patch",
+      "expected": "29102bbcd9f9ad75ac87761f30b3f5745b5af0467a7e71c0e7ef06306b0369dc",
+      "actual": "29102bbcd9f9ad75ac87761f30b3f5745b5af0467a7e71c0e7ef06306b0369dc",
+      "match": true
+    },
+    {
+      "path": "_run_records/LEGACY_ADMISSION_COMPARISON.json",
+      "expected": "6d440e89ec98a533d9224b8cc0213a7f1f632c4c25748ad2586088dcd2b48ff5",
+      "actual": "6d440e89ec98a533d9224b8cc0213a7f1f632c4c25748ad2586088dcd2b48ff5",
+      "match": true
+    },
+    {
+      "path": "_run_records/OWNED_FILES.sha256",
+      "expected": "ab7d5cc57256edc1c00720fe389fd876610a0a9389d0f7cceee1826d3fe925c7",
+      "actual": "ab7d5cc57256edc1c00720fe389fd876610a0a9389d0f7cceee1826d3fe925c7",
+      "match": true
+    },
+    {
+      "path": "_run_records/OWNED_POSTIMAGES.json",
+      "expected": "325bdc0fa61fc0e6d2cb8f308128dbb678b4365977c738b7d94b13db3af19d6a",
+      "actual": "325bdc0fa61fc0e6d2cb8f308128dbb678b4365977c738b7d94b13db3af19d6a",
+      "match": true
+    },
+    {
+      "path": "_run_records/POSTIMAGES.tar.gz",
+      "expected": "76a64c70c2a20e745af6e1b34d173a0ab428dd82b3ffb642ac373ebe31e6f601",
+      "actual": "76a64c70c2a20e745af6e1b34d173a0ab428dd82b3ffb642ac373ebe31e6f601",
+      "match": true
+    },
+    {
+      "path": "_run_records/ROOT_PRIORITY_CLARIFICATION.txt",
+      "expected": "5f06354c843e3f846efbb2d023b71b5da528e8baf538ba56fe0753b0275e93a7",
+      "actual": "5f06354c843e3f846efbb2d023b71b5da528e8baf538ba56fe0753b0275e93a7",
+      "match": true
+    },
+    {
+      "path": "_run_records/ROOT_SCOPE_CLARIFICATION.txt",
+      "expected": "1e2d2a3c804719fba39e136745fc211dc40e3424a068e321978f77da82da1d0e",
+      "actual": "1e2d2a3c804719fba39e136745fc211dc40e3424a068e321978f77da82da1d0e",
+      "match": true
+    },
+    {
+      "path": "_run_records/RUN.json",
+      "expected": "7bf0cc4ec8800cb0862695cac09d4f2c492019b07ff1d993ee1f10b97ad98ea8",
+      "actual": "7bf0cc4ec8800cb0862695cac09d4f2c492019b07ff1d993ee1f10b97ad98ea8",
+      "match": true
+    },
+    {
+      "path": "_run_records/TIMING.json",
+      "expected": "7e38875762688443f8ed7841eb840881dbd9f3ed349d81fd208af861b73572a2",
+      "actual": "7e38875762688443f8ed7841eb840881dbd9f3ed349d81fd208af861b73572a2",
+      "match": true
+    },
+    {
+      "path": "_run_records/VERIFICATION.json",
+      "expected": "bae70c49d2750e8b5e06256b970489858066b713823a12a348231aad287e2fdb",
+      "actual": "bae70c49d2750e8b5e06256b970489858066b713823a12a348231aad287e2fdb",
+      "match": true
+    },
+    {
+      "path": "_run_records/h_tests_01.log",
+      "expected": "1c154afe4208f7eeb379d9feef1fcc9dbfab778fd650ff8a441d673c08094553",
+      "actual": "1c154afe4208f7eeb379d9feef1fcc9dbfab778fd650ff8a441d673c08094553",
+      "match": true
+    },
+    {
+      "path": "_run_records/h_tests_02.log",
+      "expected": "109cce702b2db4245dec4a61d5a4008a0243221f98568ebe6072ebbcbaaa5074",
+      "actual": "109cce702b2db4245dec4a61d5a4008a0243221f98568ebe6072ebbcbaaa5074",
+      "match": true
+    },
+    {
+      "path": "_run_records/vr_tests_01.log",
+      "expected": "5acebc8d89f98f5b9bda197326652ab7e19c0d4289d46ebdf0392bfbce71ee8b",
+      "actual": "5acebc8d89f98f5b9bda197326652ab7e19c0d4289d46ebdf0392bfbce71ee8b",
+      "match": true
+    },
+    {
+      "path": "_run_records/vr_tests_02.log",
+      "expected": "b52502e107e47c12ade55744e35f7f0ab726600cba16104a05d81ffb5acd75a5",
+      "actual": "b52502e107e47c12ade55744e35f7f0ab726600cba16104a05d81ffb5acd75a5",
+      "match": true
+    },
+    {
+      "path": "_run_records/vr_tests_03.log",
+      "expected": "4f1c31223fdd6e717fe53daeea28b7235d8f1e8109b99662437f258c5b9dc3d0",
+      "actual": "4f1c31223fdd6e717fe53daeea28b7235d8f1e8109b99662437f258c5b9dc3d0",
+      "match": true
+    }
+  ],
+  "all_verify": true,
+  "owned_postimages": [
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+      "sha256": "4cfbd86c2ba293c7d67202120c44fe94f5d30b9938f283d8d55e25f0c5686840"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py",
+      "sha256": "b26005824731798eb3ebca5dc68ed6e388923ed1067371f113fc6354fceb1500"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py",
+      "sha256": "fd50b1e26bd1da2abf1a0c325571a5fb565dbf31c2a75d8e453297463d6b7132"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py",
+      "sha256": "84c383bedc930feb123d796b41b859e27c9657e81b95909dca2d0c18dc6d2b86"
+    }
+  ],
+  "maintained_changes": [
+    "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+    "projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py"
+  ],
+  "rust_changes": [],
+  "interpreter": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+    "version": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]"
+  },
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca"
+    }
+  ],
+  "first_clock": "2026-10-02 02:25:42 UTC",
+  "deadline": "2026-10-02 02:40:42 UTC"
+}

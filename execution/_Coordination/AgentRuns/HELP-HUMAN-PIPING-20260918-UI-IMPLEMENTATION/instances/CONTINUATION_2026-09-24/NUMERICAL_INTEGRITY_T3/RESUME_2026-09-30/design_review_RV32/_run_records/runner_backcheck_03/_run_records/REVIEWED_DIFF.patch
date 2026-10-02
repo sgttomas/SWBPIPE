@@ -1,0 +1,359 @@
+diff --git a/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py b/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
+index 78f58592ea..4ff01bcc76 100644
+--- a/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
++++ b/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
+@@ -493,6 +493,37 @@ def previous_size(model_id):
+     return None
+ 
+ 
++def eligibility(run, measured, *, require_ascent=True, conditional_reason=None):
++    """Pure nonnumeric holds, evaluated before any model-specific subprocess.
++
++    Callers supply their existing conditional-approval reason. Ascent requires
++    a recorded previous-size attempt, not success: only None/not_run are absent.
++    A None return permits rebinding and numeric admission; it does not admit.
++    """
++    never = refusal_by_name(run['model'], run['mode'], run['members'])
++    if never:
++        return {'decision': 'never', 'reason': never}
++    if conditional_reason:
++        return {'decision': 'deferred', 'reason': conditional_reason}
++    previous = previous_size(run['model'])
++    if require_ascent and previous is not None:
++        done = any(r['model'] == previous and r['mode'] == run['mode']
++                   and r.get('classification') not in (None, 'not_run')
++                   for r in run_entries(measured) if 'family' in r)
++        if not done:
++            return {'decision': 'deferred',
++                    'reason': 'deferred:ascent_previous_size_not_recorded (%s)' % previous}
++    return None
++
++
++def admission_fields(run):
++    """The existing result shape, without consulting any numeric counts."""
++    return {'decision': None, 'reason': None, 'estimate_adm_bytes': None, 'rho': None, 'rho_rss': None,
++            'half_cap_bytes': run['rss_cap_bytes'] // 2, 'footprint_estimate_bytes': None,
++            'rss_to_footprint': None, 'projected_rss_bytes': None,
++            'projected_rss_limit_bytes': int(PROJECTED_RSS_FRACTION * run['rss_cap_bytes'])}
++
++
+ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True, baseline_footprint_bytes=None):
+     """ROOT's K6 ruling Q3, with N9, the A1-stop ruling Q2 and the B2-stop ruling: ρ on the
+     macOS footprint (the RSS-based ρ recorded beside it), and projected RSS <= 0.8 C.
+@@ -504,12 +535,10 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True,
+     model_id, mode, members = run['model'], run['mode'], run['members']
+     measured = [r for r in run_entries(measured) if 'family' in r]
+     half = run['rss_cap_bytes'] // 2
+-    out = {'decision': None, 'reason': None, 'estimate_adm_bytes': None, 'rho': None, 'rho_rss': None,
+-           'half_cap_bytes': half, 'footprint_estimate_bytes': None, 'rss_to_footprint': None,
+-           'projected_rss_bytes': None, 'projected_rss_limit_bytes': int(PROJECTED_RSS_FRACTION * run['rss_cap_bytes'])}
+-    never = refusal_by_name(model_id, mode, members)
+-    if never:
+-        out.update(decision='never', reason=never)
++    out = admission_fields(run)
++    hold = eligibility(run, measured, require_ascent=False)
++    if hold:
++        out.update(hold)
+         return out
+     line = counts.get(model_id)
+     if line is None:
+@@ -521,13 +550,10 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True,
+         out.update(decision='deferred', reason='deferred:no_estimate_for_mode_in_counts_line')
+         return out
+     out['estimate_adm_bytes'] = estimate
+-    previous = previous_size(model_id)
+-    if require_ascent and previous is not None:
+-        done = [r for r in measured if r['model'] == previous and r['mode'] == mode
+-                and r.get('classification') not in (None, 'not_run')]
+-        if not done:
+-            out.update(decision='deferred', reason='deferred:ascent_previous_size_not_recorded (%s)' % previous)
+-            return out
++    hold = eligibility(run, measured, require_ascent=require_ascent)
++    if hold:
++        out.update(hold)
++        return out
+     floor = RHO_MIN_MEMBERS_FOR_LARGE if members >= LARGE_MEMBERS else 0
+     same = [r for r in measured if r['family'] == run['family'] and r['mode'] == mode
+             and floor <= r['members'] < members and r.get('classification') == 'ok']
+@@ -1195,23 +1221,26 @@ def run_tier(tier, binary, counts_path, record_dir, source_commit, source_tree,
+                for x in run_entries(records)):
+             log('%s %s %s: already recorded; not repeated' % (run['run_id'], run['model'], run['mode']))
+             continue
+-        # Conditional tiers remain process-free here, including their prepasses.
+-        # --plan has its own static path and never invokes this refresh.
+-        bound_counts = counts
+-        if run['mode'] == 'w1a' and not run['conditional']:
+-            wait_for_quiet_host(log)
+-            row = bind_w1_launch_counts(binary, run, counts_path, record_dir)
+-            bound_counts = dict(counts, **{run['model']: row})
+-        decision = admission(run, bound_counts, records, baseline_rss, baseline_footprint_bytes=baseline_footprint)
++        conditional_reason = ((run.get('conditional_reason')
++                               or 'deferred:conditional_run_needs_rulings_on_projection (N14)')
++                              if run['conditional'] else None)
++        hold = eligibility(run, records, conditional_reason=conditional_reason)
++        if hold:
++            decision = dict(admission_fields(run), **hold)
++        else:
++            # Only eligible models may create a context-binding subprocess.
++            # --plan retains its separate process-free preview path.
++            bound_counts = counts
++            if run['mode'] == 'w1a':
++                wait_for_quiet_host(log)
++                row = bind_w1_launch_counts(binary, run, counts_path, record_dir)
++                bound_counts = dict(counts, **{run['model']: row})
++            decision = admission(run, bound_counts, records, baseline_rss,
++                                 baseline_footprint_bytes=baseline_footprint)
+         entry = dict(run, admission=decision, baseline_rss_bytes=baseline_rss,
+                      baseline_footprint_bytes=baseline_footprint, source_commit=source_commit,
+                      source_tree=source_tree)
+-        if decision['decision'] != 'admitted' or run['conditional']:
+-            if run['conditional'] and decision['decision'] == 'admitted':
+-                decision = dict(decision, decision='deferred',
+-                                reason=run.get('conditional_reason')
+-                                or 'deferred:conditional_run_needs_rulings_on_projection (N14)')
+-                entry['admission'] = decision
++        if decision['decision'] != 'admitted':
+             entry.update(classification='not_run', run_id=run['run_id'])
+             append_record(record_dir, entry)
+             log('%s %s %s: %s' % (run['run_id'], run['model'], run['mode'], decision['reason']))
+diff --git a/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py b/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py
+index ce0de3a479..d953834a8d 100644
+--- a/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py
++++ b/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py
+@@ -995,5 +995,90 @@ class W1ContextBinding(unittest.TestCase):
+                 mock.patch.object(r, 'bind_w1_launch_counts', side_effect=AssertionError('plan rebound')):
+             self.assertTrue(r.plan(None))
+ 
++
++class ModelEligibilityBeforeLaunch(unittest.TestCase):
++    def test_legacy_admission_priority_and_estimate_diagnostics_remain(self):
++        run = next(x for x in r.schedule() if x['tier'] == 'W1-T2'
++                   and x['model'] == 'RF-LARGE-CHAIN-n00100-AX' and x['mode'] == 'w1a')
++        self.assertEqual(r.admission(run, {}, [], None)['reason'], 'deferred:no_counts_line')
++        self.assertEqual(r.admission(run, {run['model']: {}}, [], None)['reason'],
++                         'deferred:no_estimate_for_mode_in_counts_line')
++        result = r.admission(run, {run['model']: {'estimate_adm_bytes_w1a': 321}}, [], None)
++        self.assertIn('ascent_previous_size_not_recorded', result['reason'])
++        self.assertEqual(result['estimate_adm_bytes'], 321)
++        never = next(x for x in r.schedule() if r.refusal_by_name(x['model'], x['mode'], x['members']))
++        self.assertEqual(r.admission(never, {}, [], None)['decision'], 'never')
++
++    def test_holds_precede_every_model_prepass_and_normal_launch(self):
++        chain100 = next(x for x in r.schedule() if x['tier'] == 'W1-T2'
++                        and x['model'] == 'RF-LARGE-CHAIN-n00100-AX' and x['mode'] == 'w1a')
++        conditional = next(x for x in r.schedule() if x['tier'] == 'W1-T4' and x['mode'] == 'w1a')
++        never = next(x for x in r.schedule() if r.refusal_by_name(x['model'], x['mode'], x['members']))
++        cases = [(chain100, 'deferred:ascent_previous_size_not_recorded'),
++                 (conditional, conditional['conditional_reason']),
++                 (never, r.refusal_by_name(never['model'], never['mode'], never['members']))]
++        for run, reason in cases:
++            with self.subTest(reason=reason), tempfile.TemporaryDirectory() as folder:
++                with open(os.path.join(folder, 'metadata.json'), 'w') as f:
++                    f.write('{}')
++                with mock.patch.object(r, 'schedule', return_value=[run]), \
++                        mock.patch.object(r, 'read_counts', return_value={}), \
++                        mock.patch.object(r, 'baseline_run', return_value={'rss': {}}) as baseline, \
++                        mock.patch.object(r, 'launch') as launch, \
++                        mock.patch.object(r, 'bind_w1_launch_counts', side_effect=AssertionError('held model bound counts')) as bind, \
++                        mock.patch.object(r, 'admission', side_effect=AssertionError('held model reached numeric admission')) as numeric, \
++                        mock.patch.object(r, 'wait_for_quiet_host') as quiet:
++                    r.run_tier(run['tier'], 'binary', None, folder, 'c', 't', log=lambda *a: None)
++                baseline.assert_called_once()  # A tier baseline is still permitted.
++                launch.assert_not_called()
++                bind.assert_not_called()
++                numeric.assert_not_called()
++                quiet.assert_not_called()
++                record = r.run_entries(r.read_records(folder))[0]
++                self.assertEqual(record['classification'], 'not_run')
++                self.assertTrue(record['admission']['reason'].startswith(reason))
++                self.assertIsNone(record['admission']['estimate_adm_bytes'])
++
++    def test_recorded_ascent_is_not_success_only(self):
++        run = next(x for x in r.schedule() if x['tier'] == 'W1-T2'
++                   and x['model'] == 'RF-LARGE-CHAIN-n00100-AX' and x['mode'] == 'w1a')
++        previous = dict(run, model=r.previous_size(run['model']), run_id='previous')
++        for classification in (None, 'not_run', 'ok', 'error', 'timed_out', 'heap_cap_abort'):
++            held = r.eligibility(run, [dict(previous, classification=classification)])
++            self.assertEqual(held is not None, classification in (None, 'not_run'), classification)
++        self.assertIsNone(r.eligibility(run, [], require_ascent=False))
++
++    def test_prior_error_record_permits_rebinding_before_numeric_admission(self):
++        run = next(x for x in r.schedule() if x['tier'] == 'W1-T2'
++                   and x['model'] == 'RF-LARGE-CHAIN-n00100-AX' and x['mode'] == 'w1a')
++        events = []
++        with tempfile.TemporaryDirectory() as folder:
++            with open(os.path.join(folder, 'metadata.json'), 'w') as f:
++                f.write('{}')
++            r.append_record(folder, dict(run, run_id='previous', model=r.previous_size(run['model']),
++                                         members=10, classification='error'))
++            def fake_launch(argv, *, record_dir, run_id, **kw):
++                events.append(('prepass' if '--counts-only' in argv else 'normal', argv))
++                with open(os.path.join(record_dir, run_id + '.jsonl'), 'w') as f:
++                    f.write(json.dumps({'kind': 'counts', 'model': run['model'],
++                                        'estimate_adm_bytes_w1a': 321}) + '\n')
++                return {'classification': 'ok', 'wall_s': 0.0, 'exit_code': 0, 'rss': {}}
++            original = r.admission
++            def numeric(run, counts, *a, **kw):
++                events.append(('numeric', counts[run['model']]['estimate_adm_bytes_w1a']))
++                return original(run, counts, *a, **kw)
++            with mock.patch.object(r, 'schedule', return_value=[run]), \
++                    mock.patch.object(r, 'read_counts', return_value={run['model']: {'estimate_adm_bytes_w1a': 99999999999}}), \
++                    mock.patch.object(r, 'baseline_run', return_value={'rss': {}}), \
++                    mock.patch.object(r, 'wait_for_quiet_host', return_value={}), \
++                    mock.patch.object(r, 'launch', side_effect=fake_launch), \
++                    mock.patch.object(r, 'admission', side_effect=numeric):
++                r.run_tier(run['tier'], 'binary', None, folder, 'c', 't', log=lambda *a: None)
++            self.assertEqual([x[0] for x in events], ['prepass', 'numeric', 'normal'])
++            self.assertEqual(events[1][1], 321)
++            self.assertEqual(events[0][1], events[2][1] + ['--counts-only'])
++            self.assertEqual(events[0][1][events[0][1].index('--heap-cap-bytes') + 1], str(run['heap_cap_bytes']))
++            self.assertEqual(r.run_entries(r.read_records(folder))[-1]['estimate_adm_bytes'], 321)
++
+ if __name__ == '__main__':
+     unittest.main()
+diff --git a/projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py b/projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py
+index 801b0477d4..5dbdc12f80 100644
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py
+@@ -159,5 +159,86 @@ class LaunchContextBinding(unittest.TestCase):
+                 with self.assertRaises(RuntimeError):
+                     v.bind_scale_launch_counts('/bin/vk_scale', run, '/models', '/records')
+ 
++
++class ModelEligibilityBeforeLaunch(unittest.TestCase):
++    def test_legacy_admission_priority_and_estimate_diagnostics_remain(self):
++        run = next(x for x in v.schedule() if x['members'] == 10000)
++        self.assertEqual(v.admission(run, {}, [], None, None, False)['reason'], 'deferred:no_counts_line')
++        row = {'estimate_max_bytes': run['heap_cap_bytes'],
++               v.k6.estimate_key(v.MODE): run['heap_cap_bytes']}
++        result = v.admission(run, {run['model']: row}, [], None, None, False)
++        self.assertTrue(result['reason'].startswith("deferred:the binary's backstop would refuse"))
++        row = {'estimate_max_bytes': 321, v.k6.estimate_key(v.MODE): 321}
++        self.assertEqual(v.admission(run, {run['model']: row}, [], None, None, False)['reason'],
++                         'deferred:10000_members_needs_root_approval')
++        result = v.admission(run, {run['model']: row}, [], None, None, True)
++        self.assertIn('ascent_previous_size_not_recorded', result['reason'])
++        self.assertEqual(result['estimate_adm_bytes'], 321)
++
++    def test_approval_and_ascent_holds_have_only_the_tier_noop(self):
++        import tempfile
++        from unittest.mock import patch
++        run = next(x for x in v.schedule() if x['members'] == 10000)
++        for approved, reason in [(False, 'deferred:10000_members_needs_root_approval'),
++                                 (True, 'deferred:ascent_previous_size_not_recorded')]:
++            with self.subTest(approved=approved), tempfile.TemporaryDirectory() as folder:
++                with open(os.path.join(folder, 'metadata.json'), 'w') as f:
++                    f.write('{}')
++                with patch.object(v, 'schedule', return_value=[run]), \
++                        patch.object(v.k6, 'read_counts', return_value={}), \
++                        patch.object(v.k6, 'launch', return_value={'rss': {}}) as launch, \
++                        patch.object(v, 'bind_scale_launch_counts', side_effect=AssertionError('held model bound counts')) as bind, \
++                        patch.object(v, 'admission', side_effect=AssertionError('held model reached numeric admission')) as numeric, \
++                        patch.object(v.k6, 'wait_for_quiet_host') as quiet:
++                    v.run_tier(run['tier'], 'binary', '/models', None, folder, 'c', 't',
++                               approve_10000=approved, log=lambda *a: None)
++                self.assertEqual(launch.call_count, 1)
++                self.assertIn('--noop', launch.call_args.args[0])
++                bind.assert_not_called()
++                numeric.assert_not_called()
++                quiet.assert_not_called()
++                record = v.k6.run_entries(v.k6.read_records(folder))[0]
++                self.assertEqual(record['classification'], 'not_run')
++                self.assertTrue(record['admission']['reason'].startswith(reason))
++                self.assertIsNone(record['estimate_adm_bytes'])
++
++    def test_approved_recorded_model_rebinds_before_numeric_use_with_original_caps(self):
++        import json
++        import tempfile
++        from unittest.mock import patch
++        run = next(x for x in v.schedule() if x['members'] == 10000)
++        events = []
++        with tempfile.TemporaryDirectory() as folder:
++            with open(os.path.join(folder, 'metadata.json'), 'w') as f:
++                f.write('{}')
++            v.k6.append_record(folder, dict(run, run_id='previous', model=v.k6.previous_size(run['model']),
++                                           members=1000, classification='timed_out'))
++            def fake_launch(argv, *, record_dir, run_id, **kw):
++                kind = 'baseline' if '--noop' in argv else 'prepass' if '--counts-only' in argv else 'normal'
++                events.append((kind, argv))
++                with open(os.path.join(record_dir, run_id + '.jsonl'), 'w') as f:
++                    f.write(json.dumps({'kind': 'counts', 'case': run['model'],
++                                        'estimate_max_bytes': 321}) + '\n')
++                return {'classification': 'ok', 'wall_s': 0.0, 'rss': {}, 'run_id': run_id}
++            original = v.admission
++            def numeric(run, counts, *a, **kw):
++                events.append(('numeric', counts[run['model']]['estimate_max_bytes']))
++                return original(run, counts, *a, **kw)
++            with patch.object(v, 'schedule', return_value=[run]), \
++                    patch.object(v.k6, 'read_counts', return_value={run['model']: {'estimate_max_bytes': 99999999999}}), \
++                    patch.object(v.k6, 'launch', side_effect=fake_launch), \
++                    patch.object(v.k6, 'wait_for_quiet_host', return_value={}), \
++                    patch.object(v, 'admission', side_effect=numeric), \
++                    patch.object(v, 'stop_reasons', return_value=[]):
++                v.run_tier(run['tier'], 'binary', '/models', None, folder, 'c', 't',
++                           approve_10000=True, log=lambda *a: None)
++            self.assertEqual([x[0] for x in events], ['baseline', 'prepass', 'numeric', 'normal'])
++            self.assertEqual(events[2][1], 321)
++            pre, normal = events[1][1], events[3][1]
++            self.assertEqual(pre[pre.index('--heap-cap-bytes') + 1], str(v.COUNTS_CAP_BYTES))
++            self.assertEqual(normal[normal.index('--heap-cap-bytes') + 1], str(run['heap_cap_bytes']))
++            self.assertEqual(pre[pre.index('--model-file') + 1], normal[normal.index('--model-file') + 1])
++            self.assertEqual(v.k6.run_entries(v.k6.read_records(folder))[-1]['estimate_adm_bytes'], 321)
++
+ if __name__ == '__main__':
+     unittest.main()
+diff --git a/projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py b/projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py
+index 41d7939683..2233a16f1d 100644
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py
+@@ -178,6 +178,16 @@ def run_counts(binary, models_dir, out_path, tiers=None, log=print):
+ # --------------------------------------------------------------- admission
+ 
+ 
++def conditional_reason(run, approve_10000):
++    return ('deferred:10000_members_needs_root_approval'
++            if run['conditional'] and not approve_10000 else None)
++
++
++def eligibility(run, records, approve_10000):
++    return k6.eligibility(run, records, require_ascent=run['members'] > 100,
++                          conditional_reason=conditional_reason(run, approve_10000))
++
++
+ def admission(run, counts, records, baseline_rss, baseline_footprint, approve_10000):
+     line = counts.get(run['model'])
+     if line is None or line.get('estimate_max_bytes') is None:
+@@ -186,8 +196,9 @@ def admission(run, counts, records, baseline_rss, baseline_footprint, approve_10
+         return {'decision': 'deferred', 'reason': "deferred:the binary's backstop would refuse "
+                 '(estimate %d B > half the heap cap %d B)' % (line['estimate_max_bytes'],
+                                                                run['heap_cap_bytes'] // 2)}
+-    if run['conditional'] and not approve_10000:
+-        return {'decision': 'deferred', 'reason': 'deferred:10000_members_needs_root_approval'}
++    reason = conditional_reason(run, approve_10000)
++    if reason:
++        return {'decision': 'deferred', 'reason': reason}
+     return k6.admission(run, counts, records, baseline_rss, require_ascent=run['members'] > 100,
+                         baseline_footprint_bytes=baseline_footprint)
+ 
+@@ -314,12 +325,17 @@ def run_tier(tier, binary, models_dir, counts_path, record_dir, source_commit, s
+                for x in k6.run_entries(records)):
+             log('%s: already recorded; not repeated' % run['run_id'])
+             continue
+-        counts[run['model']] = bind_scale_launch_counts(binary, run, models_dir, record_dir)
+-        decision = admission(run, counts, records, baseline_rss, baseline_footprint, approve_10000)
++        hold = eligibility(run, records, approve_10000)
++        if hold:
++            decision = hold
++            estimate = None
++        else:
++            counts[run['model']] = bind_scale_launch_counts(binary, run, models_dir, record_dir)
++            decision = admission(run, counts, records, baseline_rss, baseline_footprint, approve_10000)
++            estimate = counts[run['model']]['estimate_max_bytes']
+         entry = dict(run, admission=decision, baseline_rss_bytes=baseline_rss,
+                      baseline_footprint_bytes=baseline_footprint, source_commit=source_commit,
+-                     source_tree=source_tree, estimate_adm_bytes=counts.get(run['model'], {}).get(
+-                         'estimate_max_bytes'))
++                     source_tree=source_tree, estimate_adm_bytes=estimate)
+         if decision['decision'] != 'admitted':
+             entry.update(classification='not_run')
+             k6.append_record(record_dir, entry)

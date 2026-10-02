@@ -1,0 +1,13 @@
+{
+  "first_tool_start": "2026-10-02T02:15:31+00:00",
+  "grant_minutes": 45,
+  "new_calculation_cutoff": "2026-10-02T02:55:31+00:00",
+  "hard_end": "2026-10-02T03:00:31+00:00",
+  "numerical_calculation_completed": "2026-10-02T02:28:19.517088+00:00",
+  "actual_completion_and_seal": "2026-10-02T02:31:56.863236+00:00",
+  "no_process_running": true,
+  "delegation": "native TASK /root/i25_admission_replay child of /root; no descendants",
+  "python_executable": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+  "python_version": "3.13.14",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c"
+}

@@ -1,0 +1,78 @@
+[
+  {
+    "tier": "V3",
+    "approve_10000": false,
+    "all_launch_calls_stubbed": true,
+    "counts_launches_before_defer": 0,
+    "baseline_launches": 1,
+    "count_caps": [],
+    "decisions": [
+      {
+        "decision": "deferred",
+        "reason": "deferred:10000_members_needs_root_approval"
+      },
+      {
+        "decision": "deferred",
+        "reason": "deferred:10000_members_needs_root_approval"
+      },
+      {
+        "decision": "deferred",
+        "reason": "deferred:10000_members_needs_root_approval"
+      },
+      {
+        "decision": "deferred",
+        "reason": "deferred:10000_members_needs_root_approval"
+      },
+      {
+        "decision": "deferred",
+        "reason": "deferred:10000_members_needs_root_approval"
+      },
+      {
+        "decision": "deferred",
+        "reason": "deferred:10000_members_needs_root_approval"
+      }
+    ],
+    "normal_launches": 0,
+    "result": {
+      "stop": []
+    }
+  },
+  {
+    "tier": "V2",
+    "approve_10000": false,
+    "all_launch_calls_stubbed": true,
+    "counts_launches_before_defer": 0,
+    "baseline_launches": 1,
+    "count_caps": [],
+    "decisions": [
+      {
+        "decision": "deferred",
+        "reason": "deferred:ascent_previous_size_not_recorded (RF-LARGE-CHAIN-n00100-AX)"
+      },
+      {
+        "decision": "deferred",
+        "reason": "deferred:ascent_previous_size_not_recorded (RF-LARGE-CHAIN-n00100-ROT)"
+      },
+      {
+        "decision": "deferred",
+        "reason": "deferred:ascent_previous_size_not_recorded (RF-LARGE-TREE-n00100-AX)"
+      },
+      {
+        "decision": "deferred",
+        "reason": "deferred:ascent_previous_size_not_recorded (RF-LARGE-TREE-n00100-ROT)"
+      },
+      {
+        "decision": "deferred",
+        "reason": "deferred:ascent_previous_size_not_recorded (RF-LARGE-CONT-n00100-AX)"
+      },
+      {
+        "decision": "deferred",
+        "reason": "deferred:ascent_previous_size_not_recorded (RF-LARGE-CONT-n00100-ROT)"
+      }
+    ],
+    "normal_launches": 0,
+    "result": {
+      "stop": []
+    }
+  }
+]
