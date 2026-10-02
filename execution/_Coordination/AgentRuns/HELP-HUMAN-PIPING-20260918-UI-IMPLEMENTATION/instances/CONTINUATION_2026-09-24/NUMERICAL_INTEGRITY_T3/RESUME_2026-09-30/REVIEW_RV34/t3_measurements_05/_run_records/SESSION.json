@@ -1,0 +1,62 @@
+{
+  "native_identity": "/root/rv34_historical_replay",
+  "parent": "/root",
+  "role": "TASK Type2",
+  "mechanism": "Existing direct native child explicitly resumed by followup_task",
+  "receipt_utc": "2026-10-02T06:53:18+00:00",
+  "new_check_cutoff_utc": "2026-10-02T07:13:18+00:00",
+  "hard_deadline_utc": "2026-10-02T07:18:18+00:00",
+  "completion_utc": "2026-10-02T07:03:43.665903+00:00",
+  "review_revision": "71749c8f2c14763deb873285c541e85f35f2785e",
+  "source_revision": "81c03849033f3ce745668f581f446530789397b8",
+  "brief_revision": "f57385d3efbb0808314de4859f49f7fc31facd23",
+  "instruction_origins": [
+    {
+      "revision": "f57385d3efbb0808314de4859f49f7fc31facd23",
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "revision": "f57385d3efbb0808314de4859f49f7fc31facd23",
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "revision": "f57385d3efbb0808314de4859f49f7fc31facd23",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "revision": "f57385d3efbb0808314de4859f49f7fc31facd23",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0"
+    },
+    {
+      "revision": "f57385d3efbb0808314de4859f49f7fc31facd23",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV34_T3_MEASUREMENTS_05.md",
+      "sha256": "3eb7f5753324a94e761a6f51c4ef1c43996de98cc8051817bd6fb7688436eebc"
+    },
+    {
+      "revision": "f57385d3efbb0808314de4859f49f7fc31facd23",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I26_T3_MEASUREMENTS_08.md",
+      "sha256": "70937a7738778d1a41dc45652fc81006ede158f6c1c76d29bd48bc99cadbe7b5"
+    }
+  ],
+  "inherited_instruction_note": "Root/TASK/Piping/COMMON bodies previously read; current hashes match that basis. No additional role or skill activated.",
+  "python": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+  "python_version": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "workspace": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+  "check_workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/t3_measurements_05/_run_records",
+  "git_environment": {
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  "reused_T2_checker_sha256": "3d7761148ba3a75a68cce0108586f7a153460f40488ad6e86e1ebaf97a692ccd",
+  "reused_T2_review_seal": "470ccf012178bc14fa02340203632bf3e6faaca6594d880146f487536fc6d32a",
+  "checks": 14552,
+  "failures": [],
+  "runtime_executed": false,
+  "prior_packets_copied": false,
+  "write_scope": "Only R/REVIEW_RV34/t3_measurements_05; shared unrestricted host with prompt fence.",
+  "remaining": "ROOT T3 disposition, owner comparison decision and separate T4 authority/input/baseline/prepass/admission/execution review. No future numeric decision evaluated.",
+  "automatic_follow_on": false
+}

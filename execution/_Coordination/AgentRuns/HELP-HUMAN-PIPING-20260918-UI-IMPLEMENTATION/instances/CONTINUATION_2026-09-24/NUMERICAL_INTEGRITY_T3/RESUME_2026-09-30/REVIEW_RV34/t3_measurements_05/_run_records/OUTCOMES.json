@@ -1,0 +1,386 @@
+[
+  {
+    "run_id": "223_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "224_RF-LARGE-CHAIN-n01000-AX_sparse",
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "mode": "sparse",
+    "class": "Sensitive",
+    "precision": null,
+    "all_repeat_classes": [
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "225_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "226_RF-LARGE-CHAIN-n01000-AX_sparse",
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "mode": "sparse",
+    "class": "Sensitive",
+    "precision": null,
+    "all_repeat_classes": [
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "227_RF-LARGE-CHAIN-n01000-ROT_sparse",
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "mode": "sparse",
+    "class": "Sensitive",
+    "precision": null,
+    "all_repeat_classes": [
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "228_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "229_RF-LARGE-CHAIN-n01000-ROT_sparse",
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "mode": "sparse",
+    "class": "Sensitive",
+    "precision": null,
+    "all_repeat_classes": [
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "230_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "231_RF-LARGE-TREE-n01000-AX_w1a",
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "232_RF-LARGE-TREE-n01000-AX_sparse",
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "mode": "sparse",
+    "class": "Sensitive",
+    "precision": null,
+    "all_repeat_classes": [
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "233_RF-LARGE-TREE-n01000-AX_w1a",
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "234_RF-LARGE-TREE-n01000-AX_sparse",
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "mode": "sparse",
+    "class": "Sensitive",
+    "precision": null,
+    "all_repeat_classes": [
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "235_RF-LARGE-TREE-n01000-ROT_sparse",
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "mode": "sparse",
+    "class": "Sensitive",
+    "precision": null,
+    "all_repeat_classes": [
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "236_RF-LARGE-TREE-n01000-ROT_w1a",
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "237_RF-LARGE-TREE-n01000-ROT_sparse",
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "mode": "sparse",
+    "class": "Sensitive",
+    "precision": null,
+    "all_repeat_classes": [
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive",
+      "Sensitive"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "238_RF-LARGE-TREE-n01000-ROT_w1a",
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "239_RF-LARGE-CONT-n01000-AX_w1a",
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "240_RF-LARGE-CONT-n01000-AX_sparse",
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "mode": "sparse",
+    "class": "Passed",
+    "precision": null,
+    "all_repeat_classes": [
+      "Passed",
+      "Passed",
+      "Passed",
+      "Passed",
+      "Passed"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "241_RF-LARGE-CONT-n01000-AX_w1a",
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "242_RF-LARGE-CONT-n01000-AX_sparse",
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "mode": "sparse",
+    "class": "Passed",
+    "precision": null,
+    "all_repeat_classes": [
+      "Passed",
+      "Passed",
+      "Passed",
+      "Passed",
+      "Passed"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "243_RF-LARGE-CONT-n01000-ROT_sparse",
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "mode": "sparse",
+    "class": "Passed",
+    "precision": null,
+    "all_repeat_classes": [
+      "Passed",
+      "Passed",
+      "Passed",
+      "Passed",
+      "Passed"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "244_RF-LARGE-CONT-n01000-ROT_w1a",
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "245_RF-LARGE-CONT-n01000-ROT_sparse",
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "mode": "sparse",
+    "class": "Passed",
+    "precision": null,
+    "all_repeat_classes": [
+      "Passed",
+      "Passed",
+      "Passed",
+      "Passed",
+      "Passed"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  },
+  {
+    "run_id": "246_RF-LARGE-CONT-n01000-ROT_w1a",
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "mode": "w1a",
+    "class": "Selected",
+    "precision": 128,
+    "all_repeat_classes": [
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected",
+      "Selected"
+    ],
+    "process_classification": "ok",
+    "completed_repeats": 5
+  }
+]

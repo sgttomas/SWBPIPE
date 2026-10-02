@@ -1,0 +1,164 @@
+{
+  "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/t2_measurements_04/_run_records/check.py",
+  "revision": "71749c8f2c14763deb873285c541e85f35f2785e",
+  "original_sha256": "3d7761148ba3a75a68cce0108586f7a153460f40488ad6e86e1ebaf97a692ccd",
+  "expanded_checker_sha256": "1af9847ab01d385188bda2b516e6a2778880e3524a6da6acdac2687ad0616ecc",
+  "changes": [
+    {
+      "old": "t1=archive(1);t2=archive(2);raw={'records/'+n:b for n,b in t1.items()};raw.update(t2)",
+      "new": "t1=archive(1);previous=archive(2);t2=archive(3);raw={'records/'+n:b for n,b in t1.items()};raw.update(previous);raw.update(t2)",
+      "occurrences": 1
+    },
+    {
+      "old": "seal_check('SHA256SUMS','1f1e7f70e6970687d6a13e3c4ccfd61e77b47935591d8e1266a720f71acf9883')",
+      "new": "seal_check('SHA256SUMS','a5f6391280ca179bbbc00a3e34ad9f2030d7f4eff0be36c2e023143ed9d40034')",
+      "occurrences": 1
+    },
+    {
+      "old": "seal_check('OUTCOME_CORRECTION_SHA256SUMS','3d0b208fde5ea6ca4501bbdec6bbf6d719d8e2bbfb127aeee7001ca770406a7a')",
+      "new": "# T3 has no summary correction: use this tier's raw counters.",
+      "occurrences": 1
+    },
+    {
+      "old": "oldbytes=t1['records.jsonl']",
+      "new": "oldbytes=previous['records/records.jsonl']",
+      "occurrences": 1
+    },
+    {
+      "old": "223099",
+      "new": "313009",
+      "occurrences": 1
+    },
+    {
+      "old": "jr['original_T1_prefix_sha256']",
+      "new": "jr['original_prefix_sha256']",
+      "occurrences": 1
+    },
+    {
+      "old": "for tier in [1,2]:",
+      "new": "for tier in [1,2,3]:",
+      "occurrences": 1
+    },
+    {
+      "old": "W1-T2",
+      "new": "W1-T3",
+      "occurrences": 5
+    },
+    {
+      "old": "T2_LAUNCHES.json",
+      "new": "T3_LAUNCHES.json",
+      "occurrences": 1
+    },
+    {
+      "old": "T2_archive_exact_set",
+      "new": "T3_archive_exact_set",
+      "occurrences": 1
+    },
+    {
+      "old": "T2_raw_hash",
+      "new": "T3_raw_hash",
+      "occurrences": 1
+    },
+    {
+      "old": "T2_raw_bytes",
+      "new": "T3_raw_bytes",
+      "occurrences": 1
+    },
+    {
+      "old": "T2_orders",
+      "new": "T3_orders",
+      "occurrences": 1
+    },
+    {
+      "old": "T2_ids",
+      "new": "T3_ids",
+      "occurrences": 1
+    },
+    {
+      "old": "T1_dictionaries_preserved",
+      "new": "prior_dictionaries_preserved",
+      "occurrences": 1
+    },
+    {
+      "old": "T1_prefix_bytes",
+      "new": "prior_prefix_bytes",
+      "occurrences": 1
+    },
+    {
+      "old": "correction_raw_sparse_tally",
+      "new": "raw_sparse_tally",
+      "occurrences": 1
+    },
+    {
+      "old": "len(journal),84",
+      "new": "len(journal),108",
+      "occurrences": 1
+    },
+    {
+      "old": "runs=journal[60:]",
+      "new": "runs=journal[84:]",
+      "occurrences": 1
+    },
+    {
+      "old": "journal[:60]",
+      "new": "journal[:84]",
+      "occurrences": 1
+    },
+    {
+      "old": "range(199,223)",
+      "new": "range(223,247)",
+      "occurrences": 1
+    },
+    {
+      "old": "[199,204,207,212,215,220]",
+      "new": "[223,228,231,236,239,244]",
+      "occurrences": 1
+    },
+    {
+      "old": "quals['normal_solve_or_admission'],False",
+      "new": "quals['normal_solves']+quals['numeric_admissions'],0",
+      "occurrences": 1
+    },
+    {
+      "old": "enumerate(runs,start=60)",
+      "new": "enumerate(runs,start=84)",
+      "occurrences": 1
+    },
+    {
+      "old": "else 600);eq('process_time_wrapper'",
+      "new": "else 1800);eq('process_time_wrapper'",
+      "occurrences": 1
+    },
+    {
+      "old": "'time_budget_s':540",
+      "new": "'time_budget_s':1740",
+      "occurrences": 1
+    },
+    {
+      "old": "r['model'].replace('-n00100-','-n00010-')",
+      "new": "r['model'].replace('-n01000-','-n00100-')",
+      "occurrences": 1
+    },
+    {
+      "old": "'all_T2_members100':all(r['members']==100 for r in runs)",
+      "new": "'all_T3_members1000':all(r['members']==1000 for r in runs)",
+      "occurrences": 1
+    },
+    {
+      "old": "eq('prefix_count',len(pref),3 if p['prefixes'] else 0);",
+      "new": "# Prefix completeness is derived from the actual segment sequence below.\n  ",
+      "occurrences": 1
+    },
+    {
+      "old": "if pref:eq('prefix_limit_segments'",
+      "new": "eq('prefix_count_from_actual_segments',len(pref),len(segments)-1 if p['prefixes'] else 0)\n  if pref:eq('prefix_limit_segments'",
+      "occurrences": 1
+    },
+    {
+      "old": "models={mid:modelbytes(mid) for mid in sorted({p['model'] for p in planned})}",
+      "new": "\n# Scalar label/population substitution for actual Builder capture. These are\n# exactly the frozen models.rs chain/tree/cont label grammars and HModelFacts\n# storage rules, not new model/source/count/graph computation.\nmodels_source=get(H+'/src/k6/models.rs',SOURCE).decode()\nget(H+'/src/k6/w1/h_envelope.rs',SOURCE)\nr1_source=re.search(r'pub const R1_SOURCE: &str = \"([^\"]+)\"',models_source)[1]\ndef digit_bins(a,b):\n    return [(max(0,min(b,10**d-1)-max(a,0 if d==1 else 10**(d-1))+1),d) for d in range(1,len(str(b))+1)]\ndef label_total(a,b,formatted):\n    return sum(count*(max(8,2*(d+1)) if formatted else d+1) for count,d in digit_bins(a,b))\ndef modelbytes(mid):\n    s=seed[mid];n=s['nodes'];m=s['members'];loads=s['w1_loads'];family=s['family']\n    eq('RF_builder_nodes',n,m+1);eq('RF_builder_stations',s['w1_stations'],m)\n    if family=='CHAIN':\n        node_labels=label_total(0,m,True);member_labels=label_total(1,m,False);restraint_nodes=1\n    elif family in ['TREE','CONT']:\n        assert m%2==0\n        node_labels=8+2*label_total(1,m//2,True);member_labels=2*label_total(1,m//2,False)\n        restraint_nodes=1 if family=='TREE' else m//2+1\n    else:raise AssertionError(family)\n    eq('RF_constraints',s['w1_constraints'],6 if family in ['CHAIN','TREE'] else 6+3*(m//2))\n    return G(48,n)+64*m+G(16,restraint_nodes)+G(16,loads)+G(136,m)+node_labels+member_labels+len(mid.encode())+len(r1_source.encode())\nmodels={mid:modelbytes(mid) for mid in sorted({p['model'] for p in planned})}\n",
+      "occurrences": 1
+    }
+  ],
+  "purpose": "Reuse the independently authored T2 scalar/record method at T3 boundaries. No author program executed and no previous packet copied."
+}

@@ -1,0 +1,530 @@
+[
+  {
+    "run_id": "223_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "population": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ],
+    "estimate": 347431297,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 347431297 B x rho 0.335 <= C/2; projected RSS 130310916 B <= 0.8C",
+      "estimate_adm_bytes": 347431297,
+      "rho": 0.3353213361836771,
+      "rho_rss": 0.36247178655374995,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 116501126,
+      "rss_to_footprint": 1.11853782580452,
+      "projected_rss_bytes": 130310916,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "224_RF-LARGE-CHAIN-n01000-AX_sparse",
+    "population": [
+      "200_RF-LARGE-CHAIN-n00100-AX_sparse",
+      "202_RF-LARGE-CHAIN-n00100-AX_sparse",
+      "203_RF-LARGE-CHAIN-n00100-ROT_sparse",
+      "205_RF-LARGE-CHAIN-n00100-ROT_sparse"
+    ],
+    "estimate": 41401312,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3605.2 MiB <= C/2; projected RSS 4816548613 B <= 0.8C",
+      "estimate_adm_bytes": 41401312,
+      "rho": 1.141373099559553,
+      "rho_rss": 1.3230382363604107,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3780326195,
+      "rss_to_footprint": 1.2741092606650897,
+      "projected_rss_bytes": 4816548613,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "225_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "population": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ],
+    "estimate": 347430753,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 347430753 B x rho 0.335 <= C/2; projected RSS 130310712 B <= 0.8C",
+      "estimate_adm_bytes": 347430753,
+      "rho": 0.3353213361836771,
+      "rho_rss": 0.36247178655374995,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 116500944,
+      "rss_to_footprint": 1.11853782580452,
+      "projected_rss_bytes": 130310712,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "226_RF-LARGE-CHAIN-n01000-AX_sparse",
+    "population": [
+      "200_RF-LARGE-CHAIN-n00100-AX_sparse",
+      "202_RF-LARGE-CHAIN-n00100-AX_sparse",
+      "203_RF-LARGE-CHAIN-n00100-ROT_sparse",
+      "205_RF-LARGE-CHAIN-n00100-ROT_sparse"
+    ],
+    "estimate": 41401312,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3605.2 MiB <= C/2; projected RSS 4816548613 B <= 0.8C",
+      "estimate_adm_bytes": 41401312,
+      "rho": 1.141373099559553,
+      "rho_rss": 1.3230382363604107,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3780326195,
+      "rss_to_footprint": 1.2741092606650897,
+      "projected_rss_bytes": 4816548613,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "227_RF-LARGE-CHAIN-n01000-ROT_sparse",
+    "population": [
+      "200_RF-LARGE-CHAIN-n00100-AX_sparse",
+      "202_RF-LARGE-CHAIN-n00100-AX_sparse",
+      "203_RF-LARGE-CHAIN-n00100-ROT_sparse",
+      "205_RF-LARGE-CHAIN-n00100-ROT_sparse"
+    ],
+    "estimate": 41401312,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3606.5 MiB <= C/2; projected RSS 4818285414 B <= 0.8C",
+      "estimate_adm_bytes": 41401312,
+      "rho": 1.141373099559553,
+      "rho_rss": 1.3230382363604107,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3781689344,
+      "rss_to_footprint": 1.2741092606650897,
+      "projected_rss_bytes": 4818285414,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "228_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "population": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ],
+    "estimate": 347431300,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 347431300 B x rho 0.335 <= C/2; projected RSS 130310917 B <= 0.8C",
+      "estimate_adm_bytes": 347431300,
+      "rho": 0.3353213361836771,
+      "rho_rss": 0.36247178655374995,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 116501127,
+      "rss_to_footprint": 1.11853782580452,
+      "projected_rss_bytes": 130310917,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "229_RF-LARGE-CHAIN-n01000-ROT_sparse",
+    "population": [
+      "200_RF-LARGE-CHAIN-n00100-AX_sparse",
+      "202_RF-LARGE-CHAIN-n00100-AX_sparse",
+      "203_RF-LARGE-CHAIN-n00100-ROT_sparse",
+      "205_RF-LARGE-CHAIN-n00100-ROT_sparse"
+    ],
+    "estimate": 41401312,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3606.5 MiB <= C/2; projected RSS 4818285414 B <= 0.8C",
+      "estimate_adm_bytes": 41401312,
+      "rho": 1.141373099559553,
+      "rho_rss": 1.3230382363604107,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3781689344,
+      "rss_to_footprint": 1.2741092606650897,
+      "projected_rss_bytes": 4818285414,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "230_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "population": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ],
+    "estimate": 347430755,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 347430755 B x rho 0.335 <= C/2; projected RSS 130310712 B <= 0.8C",
+      "estimate_adm_bytes": 347430755,
+      "rho": 0.3353213361836771,
+      "rho_rss": 0.36247178655374995,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 116500944,
+      "rss_to_footprint": 1.11853782580452,
+      "projected_rss_bytes": 130310712,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "231_RF-LARGE-TREE-n01000-AX_w1a",
+    "population": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a"
+    ],
+    "estimate": 347751981,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 347751981 B x rho 0.271 <= C/2; projected RSS 108108023 B <= 0.8C",
+      "estimate_adm_bytes": 347751981,
+      "rho": 0.2706754663833996,
+      "rho_rss": 0.2981494965019822,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 94127929,
+      "rss_to_footprint": 1.1485222781648157,
+      "projected_rss_bytes": 108108023,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "232_RF-LARGE-TREE-n01000-AX_sparse",
+    "population": [
+      "208_RF-LARGE-TREE-n00100-AX_sparse",
+      "210_RF-LARGE-TREE-n00100-AX_sparse",
+      "211_RF-LARGE-TREE-n00100-ROT_sparse",
+      "213_RF-LARGE-TREE-n00100-ROT_sparse"
+    ],
+    "estimate": 41401312,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3608.7 MiB <= C/2; projected RSS 4772828411 B <= 0.8C",
+      "estimate_adm_bytes": 41401312,
+      "rho": 1.2440566641725996,
+      "rho_rss": 1.42967116884319,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3783996211,
+      "rss_to_footprint": 1.2613195534805308,
+      "projected_rss_bytes": 4772828411,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "233_RF-LARGE-TREE-n01000-AX_w1a",
+    "population": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a"
+    ],
+    "estimate": 347751438,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 347751438 B x rho 0.271 <= C/2; projected RSS 108107854 B <= 0.8C",
+      "estimate_adm_bytes": 347751438,
+      "rho": 0.2706754663833996,
+      "rho_rss": 0.2981494965019822,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 94127782,
+      "rss_to_footprint": 1.1485222781648157,
+      "projected_rss_bytes": 108107854,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "234_RF-LARGE-TREE-n01000-AX_sparse",
+    "population": [
+      "208_RF-LARGE-TREE-n00100-AX_sparse",
+      "210_RF-LARGE-TREE-n00100-AX_sparse",
+      "211_RF-LARGE-TREE-n00100-ROT_sparse",
+      "213_RF-LARGE-TREE-n00100-ROT_sparse"
+    ],
+    "estimate": 41401312,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3608.7 MiB <= C/2; projected RSS 4772828411 B <= 0.8C",
+      "estimate_adm_bytes": 41401312,
+      "rho": 1.2440566641725996,
+      "rho_rss": 1.42967116884319,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3783996211,
+      "rss_to_footprint": 1.2613195534805308,
+      "projected_rss_bytes": 4772828411,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "235_RF-LARGE-TREE-n01000-ROT_sparse",
+    "population": [
+      "208_RF-LARGE-TREE-n00100-AX_sparse",
+      "210_RF-LARGE-TREE-n00100-AX_sparse",
+      "211_RF-LARGE-TREE-n00100-ROT_sparse",
+      "213_RF-LARGE-TREE-n00100-ROT_sparse"
+    ],
+    "estimate": 41401312,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3617.2 MiB <= C/2; projected RSS 4784070421 B <= 0.8C",
+      "estimate_adm_bytes": 41401312,
+      "rho": 1.2440566641725996,
+      "rho_rss": 1.42967116884319,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3792909107,
+      "rss_to_footprint": 1.2613195534805308,
+      "projected_rss_bytes": 4784070421,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "236_RF-LARGE-TREE-n01000-ROT_w1a",
+    "population": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a"
+    ],
+    "estimate": 348410932,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 348410932 B x rho 0.271 <= C/2; projected RSS 108312876 B <= 0.8C",
+      "estimate_adm_bytes": 348410932,
+      "rho": 0.2706754663833996,
+      "rho_rss": 0.2981494965019822,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 94306291,
+      "rss_to_footprint": 1.1485222781648157,
+      "projected_rss_bytes": 108312876,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "237_RF-LARGE-TREE-n01000-ROT_sparse",
+    "population": [
+      "208_RF-LARGE-TREE-n00100-AX_sparse",
+      "210_RF-LARGE-TREE-n00100-AX_sparse",
+      "211_RF-LARGE-TREE-n00100-ROT_sparse",
+      "213_RF-LARGE-TREE-n00100-ROT_sparse"
+    ],
+    "estimate": 41401312,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3617.2 MiB <= C/2; projected RSS 4784070421 B <= 0.8C",
+      "estimate_adm_bytes": 41401312,
+      "rho": 1.2440566641725996,
+      "rho_rss": 1.42967116884319,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3792909107,
+      "rss_to_footprint": 1.2613195534805308,
+      "projected_rss_bytes": 4784070421,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "238_RF-LARGE-TREE-n01000-ROT_w1a",
+    "population": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a"
+    ],
+    "estimate": 348410388,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 348410388 B x rho 0.271 <= C/2; projected RSS 108312707 B <= 0.8C",
+      "estimate_adm_bytes": 348410388,
+      "rho": 0.2706754663833996,
+      "rho_rss": 0.2981494965019822,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 94306144,
+      "rss_to_footprint": 1.1485222781648157,
+      "projected_rss_bytes": 108312707,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "239_RF-LARGE-CONT-n01000-AX_w1a",
+    "population": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a"
+    ],
+    "estimate": 337212761,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 337212761 B x rho 0.317 <= C/2; projected RSS 120557775 B <= 0.8C",
+      "estimate_adm_bytes": 337212761,
+      "rho": 0.317394127315168,
+      "rho_rss": 0.34499251803793507,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 107029349,
+      "rss_to_footprint": 1.1263992228156237,
+      "projected_rss_bytes": 120557775,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "240_RF-LARGE-CONT-n01000-AX_sparse",
+    "population": [
+      "216_RF-LARGE-CONT-n00100-AX_sparse",
+      "218_RF-LARGE-CONT-n00100-AX_sparse",
+      "219_RF-LARGE-CONT-n00100-ROT_sparse",
+      "221_RF-LARGE-CONT-n00100-ROT_sparse"
+    ],
+    "estimate": 39788464,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3372.8 MiB <= C/2; projected RSS 4615290326 B <= 0.8C",
+      "estimate_adm_bytes": 39788464,
+      "rho": 1.1091803351031928,
+      "rho_rss": 1.314576968826537,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3536637132,
+      "rss_to_footprint": 1.3049940251770102,
+      "projected_rss_bytes": 4615290326,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "241_RF-LARGE-CONT-n01000-AX_w1a",
+    "population": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a"
+    ],
+    "estimate": 337212218,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 337212218 B x rho 0.317 <= C/2; projected RSS 120557581 B <= 0.8C",
+      "estimate_adm_bytes": 337212218,
+      "rho": 0.317394127315168,
+      "rho_rss": 0.34499251803793507,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 107029177,
+      "rss_to_footprint": 1.1263992228156237,
+      "projected_rss_bytes": 120557581,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "242_RF-LARGE-CONT-n01000-AX_sparse",
+    "population": [
+      "216_RF-LARGE-CONT-n00100-AX_sparse",
+      "218_RF-LARGE-CONT-n00100-AX_sparse",
+      "219_RF-LARGE-CONT-n00100-ROT_sparse",
+      "221_RF-LARGE-CONT-n00100-ROT_sparse"
+    ],
+    "estimate": 39788464,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3372.8 MiB <= C/2; projected RSS 4615290326 B <= 0.8C",
+      "estimate_adm_bytes": 39788464,
+      "rho": 1.1091803351031928,
+      "rho_rss": 1.314576968826537,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3536637132,
+      "rss_to_footprint": 1.3049940251770102,
+      "projected_rss_bytes": 4615290326,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "243_RF-LARGE-CONT-n01000-ROT_sparse",
+    "population": [
+      "216_RF-LARGE-CONT-n00100-AX_sparse",
+      "218_RF-LARGE-CONT-n00100-AX_sparse",
+      "219_RF-LARGE-CONT-n00100-ROT_sparse",
+      "221_RF-LARGE-CONT-n00100-ROT_sparse"
+    ],
+    "estimate": 39788464,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3377.2 MiB <= C/2; projected RSS 4621311223 B <= 0.8C",
+      "estimate_adm_bytes": 39788464,
+      "rho": 1.1091803351031928,
+      "rho_rss": 1.314576968826537,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3541250867,
+      "rss_to_footprint": 1.3049940251770102,
+      "projected_rss_bytes": 4621311223,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "244_RF-LARGE-CONT-n01000-ROT_w1a",
+    "population": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a"
+    ],
+    "estimate": 337626118,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 337626118 B x rho 0.317 <= C/2; projected RSS 120705556 B <= 0.8C",
+      "estimate_adm_bytes": 337626118,
+      "rho": 0.317394127315168,
+      "rho_rss": 0.34499251803793507,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 107160547,
+      "rss_to_footprint": 1.1263992228156237,
+      "projected_rss_bytes": 120705556,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "245_RF-LARGE-CONT-n01000-ROT_sparse",
+    "population": [
+      "216_RF-LARGE-CONT-n00100-AX_sparse",
+      "218_RF-LARGE-CONT-n00100-AX_sparse",
+      "219_RF-LARGE-CONT-n00100-ROT_sparse",
+      "221_RF-LARGE-CONT-n00100-ROT_sparse"
+    ],
+    "estimate": 39788464,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 3377.2 MiB <= C/2; projected RSS 4621311223 B <= 0.8C",
+      "estimate_adm_bytes": 39788464,
+      "rho": 1.1091803351031928,
+      "rho_rss": 1.314576968826537,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3541250867,
+      "rss_to_footprint": 1.3049940251770102,
+      "projected_rss_bytes": 4621311223,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "246_RF-LARGE-CONT-n01000-ROT_w1a",
+    "population": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a"
+    ],
+    "estimate": 337625574,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 337625574 B x rho 0.317 <= C/2; projected RSS 120705361 B <= 0.8C",
+      "estimate_adm_bytes": 337625574,
+      "rho": 0.317394127315168,
+      "rho_rss": 0.34499251803793507,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 107160374,
+      "rss_to_footprint": 1.1263992228156237,
+      "projected_rss_bytes": 120705361,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  }
+]

@@ -1,0 +1,320 @@
+{
+  "archive_members": 192,
+  "full_journal_rows": 108,
+  "new_rows": 24,
+  "rows": [
+    {
+      "run_id": "223_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 3
+    },
+    {
+      "run_id": "224_RF-LARGE-CHAIN-n01000-AX_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Sensitive": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "225_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "226_RF-LARGE-CHAIN-n01000-AX_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Sensitive": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "227_RF-LARGE-CHAIN-n01000-ROT_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Sensitive": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "228_RF-LARGE-CHAIN-n01000-ROT_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 3
+    },
+    {
+      "run_id": "229_RF-LARGE-CHAIN-n01000-ROT_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Sensitive": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "230_RF-LARGE-CHAIN-n01000-ROT_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "231_RF-LARGE-TREE-n01000-AX_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 3
+    },
+    {
+      "run_id": "232_RF-LARGE-TREE-n01000-AX_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Sensitive": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "233_RF-LARGE-TREE-n01000-AX_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "234_RF-LARGE-TREE-n01000-AX_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Sensitive": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "235_RF-LARGE-TREE-n01000-ROT_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Sensitive": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "236_RF-LARGE-TREE-n01000-ROT_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 3
+    },
+    {
+      "run_id": "237_RF-LARGE-TREE-n01000-ROT_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Sensitive": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "238_RF-LARGE-TREE-n01000-ROT_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "239_RF-LARGE-CONT-n01000-AX_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 3
+    },
+    {
+      "run_id": "240_RF-LARGE-CONT-n01000-AX_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Passed": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "241_RF-LARGE-CONT-n01000-AX_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "242_RF-LARGE-CONT-n01000-AX_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Passed": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "243_RF-LARGE-CONT-n01000-ROT_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Passed": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "244_RF-LARGE-CONT-n01000-ROT_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 3
+    },
+    {
+      "run_id": "245_RF-LARGE-CONT-n01000-ROT_sparse",
+      "mode": "sparse",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Passed": 5
+      },
+      "precision": [],
+      "completed": 5,
+      "prefixes": 0
+    },
+    {
+      "run_id": "246_RF-LARGE-CONT-n01000-ROT_w1a",
+      "mode": "w1a",
+      "process_class": "ok",
+      "exit": 0,
+      "outcome_classes": {
+        "Selected": 5
+      },
+      "precision": [
+        128
+      ],
+      "completed": 5,
+      "prefixes": 0
+    }
+  ],
+  "author_return_not_yet_read": true
+}
