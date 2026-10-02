@@ -1,0 +1,737 @@
+{
+  "order": 184,
+  "model": "DEC053:invented-grid-frame-7x8",
+  "checked_utc": "2026-10-02T05:31:27.961806+00:00",
+  "seed_expected_values_from_own_model": true,
+  "consumed_fields": 37,
+  "invariant_fields": 20,
+  "comparisons": [
+    {
+      "group": "consumed_fields",
+      "field": "kind",
+      "expected": "counts",
+      "actual": "counts",
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "model",
+      "expected": "DEC053:invented-grid-frame-7x8",
+      "actual": "DEC053:invented-grid-frame-7x8",
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "model_canonical_fnv64",
+      "expected": "b7255e5a526996a3",
+      "actual": "b7255e5a526996a3",
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "nodes",
+      "expected": 56,
+      "actual": 56,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "members",
+      "expected": 97,
+      "actual": 97,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "dofs",
+      "expected": 336,
+      "actual": 336,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "free_dofs",
+      "expected": 294,
+      "actual": 294,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "restrained_dofs",
+      "expected": 42,
+      "actual": 42,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "pattern_entries",
+      "expected": 9000,
+      "actual": 9000,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "lower_entries",
+      "expected": 4668,
+      "actual": 4668,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "free_entries",
+      "expected": 7812,
+      "actual": 7812,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "free_lower_entries",
+      "expected": 4053,
+      "actual": 4053,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "free_lower_nonzero",
+      "expected": 1176,
+      "actual": 1176,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "rcm_profile_entries",
+      "expected": 5036,
+      "actual": 5036,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "rcm_half_bandwidth",
+      "expected": 25,
+      "actual": 25,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "identity_profile_entries",
+      "expected": 11390,
+      "actual": 11390,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "identity_half_bandwidth",
+      "expected": 47,
+      "actual": 47,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "lane_entries",
+      "expected": 2240,
+      "actual": 2240,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "lane_off_diagonal",
+      "expected": 1190,
+      "actual": 1190,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "contributions",
+      "expected": 13968,
+      "actual": 13968,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "dense_entries",
+      "expected": 112896,
+      "actual": 112896,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_source_ok",
+      "expected": true,
+      "actual": true,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_nodes",
+      "expected": 56,
+      "actual": 56,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_members",
+      "expected": 97,
+      "actual": 97,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_stations",
+      "expected": 97,
+      "actual": 97,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_constraints",
+      "expected": 42,
+      "actual": 42,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_loads",
+      "expected": 1,
+      "actual": 1,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_dofs",
+      "expected": 336,
+      "actual": 336,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_free_dofs",
+      "expected": 294,
+      "actual": 294,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_bodies",
+      "expected": 1,
+      "actual": 1,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_pattern_entries",
+      "expected": 9000,
+      "actual": 9000,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_profile_entries",
+      "expected": 9849,
+      "actual": 9849,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_half_bandwidth",
+      "expected": 47,
+      "actual": 47,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_blocks",
+      "expected": 1,
+      "actual": 1,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_rows",
+      "expected": 2180,
+      "actual": 2180,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_source_encoding_len",
+      "expected": 11651,
+      "actual": 11651,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "consumed_fields",
+      "field": "w1_source_encoding_fnv64",
+      "expected": "80d45f7714452a70",
+      "actual": "80d45f7714452a70",
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "family",
+      "expected": "DEC053",
+      "actual": "DEC053",
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_source_error",
+      "expected": null,
+      "actual": null,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_limbs_per_entry_128",
+      "expected": 4,
+      "actual": 4,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_storage_bytes_128",
+      "expected": 603168,
+      "actual": 603168,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_limbs_per_entry_256",
+      "expected": 4,
+      "actual": 4,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_storage_bytes_256",
+      "expected": 603168,
+      "actual": 603168,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_limbs_per_entry_512",
+      "expected": 8,
+      "actual": 8,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_storage_bytes_512",
+      "expected": 1206336,
+      "actual": 1206336,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_limbs_per_entry_1024",
+      "expected": 16,
+      "actual": 16,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_storage_bytes_1024",
+      "expected": 2412672,
+      "actual": 2412672,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_wide_bytes_4",
+      "expected": 48,
+      "actual": 48,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_wide_bytes_8",
+      "expected": 80,
+      "actual": 80,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "w1_wide_bytes_16",
+      "expected": 144,
+      "actual": 144,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "size_stiffness_contribution",
+      "expected": 24,
+      "actual": 24,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "size_contribution_rounding",
+      "expected": 96,
+      "actual": 96,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "size_residual_row",
+      "expected": 104,
+      "actual": 104,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "size_pivot_evidence",
+      "expected": 48,
+      "actual": 48,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "size_frame_element",
+      "expected": 136,
+      "actual": 136,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "size_symmetric_matrix_entry",
+      "expected": 24,
+      "actual": 24,
+      "present": true,
+      "equal": true
+    },
+    {
+      "group": "invariant_fields",
+      "field": "model_canonical_len",
+      "expected": 10747,
+      "actual": 10747,
+      "present": true,
+      "equal": true
+    }
+  ],
+  "metadata_checks": [
+    {
+      "field": "counts_source",
+      "expected": "computed",
+      "actual": "computed",
+      "equal": true
+    },
+    {
+      "field": "mode",
+      "expected": "w1a",
+      "actual": "w1a",
+      "equal": true
+    },
+    {
+      "field": "w1_source_ok",
+      "expected": true,
+      "actual": true,
+      "equal": true
+    },
+    {
+      "field": "w1_source_error",
+      "expected": null,
+      "actual": null,
+      "equal": true
+    }
+  ],
+  "estimate_checks": [
+    {
+      "field": "estimate_adm_bytes_w1a",
+      "actual": 46485512,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_sel128_bytes",
+      "actual": 27934616,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_fixed_bytes",
+      "actual": 576556,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_decide_bytes",
+      "actual": 20300308,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_shared_128",
+      "actual": 2171352,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_state_128",
+      "actual": 148808,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_solve_128",
+      "actual": 15021024,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_shared_256",
+      "actual": 2474920,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_state_256",
+      "actual": 148808,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_solve_256",
+      "actual": 15309024,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_shared_512",
+      "actual": 4213032,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_state_512",
+      "actual": 247944,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_solve_512",
+      "actual": 15968608,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_shared_1024",
+      "actual": 6475176,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_state_1024",
+      "actual": 446216,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_solve_1024",
+      "actual": 16135776,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_verify_256",
+      "actual": 1550208,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_pass_256",
+      "actual": 1657962,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_verify_512",
+      "actual": 2732320,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_pass_512",
+      "actual": 2738538,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_verify_1024",
+      "actual": 3308640,
+      "present": true,
+      "integer_nonnegative": true
+    },
+    {
+      "field": "estimate_w1_pass_1024",
+      "actual": 4899690,
+      "present": true,
+      "integer_nonnegative": true
+    }
+  ],
+  "complete_max_positive": true,
+  "start_checks": [
+    {
+      "field": "schema",
+      "expected": "k6-observe-v1",
+      "actual": "k6-observe-v1",
+      "equal": true
+    },
+    {
+      "field": "model",
+      "expected": "DEC053:invented-grid-frame-7x8",
+      "actual": "DEC053:invented-grid-frame-7x8",
+      "equal": true
+    },
+    {
+      "field": "model_from_file",
+      "expected": false,
+      "actual": false,
+      "equal": true
+    },
+    {
+      "field": "mode",
+      "expected": "w1a",
+      "actual": "w1a",
+      "equal": true
+    },
+    {
+      "field": "counts_only",
+      "expected": true,
+      "actual": true,
+      "equal": true
+    },
+    {
+      "field": "repeats",
+      "expected": 5,
+      "actual": 5,
+      "equal": true
+    },
+    {
+      "field": "entry_repeats",
+      "expected": 5,
+      "actual": 5,
+      "equal": true
+    },
+    {
+      "field": "heap_cap_bytes",
+      "expected": 8053063680,
+      "actual": 8053063680,
+      "equal": true
+    },
+    {
+      "field": "time_budget_s",
+      "expected": 540,
+      "actual": 540,
+      "equal": true
+    },
+    {
+      "field": "first_repeat_limit_s",
+      "expected": 600,
+      "actual": 600,
+      "equal": true
+    },
+    {
+      "field": "allow_over_estimate",
+      "expected": false,
+      "actual": false,
+      "equal": true
+    },
+    {
+      "field": "case_limit",
+      "expected": 18446744073709551615,
+      "actual": 18446744073709551615,
+      "equal": true
+    },
+    {
+      "field": "invocation_limit",
+      "expected": 18446744073709551615,
+      "actual": 18446744073709551615,
+      "equal": true
+    },
+    {
+      "field": "w1_prefixes",
+      "expected": true,
+      "actual": true,
+      "equal": true
+    },
+    {
+      "field": "dump_published",
+      "expected": true,
+      "actual": true,
+      "equal": true
+    }
+  ],
+  "summary": {
+    "kind": "summary",
+    "repeats_completed": 0,
+    "stop_reason": null,
+    "heap_peak": 1280167,
+    "heap_peak_move": 1304743
+  },
+  "raw_kinds": [
+    "start",
+    "counts",
+    "summary"
+  ],
+  "product_pid": 97494,
+  "published_dump_exists": false,
+  "normal_records_empty": true,
+  "duplicate_JSON_keys_rejected": true,
+  "old_context_estimates_compared_as_invariants": false,
+  "pass": true
+}
