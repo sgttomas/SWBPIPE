@@ -1,0 +1,24 @@
+{
+  "observed_utc": "2026-10-02 00:24:44 UTC",
+  "host": "Apple M5 Max,18cores,137438953472bytes",
+  "live_agents": [
+    "/root"
+  ],
+  "running_cargo_rustc_solver": false,
+  "guard_pid": 5387,
+  "a1_head": "cf7841ced3427bd3692ea39343c6936d3234ef5b",
+  "k6c_head": "60a52da9467b73d25898e01312e20d7a4c533902",
+  "numerics_head": "bba7f1f8ddba27f8cee414d2dbd1049ffd5df246",
+  "interruption": "Unexpected session interruption; human requested resume. Native delegated sessions no longer exist. No pause/cancellation of objective inferred.",
+  "unsealed_review": "A1/source_review_RV29/vk_final_44 raw files preserved in place; no verdict/manifest.",
+  "k6c_partial": {
+    "src/k6/w1/envelope.rs": "fb1e846e3500f2b5c4e345b8c0138e44eac0d30dae9780308bdea42c8b82db56",
+    "src/k6/w1/mod.rs": "29deff89d89b35bc32bd266ebeff574a03e15e8513b6294074d6cba017e1f792",
+    "tests/k6c_envelope.rs": "2203dfbd992c8c28b09fa6b72029c7f7e04b64a13943ab859e22697e1e75b9b1"
+  },
+  "pending_source_tasks": [
+    "context_translation_11",
+    "h_origin_failure_26"
+  ],
+  "disposition": "Old execution grants close at interruption; future explicit grants use fresh native identities and boundaries. Completed experiments retained, no rerun merely for recovery. No old unsealed packet accepted."
+}
