@@ -1,0 +1,80 @@
+{
+  "old_head": "7f5137e7ec7f294c1374ae1d466485d77eb84b58",
+  "new_head": "cb13dcd9fcc8c252fa9610b1c6fef0c5b2c3c20c",
+  "all9_blobids_modes_bytes_preserved": true,
+  "bindings": [
+    {
+      "from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/BRIEF.md",
+      "to": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/BRIEF.md",
+      "git_mode_type_blob": "100644 blob 6bb72a4f96adbc190fb65f8248db3ef2da7841b3",
+      "sha256": "e416116af944ac0e7434937e0357273b0c6d723af11ddd92d632e07e5d0c6e7d"
+    },
+    {
+      "from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/COMPLETION.json",
+      "to": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/COMPLETION.json",
+      "git_mode_type_blob": "100644 blob bd13810458775886419522d602171bae3d356983",
+      "sha256": "c24d936e05cdbef7ba7a81b86e67400f2ff0fc82aea3f6d537fc6ac83d36a4ec"
+    },
+    {
+      "from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/OBSERVATIONS.json",
+      "to": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/OBSERVATIONS.json",
+      "git_mode_type_blob": "100644 blob a6dd682af3fa57c4cb201820c2186da99477b3c8",
+      "sha256": "91511f1606e95c4e9846e7c4d08cc2ba922bad9331f244964c83a896fc832613"
+    },
+    {
+      "from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/PROVENANCE.json",
+      "to": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/PROVENANCE.json",
+      "git_mode_type_blob": "100644 blob 18f93b069a936b75274ded040ca1c3300a8f9589",
+      "sha256": "2c240913725fbb9b6f46f4193767efc9a5056d68eee98c55d81cbad0c693a40f"
+    },
+    {
+      "from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/RETURN.md",
+      "to": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/RETURN.md",
+      "git_mode_type_blob": "100644 blob 786c5b4e9d049862f97f319d29b307614d4f07a3",
+      "sha256": "418731186d67e244c1085e3928537a170a86f96a6447acbcd5372a8f170bc689"
+    },
+    {
+      "from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/SHA256SUMS",
+      "to": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/SHA256SUMS",
+      "git_mode_type_blob": "100644 blob 213a62d09c5dcb639d091ffbad81f23930245ef6",
+      "sha256": "831cdff691167473c40c17f95d27b7a23e4a40e516aa51b85511e15a3ac1d0f0"
+    },
+    {
+      "from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/SOURCE_BINDING.json",
+      "to": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/SOURCE_BINDING.json",
+      "git_mode_type_blob": "100644 blob e38d367808fb508ef7a4b488c872a93e5fccfa06",
+      "sha256": "9b673f7c7e1d383071c5f203b88a711aaba23aa2d1ab640e005bec646cf94ce9"
+    },
+    {
+      "from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/scratch/CHECK_LOG.txt",
+      "to": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/scratch/CHECK_LOG.txt",
+      "git_mode_type_blob": "100644 blob b8fe3c819c136ea19803d46859bab84aac4dd225",
+      "sha256": "748a492feeea93a85ec9cbc46b3c924c87730e6cd2d00ed2d4a88b3c1e1de36c"
+    },
+    {
+      "from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/scratch/check_evidence.py",
+      "to": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/scratch/check_evidence.py",
+      "git_mode_type_blob": "100644 blob 73127e1c094c165c359cec2131bec3d51e63bdea",
+      "sha256": "e8a0671430f8442df3bf9172447399abccf45158120304a65eb30c9ba4da735d"
+    }
+  ],
+  "seal_unchanged": "831cdff691167473c40c17f95d27b7a23e4a40e516aa51b85511e15a3ac1d0f0",
+  "ledger_seal": "46b99e267d450b9c0d02f794f5941adff1bc1056877d38d2e3f57502044b1877",
+  "exact_delta": [
+    "R100\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/BRIEF.md\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/BRIEF.md",
+    "R100\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/COMPLETION.json\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/COMPLETION.json",
+    "R100\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/OBSERVATIONS.json\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/OBSERVATIONS.json",
+    "R100\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/PROVENANCE.json\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/PROVENANCE.json",
+    "R100\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/RETURN.md\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/RETURN.md",
+    "R100\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/SHA256SUMS\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/SHA256SUMS",
+    "R100\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/SOURCE_BINDING.json\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/SOURCE_BINDING.json",
+    "R100\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/scratch/CHECK_LOG.txt\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/scratch/CHECK_LOG.txt",
+    "R100\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/scratch/check_evidence.py\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/_run_records/vk_final_01/scratch/check_evidence.py",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV31/vk_final_01/MOVED.md",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/record_placement_20261002_a1/README.md",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/record_placement_20261002_a1/RELOCATION.json",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/record_placement_20261002_a1/SHA256SUMS"
+  ],
+  "maintained_delta_empty": true,
+  "old_GEN8_failure_retained_not_waived": true
+}
