@@ -4301,3 +4301,26 @@ combined81c03849033f3ce745668f581f446530789397b8. ROOT read their full maintaine
 diffs and sealed returns and verified write sets/postimages. Both authored mutant
 results await fresh RV35 review; M05 history and I24's unexecuted preparation are
 not rewritten. No wider mutant programme or scale slot is released yet.
+
+
+## Lifetime witness gaps closed; remaining mutants released (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete fresh RV35 phase_witnesses_01 return and verified its58
+payloads under seal29b74e5e480de5e3485df2111d411fb2449d94eb0d39350cda5aafd54cadb4b9.
+Accept both maintained changes on81c03849033f3ce745668f581f446530789397b8 within
+that exact conditional source-arithmetic scope. Close the Uc overlap witness gap
+and VR-SPARSE-16F-WITNESS / VR-REFUSED-FORMAT-ARGUMENT-WITNESS. The independent
+source/owner checks and execution table establish the intended local identities,
+actual normal controls and exact mutant discrimination. No source expression,
+public contract, numerical bound policy or supported input domain was weakened.
+
+H/Uc M05's original survivor remains history. VR-M02's global masking and the
+separate VR-M05 existing-phase detection remain explicit; neither is called a
+measured global undercount. These closures do not complete the wider mutation
+programme or qualify an executable/measurement.
+
+ROOT now dispatches I26 directly for the prepared30-minute remaining-kernel
+mutation brief, R/BRIEFS/I26_KERNEL_REMAINDER_02.md, on the same maintained81c038
+basis. The Cargo lane is free and reserved to that TASK; no other runtime grant
+is implied. Stop on the first survivor/normal failure or compile-only failure.
+No production/test repair is included in that archive-only assignment.
