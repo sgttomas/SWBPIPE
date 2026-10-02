@@ -4558,3 +4558,24 @@ all80 payloads under seale032d1a49db4f92458b12e18c9644cf388f891c9007e152d92211f7
 Its runtime is stopped/reaped. RV37 independently reviews it; no full mechanical
 acceptance is inferred until that review returns. Composite source review stands.
 The owner KF3 historical-publication comparison question remains pending.
+
+
+## Full V-K mechanical matrix closed (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV37 vk_mechanical_03 RETURN and verified its12 payloads
+under seal1d98a8a25ac596458b84e998a46cb512194243c6184df723e7e8f1f7f93d78ed.
+Accept D's complete original mechanical matrix at maintained81c038. The report's
+row table and full-log analysis establish the normal suite, registered failures,
+UNKNOWN panic, completed exits and absence of timeouts; its source/artifact and
+process paragraphs bind full scope and reap. No unresolved actionable finding
+remains. The suppressed initial-build stream remains a disclosed inference from
+unchanged runner control flow and later actual artifacts, not an invented event.
+
+D adds no semantic credit; independently accepted A/B/C witnesses and their
+normal restoration carry that separate obligation. Both V-K semantic and full
+mechanical checks are now accounted for this K6c source candidate. This closes
+neither ordinary measurements nor final K6c/gates or engineering acceptance.
+
+The first ordinary W1-T1 grant is active with I26, receipt05:36:25 UTC, runtime
+cutoff06:01:25 and return06:06:25. It has the sole quiet/timed slot under the
+existing guard. No later tier grant or owner comparison amendment is implied.
