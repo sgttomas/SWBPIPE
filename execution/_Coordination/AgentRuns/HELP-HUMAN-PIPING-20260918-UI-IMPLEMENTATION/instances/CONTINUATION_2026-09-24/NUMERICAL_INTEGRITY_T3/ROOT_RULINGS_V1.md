@@ -4087,3 +4087,33 @@ and origin/failure questions; their bounded reviews are in progress. Shared-kern
 translation does not release a partial legacy estimate or adapter. Complete
 context translation, checked implementation, final artifact/source/request/input/
 launch correspondence, admission replay and required measurements remain open.
+
+
+## Final registered R28/R02 witnesses qualified (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete fresh RV31 vk_final_01/RETURN.md and verified all payloads
+under seal831cdff691167473c40c17f95d27b7a23e4a40e516aa51b85511e15a3ac1d0f0.
+Accept the original R28 and original VR TREE100 R02 semantic witnesses with their
+actual normal controls. The report's Actual results section gives the exact
+reached shift and named VerificationEstimate/acceptance transitions. No missing
+ratio, work counter, generic refusal or certificate substitute supplies credit.
+
+The separate original scalar test supplies complementary seed-site evidence only;
+its later assertions remain unexecuted and uncredited in the fault call. No FK
+TREE100 substitution is used. Other unshown Ceilings receive no invented cause or
+separate credit. All original parity records restore, including their original
+Sensitive statuses; restoration does not mean every comparison is Passed.
+
+The interrupted RV29 final44 archive-only partial has a ROOT preservation note
+and seal, not a completed reviewer verdict. RV31 is a fresh independent native
+identity; its review binds cf7841 and does not silently approve later HEADs.
+The complete V-K packets and their approved replacement/disposition history are
+ready for final-candidate reconciliation. Prior unqualified attempts, the unrun
+superseded P15, and the narrowly owner-approved F17 alternative remain distinct.
+No protected criterion is weakened and no numerical source/test/oracle changed.
+
+Freeze the final A1 candidate after integration, then require independent exact-
+candidate confirmation, full-SHA hosted dispatch/CI, clean exact-head GEN-8 and
+Mac DEC-025 comparison before merge. The source-reach check remains H/validation
+only unless the final diff establishes otherwise. AUD-T3-01 and F2a reliance stay
+held until actual closure; K6c implementation/qualification is a separate path.
