@@ -4274,3 +4274,30 @@ contract, bound policy, supported input domain or protected criterion changes.
 The detailed fence and25-minute bound are R/BRIEFS/I27_VR_PHASE_WITNESSES_01.md.
 I26 retains the Cargo lane until explicit ROOT release. H/VR writes are disjoint.
 Independent review follows ROOT verification/commit before any claimed closure.
+
+
+## Historical replay verified at its declared scope (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV34 historical_replay_01 return and verified its31
+payloads under sealec4c1328d05fc66eb16225040f3f9b2ef52df0b0186dde49e9353592633a1dba.
+Accept the independently recomposed conditional source/records replay in I25's
+packet. RV34's result table establishes all102 old dictionaries reproduced,
+all66 H decisions still admitted with actual historical H path deltas, and six
+largest-size backstop deferrals in each VR history under its reference profile.
+Its Chronology, H launch/metric and Floating-point sections establish the checked
+denominators, windows and boundary semantics. None is a new run authorization.
+
+Preserve the exact historical VR argv0/model-path/compiled-manifest and artifact
+transfer limitation. The large sparse subtotal independently establishes the
+largest-size deferrals under that bound policy; lower-size admission and VR peak
+comparisons remain reference-launch conditional. No measured excess or universal
+historic executable bound is inferred. Further broad missing-path archaeology is
+not commissioned. Final prospective ordinary-artifact/input/launch qualification
+and measurements remain mandatory before full K6c acceptance.
+
+I26's source-valid Uc witness is committed2ae028eb275684ac0aa8082e034128ff251027a4.
+I27's algebra-preserving private VR phase helpers/tests are committed in the
+combined81c03849033f3ce745668f581f446530789397b8. ROOT read their full maintained
+diffs and sealed returns and verified write sets/postimages. Both authored mutant
+results await fresh RV35 review; M05 history and I24's unexecuted preparation are
+not rewritten. No wider mutant programme or scale slot is released yet.
