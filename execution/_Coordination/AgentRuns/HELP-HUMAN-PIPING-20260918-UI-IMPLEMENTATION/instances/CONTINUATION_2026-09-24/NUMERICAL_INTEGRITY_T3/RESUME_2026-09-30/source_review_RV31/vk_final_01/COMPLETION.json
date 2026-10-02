@@ -1,0 +1,27 @@
+{
+  "reviewer": "RV31",
+  "candidate": "cf7841ced3427bd3692ea39343c6936d3234ef5b",
+  "started_utc": "2026-10-02T00:27:09+00:00",
+  "review_end_utc": "2026-10-02T00:36:06.249079+00:00",
+  "hard_end_utc": "2026-10-02T00:42:09+00:00",
+  "sealing_reserve_start_utc": "2026-10-02T00:39:09+00:00",
+  "elapsed_seconds": 537.249079,
+  "scope": "final10 runtime evidence only",
+  "verdict": "SUITABLE_FOR_MANAGER_FAN_IN_SCOPED",
+  "blocking_findings": [],
+  "nonblocking_findings": [],
+  "final_checker_exit": 0,
+  "runtime_compiler_probe_calls": 0,
+  "delegations": 0,
+  "maintained_edits": 0,
+  "git_index_mutations": 0,
+  "later_HEAD_not_reviewed": true,
+  "unsealed_RV29_partial_not_read_or_credited": true,
+  "method": "closed source proofs rebound to pinned candidate, exact-integer/Decimal parsing and physical hashes; no repeated product runtime or proof restart",
+  "checker_development_corrections": [
+    "Concurrent HEAD movement disclosed with candidate pinned",
+    "Immutable FK source mode0444 distinguished from original VR archive0664",
+    "Normal REPORT excludes separately stored PARITY; both parsed independently from raw stdout"
+  ],
+  "seal_definition": "SHA256SUMS covers every payload including scratch and excludes itself"
+}
