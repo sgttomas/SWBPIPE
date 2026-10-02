@@ -1,0 +1,21 @@
+{
+  "checked_utc": "2026-10-02T14:19:59.231776+00:00",
+  "known_product_PIDs": [
+    94652,
+    94663,
+    94678,
+    94694,
+    94706,
+    94721,
+    94733,
+    94745,
+    94760,
+    94772,
+    94787,
+    94799,
+    94811
+  ],
+  "remaining": [],
+  "outer_session_exit0": true,
+  "normal_return_survivor_scan_credit": false
+}

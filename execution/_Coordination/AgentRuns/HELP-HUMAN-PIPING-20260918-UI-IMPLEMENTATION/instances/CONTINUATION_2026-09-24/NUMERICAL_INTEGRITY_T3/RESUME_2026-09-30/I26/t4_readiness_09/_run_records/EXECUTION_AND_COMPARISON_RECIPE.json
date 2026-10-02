@@ -1,0 +1,117 @@
+{
+  "status": "Prospective exact recipe, not executed or authorized by readiness. ROOT must separately release normal T4 and comparison work.",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "original_T4_wrapper_argv": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/b3/run_w1t4.py.txt",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/runner",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records",
+    "81c03849033f3ce745668f581f446530789397b8",
+    "330540b6a64d5aa1bc1e5ffa26750492e76b8727"
+  ],
+  "wrapper_sha256": "aea7f97289bf33b63827dff85d5813bb1a03ef08355e6cd889dbbd0cef577fbb",
+  "wrapper_effect": "Only under later ROOT release: existing wrapper clears sole named CONDITIONAL_TIERS entry in its imported runner and logs override. No numeric/admission/ascent changes; fresh tier no-op and12 per-run W1 bindings precede applicable normal runs.",
+  "schedule": {
+    "orders": [
+      247,
+      248,
+      249,
+      250,
+      251,
+      252,
+      253,
+      254,
+      255,
+      256,
+      257,
+      258,
+      259,
+      260,
+      261,
+      262,
+      263,
+      264,
+      265,
+      266,
+      267,
+      268,
+      269,
+      270
+    ],
+    "normal_processes": 24,
+    "W1_processes": 12,
+    "sparse_processes": 12,
+    "first_pass_W1_dump_orders": [
+      247,
+      252,
+      255,
+      260,
+      263,
+      268
+    ],
+    "requested_repeats": 5,
+    "requested_entry_repeats": 5,
+    "watchdog_s": 1800,
+    "inner_budget_s": 1740,
+    "first_repeat_limit_s": 600,
+    "rss_cap_bytes": 8589934592,
+    "heap_cap_bytes": 8053063680,
+    "product_count_if_all_rows_reached": 37,
+    "prefix_limits": "Actual last full call segment ends, not invented fixed limits; first W1 passes only."
+  },
+  "R1_argv": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/b3/k6b_r1_compare.py.txt",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/runner",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES/references.json",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/comparison_inputs/W1_T4_R1"
+  ],
+  "R1_script_sha256": "73a63051c704c9406f11ba2c888808c56bbd6e1d5383cfb12009e1cb918583b9",
+  "reference_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES/references.json",
+  "reference_sha256": "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9",
+  "prospective_input_directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/comparison_inputs/W1_T4_R1",
+  "input_directory_exists_now": false,
+  "input_directory_rule": "After valid normal results and supported-field checks, make an exact-byte/hash-verified view containing ONLY complete new T4 first-pass dumps for actually published Selected results. Use original filenames. Preflight every T4 first-pass outcome: Selected requires its full dump; unpublished, deferred, interrupted or missing results are explicitly not passing value comparisons. Do not invoke R1 on the whole growing records directory or silently omit a missing Selected dump. No logic/tolerance/reference change.",
+  "expected_unpublished_TREE_rule": "Historical TREE cases are Unresolved Ceiling [Restrained]. They get no passing publication-value comparison. A changed outcome/precision/available row fact stops for investigation; preserve any produced output rather than hiding it.",
+  "KF3_supported_fields_reference": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/measurement_plan_03/_run_records/KF3_COMPARATORS.json",
+    "sha256": "e11227a156ca3d3ebce867334be4a524b57389da91bee0a2f48b9ea8879187f2"
+  },
+  "schema_and_hash_rule": "Use reviewed H class/reason/precision/rows/rows_unpublishable to KF3 outcome/precision/published_rows/unpublishable_rows mapping. Retain absent facts as absent. Bind model/source provenance through qualified seed/accepted counterpart; preserve FNV and SHA256 identities separately, never compare unlike digest schemes as equality.",
+  "unchanged_R1_predicate": "Exact Fraction |obs-exp| <= 1e-9*max(|exp|,original class scale), unchanged expected subsets/classes/exceptions. CHAIN103/TREE194/CONT215 per orientation where published.",
+  "dump_custody": "Keep complete canonical new first-pass dumps, raw stdout/records/attempts/prefixes and hashes; hash-check exact-byte comparison view; independent review must cover actual available-field/R1/invariant comparisons. Full historical KF3 published-value equality remains explicitly unestablished under owner adoption.",
+  "bounded_execution_recommendation": "Recommend one later45-minute block with runtime stop/reap at40 minutes, original wrapper exactly once and no retry/extension. Per-process1800s timeout is not a grant extension. If incomplete, preserve completed/partial scope and obtain a separate continuation disposition. Comparison work needs explicit time/write scope; do not silently extend solver grant.",
+  "runtime_estimate_basis": {
+    "w1a": {
+      "observed_processes": 12,
+      "min_wall_s": 4.417,
+      "max_wall_s": 11.6695,
+      "sum_wall_s": 90.9937
+    },
+    "sparse": {
+      "observed_processes": 12,
+      "min_wall_s": 1.4782,
+      "max_wall_s": 2.242,
+      "sum_wall_s": 21.6167
+    }
+  },
+  "runtime_estimate_limit": "These are observed1000-member process times, not an ETA for10000 or TREE escalation to512/1024. Existing k6b_analysis.project expects w1smoke IDs absent from this new journal, so it supplies no fresh projection without an ungranted adaptation. No old smoke renamed/reused and no numerical duration invented.",
+  "stop_points": [
+    "Baseline/source/input/caller/hash/guard failure; numeric deferral never forced.",
+    "Any admitted memory refusal, timeout/error, parity/work/storage/source discrepancy or matched H-window breach; stop/reap actual owned work.",
+    "Changed supported KF3 outcome/reason/precision/publication facts; analytic missing/failing expected values where publication exists.",
+    "Hard overall cutoff, with actual partial scope preserved and no automatic continuation."
+  ],
+  "extra_baseline_work": "Only if a concrete discrepancy warrants separately bounded work; no old baseline regeneration by default."
+}

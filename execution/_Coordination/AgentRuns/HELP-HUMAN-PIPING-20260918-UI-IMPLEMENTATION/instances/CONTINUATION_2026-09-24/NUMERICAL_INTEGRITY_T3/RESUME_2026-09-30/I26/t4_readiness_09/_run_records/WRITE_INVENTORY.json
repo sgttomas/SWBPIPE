@@ -1,0 +1,121 @@
+{
+  "packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/t4_readiness_09",
+  "new_qualification_logs": 52,
+  "prior_files_unchanged": 859,
+  "journal_not_appended": true,
+  "maintained_changes": [],
+  "packet_payloads_before_inventory_and_seal": [
+    {
+      "path": "RETURN.md",
+      "sha256": "389c4d0b6c5d0590b84b3a413ea40d1992a2f6a0029d3dff0409324256eb9bd7"
+    },
+    {
+      "path": "_run_records/247_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/249_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/252_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/254_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/255_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/257_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/260_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/262_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/263_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/265_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/268_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/270_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/ACQUISITIONS.json",
+      "sha256": "27f406302825c3b0b231c4503dfa68d2058fa72c38f295d5dfe4170f03969511"
+    },
+    {
+      "path": "_run_records/ADMISSION_READINESS.json",
+      "sha256": "14bf04bda25ebc389c121af8a2d73ca2ca7e343162195a51f289dc81a54e54c8"
+    },
+    {
+      "path": "_run_records/CALLER_BINDING.json",
+      "sha256": "32d6ec91065419b3447091db554a946f7500d6643d862d6470765282ac5651ad"
+    },
+    {
+      "path": "_run_records/DISK_HEADROOM.txt",
+      "sha256": "db2b3dcd391d77bee769198fc5bf97eab3df61e67cd7819462c18ff87ba64d72"
+    },
+    {
+      "path": "_run_records/EXECUTION_AND_COMPARISON_RECIPE.json",
+      "sha256": "1a9735c15b6da1490093dcfb014faa3da60165fa38545dcfa6b5ec18670caad3"
+    },
+    {
+      "path": "_run_records/EXECUTION_INTENT.json",
+      "sha256": "8300db5567919ab18e54842cf6dbf4f1949659bd457f25daace5f05b669490ae"
+    },
+    {
+      "path": "_run_records/FIELD_MAP.json",
+      "sha256": "2a6b66cd0f0605b72f4d4a5151ccc665d3e58867f5a3b94c9b23433a0acbc82c"
+    },
+    {
+      "path": "_run_records/FINAL_CHECKS.json",
+      "sha256": "1bcc7d262cb048e940bd93ffe819225ca8b3fea7778d11c07bc29590a7d8638e"
+    },
+    {
+      "path": "_run_records/INPUT_BINDING.json",
+      "sha256": "a7c4c21d407759f8c043981ebb7dbfebdb3e0540ab886323c4752d0737dafb57"
+    },
+    {
+      "path": "_run_records/RAW_INVENTORY.json",
+      "sha256": "2fc149a97054bc80ed293ba679081822f80563858b99e0d04d7dcbeb13982061"
+    },
+    {
+      "path": "_run_records/RUNTIME_CLEANUP.json",
+      "sha256": "72008c395f23a779f3e70f841984ecae6366aca7ac0e825c689f3825d79dca16"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "sha256": "e2be03287387d0e973c70c90f7f787d957d0090d9fbced8855deee5a78e06a7c"
+    },
+    {
+      "path": "_run_records/T4_LAUNCHES.json",
+      "sha256": "d8641780735fde4cc7a8c3f0d1f6a0f02127ac02da47dceb4ae3db4d937d82d3"
+    },
+    {
+      "path": "_run_records/TABLE_CHECK.json",
+      "sha256": "5c4a7e81f852094ef7e3872d34d1976d17130f13fa20d400d6c94bc608d94941"
+    },
+    {
+      "path": "_run_records/baseline_t4_readiness_09.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

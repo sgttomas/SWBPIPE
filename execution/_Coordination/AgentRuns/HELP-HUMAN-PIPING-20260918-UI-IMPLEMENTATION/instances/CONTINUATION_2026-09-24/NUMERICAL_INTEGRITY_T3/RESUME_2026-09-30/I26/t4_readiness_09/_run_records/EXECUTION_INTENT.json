@@ -1,0 +1,40 @@
+{
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "W1_orders": [
+    247,
+    249,
+    252,
+    254,
+    255,
+    257,
+    260,
+    262,
+    263,
+    265,
+    268,
+    270
+  ],
+  "baseline_id": "baseline_t4_readiness_09",
+  "baseline_tag": "t4_readiness_09",
+  "baseline_argv": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+    "--noop",
+    "--heap-cap-bytes",
+    "8053063680"
+  ],
+  "baseline_timeout_s": 60,
+  "counts_timeout_s": 1800,
+  "quiet_max_wait_s": 120,
+  "rss_cap_bytes": 8589934592,
+  "total_product_process_limit": 13,
+  "normal_or_R1_or_run_tier": false
+}

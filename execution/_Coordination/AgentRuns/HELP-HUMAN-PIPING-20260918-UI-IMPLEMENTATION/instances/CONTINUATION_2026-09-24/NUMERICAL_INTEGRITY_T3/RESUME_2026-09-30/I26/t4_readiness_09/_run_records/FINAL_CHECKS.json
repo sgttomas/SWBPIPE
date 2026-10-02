@@ -1,0 +1,42 @@
+{
+  "utc": "2026-10-02T14:30:24.092440+00:00",
+  "acquisitions": 13,
+  "all_acquisitions_pass": true,
+  "current_named_hold_deferred": 24,
+  "hypothetical_numeric_counts": {
+    "admitted": 24
+  },
+  "journal_and_old_files_unchanged": true,
+  "R1_and_normal_runs": 0,
+  "future_comparison_directory_not_created": true,
+  "maintained_diff": {
+    "argv": [
+      "git",
+      "diff",
+      "--exit-code",
+      "--",
+      "projects/chirality-piping/core",
+      "projects/chirality-piping/validation/benchmarks/numerical_robustness"
+    ],
+    "returncode": 0,
+    "stdout": ""
+  },
+  "recipe_input_hashes": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/b3/run_w1t4.py.txt",
+      "sha256": "aea7f97289bf33b63827dff85d5813bb1a03ef08355e6cd889dbbd0cef577fbb"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/b3/k6b_r1_compare.py.txt",
+      "sha256": "73a63051c704c9406f11ba2c888808c56bbd6e1d5383cfb12009e1cb918583b9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES/references.json",
+      "sha256": "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/measurement_plan_03/_run_records/KF3_COMPARATORS.json",
+      "sha256": "e11227a156ca3d3ebce867334be4a524b57389da91bee0a2f48b9ea8879187f2"
+    }
+  ]
+}

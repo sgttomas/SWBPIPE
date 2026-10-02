@@ -1,0 +1,539 @@
+{
+  "method": "Same reviewed scalar Builder-label/G/F/Args calculation as T3; no Python model, graph or coordinates constructed. Product construction occurs only inside the13 explicitly granted processes.",
+  "models": {
+    "RF-LARGE-CHAIN-n10000-AX": {
+      "recipe": "N0..N10000 / M1..M10000",
+      "parts": {
+        "nodes": 786432,
+        "members": 640000,
+        "restraints": 64,
+        "loads": 128,
+        "frames": 2228224,
+        "formatted_node_labels": 98012,
+        "cloned_member_labels": 48894,
+        "model_id": 24,
+        "source_id": 27
+      },
+      "model_bytes": 3801805,
+      "caller_without_args": 3803505,
+      "reference_caller_without_args": 3836675,
+      "restrained_nodes": 1,
+      "node_label_lengths": {
+        "2": 10,
+        "3": 90,
+        "4": 900,
+        "5": 9000,
+        "6": 1
+      },
+      "member_label_lengths": {
+        "2": 9,
+        "3": 90,
+        "4": 900,
+        "5": 9000,
+        "6": 1
+      }
+    },
+    "RF-LARGE-CHAIN-n10000-ROT": {
+      "recipe": "N0..N10000 / M1..M10000",
+      "parts": {
+        "nodes": 786432,
+        "members": 640000,
+        "restraints": 64,
+        "loads": 128,
+        "frames": 2228224,
+        "formatted_node_labels": 98012,
+        "cloned_member_labels": 48894,
+        "model_id": 25,
+        "source_id": 27
+      },
+      "model_bytes": 3801806,
+      "caller_without_args": 3803506,
+      "reference_caller_without_args": 3836676,
+      "restrained_nodes": 1,
+      "node_label_lengths": {
+        "2": 10,
+        "3": 90,
+        "4": 900,
+        "5": 9000,
+        "6": 1
+      },
+      "member_label_lengths": {
+        "2": 9,
+        "3": 90,
+        "4": 900,
+        "5": 9000,
+        "6": 1
+      }
+    },
+    "RF-LARGE-TREE-n10000-AX": {
+      "recipe": "P0,P1/B1..P5000/B5000 / S1/Q1..S5000/Q5000",
+      "parts": {
+        "nodes": 786432,
+        "members": 640000,
+        "restraints": 64,
+        "loads": 131072,
+        "frames": 2228224,
+        "formatted_node_labels": 96012,
+        "cloned_member_labels": 47786,
+        "model_id": 23,
+        "source_id": 27
+      },
+      "model_bytes": 3929640,
+      "caller_without_args": 3931340,
+      "reference_caller_without_args": 3967618,
+      "restrained_nodes": 1,
+      "node_label_lengths": {
+        "2": 19,
+        "3": 180,
+        "4": 1800,
+        "5": 8002
+      },
+      "member_label_lengths": {
+        "2": 18,
+        "3": 180,
+        "4": 1800,
+        "5": 8002
+      }
+    },
+    "RF-LARGE-TREE-n10000-ROT": {
+      "recipe": "P0,P1/B1..P5000/B5000 / S1/Q1..S5000/Q5000",
+      "parts": {
+        "nodes": 786432,
+        "members": 640000,
+        "restraints": 64,
+        "loads": 262144,
+        "frames": 2228224,
+        "formatted_node_labels": 96012,
+        "cloned_member_labels": 47786,
+        "model_id": 24,
+        "source_id": 27
+      },
+      "model_bytes": 4060713,
+      "caller_without_args": 4062413,
+      "reference_caller_without_args": 4098691,
+      "restrained_nodes": 1,
+      "node_label_lengths": {
+        "2": 19,
+        "3": 180,
+        "4": 1800,
+        "5": 8002
+      },
+      "member_label_lengths": {
+        "2": 18,
+        "3": 180,
+        "4": 1800,
+        "5": 8002
+      }
+    },
+    "RF-LARGE-CONT-n10000-AX": {
+      "recipe": "S0..S5000,C1..C5000 / A1/B1..A5000/B5000",
+      "parts": {
+        "nodes": 786432,
+        "members": 640000,
+        "restraints": 131072,
+        "loads": 131072,
+        "frames": 2228224,
+        "formatted_node_labels": 96012,
+        "cloned_member_labels": 47786,
+        "model_id": 23,
+        "source_id": 27
+      },
+      "model_bytes": 4060648,
+      "caller_without_args": 4062348,
+      "reference_caller_without_args": 4229634,
+      "restrained_nodes": 5001,
+      "node_label_lengths": {
+        "2": 19,
+        "3": 180,
+        "4": 1800,
+        "5": 8002
+      },
+      "member_label_lengths": {
+        "2": 18,
+        "3": 180,
+        "4": 1800,
+        "5": 8002
+      }
+    },
+    "RF-LARGE-CONT-n10000-ROT": {
+      "recipe": "S0..S5000,C1..C5000 / A1/B1..A5000/B5000",
+      "parts": {
+        "nodes": 786432,
+        "members": 640000,
+        "restraints": 131072,
+        "loads": 262144,
+        "frames": 2228224,
+        "formatted_node_labels": 96012,
+        "cloned_member_labels": 47786,
+        "model_id": 24,
+        "source_id": 27
+      },
+      "model_bytes": 4191721,
+      "caller_without_args": 4193421,
+      "reference_caller_without_args": 4360707,
+      "restrained_nodes": 5001,
+      "node_label_lengths": {
+        "2": 19,
+        "3": 180,
+        "4": 1800,
+        "5": 8002
+      },
+      "member_label_lengths": {
+        "2": 18,
+        "3": 180,
+        "4": 1800,
+        "5": 8002
+      }
+    }
+  },
+  "contexts": {
+    "247_RF-LARGE-CHAIN-n10000-AX_w1a": {
+      "reference_Hfixed": 63701085,
+      "totals": {
+        "all": {
+          "requested_bytes": 3125422765,
+          "moving_bytes": 3266456237,
+          "source_requested": 7001168,
+          "source_moving": 7001168,
+          "solve_requested": 3125422378,
+          "solve_moving": 3266455850,
+          "prefix_requested": 3125422765,
+          "prefix_moving": 3266456237
+        },
+        "selected128": {
+          "requested_bytes": 1173661373,
+          "moving_bytes": 1314694845,
+          "source_requested": 7001168,
+          "source_moving": 7001168,
+          "solve_requested": 1173660986,
+          "solve_moving": 1314694458,
+          "prefix_requested": 1173661373,
+          "prefix_moving": 1314694845
+        }
+      },
+      "independent_delta": -33203,
+      "expected_fixed": 63667882,
+      "args_bytes": 312,
+      "reference_args_bytes": 345
+    },
+    "249_RF-LARGE-CHAIN-n10000-AX_w1a": {
+      "reference_Hfixed": 63700464,
+      "totals": {
+        "all": {
+          "requested_bytes": 3125422144,
+          "moving_bytes": 3266455616,
+          "source_requested": 7000934,
+          "source_moving": 7000934,
+          "solve_requested": 3125422144,
+          "solve_moving": 3266455616,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 1173660752,
+          "moving_bytes": 1314694224,
+          "source_requested": 7000934,
+          "source_moving": 7000934,
+          "solve_requested": 1173660752,
+          "solve_moving": 1314694224,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "independent_delta": -33126,
+      "expected_fixed": 63667338,
+      "args_bytes": 155,
+      "reference_args_bytes": 111
+    },
+    "252_RF-LARGE-CHAIN-n10000-ROT_w1a": {
+      "reference_Hfixed": 63701088,
+      "totals": {
+        "all": {
+          "requested_bytes": 3125422768,
+          "moving_bytes": 3266456240,
+          "source_requested": 7001171,
+          "source_moving": 7001171,
+          "solve_requested": 3125422381,
+          "solve_moving": 3266455853,
+          "prefix_requested": 3125422768,
+          "prefix_moving": 3266456240
+        },
+        "selected128": {
+          "requested_bytes": 1173661376,
+          "moving_bytes": 1314694848,
+          "source_requested": 7001171,
+          "source_moving": 7001171,
+          "solve_requested": 1173660989,
+          "solve_moving": 1314694461,
+          "prefix_requested": 1173661376,
+          "prefix_moving": 1314694848
+        }
+      },
+      "independent_delta": -33203,
+      "expected_fixed": 63667885,
+      "args_bytes": 314,
+      "reference_args_bytes": 347
+    },
+    "254_RF-LARGE-CHAIN-n10000-ROT_w1a": {
+      "reference_Hfixed": 63700466,
+      "totals": {
+        "all": {
+          "requested_bytes": 3125422146,
+          "moving_bytes": 3266455618,
+          "source_requested": 7000936,
+          "source_moving": 7000936,
+          "solve_requested": 3125422146,
+          "solve_moving": 3266455618,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 1173660754,
+          "moving_bytes": 1314694226,
+          "source_requested": 7000936,
+          "source_moving": 7000936,
+          "solve_requested": 1173660754,
+          "solve_moving": 1314694226,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "independent_delta": -33126,
+      "expected_fixed": 63667340,
+      "args_bytes": 156,
+      "reference_args_bytes": 112
+    },
+    "255_RF-LARGE-TREE-n10000-AX_w1a": {
+      "reference_Hfixed": 67025226,
+      "totals": {
+        "all": {
+          "requested_bytes": 3128746906,
+          "moving_bytes": 3269780378,
+          "source_requested": 7370205,
+          "source_moving": 7370205,
+          "solve_requested": 3128746519,
+          "solve_moving": 3269779991,
+          "prefix_requested": 3128746906,
+          "prefix_moving": 3269780378
+        },
+        "selected128": {
+          "requested_bytes": 1176985514,
+          "moving_bytes": 1318018986,
+          "source_requested": 7370205,
+          "source_moving": 7370205,
+          "solve_requested": 1176985127,
+          "solve_moving": 1318018599,
+          "prefix_requested": 1176985514,
+          "prefix_moving": 1318018986
+        }
+      },
+      "independent_delta": -36311,
+      "expected_fixed": 66988915,
+      "args_bytes": 310,
+      "reference_args_bytes": 343
+    },
+    "257_RF-LARGE-TREE-n10000-AX_w1a": {
+      "reference_Hfixed": 67024606,
+      "totals": {
+        "all": {
+          "requested_bytes": 3128746286,
+          "moving_bytes": 3269779758,
+          "source_requested": 7369972,
+          "source_moving": 7369972,
+          "solve_requested": 3128746286,
+          "solve_moving": 3269779758,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 1176984894,
+          "moving_bytes": 1318018366,
+          "source_requested": 7369972,
+          "source_moving": 7369972,
+          "solve_requested": 1176984894,
+          "solve_moving": 1318018366,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "independent_delta": -36234,
+      "expected_fixed": 66988372,
+      "args_bytes": 154,
+      "reference_args_bytes": 110
+    },
+    "260_RF-LARGE-TREE-n10000-ROT_w1a": {
+      "reference_Hfixed": 73551665,
+      "totals": {
+        "all": {
+          "requested_bytes": 3135273345,
+          "moving_bytes": 3276306817,
+          "source_requested": 7978144,
+          "source_moving": 7978144,
+          "solve_requested": 3135272958,
+          "solve_moving": 3276306430,
+          "prefix_requested": 3135273345,
+          "prefix_moving": 3276306817
+        },
+        "selected128": {
+          "requested_bytes": 1183511953,
+          "moving_bytes": 1324545425,
+          "source_requested": 7978144,
+          "source_moving": 7978144,
+          "solve_requested": 1183511566,
+          "solve_moving": 1324545038,
+          "prefix_requested": 1183511953,
+          "prefix_moving": 1324545425
+        }
+      },
+      "independent_delta": -36311,
+      "expected_fixed": 73515354,
+      "args_bytes": 312,
+      "reference_args_bytes": 345
+    },
+    "262_RF-LARGE-TREE-n10000-ROT_w1a": {
+      "reference_Hfixed": 73551044,
+      "totals": {
+        "all": {
+          "requested_bytes": 3135272724,
+          "moving_bytes": 3276306196,
+          "source_requested": 7977910,
+          "source_moving": 7977910,
+          "solve_requested": 3135272724,
+          "solve_moving": 3276306196,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 1183511332,
+          "moving_bytes": 1324544804,
+          "source_requested": 7977910,
+          "source_moving": 7977910,
+          "solve_requested": 1183511332,
+          "solve_moving": 1324544804,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "independent_delta": -36234,
+      "expected_fixed": 73514810,
+      "args_bytes": 155,
+      "reference_args_bytes": 111
+    },
+    "263_RF-LARGE-CONT-n10000-AX_w1a": {
+      "reference_Hfixed": 75890191,
+      "totals": {
+        "all": {
+          "requested_bytes": 3028657631,
+          "moving_bytes": 3169691103,
+          "source_requested": 8044437,
+          "source_moving": 8044437,
+          "solve_requested": 3028657244,
+          "solve_moving": 3169690716,
+          "prefix_requested": 3028657631,
+          "prefix_moving": 3169691103
+        },
+        "selected128": {
+          "requested_bytes": 1147692207,
+          "moving_bytes": 1288725679,
+          "source_requested": 8044437,
+          "source_moving": 8044437,
+          "solve_requested": 1147691820,
+          "solve_moving": 1288725292,
+          "prefix_requested": 1147692207,
+          "prefix_moving": 1288725679
+        }
+      },
+      "independent_delta": -167319,
+      "expected_fixed": 75722872,
+      "args_bytes": 310,
+      "reference_args_bytes": 343
+    },
+    "265_RF-LARGE-CONT-n10000-AX_w1a": {
+      "reference_Hfixed": 75889571,
+      "totals": {
+        "all": {
+          "requested_bytes": 3028657011,
+          "moving_bytes": 3169690483,
+          "source_requested": 8044204,
+          "source_moving": 8044204,
+          "solve_requested": 3028657011,
+          "solve_moving": 3169690483,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 1147691587,
+          "moving_bytes": 1288725059,
+          "source_requested": 8044204,
+          "source_moving": 8044204,
+          "solve_requested": 1147691587,
+          "solve_moving": 1288725059,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "independent_delta": -167242,
+      "expected_fixed": 75722329,
+      "args_bytes": 154,
+      "reference_args_bytes": 110
+    },
+    "268_RF-LARGE-CONT-n10000-ROT_w1a": {
+      "reference_Hfixed": 80006511,
+      "totals": {
+        "all": {
+          "requested_bytes": 3032773951,
+          "moving_bytes": 3173807423,
+          "source_requested": 8474272,
+          "source_moving": 8474272,
+          "solve_requested": 3032773564,
+          "solve_moving": 3173807036,
+          "prefix_requested": 3032773951,
+          "prefix_moving": 3173807423
+        },
+        "selected128": {
+          "requested_bytes": 1151808527,
+          "moving_bytes": 1292841999,
+          "source_requested": 8474272,
+          "source_moving": 8474272,
+          "solve_requested": 1151808140,
+          "solve_moving": 1292841612,
+          "prefix_requested": 1151808527,
+          "prefix_moving": 1292841999
+        }
+      },
+      "independent_delta": -167319,
+      "expected_fixed": 79839192,
+      "args_bytes": 312,
+      "reference_args_bytes": 345
+    },
+    "270_RF-LARGE-CONT-n10000-ROT_w1a": {
+      "reference_Hfixed": 80005890,
+      "totals": {
+        "all": {
+          "requested_bytes": 3032773330,
+          "moving_bytes": 3173806802,
+          "source_requested": 8474038,
+          "source_moving": 8474038,
+          "solve_requested": 3032773330,
+          "solve_moving": 3173806802,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 1151807906,
+          "moving_bytes": 1292841378,
+          "source_requested": 8474038,
+          "source_moving": 8474038,
+          "solve_requested": 1151807906,
+          "solve_moving": 1292841378,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "independent_delta": -167242,
+      "expected_fixed": 79838648,
+      "args_bytes": 155,
+      "reference_args_bytes": 111
+    }
+  }
+}

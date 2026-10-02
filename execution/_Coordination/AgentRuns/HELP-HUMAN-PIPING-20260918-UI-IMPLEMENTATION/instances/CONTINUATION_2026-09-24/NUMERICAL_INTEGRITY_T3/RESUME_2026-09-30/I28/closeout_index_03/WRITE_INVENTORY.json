@@ -1,0 +1,49 @@
+{
+  "snapshot_utc": "2026-10-02T14:30:07.093218+00:00",
+  "not_an_accepted_evidence_seal": true,
+  "revisable_drafts_not_frozen": true,
+  "files": [
+    {
+      "path": "DRAFT_RETURN.md",
+      "bytes": 9841,
+      "sha256_at_return": "ed073a62eddd991f25bbee85bd59186e5c239c747930131a1165b1eecbcf9c05",
+      "status": "revisable draft"
+    },
+    {
+      "path": "OBLIGATIONS.md",
+      "bytes": 11832,
+      "sha256_at_return": "2709ca5dc274c1b0a262bb9dfd638ee501e7502f9b45a3ae5c807d0bbfe6bbce",
+      "status": "revisable draft"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 1826,
+      "sha256_at_return": "3f510ca3ccc217fdd2a1610854dc3781240a54ceaa3ac54b07a32d1b3caf131a",
+      "status": "bounded return/metadata"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "bytes": 5791,
+      "sha256_at_return": "e4afeb08e35591ae637c9e1e5e937c6b14cae80489c682ad06aab77fe7754395",
+      "status": "bounded return/metadata"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 35162,
+      "sha256_at_return": "5acd4d9887fa50cfe43cfdfb156d70de55b0b0ad4711ce1cd2f96d2c0beb03e3",
+      "status": "bounded return/metadata"
+    },
+    {
+      "path": "_run_records/READ_COMMANDS.json",
+      "bytes": 21142,
+      "sha256_at_return": "8720310c1a0e7edc0e10985a878380aab830a263df2f4f1c840425e5977638e8",
+      "status": "bounded return/metadata"
+    },
+    {
+      "path": "_run_records/RUN.json",
+      "bytes": 1517,
+      "sha256_at_return": "b8a391bcc63120fd7673e524add733a0a27cfe0dd37f7a427b8fd0b064ff9b60",
+      "status": "bounded return/metadata"
+    }
+  ]
+}
