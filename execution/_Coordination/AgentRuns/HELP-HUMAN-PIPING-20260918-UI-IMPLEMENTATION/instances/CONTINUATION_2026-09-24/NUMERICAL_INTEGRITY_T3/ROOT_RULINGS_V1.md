@@ -4638,3 +4638,35 @@ message starts its30-minute bound/cutoff25 and sole quiet/timed slot. Six named
 W1-T2 tier begins; the shared journal preserves its old prefix and immutable T1
 snapshot. All numeric holds, successful baseline and complete measurement checks
 remain. No T3/T4, new tooling, source change or owner comparison amendment follows.
+
+
+## T2 accepted with corrected numerical classes; T3 released (ROOT, 2026-10-02 UTC)
+
+ROOT read the full RV34 t2_measurements_04 RETURN and verified its19-payload
+seal470ccf012178bc14fa02340203632bf3e6faaca6594d880146f487536fc6d32a.
+Accept the independently verified finite T2 observations and complete pre-tier
+input qualification, with the review's actual-scope/chronology/window limits.
+No unresolved actionable finding remains. The source and ordinary artifact are
+unchanged. The T1 journal prefix and immutable T2 delta are verified preserved.
+
+The author base RETURN's sparse All12 Passed cell is incorrect; its separately
+sealed OUTCOME_CORRECTION is mandatory with that return. RV34 independently
+confirms CHAIN/TREE contribute8 Sensitive sparse processes and CONT4 Passed;
+all12 W1 processes select128 with verification256. These are process counts over
+two passes per model, not12 distinct models. Process classificationok is not a
+claim of Passed numerical status. No raw outcome or numerical criterion changed.
+
+Actual baseline inspection occurred while the tier was active, after two normal
+rows. Per-row checks were post-run, as disclosed and allowed by this T2 grant;
+no earlier or full live-gate claim follows. Cleanup and filesystem-time credit
+remain narrow as reviewed. The successful100-member observations can supply
+existing eligible calibration/ascent predicates for larger targets, including
+Sensitive sparse observations under the unchanged process-classification rule.
+That does not reclassify numerical quality or predict any future admission.
+
+Release only I26_T3_MEASUREMENTS_08.md. ROOT's separate explicit native message
+starts its45-minute grant with40-minute runtime stop/reap cutoff. Six named1000-
+member input gates precede original W1-T3, with actual100-member calibration,
+unchanged numeric holds, complete field/window checks and exact prefix evidence.
+No T4/10000-member product construction, new tooling, source change or owner
+comparison amendment is granted. All final K6c/merge gates remain outstanding.
