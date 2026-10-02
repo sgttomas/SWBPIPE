@@ -4706,3 +4706,29 @@ deferral. Then complete the K6c return, final independent exact-candidate review
 full-SHA hosted CI, exact-final-head Mac DEC-025 and GEN-8 before any PR merge.
 K6c is still unmerged and complete E_max acceptance remains open. ROOT W1 limits,
 F2a, S-I, F2b per domain, F3 and the other owner-held choices still follow.
+
+
+## Owner adopts scoped KF3 comparison; T4 readiness released (ROOT, 2026-10-02 UTC)
+
+The owner's actual instruction, after discussion and explicit reaffirmation of
+the scoped comparison, is “Then proceed accordingly and carry on from there.”
+Adopt R/OWNER_CHECKPOINTS/K6C_PUBLISHED_ROWS_ADOPTION_2026-10-02.md, which binds
+the unchanged proposal's five finite clauses and preserves the owner's words.
+This removes the comparison-policy hold. Full historical KF3 value equality
+remains unestablished; unchanged analytic criteria, available-field checks,
+new full-row custody and independent review now govern that finite obligation.
+All solver correctness, numeric caps, evidence and merge gates remain.
+
+[Correction to the preceding stopping rationale: ROOT had extended a comparison-
+acceptance boundary too broadly to independent measurement collection. Owner
+authority was required to replace that protected criterion; it did not require
+all otherwise authorized evidence work to stop. The historical halt remains
+recorded, without being presented as a mandatory rule.]
+
+The M5 host, existing guard and absence of compiler/solver work are reverified.
+Fetch/gh confirms unchanged main3a0251874d6ab38008173a22ef09d651a0f20d9e, merged
+A1 PR1070 and closed unmerged PR1066 at its preserved head. Source81c038 and
+clean records branches remain. Release only I26_T4_READINESS_09.md under its
+25-minute bound: exact-context input acquisitions, no-op and prospective numeric
+decisions. No normal solve or R1 process yet. Actual T4 execution requires the
+next bounded ROOT grant after readiness; no numeric deferral may be overridden.
