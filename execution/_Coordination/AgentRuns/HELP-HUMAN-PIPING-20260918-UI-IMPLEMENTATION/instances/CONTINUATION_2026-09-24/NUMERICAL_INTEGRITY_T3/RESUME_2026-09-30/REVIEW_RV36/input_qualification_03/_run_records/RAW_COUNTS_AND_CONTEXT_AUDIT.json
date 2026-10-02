@@ -1,0 +1,723 @@
+{
+  "raw_log_sha256": "8e84ed6bf97fe5f20e2b9b390a83f07d8f24efefa535178a82b7ff208991ab84",
+  "field_map_reference": "REVIEW_RV36/measurement_plan_02/_run_records/SCHEDULE_AND_COUNTS_AUDIT.json",
+  "field_map_sha256": "90e204be1271024ae5fab1e7d064cef62f52d19031730e2715ce41c63b1860cb",
+  "consumed": [
+    {
+      "field": "kind",
+      "expected": "counts",
+      "raw_actual": "counts",
+      "seed_value": "counts",
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "model",
+      "expected": "RF-LARGE-CHAIN-n00010-AX",
+      "raw_actual": "RF-LARGE-CHAIN-n00010-AX",
+      "seed_value": "RF-LARGE-CHAIN-n00010-AX",
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "model_canonical_fnv64",
+      "expected": "4eea722b112df206",
+      "raw_actual": "4eea722b112df206",
+      "seed_value": "4eea722b112df206",
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "nodes",
+      "expected": 11,
+      "raw_actual": 11,
+      "seed_value": 11,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "members",
+      "expected": 10,
+      "raw_actual": 10,
+      "seed_value": 10,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "dofs",
+      "expected": 66,
+      "raw_actual": 66,
+      "seed_value": 66,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "free_dofs",
+      "expected": 60,
+      "raw_actual": 60,
+      "seed_value": 60,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "restrained_dofs",
+      "expected": 6,
+      "raw_actual": 6,
+      "seed_value": 6,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "pattern_entries",
+      "expected": 1116,
+      "raw_actual": 1116,
+      "seed_value": 1116,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "lower_entries",
+      "expected": 591,
+      "raw_actual": 591,
+      "seed_value": 591,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "free_entries",
+      "expected": 1008,
+      "raw_actual": 1008,
+      "seed_value": 1008,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "free_lower_entries",
+      "expected": 534,
+      "raw_actual": 534,
+      "seed_value": 534,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "free_lower_nonzero",
+      "expected": 152,
+      "raw_actual": 152,
+      "seed_value": 152,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "rcm_profile_entries",
+      "expected": 168,
+      "raw_actual": 168,
+      "seed_value": 168,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "rcm_half_bandwidth",
+      "expected": 4,
+      "raw_actual": 4,
+      "seed_value": 4,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "identity_profile_entries",
+      "expected": 444,
+      "raw_actual": 444,
+      "seed_value": 444,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "identity_half_bandwidth",
+      "expected": 10,
+      "raw_actual": 10,
+      "seed_value": 10,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "lane_entries",
+      "expected": 242,
+      "raw_actual": 242,
+      "seed_value": 242,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "lane_off_diagonal",
+      "expected": 128,
+      "raw_actual": 128,
+      "seed_value": 128,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "contributions",
+      "expected": 1440,
+      "raw_actual": 1440,
+      "seed_value": 1440,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "dense_entries",
+      "expected": 4356,
+      "raw_actual": 4356,
+      "seed_value": 4356,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_source_ok",
+      "expected": true,
+      "raw_actual": true,
+      "seed_value": true,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_nodes",
+      "expected": 11,
+      "raw_actual": 11,
+      "seed_value": 11,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_members",
+      "expected": 10,
+      "raw_actual": 10,
+      "seed_value": 10,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_stations",
+      "expected": 10,
+      "raw_actual": 10,
+      "seed_value": 10,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_constraints",
+      "expected": 6,
+      "raw_actual": 6,
+      "seed_value": 6,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_loads",
+      "expected": 6,
+      "raw_actual": 6,
+      "seed_value": 6,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_dofs",
+      "expected": 66,
+      "raw_actual": 66,
+      "seed_value": 66,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_free_dofs",
+      "expected": 60,
+      "raw_actual": 60,
+      "seed_value": 60,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_bodies",
+      "expected": 1,
+      "raw_actual": 1,
+      "seed_value": 1,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_pattern_entries",
+      "expected": 1116,
+      "raw_actual": 1116,
+      "seed_value": 1116,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_profile_entries",
+      "expected": 534,
+      "raw_actual": 534,
+      "seed_value": 534,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_half_bandwidth",
+      "expected": 11,
+      "raw_actual": 11,
+      "seed_value": 11,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_blocks",
+      "expected": 1,
+      "raw_actual": 1,
+      "seed_value": 1,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_rows",
+      "expected": 263,
+      "raw_actual": 263,
+      "seed_value": 263,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_source_encoding_len",
+      "expected": 1512,
+      "raw_actual": 1512,
+      "seed_value": 1512,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_source_encoding_fnv64",
+      "expected": "38628f28659d26e5",
+      "raw_actual": "38628f28659d26e5",
+      "seed_value": "38628f28659d26e5",
+      "raw_matches_seed_and_map": true
+    }
+  ],
+  "invariants": [
+    {
+      "field": "family",
+      "expected": "CHAIN",
+      "raw_actual": "CHAIN",
+      "seed_value": "CHAIN",
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_source_error",
+      "expected": null,
+      "raw_actual": null,
+      "seed_value": null,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_limbs_per_entry_128",
+      "expected": 4,
+      "raw_actual": 4,
+      "seed_value": 4,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_storage_bytes_128",
+      "expected": 52800,
+      "raw_actual": 52800,
+      "seed_value": 52800,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_limbs_per_entry_256",
+      "expected": 4,
+      "raw_actual": 4,
+      "seed_value": 4,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_storage_bytes_256",
+      "expected": 52800,
+      "raw_actual": 52800,
+      "seed_value": 52800,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_limbs_per_entry_512",
+      "expected": 8,
+      "raw_actual": 8,
+      "seed_value": 8,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_storage_bytes_512",
+      "expected": 105600,
+      "raw_actual": 105600,
+      "seed_value": 105600,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_limbs_per_entry_1024",
+      "expected": 16,
+      "raw_actual": 16,
+      "seed_value": 16,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_storage_bytes_1024",
+      "expected": 211200,
+      "raw_actual": 211200,
+      "seed_value": 211200,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_wide_bytes_4",
+      "expected": 48,
+      "raw_actual": 48,
+      "seed_value": 48,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_wide_bytes_8",
+      "expected": 80,
+      "raw_actual": 80,
+      "seed_value": 80,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "w1_wide_bytes_16",
+      "expected": 144,
+      "raw_actual": 144,
+      "seed_value": 144,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "size_stiffness_contribution",
+      "expected": 24,
+      "raw_actual": 24,
+      "seed_value": 24,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "size_contribution_rounding",
+      "expected": 96,
+      "raw_actual": 96,
+      "seed_value": 96,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "size_residual_row",
+      "expected": 104,
+      "raw_actual": 104,
+      "seed_value": 104,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "size_pivot_evidence",
+      "expected": 48,
+      "raw_actual": 48,
+      "seed_value": 48,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "size_frame_element",
+      "expected": 136,
+      "raw_actual": 136,
+      "seed_value": 136,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "size_symmetric_matrix_entry",
+      "expected": 24,
+      "raw_actual": 24,
+      "seed_value": 24,
+      "raw_matches_seed_and_map": true
+    },
+    {
+      "field": "model_canonical_len",
+      "expected": 1748,
+      "raw_actual": 1748,
+      "seed_value": 1748,
+      "raw_matches_seed_and_map": true
+    }
+  ],
+  "fresh_estimates": [
+    {
+      "field": "estimate_adm_bytes_w1a",
+      "raw_value": 22744194,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_sel128_bytes",
+      "raw_value": 20739522,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_fixed_bytes",
+      "raw_value": 87587,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_decide_bytes",
+      "raw_value": 19888711,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_shared_128",
+      "raw_value": 223968,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_state_128",
+      "raw_value": 18776,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_solve_128",
+      "raw_value": 1910144,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_shared_256",
+      "raw_value": 261328,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_state_256",
+      "raw_value": 18776,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_solve_256",
+      "raw_value": 1945856,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_shared_512",
+      "raw_value": 445104,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_state_512",
+      "raw_value": 31224,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_solve_512",
+      "raw_value": 2032960,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_shared_1024",
+      "raw_value": 663408,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_state_1024",
+      "raw_value": 56120,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_solve_1024",
+      "raw_value": 2064320,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_verify_256",
+      "raw_value": 169536,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_pass_256",
+      "raw_value": 157254,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_verify_512",
+      "raw_value": 297568,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_pass_512",
+      "raw_value": 256966,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_verify_1024",
+      "raw_value": 369312,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    },
+    {
+      "field": "estimate_w1_pass_1024",
+      "raw_value": 456390,
+      "present_nonnegative_integer": true,
+      "seed_value_is_not_an_invariant": true
+    }
+  ],
+  "start_context": [
+    {
+      "field": "schema",
+      "expected": "k6-observe-v1",
+      "actual": "k6-observe-v1",
+      "matches": true
+    },
+    {
+      "field": "model",
+      "expected": "RF-LARGE-CHAIN-n00010-AX",
+      "actual": "RF-LARGE-CHAIN-n00010-AX",
+      "matches": true
+    },
+    {
+      "field": "model_from_file",
+      "expected": false,
+      "actual": false,
+      "matches": true
+    },
+    {
+      "field": "mode",
+      "expected": "w1a",
+      "actual": "w1a",
+      "matches": true
+    },
+    {
+      "field": "counts_only",
+      "expected": true,
+      "actual": true,
+      "matches": true
+    },
+    {
+      "field": "repeats",
+      "expected": 5,
+      "actual": 5,
+      "matches": true
+    },
+    {
+      "field": "entry_repeats",
+      "expected": 5,
+      "actual": 5,
+      "matches": true
+    },
+    {
+      "field": "heap_cap_bytes",
+      "expected": 8053063680,
+      "actual": 8053063680,
+      "matches": true
+    },
+    {
+      "field": "time_budget_s",
+      "expected": 540,
+      "actual": 540,
+      "matches": true
+    },
+    {
+      "field": "first_repeat_limit_s",
+      "expected": 600,
+      "actual": 600,
+      "matches": true
+    },
+    {
+      "field": "allow_over_estimate",
+      "expected": false,
+      "actual": false,
+      "matches": true
+    },
+    {
+      "field": "case_limit",
+      "expected": 18446744073709551615,
+      "actual": 18446744073709551615,
+      "matches": true
+    },
+    {
+      "field": "invocation_limit",
+      "expected": 18446744073709551615,
+      "actual": 18446744073709551615,
+      "matches": true
+    },
+    {
+      "field": "w1_prefixes",
+      "expected": true,
+      "actual": true,
+      "matches": true
+    },
+    {
+      "field": "dump_published",
+      "expected": true,
+      "actual": true,
+      "matches": true
+    }
+  ],
+  "computed_metadata": [
+    {
+      "field": "counts_source",
+      "expected": "computed",
+      "actual": "computed",
+      "matches": true
+    },
+    {
+      "field": "mode",
+      "expected": "w1a",
+      "actual": "w1a",
+      "matches": true
+    },
+    {
+      "field": "w1_source_ok",
+      "expected": true,
+      "actual": true,
+      "matches": true
+    },
+    {
+      "field": "w1_source_error",
+      "expected": null,
+      "actual": null,
+      "matches": true
+    }
+  ],
+  "fresh_maximum_bytes": 22744194,
+  "maximum_positive": true,
+  "raw_summary_zero_repeats_no_stop": true,
+  "baseline_kinds": [
+    "start",
+    "summary"
+  ],
+  "baseline_noop_zero_repeats": true,
+  "distinct_positive_product_pids": true,
+  "output_kinds_exclude_normal_stages_or_outcomes": true,
+  "launches": [
+    {
+      "label": "baseline",
+      "argv_matches_reviewed_plan": true,
+      "token_lengths_match": true,
+      "wrapper_argv_matches": true,
+      "normalized_record_argv_matches": true,
+      "embedded_record_matches_raw_file": true,
+      "success": true,
+      "caps_match": true,
+      "timeout_matches": true,
+      "stderr_empty": true,
+      "stdout_hash_matches": true,
+      "watchdog_polls": 5,
+      "binary_pid_found": true
+    },
+    {
+      "label": "counts_only",
+      "argv_matches_reviewed_plan": true,
+      "token_lengths_match": true,
+      "wrapper_argv_matches": true,
+      "normalized_record_argv_matches": true,
+      "embedded_record_matches_raw_file": true,
+      "success": true,
+      "caps_match": true,
+      "timeout_matches": true,
+      "stderr_empty": true,
+      "stdout_hash_matches": true,
+      "watchdog_polls": 0,
+      "binary_pid_found": false
+    }
+  ],
+  "count_only_is_normal_argv_plus_flag": true,
+  "cwd_matches": true,
+  "row_descriptor_matches_prior": true,
+  "retained_strings": {
+    "matches_reviewed": true,
+    "byte_lengths": [
+      24,
+      0,
+      131,
+      0,
+      0,
+      157
+    ],
+    "sum_bytes": 312
+  },
+  "author_expected_map_equals_canonical": {
+    "complete_seed_consumed_fields": true,
+    "also_compare_invariant_report_fields": true,
+    "fresh_complete_context_estimate_required_fields": true,
+    "fresh_computed_row_expected_metadata": true
+  }
+}

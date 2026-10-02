@@ -1,0 +1,28 @@
+{
+  "selected_source_read_matches_archive": [
+    {
+      "relative": "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+      "matches": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+      "matches": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs",
+      "matches": true
+    }
+  ],
+  "prior_review_seals": [
+    {
+      "relative": "REVIEW_RV36/ordinary_artifacts_01/FINAL_SHA256SUMS",
+      "matches": true
+    },
+    {
+      "relative": "REVIEW_RV36/measurement_plan_02/SHA256SUMS",
+      "matches": true
+    }
+  ],
+  "all22_estimates_nonnegative_integer": true,
+  "all_author_expectation_maps_match_prior_canonical": true
+}

@@ -1,0 +1,56 @@
+{
+  "recorded_product_call_count": 2,
+  "declared_product_call_count": 2,
+  "two_named_product_calls": true,
+  "normal_or_admission_calls_recorded": 0,
+  "runtime_complete": true,
+  "runtime_start_utc": "2026-10-02T05:04:18.853099+00:00",
+  "runtime_end_utc": "2026-10-02T05:04:19.569436+00:00",
+  "chronology": [
+    {
+      "label": "baseline",
+      "guard_names_existing_M5": true,
+      "guard_before_quiet_before_launch": true,
+      "quiet_maxwait_within_grant": true,
+      "quiet_memory_and_load_pass": true,
+      "record_corresponds_to_quiet_observation": true,
+      "time_file_rss_footprint_match_record": true,
+      "no_reported_timeout_kill_or_survivor": true,
+      "baseline_completed_before_counts": true
+    },
+    {
+      "label": "counts_only",
+      "guard_names_existing_M5": true,
+      "guard_before_quiet_before_launch": true,
+      "quiet_maxwait_within_grant": true,
+      "quiet_memory_and_load_pass": true,
+      "record_corresponds_to_quiet_observation": true,
+      "time_file_rss_footprint_match_record": true,
+      "no_reported_timeout_kill_or_survivor": true,
+      "baseline_completed_before_counts": true
+    }
+  ],
+  "current_measurement_files": [
+    "inputs/counts.jsonl",
+    "qualification/139_counts_binding_qualification.jsonl",
+    "qualification/139_counts_binding_qualification.record.json",
+    "qualification/139_counts_binding_qualification.stderr.txt",
+    "qualification/139_counts_binding_qualification.time.txt",
+    "qualification/baseline_qualification_01.jsonl",
+    "qualification/baseline_qualification_01.record.json",
+    "qualification/baseline_qualification_01.stderr.txt",
+    "qualification/baseline_qualification_01.time.txt"
+  ],
+  "normal_records_directory_empty": true,
+  "publication_dump_absent": true,
+  "exact_current_measurement_file_set": true,
+  "acquisition_before_author_cutoff": true,
+  "setup_RUN_zero_is_prelaunch_snapshot": true,
+  "quiet_log_empty_is_consistent_with_immediate_return": true,
+  "short_prepass_watchdog_limit": {
+    "binary_pid_found": false,
+    "watchdog_polls": 0,
+    "meaning": "Process finished before a child RSS sample; configured wrapper/watchdog retained, but this is not evidence of successful watchdog intervention or a scale measurement."
+  },
+  "scope_interpretation": "Two product executable invocations; Python supervision, time wrappers and guard/quiet helper processes are not falsely counted as nonexistent. Counts-only performs the authorized builtin model/frame/source/count construction within its own process, returns before normal admission/solve. No separate model builder or other model is evidenced."
+}
