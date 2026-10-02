@@ -1,0 +1,11 @@
+{
+  "historical_source_git_show_matches_saved_sha256": "bd6242ff6a7ab8b7528bd483bc60e6a5ccb51b5476b08bcceaae45f725f0a40b",
+  "function_bodies_byte_identical": {
+    "wide_bytes": true,
+    "model_bytes": true,
+    "estimate": true
+  },
+  "constant_declarations_byte_identical": 32,
+  "type_result_adapters": "current Counts/Sizes/Estimate imports and both result projections; caller phase/addend arrays unchanged",
+  "postimage_sha256": "a30cb3c4835c3cce5778b46909a19e2cff41dbb253c453bf8f284e6249fd3c0e"
+}

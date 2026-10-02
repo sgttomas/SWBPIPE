@@ -1,0 +1,26 @@
+{
+  "label": "M04-NONE-pre",
+  "variant": "NONE",
+  "command": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/binaries/NONE/k6c_envelope",
+    "all_193_independently_reviewed_reference_values_and_source_drop",
+    "--exact",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/NONE",
+  "environment": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-mutants-02-target"
+  },
+  "start_utc": "2026-10-02T03:41:29.624419+00:00",
+  "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+  "binary_sha256": "283ddc57d8b6e6ab619a3cecfd10381a906b6d701ff036f9b9d474839413c318",
+  "exit_code": 0,
+  "end_utc": "2026-10-02T03:41:32.253786+00:00"
+}

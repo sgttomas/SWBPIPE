@@ -1,0 +1,283 @@
+{
+  "rows": [
+    {
+      "id": "VR-M01-OLD-PORT",
+      "case": "RF-CHAIN-T-n03-r1e-04",
+      "compiled": true,
+      "normal_before_exit": 0,
+      "mutant_exit": 101,
+      "normal_after_exit": 0,
+      "intended_assertion": "requested five-field result",
+      "actual": [
+        10440,
+        26707,
+        19853952,
+        20743723,
+        20121083
+      ],
+      "expected": [
+        17806,
+        59937,
+        18770496,
+        19774883,
+        19081795
+      ],
+      "differences": [
+        {
+          "index": 0,
+          "name": "model",
+          "actual": 10440,
+          "expected": 17806,
+          "expected_minus_actual": 7366
+        },
+        {
+          "index": 1,
+          "name": "fixed",
+          "actual": 26707,
+          "expected": 59937,
+          "expected_minus_actual": 33230
+        },
+        {
+          "index": 2,
+          "name": "decide",
+          "actual": 19853952,
+          "expected": 18770496,
+          "expected_minus_actual": -1083456
+        },
+        {
+          "index": 3,
+          "name": "max",
+          "actual": 20743723,
+          "expected": 19774883,
+          "expected_minus_actual": -968840
+        },
+        {
+          "index": 4,
+          "name": "sel128",
+          "actual": 20121083,
+          "expected": 19081795,
+          "expected_minus_actual": -1039288
+        }
+      ],
+      "test_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+      "test_sha256": "ab1975d4d056b012e8cef515521bc12c5050eda278c04ed90b300c8e06b4c676",
+      "test_function": "all_193_independently_reviewed_reference_values_and_source_drop",
+      "assertion_line": 51,
+      "source_sha256": "a30cb3c4835c3cce5778b46909a19e2cff41dbb253c453bf8f284e6249fd3c0e",
+      "binary_sha256": "cef8f8e8705a13c62f5c85cb3ae39072f41e4f16e2e83894320cadc8383fabd7",
+      "source_restored_to_normal": true,
+      "archive_files_restored": 632,
+      "moving_mutant_assertion": "not reached after first requested assertion failed",
+      "remainder_of_mutant_roster": "not reached after first case assertion failed"
+    },
+    {
+      "id": "VR-M03-RECORD-COPY",
+      "case": "RF-CHAIN-T-n03-r1e-04",
+      "compiled": true,
+      "normal_before_exit": 0,
+      "mutant_exit": 101,
+      "normal_after_exit": 0,
+      "intended_assertion": "requested caller phases",
+      "actual": [
+        969499,
+        16651,
+        11842,
+        11991,
+        16960,
+        19356,
+        15290,
+        134247,
+        196977,
+        199209,
+        232514,
+        194446,
+        83451,
+        286272,
+        58880
+      ],
+      "expected": [
+        969499,
+        16651,
+        11842,
+        11991,
+        16960,
+        19356,
+        15290,
+        134247,
+        196977,
+        199209,
+        232514,
+        241417,
+        83451,
+        286272,
+        58880
+      ],
+      "differences": [
+        {
+          "index": 11,
+          "name": "record3_output",
+          "actual": 194446,
+          "expected": 241417,
+          "expected_minus_actual": 46971
+        }
+      ],
+      "test_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+      "test_sha256": "ab1975d4d056b012e8cef515521bc12c5050eda278c04ed90b300c8e06b4c676",
+      "test_function": "all_193_independently_reviewed_reference_values_and_source_drop",
+      "assertion_line": 47,
+      "source_sha256": "400a8726474c45a2cd5a53372e1b32fdd7c1a1d6e03fe8cccb64f6ab769dc018",
+      "binary_sha256": "c1a0b4395e14a303b6bc2f1ccc3d87f742a529fc50f6f0805b56f7bf27e398e0",
+      "source_restored_to_normal": true,
+      "archive_files_restored": 632,
+      "moving_mutant_assertion": "not reached after first requested assertion failed",
+      "remainder_of_mutant_roster": "not reached after first case assertion failed"
+    },
+    {
+      "id": "VR-M04-LATE-RECORD",
+      "case": "RF-CHAIN-T-n03-r1e-04",
+      "compiled": true,
+      "normal_before_exit": 0,
+      "mutant_exit": 101,
+      "normal_after_exit": 0,
+      "intended_assertion": "requested caller phases",
+      "actual": [
+        969499,
+        16651,
+        11842,
+        11991,
+        16960,
+        19356,
+        15290,
+        134247,
+        196977,
+        199209,
+        232514,
+        241417,
+        36480,
+        239301,
+        11909
+      ],
+      "expected": [
+        969499,
+        16651,
+        11842,
+        11991,
+        16960,
+        19356,
+        15290,
+        134247,
+        196977,
+        199209,
+        232514,
+        241417,
+        83451,
+        286272,
+        58880
+      ],
+      "differences": [
+        {
+          "index": 12,
+          "name": "late_RCM",
+          "actual": 36480,
+          "expected": 83451,
+          "expected_minus_actual": 46971
+        },
+        {
+          "index": 13,
+          "name": "late_sparse_parity",
+          "actual": 239301,
+          "expected": 286272,
+          "expected_minus_actual": 46971
+        },
+        {
+          "index": 14,
+          "name": "summary_sample",
+          "actual": 11909,
+          "expected": 58880,
+          "expected_minus_actual": 46971
+        }
+      ],
+      "test_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+      "test_sha256": "ab1975d4d056b012e8cef515521bc12c5050eda278c04ed90b300c8e06b4c676",
+      "test_function": "all_193_independently_reviewed_reference_values_and_source_drop",
+      "assertion_line": 47,
+      "source_sha256": "7a74e3b3816bfb0908204ede82a872afca574c60a11378b72bb7474eb6043e02",
+      "binary_sha256": "653c518d12c7d2e8ed0165cc093a53eb70ff2ef1db0b13d1ca33f8de633c4fae",
+      "source_restored_to_normal": true,
+      "archive_files_restored": 632,
+      "moving_mutant_assertion": "not reached after first requested assertion failed",
+      "remainder_of_mutant_roster": "not reached after first case assertion failed"
+    },
+    {
+      "id": "VR-M06-SUMMARY-PREFIX",
+      "case": "RF-CHAIN-T-n03-r1e-04",
+      "compiled": true,
+      "normal_before_exit": 0,
+      "mutant_exit": 101,
+      "normal_after_exit": 0,
+      "intended_assertion": "requested caller phases",
+      "actual": [
+        969499,
+        16651,
+        11842,
+        11991,
+        16960,
+        19356,
+        15290,
+        134247,
+        196977,
+        199209,
+        232514,
+        241417,
+        83451,
+        286272,
+        58827
+      ],
+      "expected": [
+        969499,
+        16651,
+        11842,
+        11991,
+        16960,
+        19356,
+        15290,
+        134247,
+        196977,
+        199209,
+        232514,
+        241417,
+        83451,
+        286272,
+        58880
+      ],
+      "differences": [
+        {
+          "index": 14,
+          "name": "summary_sample",
+          "actual": 58827,
+          "expected": 58880,
+          "expected_minus_actual": 53
+        }
+      ],
+      "test_file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+      "test_sha256": "ab1975d4d056b012e8cef515521bc12c5050eda278c04ed90b300c8e06b4c676",
+      "test_function": "all_193_independently_reviewed_reference_values_and_source_drop",
+      "assertion_line": 47,
+      "source_sha256": "195c57d0bf5cf0a8df21ca030fb4e91e1151a948b94ab4bab5c2ea8375d3225c",
+      "binary_sha256": "c537178ba990cb72c351414b3e095dc258d9d31d2b02186580ef39323ab2ba0c",
+      "source_restored_to_normal": true,
+      "archive_files_restored": 632,
+      "moving_mutant_assertion": "not reached after first requested assertion failed",
+      "remainder_of_mutant_roster": "not reached after first case assertion failed"
+    }
+  ],
+  "unexecuted_assigned_variants": [],
+  "not_repeated": [
+    "VR-M02-SPARSE-16F",
+    "VR-M05-REFUSED-FORMAT-ARG"
+  ],
+  "no_compile_failures": true,
+  "normal_controls": 8,
+  "all_controls_passed": true,
+  "runtime_ended_utc": "2026-10-02T03:42:35.678990+00:00"
+}

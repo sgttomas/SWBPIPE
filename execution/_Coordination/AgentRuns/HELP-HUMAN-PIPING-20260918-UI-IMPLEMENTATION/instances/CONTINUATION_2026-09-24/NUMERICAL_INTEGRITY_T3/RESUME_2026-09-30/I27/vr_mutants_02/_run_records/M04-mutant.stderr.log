@@ -1,0 +1,6 @@
+
+thread 'all_193_independently_reviewed_reference_values_and_source_drop' (28675810) panicked at tests/k6c_envelope.rs:47:9:
+assertion `left == right` failed: RF-CHAIN-T-n03-r1e-04 requested caller phases
+  left: [969499, 16651, 11842, 11991, 16960, 19356, 15290, 134247, 196977, 199209, 232514, 241417, 36480, 239301, 11909]
+ right: [969499, 16651, 11842, 11991, 16960, 19356, 15290, 134247, 196977, 199209, 232514, 241417, 83451, 286272, 58880]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

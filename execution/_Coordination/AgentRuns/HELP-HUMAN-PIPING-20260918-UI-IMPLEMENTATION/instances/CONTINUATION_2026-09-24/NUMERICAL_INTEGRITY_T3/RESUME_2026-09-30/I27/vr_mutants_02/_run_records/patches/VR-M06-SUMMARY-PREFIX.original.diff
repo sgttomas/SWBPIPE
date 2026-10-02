@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs
+@@ -1442,7 +1442,7 @@
+         late + 66144 + output(3, 13, 8 + id + 33072, true),
+         late + 200 + output(3, 14, 8 + id + 100, true),
+     ]);
+-    let summary = late + 632 + if e == 1 { 54 } else { 32 } + id;
++    let summary = late + 632;
+     let refused = cut
+         + parts
+         + ctrldiag

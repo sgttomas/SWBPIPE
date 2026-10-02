@@ -1,0 +1,26 @@
+{
+  "label": "M06-mutant",
+  "variant": "VR-M06-SUMMARY-PREFIX",
+  "command": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/binaries/VR-M06-SUMMARY-PREFIX/k6c_envelope",
+    "all_193_independently_reviewed_reference_values_and_source_drop",
+    "--exact",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/VR-M06-SUMMARY-PREFIX",
+  "environment": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-mutants-02-target"
+  },
+  "start_utc": "2026-10-02T03:42:18.856695+00:00",
+  "source_sha256": "195c57d0bf5cf0a8df21ca030fb4e91e1151a948b94ab4bab5c2ea8375d3225c",
+  "binary_sha256": "c537178ba990cb72c351414b3e095dc258d9d31d2b02186580ef39323ab2ba0c",
+  "exit_code": 101,
+  "end_utc": "2026-10-02T03:42:19.331783+00:00"
+}

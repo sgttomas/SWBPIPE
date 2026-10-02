@@ -1,0 +1,38 @@
+[
+  {
+    "id": "VR-M01-OLD-PORT",
+    "original_patch_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I24/vr_mutants_prep_03/_run_records/patches/VR-M01-OLD-PORT.diff",
+    "original_patch_sha256": "f43abca69efded75c345ec72c645725da0629362ce67ea8aca730db119781427",
+    "new_patch_sha256": "b986e03145166fe0410cc0ac3ac1b6832246382e9800541939610f23a603d5e6",
+    "postimage_sha256": "a30cb3c4835c3cce5778b46909a19e2cff41dbb253c453bf8f284e6249fd3c0e",
+    "source_directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/VR-M01-OLD-PORT",
+    "semantic_added_removed_lines_identical": true
+  },
+  {
+    "id": "VR-M03-RECORD-COPY",
+    "original_patch_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I24/vr_mutants_prep_03/_run_records/patches/VR-M03-RECORD-COPY.diff",
+    "original_patch_sha256": "a0853192f235a440387173e43c0ddd15dc2bf7f78b1149ecce9df4f69e863da2",
+    "new_patch_sha256": "0fc52098e2b40467aa15d7d0a6f75528fcd3931aa340883c715e2507ee166aee",
+    "postimage_sha256": "400a8726474c45a2cd5a53372e1b32fdd7c1a1d6e03fe8cccb64f6ab769dc018",
+    "source_directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/VR-M03-RECORD-COPY",
+    "semantic_added_removed_lines_identical": true
+  },
+  {
+    "id": "VR-M04-LATE-RECORD",
+    "original_patch_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I24/vr_mutants_prep_03/_run_records/patches/VR-M04-LATE-RECORD.diff",
+    "original_patch_sha256": "fa01cf836d4f3279d87ea1a14247d7049d9c1889a4e83a4de4a2f24a697b6ff1",
+    "new_patch_sha256": "712bba94fa165e120ca53f975a3bf2217aec2a0bf6ac015bd882c5719a06cee7",
+    "postimage_sha256": "7a74e3b3816bfb0908204ede82a872afca574c60a11378b72bb7474eb6043e02",
+    "source_directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/VR-M04-LATE-RECORD",
+    "semantic_added_removed_lines_identical": true
+  },
+  {
+    "id": "VR-M06-SUMMARY-PREFIX",
+    "original_patch_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I24/vr_mutants_prep_03/_run_records/patches/VR-M06-SUMMARY-PREFIX.diff",
+    "original_patch_sha256": "c237c71d8858d6c9039d04e5ffd9f2e91be4a3d2734d2cb3da9dd581cf773491",
+    "new_patch_sha256": "d50ab6fb999f2324b607261474f55116e863650ea807934f609d6c27d1f59de3",
+    "postimage_sha256": "195c57d0bf5cf0a8df21ca030fb4e91e1151a948b94ab4bab5c2ea8375d3225c",
+    "source_directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/VR-M06-SUMMARY-PREFIX",
+    "semantic_added_removed_lines_identical": true
+  }
+]
