@@ -995,5 +995,90 @@ class W1ContextBinding(unittest.TestCase):
                 mock.patch.object(r, 'bind_w1_launch_counts', side_effect=AssertionError('plan rebound')):
             self.assertTrue(r.plan(None))
 
+
+class ModelEligibilityBeforeLaunch(unittest.TestCase):
+    def test_legacy_admission_priority_and_estimate_diagnostics_remain(self):
+        run = next(x for x in r.schedule() if x['tier'] == 'W1-T2'
+                   and x['model'] == 'RF-LARGE-CHAIN-n00100-AX' and x['mode'] == 'w1a')
+        self.assertEqual(r.admission(run, {}, [], None)['reason'], 'deferred:no_counts_line')
+        self.assertEqual(r.admission(run, {run['model']: {}}, [], None)['reason'],
+                         'deferred:no_estimate_for_mode_in_counts_line')
+        result = r.admission(run, {run['model']: {'estimate_adm_bytes_w1a': 321}}, [], None)
+        self.assertIn('ascent_previous_size_not_recorded', result['reason'])
+        self.assertEqual(result['estimate_adm_bytes'], 321)
+        never = next(x for x in r.schedule() if r.refusal_by_name(x['model'], x['mode'], x['members']))
+        self.assertEqual(r.admission(never, {}, [], None)['decision'], 'never')
+
+    def test_holds_precede_every_model_prepass_and_normal_launch(self):
+        chain100 = next(x for x in r.schedule() if x['tier'] == 'W1-T2'
+                        and x['model'] == 'RF-LARGE-CHAIN-n00100-AX' and x['mode'] == 'w1a')
+        conditional = next(x for x in r.schedule() if x['tier'] == 'W1-T4' and x['mode'] == 'w1a')
+        never = next(x for x in r.schedule() if r.refusal_by_name(x['model'], x['mode'], x['members']))
+        cases = [(chain100, 'deferred:ascent_previous_size_not_recorded'),
+                 (conditional, conditional['conditional_reason']),
+                 (never, r.refusal_by_name(never['model'], never['mode'], never['members']))]
+        for run, reason in cases:
+            with self.subTest(reason=reason), tempfile.TemporaryDirectory() as folder:
+                with open(os.path.join(folder, 'metadata.json'), 'w') as f:
+                    f.write('{}')
+                with mock.patch.object(r, 'schedule', return_value=[run]), \
+                        mock.patch.object(r, 'read_counts', return_value={}), \
+                        mock.patch.object(r, 'baseline_run', return_value={'rss': {}}) as baseline, \
+                        mock.patch.object(r, 'launch') as launch, \
+                        mock.patch.object(r, 'bind_w1_launch_counts', side_effect=AssertionError('held model bound counts')) as bind, \
+                        mock.patch.object(r, 'admission', side_effect=AssertionError('held model reached numeric admission')) as numeric, \
+                        mock.patch.object(r, 'wait_for_quiet_host') as quiet:
+                    r.run_tier(run['tier'], 'binary', None, folder, 'c', 't', log=lambda *a: None)
+                baseline.assert_called_once()  # A tier baseline is still permitted.
+                launch.assert_not_called()
+                bind.assert_not_called()
+                numeric.assert_not_called()
+                quiet.assert_not_called()
+                record = r.run_entries(r.read_records(folder))[0]
+                self.assertEqual(record['classification'], 'not_run')
+                self.assertTrue(record['admission']['reason'].startswith(reason))
+                self.assertIsNone(record['admission']['estimate_adm_bytes'])
+
+    def test_recorded_ascent_is_not_success_only(self):
+        run = next(x for x in r.schedule() if x['tier'] == 'W1-T2'
+                   and x['model'] == 'RF-LARGE-CHAIN-n00100-AX' and x['mode'] == 'w1a')
+        previous = dict(run, model=r.previous_size(run['model']), run_id='previous')
+        for classification in (None, 'not_run', 'ok', 'error', 'timed_out', 'heap_cap_abort'):
+            held = r.eligibility(run, [dict(previous, classification=classification)])
+            self.assertEqual(held is not None, classification in (None, 'not_run'), classification)
+        self.assertIsNone(r.eligibility(run, [], require_ascent=False))
+
+    def test_prior_error_record_permits_rebinding_before_numeric_admission(self):
+        run = next(x for x in r.schedule() if x['tier'] == 'W1-T2'
+                   and x['model'] == 'RF-LARGE-CHAIN-n00100-AX' and x['mode'] == 'w1a')
+        events = []
+        with tempfile.TemporaryDirectory() as folder:
+            with open(os.path.join(folder, 'metadata.json'), 'w') as f:
+                f.write('{}')
+            r.append_record(folder, dict(run, run_id='previous', model=r.previous_size(run['model']),
+                                         members=10, classification='error'))
+            def fake_launch(argv, *, record_dir, run_id, **kw):
+                events.append(('prepass' if '--counts-only' in argv else 'normal', argv))
+                with open(os.path.join(record_dir, run_id + '.jsonl'), 'w') as f:
+                    f.write(json.dumps({'kind': 'counts', 'model': run['model'],
+                                        'estimate_adm_bytes_w1a': 321}) + '\n')
+                return {'classification': 'ok', 'wall_s': 0.0, 'exit_code': 0, 'rss': {}}
+            original = r.admission
+            def numeric(run, counts, *a, **kw):
+                events.append(('numeric', counts[run['model']]['estimate_adm_bytes_w1a']))
+                return original(run, counts, *a, **kw)
+            with mock.patch.object(r, 'schedule', return_value=[run]), \
+                    mock.patch.object(r, 'read_counts', return_value={run['model']: {'estimate_adm_bytes_w1a': 99999999999}}), \
+                    mock.patch.object(r, 'baseline_run', return_value={'rss': {}}), \
+                    mock.patch.object(r, 'wait_for_quiet_host', return_value={}), \
+                    mock.patch.object(r, 'launch', side_effect=fake_launch), \
+                    mock.patch.object(r, 'admission', side_effect=numeric):
+                r.run_tier(run['tier'], 'binary', None, folder, 'c', 't', log=lambda *a: None)
+            self.assertEqual([x[0] for x in events], ['prepass', 'numeric', 'normal'])
+            self.assertEqual(events[1][1], 321)
+            self.assertEqual(events[0][1], events[2][1] + ['--counts-only'])
+            self.assertEqual(events[0][1][events[0][1].index('--heap-cap-bytes') + 1], str(run['heap_cap_bytes']))
+            self.assertEqual(r.run_entries(r.read_records(folder))[-1]['estimate_adm_bytes'], 321)
+
 if __name__ == '__main__':
     unittest.main()

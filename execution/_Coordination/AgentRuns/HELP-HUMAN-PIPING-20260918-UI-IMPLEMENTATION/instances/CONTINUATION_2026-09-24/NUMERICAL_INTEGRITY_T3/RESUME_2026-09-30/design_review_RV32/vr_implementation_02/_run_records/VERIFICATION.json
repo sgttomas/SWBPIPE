@@ -1,0 +1,76 @@
+{
+  "candidate": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+  "completed_utc": "2026-10-02T02:22:41.431878+00:00",
+  "blocking_findings": [
+    "RV32-V1"
+  ],
+  "additional_actionable_findings": [],
+  "return_suitable_for_unconditional_fan_in": false,
+  "later_runner_repair_reviewed": false,
+  "vr_passed": 58,
+  "runner_passed": 12,
+  "cli_checks_passed": 4,
+  "reference_numeric_cells_matched": 9650,
+  "cli_numeric_cells_matched": 600,
+  "archive_postimages": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+      "sha256": "1b18f97f0cdc89df61323670ea7fbd8039c286f62be12241e385e84d846177dd",
+      "still_matches_pinned_908": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock",
+      "sha256": "c147175269613b579b3678dbefc6d06f0f950bb360f7acce62a80a2f253160c0",
+      "still_matches_pinned_908": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs",
+      "sha256": "8997aaafb92a02c22324915a07836ec7ee50a51e71a6e64a46e884d646dcc293",
+      "still_matches_pinned_908": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lib.rs",
+      "sha256": "718362e0ab628b9fa16a0f8a9a687e72812f43b164f2134cf27c04670b4d0d4e",
+      "still_matches_pinned_908": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
+      "sha256": "38d06350d289a64650b9f88e72889efa2d70a5d0e44ff3fa8626489a37bdd7c2",
+      "still_matches_pinned_908": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "sha256": "7bdb36bf6fd260e1193648f9b404c9c1212e98aaf2e52c02fe556129ca6b50d3",
+      "still_matches_pinned_908": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+      "sha256": "60fce121b6d7101297b3b3581a77dfa8ff08b88bcba45e47fdaf89b5bac48710",
+      "still_matches_pinned_908": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs",
+      "sha256": "304887d65bf5d1395a7be9c45b92f893d65ee8c37448ba6ed5c3beab8ea4fe2e",
+      "still_matches_pinned_908": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+      "sha256": "ab1975d4d056b012e8cef515521bc12c5050eda278c04ed90b300c8e06b4c676",
+      "still_matches_pinned_908": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py",
+      "sha256": "a4ed5c143a74caa99d9165109d9058b394fd4276d81936bae351231d38ffd6fb",
+      "still_matches_pinned_908": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py",
+      "sha256": "32933dd2cb9fc605d21b169dd551d1e1fe088d216ee72f0c95714ab629d919cf",
+      "still_matches_pinned_908": true
+    }
+  ],
+  "current_executable_global_bound_accepted": false,
+  "admission_or_measurement_accepted": false,
+  "no_runtime_performance_or_10000_process": true,
+  "no_running_process_or_followon": true
+}

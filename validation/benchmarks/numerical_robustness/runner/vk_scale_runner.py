@@ -178,6 +178,16 @@ def run_counts(binary, models_dir, out_path, tiers=None, log=print):
 # --------------------------------------------------------------- admission
 
 
+def conditional_reason(run, approve_10000):
+    return ('deferred:10000_members_needs_root_approval'
+            if run['conditional'] and not approve_10000 else None)
+
+
+def eligibility(run, records, approve_10000):
+    return k6.eligibility(run, records, require_ascent=run['members'] > 100,
+                          conditional_reason=conditional_reason(run, approve_10000))
+
+
 def admission(run, counts, records, baseline_rss, baseline_footprint, approve_10000):
     line = counts.get(run['model'])
     if line is None or line.get('estimate_max_bytes') is None:
@@ -186,8 +196,9 @@ def admission(run, counts, records, baseline_rss, baseline_footprint, approve_10
         return {'decision': 'deferred', 'reason': "deferred:the binary's backstop would refuse "
                 '(estimate %d B > half the heap cap %d B)' % (line['estimate_max_bytes'],
                                                                run['heap_cap_bytes'] // 2)}
-    if run['conditional'] and not approve_10000:
-        return {'decision': 'deferred', 'reason': 'deferred:10000_members_needs_root_approval'}
+    reason = conditional_reason(run, approve_10000)
+    if reason:
+        return {'decision': 'deferred', 'reason': reason}
     return k6.admission(run, counts, records, baseline_rss, require_ascent=run['members'] > 100,
                         baseline_footprint_bytes=baseline_footprint)
 
@@ -314,12 +325,17 @@ def run_tier(tier, binary, models_dir, counts_path, record_dir, source_commit, s
                for x in k6.run_entries(records)):
             log('%s: already recorded; not repeated' % run['run_id'])
             continue
-        counts[run['model']] = bind_scale_launch_counts(binary, run, models_dir, record_dir)
-        decision = admission(run, counts, records, baseline_rss, baseline_footprint, approve_10000)
+        hold = eligibility(run, records, approve_10000)
+        if hold:
+            decision = hold
+            estimate = None
+        else:
+            counts[run['model']] = bind_scale_launch_counts(binary, run, models_dir, record_dir)
+            decision = admission(run, counts, records, baseline_rss, baseline_footprint, approve_10000)
+            estimate = counts[run['model']]['estimate_max_bytes']
         entry = dict(run, admission=decision, baseline_rss_bytes=baseline_rss,
                      baseline_footprint_bytes=baseline_footprint, source_commit=source_commit,
-                     source_tree=source_tree, estimate_adm_bytes=counts.get(run['model'], {}).get(
-                         'estimate_max_bytes'))
+                     source_tree=source_tree, estimate_adm_bytes=estimate)
         if decision['decision'] != 'admitted':
             entry.update(classification='not_run')
             k6.append_record(record_dir, entry)

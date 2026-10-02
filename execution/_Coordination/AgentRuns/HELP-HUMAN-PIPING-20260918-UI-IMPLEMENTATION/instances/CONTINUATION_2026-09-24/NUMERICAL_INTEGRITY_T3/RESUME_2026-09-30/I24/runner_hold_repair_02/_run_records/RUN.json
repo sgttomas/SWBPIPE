@@ -1,0 +1,26 @@
+{
+  "mechanism": "delegated-harness-native followup_task",
+  "parent": "/root",
+  "child": "/root/i24_vr_integration",
+  "role": "TASK Type2",
+  "candidate_base": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+  "start_utc": "2026-10-02T02:11:48Z",
+  "deadline_utc": "2026-10-02T02:31:48Z",
+  "instructions": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    }
+  ],
+  "brief_sha256": "6ccf20874410b9f25b66b60eea18cfaef4b0f8d884ebff0240b5cf033fb55309",
+  "delegation": false,
+  "git_index_operations": false
+}

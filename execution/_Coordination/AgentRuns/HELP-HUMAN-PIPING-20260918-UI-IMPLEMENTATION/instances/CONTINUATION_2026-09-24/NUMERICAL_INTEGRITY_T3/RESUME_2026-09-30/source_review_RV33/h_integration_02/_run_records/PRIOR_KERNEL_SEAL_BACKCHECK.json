@@ -1,0 +1,107 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV33/kernel_01",
+  "seal_sha256": "f50f48bfdaa4874a556b7660285ed0328bba57ee0f7bf099892ad2bdf4e7d919",
+  "payloads": [
+    {
+      "path": "RETURN.md",
+      "sha256": "fef97e764d36b7664c759e2438015225df4515a24c183143e30182e1ddbea1dd"
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "86a6cfa4dc89756313ddb88b2beca9b489b05b868f794c958b3b4da384a252fd"
+    },
+    {
+      "path": "_run_records/ARCHIVE.json",
+      "sha256": "ccec01e0de5c5ffb386386e363bf6564d0a0cb1c2651ddd07360acc7443ef149"
+    },
+    {
+      "path": "_run_records/AUTHOR_BINDING_BACKCHECK.json",
+      "sha256": "c0a9f8d54c1affa5858f69139ee3486ab1081df49b29aae093051a1164bf0f63"
+    },
+    {
+      "path": "_run_records/BASIS_SEALS.json",
+      "sha256": "e1f82783ed8a029a9b23fa2a5044c34dafcb48b186bb8e9d605b1e8305703a6f"
+    },
+    {
+      "path": "_run_records/BOUNDARY_BINDING.json",
+      "sha256": "d5d1a9e8d3a83fe1a50a7dd1d600f93bdeaadf92c1fad7292f7dd72063afb69a"
+    },
+    {
+      "path": "_run_records/BOUNDARY_BUILD.log",
+      "sha256": "49400b6b72669636d30630ce03d518c672159c8518f8259a4a8c3201beb54e7c"
+    },
+    {
+      "path": "_run_records/BOUNDARY_COMMAND.json",
+      "sha256": "5fb48b674379c45a766694f4b546215b542d4d2bc7fab999e4efbe5348c603da"
+    },
+    {
+      "path": "_run_records/BOUNDARY_SUFFIX.rs",
+      "sha256": "602c987c269982487de6ab9c235651187bb9304a6681100be3b00eb504bdd102"
+    },
+    {
+      "path": "_run_records/BUILD.log",
+      "sha256": "5eda62e249599a69f5df6fb8e38043ca929c7a32749356c1fb196f65ce0a79b8"
+    },
+    {
+      "path": "_run_records/BUILD_COMMAND.json",
+      "sha256": "e7616c1d8feca02f5f22ba5aa749203fde55a3bfbf820ecfc8e9cd7f3a622d5d"
+    },
+    {
+      "path": "_run_records/BUILD_CONFIGURATION.json",
+      "sha256": "525e168b15e757228d8c26c113adda32b403cc61932da04093a48497d7d00596"
+    },
+    {
+      "path": "_run_records/CANDIDATE_BINDING.json",
+      "sha256": "d4cbfd147d24e22558ba665efdafc55c83d1caf1c43a3bb81d60fccde383e65d"
+    },
+    {
+      "path": "_run_records/GENERATE_OVERLAY.py",
+      "sha256": "aa6786051ca0ebeeda8ab4b0e2096a12bb694ec0fc37902b5ff9c147568ed72e"
+    },
+    {
+      "path": "_run_records/LATER_WORKING_DELTA.diff",
+      "sha256": "7327ab9e06e387ed7d07cecfc1727efe5632cd98725243c9e709c8b5234bf665"
+    },
+    {
+      "path": "_run_records/LATER_WORKING_DELTA.json",
+      "sha256": "a6fddfc12934f9f56ac3fc10c98dff3b3081323b5ed73d10dddb126dc10f97e0"
+    },
+    {
+      "path": "_run_records/OVERLAY_BINDING.json",
+      "sha256": "b313a32f2c0923896a17a473a231a6f615a6228a1674ae791fd203fce779f68d"
+    },
+    {
+      "path": "_run_records/RUN.json",
+      "sha256": "00ace7d88dde12e39f4be86bd77750c2c2102363d889c8b8241bb8d94115158e"
+    },
+    {
+      "path": "_run_records/RUN_BUILD.py",
+      "sha256": "f9625aff08a652366c131bab653d63b8d4b5ef3fa4766e5fefb7a6bded3843eb"
+    },
+    {
+      "path": "_run_records/SCOPE.json",
+      "sha256": "160059da7d916d88438c2589a54f241bc3599d24dab8adc463bdfdd0d0fa6498"
+    },
+    {
+      "path": "_run_records/SEAL_CHECK_EVENTS.json",
+      "sha256": "5796255e052a020943b66b5646b939eff1a5c8a975c2799a4783162163662919"
+    },
+    {
+      "path": "_run_records/SOURCE_ORIGINS.json",
+      "sha256": "a6af735fc20c78f97fa559bd90ea9e174aa7043a724e495b5890f30528afc279"
+    },
+    {
+      "path": "_run_records/VERIFICATION.json",
+      "sha256": "2712309d2d604d6b6ed2a87b9458d1e4be044c66c980494184e84bd7c35a8bb7"
+    },
+    {
+      "path": "_run_records/WRITE_INVENTORY.json",
+      "sha256": "ba00e537dbbcf9fdd315e7f982786d79e47977f1f05e7c7779c4bf1f6a8bc095"
+    },
+    {
+      "path": "_run_records/rv33_reference.rs",
+      "sha256": "d8884a6d6ef85c986d51bb97c759169a8af6cd93f759beff76468e0e4642ce79"
+    }
+  ],
+  "matches": true
+}

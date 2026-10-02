@@ -159,5 +159,86 @@ class LaunchContextBinding(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     v.bind_scale_launch_counts('/bin/vk_scale', run, '/models', '/records')
 
+
+class ModelEligibilityBeforeLaunch(unittest.TestCase):
+    def test_legacy_admission_priority_and_estimate_diagnostics_remain(self):
+        run = next(x for x in v.schedule() if x['members'] == 10000)
+        self.assertEqual(v.admission(run, {}, [], None, None, False)['reason'], 'deferred:no_counts_line')
+        row = {'estimate_max_bytes': run['heap_cap_bytes'],
+               v.k6.estimate_key(v.MODE): run['heap_cap_bytes']}
+        result = v.admission(run, {run['model']: row}, [], None, None, False)
+        self.assertTrue(result['reason'].startswith("deferred:the binary's backstop would refuse"))
+        row = {'estimate_max_bytes': 321, v.k6.estimate_key(v.MODE): 321}
+        self.assertEqual(v.admission(run, {run['model']: row}, [], None, None, False)['reason'],
+                         'deferred:10000_members_needs_root_approval')
+        result = v.admission(run, {run['model']: row}, [], None, None, True)
+        self.assertIn('ascent_previous_size_not_recorded', result['reason'])
+        self.assertEqual(result['estimate_adm_bytes'], 321)
+
+    def test_approval_and_ascent_holds_have_only_the_tier_noop(self):
+        import tempfile
+        from unittest.mock import patch
+        run = next(x for x in v.schedule() if x['members'] == 10000)
+        for approved, reason in [(False, 'deferred:10000_members_needs_root_approval'),
+                                 (True, 'deferred:ascent_previous_size_not_recorded')]:
+            with self.subTest(approved=approved), tempfile.TemporaryDirectory() as folder:
+                with open(os.path.join(folder, 'metadata.json'), 'w') as f:
+                    f.write('{}')
+                with patch.object(v, 'schedule', return_value=[run]), \
+                        patch.object(v.k6, 'read_counts', return_value={}), \
+                        patch.object(v.k6, 'launch', return_value={'rss': {}}) as launch, \
+                        patch.object(v, 'bind_scale_launch_counts', side_effect=AssertionError('held model bound counts')) as bind, \
+                        patch.object(v, 'admission', side_effect=AssertionError('held model reached numeric admission')) as numeric, \
+                        patch.object(v.k6, 'wait_for_quiet_host') as quiet:
+                    v.run_tier(run['tier'], 'binary', '/models', None, folder, 'c', 't',
+                               approve_10000=approved, log=lambda *a: None)
+                self.assertEqual(launch.call_count, 1)
+                self.assertIn('--noop', launch.call_args.args[0])
+                bind.assert_not_called()
+                numeric.assert_not_called()
+                quiet.assert_not_called()
+                record = v.k6.run_entries(v.k6.read_records(folder))[0]
+                self.assertEqual(record['classification'], 'not_run')
+                self.assertTrue(record['admission']['reason'].startswith(reason))
+                self.assertIsNone(record['estimate_adm_bytes'])
+
+    def test_approved_recorded_model_rebinds_before_numeric_use_with_original_caps(self):
+        import json
+        import tempfile
+        from unittest.mock import patch
+        run = next(x for x in v.schedule() if x['members'] == 10000)
+        events = []
+        with tempfile.TemporaryDirectory() as folder:
+            with open(os.path.join(folder, 'metadata.json'), 'w') as f:
+                f.write('{}')
+            v.k6.append_record(folder, dict(run, run_id='previous', model=v.k6.previous_size(run['model']),
+                                           members=1000, classification='timed_out'))
+            def fake_launch(argv, *, record_dir, run_id, **kw):
+                kind = 'baseline' if '--noop' in argv else 'prepass' if '--counts-only' in argv else 'normal'
+                events.append((kind, argv))
+                with open(os.path.join(record_dir, run_id + '.jsonl'), 'w') as f:
+                    f.write(json.dumps({'kind': 'counts', 'case': run['model'],
+                                        'estimate_max_bytes': 321}) + '\n')
+                return {'classification': 'ok', 'wall_s': 0.0, 'rss': {}, 'run_id': run_id}
+            original = v.admission
+            def numeric(run, counts, *a, **kw):
+                events.append(('numeric', counts[run['model']]['estimate_max_bytes']))
+                return original(run, counts, *a, **kw)
+            with patch.object(v, 'schedule', return_value=[run]), \
+                    patch.object(v.k6, 'read_counts', return_value={run['model']: {'estimate_max_bytes': 99999999999}}), \
+                    patch.object(v.k6, 'launch', side_effect=fake_launch), \
+                    patch.object(v.k6, 'wait_for_quiet_host', return_value={}), \
+                    patch.object(v, 'admission', side_effect=numeric), \
+                    patch.object(v, 'stop_reasons', return_value=[]):
+                v.run_tier(run['tier'], 'binary', '/models', None, folder, 'c', 't',
+                           approve_10000=True, log=lambda *a: None)
+            self.assertEqual([x[0] for x in events], ['baseline', 'prepass', 'numeric', 'normal'])
+            self.assertEqual(events[2][1], 321)
+            pre, normal = events[1][1], events[3][1]
+            self.assertEqual(pre[pre.index('--heap-cap-bytes') + 1], str(v.COUNTS_CAP_BYTES))
+            self.assertEqual(normal[normal.index('--heap-cap-bytes') + 1], str(run['heap_cap_bytes']))
+            self.assertEqual(pre[pre.index('--model-file') + 1], normal[normal.index('--model-file') + 1])
+            self.assertEqual(v.k6.run_entries(v.k6.read_records(folder))[-1]['estimate_adm_bytes'], 321)
+
 if __name__ == '__main__':
     unittest.main()

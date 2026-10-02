@@ -1,0 +1,20 @@
+[
+  {
+    "id": "RV33-H1",
+    "severity": "P1",
+    "blocking": true,
+    "candidate": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+    "file": "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+    "lines": [
+      1201,
+      1205
+    ],
+    "title": "Apply the ascent hold before the model-specific counts prepass",
+    "trigger": "Run nonconditional W1-T2 CHAIN100 with a counts row and no recorded CHAIN10 predecessor (likewise W1-T3 with no eligible previous size).",
+    "observed": "run_tier starts bind_w1_launch_counts before admission checks previous_size at525\u2013530; a counts-only child performs model/count work then the row is recorded not_run with an ascent-deferred reason.",
+    "impact": "The new prepass executes model-specific work that the existing nonnumeric ascent hold was meant to defer. Its RSS/heap/timeout caps do not satisfy the missing ordering permission.",
+    "evidence": "REPRO_RUNNER_HOLD.py and RUNNER_HOLD_REPRO.json: no real subprocesses; event order is launch(counts-only), admission(deferred:ascent_previous_size_not_recorded).",
+    "remediation": "Separate nonnumeric eligibility from estimate-dependent admission. Respect ascent and applicable existing named/conditional/recorded-run holds before binding; after an eligible prepass recompute all numeric predicates and the denominator from its real bound row. Preserve the existing tier no-op baseline. Add tests requiring zero model-specific prepasses for held rows; do not fabricate numeric counts to query nonnumeric eligibility.",
+    "status": "Open on exact908. ROOT confirmed finding and separately commissioned I24 shared-runner repair; that later candidate is outside this review."
+  }
+]

@@ -1,0 +1,191 @@
+[
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/h_envelope.rs",
+    "sha256": "eb7410a4eef9f1d9b0ff9607986fbac133329e65377010be16c25f802fd2979f",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs",
+    "sha256": "3781079224cf7a47511cb2bfc9f09ebee6e51d2595ce3ad609d79f8d57b10092",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/mod.rs",
+    "sha256": "bb8ef18e3bf2fd78d9f483e3f99197a5b1335e751e0d46c8f376025bd7a04498",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs",
+    "sha256": "f973a69f95a1a3becf01434e3a481bfc164f9fee2baca94dae1fc0e50ffac708",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+    "sha256": "d2a34830f51e08991096034b5cd05296266e42ed744777930314b798760eaad9",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/src/k6/canonical.rs",
+    "sha256": "62a9b86a127c722535182bee688085a9c9924992d36a38e9ef570630e17e2fe2",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/src/k6/counts.rs",
+    "sha256": "acfcfc5cb191885812c8e258f212ab3f15b7764bb7898993a0da46c24cd60de2",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+    "sha256": "e72cb08ee2ad27b3f291d1303330f0cc4099a1ea8ff770cde5225fa3c9995df2",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+    "sha256": "ab240220f1c23d4178ebcb2321b299004650cdef4b607de09fb9d151128abf27",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py",
+    "sha256": "076df54e6ae6550c0e9a96f161870dca5a17461ecd0e64e9bfd3f11faecabc88",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs",
+    "sha256": "31de90d62b4cde8dd187af380c6acf608ec16801efaf070c93c0cc4b53e0b422",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/tests/k6b_bin.rs",
+    "sha256": "4fc2c119f6a9469e3daca74b16f9060d794242c84a997d65d7151c2626905d30",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/tests/k6c_h_envelope.rs",
+    "sha256": "b2126302bab9d190f409a665b9da19910c3788731745e640be2fdfc25c5030db",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/observations/k6b/counts.jsonl",
+    "sha256": "29e4aba283a4edeb3287d72598d7f37d29ed65799959f89005cf58bcf1d4a9f4",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/observations/k6b/SHA256SUMS",
+    "sha256": "a1d05b21ec50a56ae0be45ee098d36cdde736aa58f4f532914a5960146788b2d",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/w1.rs",
+    "sha256": "fd9a8d678fd17a23d6a6588fb62a911bb6b30efc08107413ef0e57c1a7bd02d7",
+    "basis": "exact candidate archive",
+    "consultation": "complete maintained H delta, original context where needed; records and literal tables also programmatically checked"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_integration_25/RETURN.md",
+    "sha256": "c44eb501df07551ae608ac393b9dc0b942f9458b6c516dfbefb2706f6d6f1fec",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_integration_25/SOURCE_MAP.md",
+    "sha256": "8fd206d551ec98071992d06a94a1226b692e117e58ad3d2562ce1de714e2d86a",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_integration_25/_run_records/WRITE_INVENTORY.json",
+    "sha256": "addbeb4d13200333354b5fe8b2d23528244cecfab7a39ad749097671ac6e09cb",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_integration_25/_run_records/REFERENCE_GENERATION.json",
+    "sha256": "044749e5d10d2d36b587c326c5b6b50df0564d21e878993124d3bb3adf886a14",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_integration_25/_run_records/RECORD_PRESERVATION.json",
+    "sha256": "4494f9724789a2bbfa94badfdfe5c61e866f93db9ac078860cb7cab3a9afee08",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_integration_25/_run_records/TEST_07_SEALED_ALL_TARGETS_COMMAND.json",
+    "sha256": "e216c3bb2cac0d1ff7124371ac9a42e73b6af3d0afe880cc9e99a6c00eb5aa38",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_integration_25/_run_records/TEST_07_SEALED_ALL_TARGETS.log",
+    "sha256": "5c2521ddc1cce2540f5a2db959450196cb7ca1a7dbe29a0930bf9d6d400746ce",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_16_context_translation/PLAN.md",
+    "sha256": "5255c3fc060f063edbd7e69d91f0f7129efc205366ca27ffc3dceac32d59c50a",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/_run_records/h_context_01/RETURN.md",
+    "sha256": "3d1267b2a10d1b08ee337b350508484a73ce4cc1ec95d88e2726d69277ff8f99",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/_run_records/h_context_01/REVIEW.md",
+    "sha256": "8e0280f09edbc96e4e7b4082998870d8de48488e78478c18892299993048795f",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/_run_records/h_context_01/ROOT_CLARIFICATION.md",
+    "sha256": "ac1d128433d25b78f01ed154492d290abb99e9fd71fcdd60efe67d5f0932b10e",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_10/H_ENVELOPE.md",
+    "sha256": "df2bbc47b46c188ab74bd475888df873f6f859b28fcc038c3be430d5bb78ac8a",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/PHASES.json",
+    "sha256": "d1cd9a1f755fac28ebd8194501daa69c06ac463daa6c456309db8a9f8df9b956",
+    "basis": "sealed accepted or author packet, not executable instruction",
+    "consultation": "relevant text sections and/or complete record binding as described in REVIEW"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs",
+    "sha256": "fd3e00c06aff970c44cd147f255fe371b16729fe0a80b62b32a09bc0afddc337",
+    "consultation": "existing call/drop/scope context"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/software-workflow.json",
+    "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+    "consultation": "existing call/drop/scope context"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/tools/software_workflow/validate_change_scope.py",
+    "sha256": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d",
+    "consultation": "existing call/drop/scope context"
+  }
+]

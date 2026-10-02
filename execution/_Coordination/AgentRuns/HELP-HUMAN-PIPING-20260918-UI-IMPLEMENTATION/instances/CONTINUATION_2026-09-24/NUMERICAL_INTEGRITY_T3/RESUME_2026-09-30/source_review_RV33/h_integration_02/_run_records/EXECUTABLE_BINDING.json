@@ -1,0 +1,12 @@
+[
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-target/release/k6_observe",
+    "sha256": "881f1228e8ff649a387d1553f57dd5a8cf216b282901ed8418aba83b12ded62f",
+    "purpose": "ordinary subprocess binary used by corresponding k6b_bin test profile"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-target/debug/k6_observe",
+    "sha256": "fee44b18f7b8adbd7c02c50d915a5a462af14572738f1ddf1c74a7791b17c676",
+    "purpose": "ordinary subprocess binary used by corresponding k6b_bin test profile"
+  }
+]

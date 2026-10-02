@@ -1,0 +1,88 @@
+{
+  "binary_sha256": "c69d28e95629ba201c35ad510508e1536bd72086e1d9c366d41c9ff248ae54b5",
+  "commands": [
+    {
+      "name": "ind_counts",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/vr_implementation_02/_run_records/target/debug/examples/vk_scale",
+        "--case",
+        "RF-LARGE-CHAIN-n00010-AX",
+        "--heap-cap-bytes",
+        "536870912",
+        "--counts-only"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/vr_implementation_02/_run_records/clean/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "returncode": 0,
+      "expected": 0,
+      "match": true
+    },
+    {
+      "name": "ind_normal",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/vr_implementation_02/_run_records/target/debug/examples/vk_scale",
+        "--case",
+        "RF-LARGE-CHAIN-n00010-AX",
+        "--heap-cap-bytes",
+        "536870912"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/vr_implementation_02/_run_records/clean/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "returncode": 0,
+      "expected": 0,
+      "match": true
+    },
+    {
+      "name": "ind_half_cap",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/vr_implementation_02/_run_records/target/debug/examples/vk_scale",
+        "--case",
+        "RF-LARGE-CHAIN-n00010-AX",
+        "--heap-cap-bytes",
+        "16777216"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/vr_implementation_02/_run_records/clean/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "returncode": 3,
+      "expected": 3,
+      "match": true
+    },
+    {
+      "name": "ind_external1000",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/vr_implementation_02/_run_records/target/debug/examples/vk_scale",
+        "--case",
+        "overwritten",
+        "--case",
+        "RF-LARGE-CHAIN-n01000-AX",
+        "--model-file",
+        "unused-overwritten-path",
+        "--model-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/vr_implementation_02/_run_records/external_path_with_explicit_rebound_context/RF-LARGE-CHAIN-n01000-AX.json",
+        "--heap-cap-bytes",
+        "0000536870912",
+        "--counts-only"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/vr_implementation_02/_run_records/clean/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "returncode": 0,
+      "expected": 0,
+      "match": true
+    }
+  ],
+  "counts_continuation_dominates_actual_normal": true,
+  "external_raw_sha256": "f05afa36126c1adfb2d61f35bd99e98e845ca3727b2bebf34573e116815b49a8",
+  "external_case_raw_hash": "f05afa36126c1adfb2d61f35bd99e98e845ca3727b2bebf34573e116815b49a8",
+  "external_retained_path_delta": 260,
+  "external_reference_checks": {
+    "max": {
+      "runtime": 481972860,
+      "accepted_plus_retained_path_delta": 481972860
+    },
+    "sel128": {
+      "runtime": 481972860,
+      "accepted_plus_retained_path_delta": 481972860
+    },
+    "fixed": {
+      "runtime": 11325513,
+      "accepted_plus_retained_path_delta": 11325513
+    }
+  },
+  "claim": "functional/conditional arithmetic checks only; no timing/RSS or current-executable global-bound qualification"
+}

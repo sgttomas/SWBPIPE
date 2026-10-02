@@ -493,6 +493,37 @@ def previous_size(model_id):
     return None
 
 
+def eligibility(run, measured, *, require_ascent=True, conditional_reason=None):
+    """Pure nonnumeric holds, evaluated before any model-specific subprocess.
+
+    Callers supply their existing conditional-approval reason. Ascent requires
+    a recorded previous-size attempt, not success: only None/not_run are absent.
+    A None return permits rebinding and numeric admission; it does not admit.
+    """
+    never = refusal_by_name(run['model'], run['mode'], run['members'])
+    if never:
+        return {'decision': 'never', 'reason': never}
+    if conditional_reason:
+        return {'decision': 'deferred', 'reason': conditional_reason}
+    previous = previous_size(run['model'])
+    if require_ascent and previous is not None:
+        done = any(r['model'] == previous and r['mode'] == run['mode']
+                   and r.get('classification') not in (None, 'not_run')
+                   for r in run_entries(measured) if 'family' in r)
+        if not done:
+            return {'decision': 'deferred',
+                    'reason': 'deferred:ascent_previous_size_not_recorded (%s)' % previous}
+    return None
+
+
+def admission_fields(run):
+    """The existing result shape, without consulting any numeric counts."""
+    return {'decision': None, 'reason': None, 'estimate_adm_bytes': None, 'rho': None, 'rho_rss': None,
+            'half_cap_bytes': run['rss_cap_bytes'] // 2, 'footprint_estimate_bytes': None,
+            'rss_to_footprint': None, 'projected_rss_bytes': None,
+            'projected_rss_limit_bytes': int(PROJECTED_RSS_FRACTION * run['rss_cap_bytes'])}
+
+
 def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True, baseline_footprint_bytes=None):
     """ROOT's K6 ruling Q3, with N9, the A1-stop ruling Q2 and the B2-stop ruling: ρ on the
     macOS footprint (the RSS-based ρ recorded beside it), and projected RSS <= 0.8 C.
@@ -504,12 +535,10 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True,
     model_id, mode, members = run['model'], run['mode'], run['members']
     measured = [r for r in run_entries(measured) if 'family' in r]
     half = run['rss_cap_bytes'] // 2
-    out = {'decision': None, 'reason': None, 'estimate_adm_bytes': None, 'rho': None, 'rho_rss': None,
-           'half_cap_bytes': half, 'footprint_estimate_bytes': None, 'rss_to_footprint': None,
-           'projected_rss_bytes': None, 'projected_rss_limit_bytes': int(PROJECTED_RSS_FRACTION * run['rss_cap_bytes'])}
-    never = refusal_by_name(model_id, mode, members)
-    if never:
-        out.update(decision='never', reason=never)
+    out = admission_fields(run)
+    hold = eligibility(run, measured, require_ascent=False)
+    if hold:
+        out.update(hold)
         return out
     line = counts.get(model_id)
     if line is None:
@@ -521,13 +550,10 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True,
         out.update(decision='deferred', reason='deferred:no_estimate_for_mode_in_counts_line')
         return out
     out['estimate_adm_bytes'] = estimate
-    previous = previous_size(model_id)
-    if require_ascent and previous is not None:
-        done = [r for r in measured if r['model'] == previous and r['mode'] == mode
-                and r.get('classification') not in (None, 'not_run')]
-        if not done:
-            out.update(decision='deferred', reason='deferred:ascent_previous_size_not_recorded (%s)' % previous)
-            return out
+    hold = eligibility(run, measured, require_ascent=require_ascent)
+    if hold:
+        out.update(hold)
+        return out
     floor = RHO_MIN_MEMBERS_FOR_LARGE if members >= LARGE_MEMBERS else 0
     same = [r for r in measured if r['family'] == run['family'] and r['mode'] == mode
             and floor <= r['members'] < members and r.get('classification') == 'ok']
@@ -1195,23 +1221,26 @@ def run_tier(tier, binary, counts_path, record_dir, source_commit, source_tree, 
                for x in run_entries(records)):
             log('%s %s %s: already recorded; not repeated' % (run['run_id'], run['model'], run['mode']))
             continue
-        # Conditional tiers remain process-free here, including their prepasses.
-        # --plan has its own static path and never invokes this refresh.
-        bound_counts = counts
-        if run['mode'] == 'w1a' and not run['conditional']:
-            wait_for_quiet_host(log)
-            row = bind_w1_launch_counts(binary, run, counts_path, record_dir)
-            bound_counts = dict(counts, **{run['model']: row})
-        decision = admission(run, bound_counts, records, baseline_rss, baseline_footprint_bytes=baseline_footprint)
+        conditional_reason = ((run.get('conditional_reason')
+                               or 'deferred:conditional_run_needs_rulings_on_projection (N14)')
+                              if run['conditional'] else None)
+        hold = eligibility(run, records, conditional_reason=conditional_reason)
+        if hold:
+            decision = dict(admission_fields(run), **hold)
+        else:
+            # Only eligible models may create a context-binding subprocess.
+            # --plan retains its separate process-free preview path.
+            bound_counts = counts
+            if run['mode'] == 'w1a':
+                wait_for_quiet_host(log)
+                row = bind_w1_launch_counts(binary, run, counts_path, record_dir)
+                bound_counts = dict(counts, **{run['model']: row})
+            decision = admission(run, bound_counts, records, baseline_rss,
+                                 baseline_footprint_bytes=baseline_footprint)
         entry = dict(run, admission=decision, baseline_rss_bytes=baseline_rss,
                      baseline_footprint_bytes=baseline_footprint, source_commit=source_commit,
                      source_tree=source_tree)
-        if decision['decision'] != 'admitted' or run['conditional']:
-            if run['conditional'] and decision['decision'] == 'admitted':
-                decision = dict(decision, decision='deferred',
-                                reason=run.get('conditional_reason')
-                                or 'deferred:conditional_run_needs_rulings_on_projection (N14)')
-                entry['admission'] = decision
+        if decision['decision'] != 'admitted':
             entry.update(classification='not_run', run_id=run['run_id'])
             append_record(record_dir, entry)
             log('%s %s %s: %s' % (run['run_id'], run['model'], run['mode'], decision['reason']))

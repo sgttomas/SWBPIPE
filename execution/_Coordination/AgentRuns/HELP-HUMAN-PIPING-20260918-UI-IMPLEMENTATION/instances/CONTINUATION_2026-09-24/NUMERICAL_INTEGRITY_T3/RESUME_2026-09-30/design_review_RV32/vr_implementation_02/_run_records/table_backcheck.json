@@ -1,0 +1,2361 @@
+{
+  "basis": "Independent read of accepted caller14/result5join15 tables, not I24 output. Maintained test constants are matched field-by-field and order-by-order; clean archive suite executes implementation against them.",
+  "reference_rows": 193,
+  "cli_rows": 12,
+  "reference_numeric_cells": 9650,
+  "cli_numeric_cells": 600,
+  "phase_order": [
+    "prefix_before_cut",
+    "postcut_counts_output",
+    "counts_only_summary_sample",
+    "half_cap_refusal_output",
+    "sourceparts_controls",
+    "lane_source_constructor",
+    "lane_encoding_hash",
+    "source_refused_caller_only",
+    "record2_w1_output",
+    "full_floor",
+    "report",
+    "record3_output",
+    "late_RCM",
+    "late_sparse_parity",
+    "summary_sample"
+  ],
+  "join_order": [
+    "solve_max",
+    "selected_or_other_outcome_comparison",
+    "record1_build_while_outcome_alive",
+    "expected_list_initialization_while_outcome_alive",
+    "nonselected_diagnostic_while_outcome_alive"
+  ],
+  "all_match": true,
+  "reference": [
+    {
+      "id": "RF-CHAIN-T-n03-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-06",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-10",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-06",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-10",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-06",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-10",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-06",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-10",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-06",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-10",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-06",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-10",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-WEAK-W-L-r1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-WEAK-W-L-r1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-WEAK-W-L-r1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-04",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-08",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-12",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-BASE",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q3",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q9",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-OFF-1e3",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-OFF-1e6",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-RELABEL",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-UNITS-mm",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-BASE",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q3",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q9",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-OFF-1e3",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-OFF-1e6",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-RELABEL",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-UNITS-mm",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-BASE",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-ROT-Q3",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-ROT-Q9",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-OFF-1e3",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-OFF-1e6",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-RELABEL",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-UNITS-mm",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-BASE",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-OFF-1e3",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-OFF-1e6",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-RELABEL",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CHAIN-L-240",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CHAIN-L+240",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CHAIN-E-1000",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CHAIN-E+960",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CHAIN-F-960",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CHAIN-F+960",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CHAIN-LEF-small",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CHAIN-LEF-large",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CHAIN-SIM-a",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CHAIN-SIM-b",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-SKEW-L-240",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-SKEW-L+240",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-SKEW-E-1000",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-SKEW-E+960",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-SKEW-F-960",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-SKEW-F+960",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-SKEW-LEF-small",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-SKEW-LEF-large",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-SKEW-SIM-a",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-SKEW-SIM-b",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CONT-L-240",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CONT-L+240",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CONT-E-1000",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CONT-E+960",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CONT-F-960",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CONT-F+960",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CONT-LEF-small",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CONT-LEF-large",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CONT-SIM-a",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-CONT-SIM-b",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-THIN-A",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-RANGE-THIN-B",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-ZERO-SYM",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-ZERO-TORSION",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-ZERO-PLANAR",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-ZERO-TINY",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O0",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O1e3",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O1e6",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-FINITE-TENTHS-O1e6",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-FINITE-THIRTIETHS-O1e6",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-FINITE-ROT-Q9-NONMULT",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-MECH-LINE345-RX-COMPANION",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-GnG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-GGn",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-nGG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-GnG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-GGn",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-nGG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-GnG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-GGn",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-nGG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GGn",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-nGG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG-INPLANE",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GGn",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-nGG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG-INPLANE",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-GnG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-GGn",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-nGG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-GnG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-GGn",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-nGG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-GnG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-GGn",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-nGG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GGn",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-nGG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG-ORTHO",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG-INPLANE",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GGn",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-nGG",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG-INPLANE",
+      "checks": {
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    }
+  ],
+  "cli": [
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "checks": {
+        "manifest_length": true,
+        "executable_length": true,
+        "embedded": true,
+        "exact_population_policy": true,
+        "requested_fields": true,
+        "requested_phases": true,
+        "requested_joins": true,
+        "moving_fields": true,
+        "moving_phases": true,
+        "moving_joins": true
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "path": "metric_design_15_result5_join/RESULT5_REFERENCE193.json",
+      "sha256": "0c4d1a1927123f6932e087177eabd718de5a487af1f924d097bdefc47375f6eb"
+    },
+    {
+      "path": "metric_design_14_reference_callers/REFERENCE193_CALLERS.json",
+      "sha256": "b104510874ea10475534e7d02f42e23c3b2a13bae18026530d63e718c7d159ce"
+    },
+    {
+      "path": "metric_design_15_result5_join/RESULT5_CLI24.json",
+      "sha256": "7883e33283f3bfb97a34ce7e5b6b7e415fd6f9714bb628d6b0367a1780d9a7d5"
+    },
+    {
+      "path": "metric_design_14_reference_callers/CLI24_CALLERS.json",
+      "sha256": "6efa3f269ce231cbc89ce35b1c8266fd371579c11f354d1c0ab8dcef0a34e94a"
+    },
+    {
+      "path": "metric_design_14_reference_callers/CLI24_LAUNCHES.json",
+      "sha256": "c074aca5e8016b274fe779e9e1f36087537da5ae408c8d0ec12091d02f0a12bb"
+    }
+  ]
+}

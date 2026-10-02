@@ -1,0 +1,1 @@
+Confirmed: repair the new automatic pre-admission binding in run_tier. Preserve standalone explicit run_counts/--counts semantics and CLI; this grant does not add new policy or approval flags there. Clearly report that scope and retain existing noop baseline. Keep current reasons and original recorded-ascent semantics.

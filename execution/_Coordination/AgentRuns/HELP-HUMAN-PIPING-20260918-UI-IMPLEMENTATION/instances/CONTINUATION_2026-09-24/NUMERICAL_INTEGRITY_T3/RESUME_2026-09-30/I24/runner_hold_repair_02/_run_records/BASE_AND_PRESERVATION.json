@@ -1,0 +1,33 @@
+{
+  "base": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+  "preimage_sha256": {
+    "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py": "ab240220f1c23d4178ebcb2321b299004650cdef4b607de09fb9d151128abf27",
+    "projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py": "076df54e6ae6550c0e9a96f161870dca5a17461ecd0e64e9bfd3f11faecabc88",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py": "a4ed5c143a74caa99d9165109d9058b394fd4276d81936bae351231d38ffd6fb",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py": "32933dd2cb9fc605d21b169dd551d1e1fe088d216ee72f0c95714ab629d919cf"
+  },
+  "unchanged_function_bodies": {
+    "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py": [
+      "main",
+      "plan",
+      "schedule",
+      "binary_argv",
+      "bind_w1_launch_counts",
+      "refusal_by_name",
+      "previous_size",
+      "run_parameters",
+      "baseline_run"
+    ],
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py": [
+      "main",
+      "plan",
+      "schedule",
+      "binary_argv",
+      "run_counts",
+      "bind_scale_launch_counts"
+    ]
+  },
+  "legacy_admission_full_dict_equality": "LEGACY_ADMISSION_COMPARISON.json",
+  "standalone_counts": "unchanged by ROOT clarification",
+  "thresholds_caps": "all constants and normal/counts argv builders unchanged; caps asserted by tests"
+}

@@ -1,0 +1,7 @@
+{
+  "prior_manifest_sha256": "f50f48bfdaa4874a556b7660285ed0328bba57ee0f7bf099892ad2bdf4e7d919",
+  "literal_overlay_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV33/kernel_01/_run_records/rv33_reference.rs",
+  "literal_overlay_sha256": "d8884a6d6ef85c986d51bb97c759169a8af6cd93f759beff76468e0e4642ce79",
+  "scratch_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-h-scratch-20261002T0208/projects/chirality-piping/core/solver/performance_harness/tests/rv33_reference.rs",
+  "scope": "unchanged literal 193+24+33 kernel comparison, no production graph/model/solver execution by this test"
+}

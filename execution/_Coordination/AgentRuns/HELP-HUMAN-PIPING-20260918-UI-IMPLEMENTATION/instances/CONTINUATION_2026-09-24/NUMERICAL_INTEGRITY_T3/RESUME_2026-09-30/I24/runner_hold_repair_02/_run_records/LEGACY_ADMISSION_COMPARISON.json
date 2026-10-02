@@ -1,0 +1,13 @@
+{
+  "base": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+  "checks": {
+    "H": 8120,
+    "VR": 864
+  },
+  "mismatches": [],
+  "scope": "Pure admission only; all schedule entries, missing/absent mode/small/over-cap counts, ascent or approval flag alternatives, previous None/not_run/error/timed_out/ok classifications; exact full result-dictionary equality. No launch. Synthetic numbers are test inputs, never a preflight workaround.",
+  "module_origins": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py"
+  ]
+}

@@ -1,0 +1,4427 @@
+{
+  "base": "4a6cb3402f95d98c6f46f702055fe4b0c5245c56",
+  "candidate": "9086964a1fb656a76cda6d1002d8594efa636fdc",
+  "counts_before_sha256": "fab0466a846ef26b1c530a261a6f1d134fc32ba1d70f57682010877a52373c05",
+  "counts_after_sha256": "29e4aba283a4edeb3287d72598d7f37d29ed65799959f89005cf58bcf1d4a9f4",
+  "rows": 33,
+  "row_order_and_nonestimate_values_preserved": true,
+  "schema_keys_preserved": true,
+  "authorized_fields": [
+    "estimate_adm_bytes_w1a",
+    "estimate_w1_decide_bytes",
+    "estimate_w1_fixed_bytes",
+    "estimate_w1_pass_1024",
+    "estimate_w1_pass_256",
+    "estimate_w1_pass_512",
+    "estimate_w1_sel128_bytes",
+    "estimate_w1_shared_1024",
+    "estimate_w1_shared_128",
+    "estimate_w1_shared_256",
+    "estimate_w1_shared_512",
+    "estimate_w1_solve_1024",
+    "estimate_w1_solve_128",
+    "estimate_w1_solve_256",
+    "estimate_w1_solve_512",
+    "estimate_w1_state_1024",
+    "estimate_w1_state_128",
+    "estimate_w1_state_256",
+    "estimate_w1_state_512",
+    "estimate_w1_verify_1024",
+    "estimate_w1_verify_256",
+    "estimate_w1_verify_512"
+  ],
+  "changed_scalar_count": 726,
+  "changes": [
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 22726516,
+      "after": 22744300
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 20728932,
+      "after": 20739628
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 52844,
+      "after": 87693
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 19906472,
+      "after": 19888711
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 223296,
+      "after": 223968
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_state_128",
+      "before": 18672,
+      "after": 18776
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 12647392,
+      "after": 1910144
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 260608,
+      "after": 261328
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_state_256",
+      "before": 18672,
+      "after": 18776
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 12691552,
+      "after": 1945856
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 444384,
+      "after": 445104
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_state_512",
+      "before": 31120,
+      "after": 31224
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 12793504,
+      "after": 2032960
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 662688,
+      "after": 663408
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 56016,
+      "after": 56120
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 12820768,
+      "after": 2064320
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 168968,
+      "after": 169536
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 157884,
+      "after": 157254
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 296968,
+      "after": 297568
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 253756,
+      "after": 256966
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 368648,
+      "after": 369312
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 444732,
+      "after": 456390
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 22726516,
+      "after": 22744303
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 20728932,
+      "after": 20739631
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 52844,
+      "after": 87696
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 19906472,
+      "after": 19888711
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 223296,
+      "after": 223968
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 18672,
+      "after": 18776
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 12647392,
+      "after": 1910144
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 260608,
+      "after": 261328
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 18672,
+      "after": 18776
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 12691552,
+      "after": 1945856
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 444384,
+      "after": 445104
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 31120,
+      "after": 31224
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 12793504,
+      "after": 2032960
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 662688,
+      "after": 663408
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 56016,
+      "after": 56120
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 12820768,
+      "after": 2064320
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 168968,
+      "after": 169536
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 157884,
+      "after": 157254
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 296968,
+      "after": 297568
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 253756,
+      "after": 256966
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 368648,
+      "after": 369312
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 444732,
+      "after": 456390
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 48326122,
+      "after": 48275158
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 28620858,
+      "after": 28522486
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 497090,
+      "after": 681261
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20536472,
+      "after": 20330161
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 2216976,
+      "after": 2217648
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_state_128",
+      "before": 178512,
+      "after": 178616
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 19843072,
+      "after": 18667584
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 2579728,
+      "after": 2580448
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_state_256",
+      "before": 178512,
+      "after": 178616
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 20267392,
+      "after": 19014336
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 4396464,
+      "after": 4397184
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_state_512",
+      "before": 297520,
+      "after": 297624
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 21250624,
+      "after": 19875200
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 6578928,
+      "after": 6579648
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 535536,
+      "after": 535640
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 21519808,
+      "after": 20209920
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 1672328,
+      "after": 1672896
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 1567284,
+      "after": 1580334
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 2940808,
+      "after": 2941408
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 2521396,
+      "after": 2586286
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 3634568,
+      "after": 3635232
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 4428852,
+      "after": 4598190
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 48326122,
+      "after": 48275161
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 28620858,
+      "after": 28522489
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 497090,
+      "after": 681264
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20536472,
+      "after": 20330161
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 2216976,
+      "after": 2217648
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 178512,
+      "after": 178616
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 19843072,
+      "after": 18667584
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 2579728,
+      "after": 2580448
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 178512,
+      "after": 178616
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 20267392,
+      "after": 19014336
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 4396464,
+      "after": 4397184
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 297520,
+      "after": 297624
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 21250624,
+      "after": 19875200
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 6578928,
+      "after": 6579648
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 535536,
+      "after": 535640
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 21519808,
+      "after": 20209920
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 1672328,
+      "after": 1672896
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 1567284,
+      "after": 1580334
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 2940808,
+      "after": 2941408
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 2521396,
+      "after": 2586286
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 3634568,
+      "after": 3635232
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 4428852,
+      "after": 4598190
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 313263224,
+      "after": 347434501
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 136742824,
+      "after": 152074133
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 4939496,
+      "after": 6415541
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 26836472,
+      "after": 25608917
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 22153776,
+      "after": 22154448
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_state_128",
+      "before": 1776912,
+      "after": 1777016
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 76098880,
+      "after": 74014656
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 25770928,
+      "after": 25771648
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_state_256",
+      "before": 1776912,
+      "after": 1777016
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 80324800,
+      "after": 77471808
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 43917264,
+      "after": 43917984
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_state_512",
+      "before": 2961520,
+      "after": 2961624
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 90120832,
+      "after": 85992448
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 65741328,
+      "after": 65742048
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 5330736,
+      "after": 5330840
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 92809216,
+      "after": 89205120
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 16705928,
+      "after": 16706496
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 15661284,
+      "after": 15694398
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 29379208,
+      "after": 29379808
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 25197796,
+      "after": 25684926
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 36293768,
+      "after": 36294432
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 44270052,
+      "after": 45665982
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 313263224,
+      "after": 347434504
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 136742824,
+      "after": 152074136
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 4939496,
+      "after": 6415544
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 26836472,
+      "after": 25608917
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 22153776,
+      "after": 22154448
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 1776912,
+      "after": 1777016
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 76098880,
+      "after": 74014656
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 25770928,
+      "after": 25771648
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 1776912,
+      "after": 1777016
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 80324800,
+      "after": 77471808
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 43917264,
+      "after": 43917984
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 2961520,
+      "after": 2961624
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 90120832,
+      "after": 85992448
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 65741328,
+      "after": 65742048
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 5330736,
+      "after": 5330840
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 92809216,
+      "after": 89205120
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 16705928,
+      "after": 16706496
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 15661284,
+      "after": 15694398
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 29379208,
+      "after": 29379808
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 25197796,
+      "after": 25684926
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 36293768,
+      "after": 36294432
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 44270052,
+      "after": 45665982
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 3009837834,
+      "after": 3266456237
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 1152435694,
+      "after": 1314694845
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 49363502,
+      "after": 63701085
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 89836472,
+      "after": 83516477
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 221521776,
+      "after": 221522448
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_state_128",
+      "before": 17760912,
+      "after": 17761016
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 546103744,
+      "after": 534661824
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 257682928,
+      "after": 257683648
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_state_256",
+      "before": 17760912,
+      "after": 17761016
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 588345664,
+      "after": 569222976
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 439125264,
+      "after": 439125984
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_state_512",
+      "before": 29601520,
+      "after": 29601624
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 686269696,
+      "after": 653882624
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 657365328,
+      "after": 657366048
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 53282736,
+      "after": 53282840
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 713150080,
+      "after": 684957312
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 167041928,
+      "after": 167042496
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 156601284,
+      "after": 156146910
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 293763208,
+      "after": 293763808
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 251961796,
+      "after": 255524446
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 362885768,
+      "after": 362886432
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 442682052,
+      "after": 454279518
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 3009837834,
+      "after": 3266456240
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 1152435694,
+      "after": 1314694848
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 49363502,
+      "after": 63701088
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 89836472,
+      "after": 83516477
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 221521776,
+      "after": 221522448
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 17760912,
+      "after": 17761016
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 546103744,
+      "after": 534661824
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 257682928,
+      "after": 257683648
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 17760912,
+      "after": 17761016
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 588345664,
+      "after": 569222976
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 439125264,
+      "after": 439125984
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 29601520,
+      "after": 29601624
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 686269696,
+      "after": 653882624
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 657365328,
+      "after": 657366048
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 53282736,
+      "after": 53282840
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 713150080,
+      "after": 684957312
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 167041928,
+      "after": 167042496
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 156601284,
+      "after": 156146910
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 293763208,
+      "after": 293763808
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 251961796,
+      "after": 255524446
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 362885768,
+      "after": 362886432
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 442682052,
+      "after": 454279518
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 22726088,
+      "after": 22742769
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 20728504,
+      "after": 20738097
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 52416,
+      "after": 86162
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 19906472,
+      "after": 19888711
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 223296,
+      "after": 223968
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_state_128",
+      "before": 18672,
+      "after": 18776
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 12647392,
+      "after": 1910144
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 260608,
+      "after": 261328
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_state_256",
+      "before": 18672,
+      "after": 18776
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 12691552,
+      "after": 1945856
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 444384,
+      "after": 445104
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_state_512",
+      "before": 31120,
+      "after": 31224
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 12793504,
+      "after": 2032960
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 662688,
+      "after": 663408
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 56016,
+      "after": 56120
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 12820768,
+      "after": 2064320
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 168968,
+      "after": 169536
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 157884,
+      "after": 157254
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 296968,
+      "after": 297568
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 253756,
+      "after": 256966
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 368648,
+      "after": 369312
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 444732,
+      "after": 456390
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 22727800,
+      "after": 22748820
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 20730216,
+      "after": 20744148
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 54128,
+      "after": 92213
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 19906472,
+      "after": 19888711
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 223296,
+      "after": 223968
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 18672,
+      "after": 18776
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 12647392,
+      "after": 1910144
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 260608,
+      "after": 261328
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 18672,
+      "after": 18776
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 12691552,
+      "after": 1945856
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 444384,
+      "after": 445104
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 31120,
+      "after": 31224
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 12793504,
+      "after": 2032960
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 662688,
+      "after": 663408
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 56016,
+      "after": 56120
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 12820768,
+      "after": 2064320
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 168968,
+      "after": 169536
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 157884,
+      "after": 157254
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 296968,
+      "after": 297568
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 253756,
+      "after": 256966
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 368648,
+      "after": 369312
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 444732,
+      "after": 456390
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 48334070,
+      "after": 48303285
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 28628806,
+      "after": 28550613
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 505038,
+      "after": 709388
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20536472,
+      "after": 20330161
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 2216976,
+      "after": 2217648
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_state_128",
+      "before": 178512,
+      "after": 178616
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 19843072,
+      "after": 18667584
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 2579728,
+      "after": 2580448
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_state_256",
+      "before": 178512,
+      "after": 178616
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 20267392,
+      "after": 19014336
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 4396464,
+      "after": 4397184
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_state_512",
+      "before": 297520,
+      "after": 297624
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 21250624,
+      "after": 19875200
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 6578928,
+      "after": 6579648
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 535536,
+      "after": 535640
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 21519808,
+      "after": 20209920
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 1672328,
+      "after": 1672896
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 1567284,
+      "after": 1580334
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 2940808,
+      "after": 2941408
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 2521396,
+      "after": 2586286
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 3634568,
+      "after": 3635232
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 4428852,
+      "after": 4598190
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 48352546,
+      "after": 48369672
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 28647282,
+      "after": 28617000
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 523514,
+      "after": 775775
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20536472,
+      "after": 20330161
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 2216976,
+      "after": 2217648
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 178512,
+      "after": 178616
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 19843072,
+      "after": 18667584
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 2579728,
+      "after": 2580448
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 178512,
+      "after": 178616
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 20267392,
+      "after": 19014336
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 4396464,
+      "after": 4397184
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 297520,
+      "after": 297624
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 21250624,
+      "after": 19875200
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 6578928,
+      "after": 6579648
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 535536,
+      "after": 535640
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 21519808,
+      "after": 20209920
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 1672328,
+      "after": 1672896
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 1567284,
+      "after": 1580334
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 2940808,
+      "after": 2941408
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 2521396,
+      "after": 2586286
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 3634568,
+      "after": 3635232
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 4428852,
+      "after": 4598190
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 313354298,
+      "after": 347755296
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 136833898,
+      "after": 152394928
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 5030570,
+      "after": 6736336
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 26836472,
+      "after": 25608917
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 22153776,
+      "after": 22154448
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_state_128",
+      "before": 1776912,
+      "after": 1777016
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 76098880,
+      "after": 74014656
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 25770928,
+      "after": 25771648
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_state_256",
+      "before": 1776912,
+      "after": 1777016
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 80324800,
+      "after": 77471808
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 43917264,
+      "after": 43917984
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_state_512",
+      "before": 2961520,
+      "after": 2961624
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 90120832,
+      "after": 85992448
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 65741328,
+      "after": 65742048
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 5330736,
+      "after": 5330840
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 92809216,
+      "after": 89205120
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 16705928,
+      "after": 16706496
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 15661284,
+      "after": 15694398
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 29379208,
+      "after": 29379808
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 25197796,
+      "after": 25684926
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 36293768,
+      "after": 36294432
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 44270052,
+      "after": 45665982
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 313539038,
+      "after": 348414247
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 137018638,
+      "after": 153053879
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 5215310,
+      "after": 7395287
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 26836472,
+      "after": 25608917
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 22153776,
+      "after": 22154448
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 1776912,
+      "after": 1777016
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 76098880,
+      "after": 74014656
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 25770928,
+      "after": 25771648
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 1776912,
+      "after": 1777016
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 80324800,
+      "after": 77471808
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 43917264,
+      "after": 43917984
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 2961520,
+      "after": 2961624
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 90120832,
+      "after": 85992448
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 65741328,
+      "after": 65742048
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 5330736,
+      "after": 5330840
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 92809216,
+      "after": 89205120
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 16705928,
+      "after": 16706496
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 15661284,
+      "after": 15694398
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 29379208,
+      "after": 29379808
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 25197796,
+      "after": 25684926
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 36293768,
+      "after": 36294432
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 44270052,
+      "after": 45665982
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 3010765802,
+      "after": 3269780378
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 1153363662,
+      "after": 1318018986
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 50291470,
+      "after": 67025226
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 89836472,
+      "after": 83516477
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 221521776,
+      "after": 221522448
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_state_128",
+      "before": 17760912,
+      "after": 17761016
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 546103744,
+      "after": 534661824
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 257682928,
+      "after": 257683648
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_state_256",
+      "before": 17760912,
+      "after": 17761016
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 588345664,
+      "after": 569222976
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 439125264,
+      "after": 439125984
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_state_512",
+      "before": 29601520,
+      "after": 29601624
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 686269696,
+      "after": 653882624
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 657365328,
+      "after": 657366048
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 53282736,
+      "after": 53282840
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 713150080,
+      "after": 684957312
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 167041928,
+      "after": 167042496
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 156601284,
+      "after": 156146910
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 293763208,
+      "after": 293763808
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 251961796,
+      "after": 255524446
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 362885768,
+      "after": 362886432
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 442682052,
+      "after": 454279518
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 3012624342,
+      "after": 3276306817
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 1155222202,
+      "after": 1324545425
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 52150010,
+      "after": 73551665
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 89836472,
+      "after": 83516477
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 221521776,
+      "after": 221522448
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 17760912,
+      "after": 17761016
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 546103744,
+      "after": 534661824
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 257682928,
+      "after": 257683648
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 17760912,
+      "after": 17761016
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 588345664,
+      "after": 569222976
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 439125264,
+      "after": 439125984
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 29601520,
+      "after": 29601624
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 686269696,
+      "after": 653882624
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 657365328,
+      "after": 657366048
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 53282736,
+      "after": 53282840
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 713150080,
+      "after": 684957312
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 167041928,
+      "after": 167042496
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 156601284,
+      "after": 156146910
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 293763208,
+      "after": 293763808
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 251961796,
+      "after": 255524446
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 362885768,
+      "after": 362886432
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 442682052,
+      "after": 454279518
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 22655045,
+      "after": 22674492
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 20711269,
+      "after": 20722188
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 54093,
+      "after": 89630
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 19910672,
+      "after": 19892326
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 209640,
+      "after": 210312
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_state_128",
+      "before": 19392,
+      "after": 19496
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 12636232,
+      "after": 1899584
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 246952,
+      "after": 247672
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_state_256",
+      "before": 19392,
+      "after": 19496
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 12680392,
+      "after": 1935296
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 422184,
+      "after": 422904
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_state_512",
+      "before": 32320,
+      "after": 32424
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 12779464,
+      "after": 2019520
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 623400,
+      "after": 624120
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 58176,
+      "after": 58280
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 12800968,
+      "after": 2045120
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 168968,
+      "after": 169536
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 131952,
+      "after": 128442
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 296968,
+      "after": 297568
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 211216,
+      "after": 209626
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 368648,
+      "after": 369312
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 367056,
+      "after": 371994
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 22656543,
+      "after": 22679747
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 20712767,
+      "after": 20727443
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 55591,
+      "after": 94885
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 19910672,
+      "after": 19892326
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 209640,
+      "after": 210312
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 19392,
+      "after": 19496
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 12636232,
+      "after": 1899584
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 246952,
+      "after": 247672
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 19392,
+      "after": 19496
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 12680392,
+      "after": 1935296
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 422184,
+      "after": 422904
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 32320,
+      "after": 32424
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 12779464,
+      "after": 2019520
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 623400,
+      "after": 624120
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 58176,
+      "after": 58280
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 12800968,
+      "after": 2045120
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 168968,
+      "after": 169536
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 131952,
+      "after": 128442
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 296968,
+      "after": 297568
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 211216,
+      "after": 209626
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 368648,
+      "after": 369312
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 367056,
+      "after": 371994
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 47571837,
+      "after": 47492060
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 28440941,
+      "after": 28348508
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 521845,
+      "after": 741181
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20578472,
+      "after": 20366311
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 2072640,
+      "after": 2073312
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_state_128",
+      "before": 185712,
+      "after": 185816
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 16426000,
+      "after": 15231936
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 2435392,
+      "after": 2436112
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_state_256",
+      "before": 185712,
+      "after": 185816
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 16850320,
+      "after": 15578688
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 4161504,
+      "after": 4162224
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_state_512",
+      "before": 309520,
+      "after": 309624
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 17804752,
+      "after": 16394368
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 6162720,
+      "after": 6163440
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 557136,
+      "after": 557240
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 18016336,
+      "after": 16638720
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 1672328,
+      "after": 1672896
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 1292412,
+      "after": 1252086
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 2940808,
+      "after": 2941408
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 2070076,
+      "after": 2046006
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 3634568,
+      "after": 3635232
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 3605436,
+      "after": 3633846
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 47583662,
+      "after": 47532598
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 28452766,
+      "after": 28389046
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 533670,
+      "after": 781719
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20578472,
+      "after": 20366311
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 2072640,
+      "after": 2073312
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 185712,
+      "after": 185816
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 16426000,
+      "after": 15231936
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 2435392,
+      "after": 2436112
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 185712,
+      "after": 185816
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 16850320,
+      "after": 15578688
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 4161504,
+      "after": 4162224
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 309520,
+      "after": 309624
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 17804752,
+      "after": 16394368
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 6162720,
+      "after": 6163440
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 557136,
+      "after": 557240
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 18016336,
+      "after": 16638720
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 1672328,
+      "after": 1672896
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 1292412,
+      "after": 1252086
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 2940808,
+      "after": 2941408
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 2070076,
+      "after": 2046006
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 3634568,
+      "after": 3635232
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 3605436,
+      "after": 3633846
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 302573516,
+      "after": 337224204
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 133129084,
+      "after": 148939804
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 5200028,
+      "after": 7095484
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 27256472,
+      "after": 25970417
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 20702640,
+      "after": 20703312
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_state_128",
+      "before": 1848912,
+      "after": 1849016
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 74982880,
+      "after": 72958656
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 24319792,
+      "after": 24320512
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_state_256",
+      "before": 1848912,
+      "after": 1849016
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 79208800,
+      "after": 76415808
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 41554704,
+      "after": 41555424
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_state_512",
+      "before": 3081520,
+      "after": 3081624
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 88716832,
+      "after": 84648448
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 61555920,
+      "after": 61556640
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 5546736,
+      "after": 5546840
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 90829216,
+      "after": 87285120
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 16705928,
+      "after": 16706496
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 12897012,
+      "after": 12642126
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 29379208,
+      "after": 29379808
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 20658676,
+      "after": 20665806
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 36293768,
+      "after": 36294432
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 35989236,
+      "after": 36713166
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 302689076,
+      "after": 337637561
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 133244644,
+      "after": 149353161
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 5315588,
+      "after": 7508841
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 27256472,
+      "after": 25970417
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 20702640,
+      "after": 20703312
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 1848912,
+      "after": 1849016
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 74982880,
+      "after": 72958656
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 24319792,
+      "after": 24320512
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 1848912,
+      "after": 1849016
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 79208800,
+      "after": 76415808
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 41554704,
+      "after": 41555424
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 3081520,
+      "after": 3081624
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 88716832,
+      "after": 84648448
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 61555920,
+      "after": 61556640
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 5546736,
+      "after": 5546840
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 90829216,
+      "after": 87285120
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 16705928,
+      "after": 16706496
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 12897012,
+      "after": 12642126
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 29379208,
+      "after": 29379808
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 20658676,
+      "after": 20665806
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 36293768,
+      "after": 36294432
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 35989236,
+      "after": 36713166
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 2839853737,
+      "after": 3169691103
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 1116302381,
+      "after": 1288725679
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 51988461,
+      "after": 75890191
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_decide_bytes",
+      "before": 94036472,
+      "after": 102860117
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_shared_128",
+      "before": 207002640,
+      "after": 207003312
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_state_128",
+      "before": 18480912,
+      "after": 18481016
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_solve_128",
+      "before": 534943744,
+      "after": 524101824
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_shared_256",
+      "before": 243163792,
+      "after": 243164512
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_state_256",
+      "before": 18480912,
+      "after": 18481016
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_solve_256",
+      "before": 577185664,
+      "after": 558662976
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_shared_512",
+      "before": 415486704,
+      "after": 415487424
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_state_512",
+      "before": 30801520,
+      "after": 30801624
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_solve_512",
+      "before": 672229696,
+      "after": 640442624
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_shared_1024",
+      "before": 615487920,
+      "after": 615488640
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_state_1024",
+      "before": 55442736,
+      "after": 55442840
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_solve_1024",
+      "before": 693350080,
+      "after": 665757312
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_verify_256",
+      "before": 167041928,
+      "after": 167042496
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_pass_256",
+      "before": 128943012,
+      "after": 125608638
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_verify_512",
+      "before": 293763208,
+      "after": 293763808
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_pass_512",
+      "before": 206544676,
+      "after": 205307326
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_verify_1024",
+      "before": 362885768,
+      "after": 362886432
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "key": "estimate_w1_pass_1024",
+      "before": 359827236,
+      "after": 364704702
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 2841011432,
+      "after": 3173807423
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 1117460076,
+      "after": 1292841999
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 53146156,
+      "after": 80006511
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_decide_bytes",
+      "before": 94036472,
+      "after": 102860117
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_shared_128",
+      "before": 207002640,
+      "after": 207003312
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_state_128",
+      "before": 18480912,
+      "after": 18481016
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_solve_128",
+      "before": 534943744,
+      "after": 524101824
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_shared_256",
+      "before": 243163792,
+      "after": 243164512
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_state_256",
+      "before": 18480912,
+      "after": 18481016
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_solve_256",
+      "before": 577185664,
+      "after": 558662976
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_shared_512",
+      "before": 415486704,
+      "after": 415487424
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_state_512",
+      "before": 30801520,
+      "after": 30801624
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_solve_512",
+      "before": 672229696,
+      "after": 640442624
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_shared_1024",
+      "before": 615487920,
+      "after": 615488640
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_state_1024",
+      "before": 55442736,
+      "after": 55442840
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_solve_1024",
+      "before": 693350080,
+      "after": 665757312
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_verify_256",
+      "before": 167041928,
+      "after": 167042496
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_pass_256",
+      "before": 128943012,
+      "after": 125608638
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_verify_512",
+      "before": 293763208,
+      "after": 293763808
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_pass_512",
+      "before": 206544676,
+      "after": 205307326
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_verify_1024",
+      "before": 362885768,
+      "after": 362886432
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "key": "estimate_w1_pass_1024",
+      "before": 359827236,
+      "after": 364704702
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 22156566,
+      "after": 22172389
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 20552486,
+      "after": 20560069
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 41902,
+      "after": 66872
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_decide_bytes",
+      "before": 19892472,
+      "after": 19878901
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_shared_128",
+      "before": 178992,
+      "after": 179664
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_state_128",
+      "before": 15120,
+      "after": 15224
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_solve_128",
+      "before": 12625216,
+      "after": 1890752
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_shared_256",
+      "before": 209072,
+      "after": 209792
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_state_256",
+      "before": 15120,
+      "after": 15224
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_solve_256",
+      "before": 12660928,
+      "after": 1919552
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_shared_512",
+      "before": 356560,
+      "after": 357280
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_state_512",
+      "before": 25200,
+      "after": 25304
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_solve_512",
+      "before": 12743296,
+      "after": 1990144
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_shared_1024",
+      "before": 531216,
+      "after": 531936
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_state_1024",
+      "before": 45360,
+      "after": 45464
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_solve_1024",
+      "before": 12765184,
+      "after": 2016128
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_verify_256",
+      "before": 135560,
+      "after": 136128
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_pass_256",
+      "before": 126564,
+      "after": 126654
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_verify_512",
+      "before": 238216,
+      "after": 238816
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_pass_512",
+      "before": 203364,
+      "after": 206910
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_verify_1024",
+      "before": 296072,
+      "after": 296736
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "key": "estimate_w1_pass_1024",
+      "before": 356196,
+      "after": 367422
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 26707607,
+      "after": 26717502
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 21955495,
+      "after": 21947934
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 120879,
+      "after": 175617
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20004472,
+      "after": 19957381
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_shared_128",
+      "before": 533424,
+      "after": 534096
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_state_128",
+      "before": 43536,
+      "after": 43640
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_solve_128",
+      "before": 14042176,
+      "after": 7426496
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_shared_256",
+      "before": 621360,
+      "after": 622080
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_state_256",
+      "before": 43536,
+      "after": 43640
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_solve_256",
+      "before": 14145472,
+      "after": 7510592
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_shared_512",
+      "before": 1059152,
+      "after": 1059872
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_state_512",
+      "before": 72560,
+      "after": 72664
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_solve_512",
+      "before": 14384512,
+      "after": 7719424
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_shared_1024",
+      "before": 1582992,
+      "after": 1583712
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_state_1024",
+      "before": 130608,
+      "after": 130712
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_solve_1024",
+      "before": 14449408,
+      "after": 7800704
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_verify_256",
+      "before": 402824,
+      "after": 403392
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_pass_256",
+      "before": 377124,
+      "after": 380670
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_verify_512",
+      "before": 708232,
+      "after": 708832
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_pass_512",
+      "before": 606500,
+      "after": 622718
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_verify_1024",
+      "before": 876680,
+      "after": 877344
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "key": "estimate_w1_pass_1024",
+      "before": 1064484,
+      "after": 1106814
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 33534167,
+      "after": 33527574
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 24060007,
+      "after": 24025206
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 239343,
+      "after": 335745
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20172472,
+      "after": 20075101
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_shared_128",
+      "before": 1065072,
+      "after": 1065744
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_state_128",
+      "before": 86160,
+      "after": 86264
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_solve_128",
+      "before": 15961024,
+      "after": 14833344
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_shared_256",
+      "before": 1239792,
+      "after": 1240512
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_state_256",
+      "before": 86160,
+      "after": 86264
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_solve_256",
+      "before": 16165696,
+      "after": 15000384
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_shared_512",
+      "before": 2113040,
+      "after": 2113760
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_state_512",
+      "before": 143600,
+      "after": 143704
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_solve_512",
+      "before": 16639744,
+      "after": 15415552
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_shared_1024",
+      "before": 3160656,
+      "after": 3161376
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_state_1024",
+      "before": 258480,
+      "after": 258584
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_solve_1024",
+      "before": 16769152,
+      "after": 15577728
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_verify_256",
+      "before": 803720,
+      "after": 804288
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_pass_256",
+      "before": 752964,
+      "after": 760158
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_verify_512",
+      "before": 1413256,
+      "after": 1413856
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_pass_512",
+      "before": 1211204,
+      "after": 1243870
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_verify_1024",
+      "before": 1747592,
+      "after": 1748256
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "key": "estimate_w1_pass_1024",
+      "before": 2126916,
+      "after": 2211294
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 24288432,
+      "after": 24297262
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 21204656,
+      "after": 21205246
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 77368,
+      "after": 114584
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_decide_bytes",
+      "before": 19948752,
+      "after": 19923982
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_shared_128",
+      "before": 335160,
+      "after": 335832
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_state_128",
+      "before": 28224,
+      "after": 28328
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_solve_128",
+      "before": 12665824,
+      "after": 1927904
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_shared_256",
+      "before": 390872,
+      "after": 391592
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_state_256",
+      "before": 28224,
+      "after": 28328
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_solve_256",
+      "before": 12728032,
+      "after": 1980896
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_shared_512",
+      "before": 667960,
+      "after": 668680
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_state_512",
+      "before": 47040,
+      "after": 47144
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_solve_512",
+      "before": 12863968,
+      "after": 2100448
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_shared_1024",
+      "before": 999288,
+      "after": 1000008
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_state_1024",
+      "before": 84672,
+      "after": 84776
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_solve_1024",
+      "before": 12887008,
+      "after": 2127584
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_verify_256",
+      "before": 275528,
+      "after": 276096
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_pass_256",
+      "before": 199104,
+      "after": 192066
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_verify_512",
+      "before": 485320,
+      "after": 485920
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_pass_512",
+      "before": 320640,
+      "after": 315330
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_verify_1024",
+      "before": 591560,
+      "after": 592224
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "key": "estimate_w1_pass_1024",
+      "before": 560640,
+      "after": 561858
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 42239937,
+      "after": 42171589
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 26683569,
+      "after": 26608133
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 349737,
+      "after": 465109
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20350272,
+      "after": 20229256
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_shared_128",
+      "before": 1810560,
+      "after": 1811232
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_state_128",
+      "before": 126144,
+      "after": 126248
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_solve_128",
+      "before": 14395840,
+      "after": 7749344
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_shared_256",
+      "before": 2067904,
+      "after": 2068624
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_state_256",
+      "before": 126144,
+      "after": 126248
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_solve_256",
+      "before": 14676928,
+      "after": 7993568
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_shared_512",
+      "before": 3521568,
+      "after": 3522288
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_state_512",
+      "before": 210240,
+      "after": 210344
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_solve_512",
+      "before": 15321280,
+      "after": 8547808
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_shared_1024",
+      "before": 5399520,
+      "after": 5400240
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_state_1024",
+      "before": 378432,
+      "after": 378536
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_solve_1024",
+      "before": 15418048,
+      "after": 8679392
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_verify_256",
+      "before": 1311176,
+      "after": 1311744
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_pass_256",
+      "before": 1368144,
+      "after": 1342530
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_verify_512",
+      "before": 2311240,
+      "after": 2311840
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_pass_512",
+      "before": 2228688,
+      "after": 2216322
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_verify_1024",
+      "before": 2799944,
+      "after": 2800608
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "key": "estimate_w1_pass_1024",
+      "before": 3945168,
+      "after": 3963906
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 46509339,
+      "after": 46486441
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 27986075,
+      "after": 27935545
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 412291,
+      "after": 577485
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20443232,
+      "after": 20300308
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_shared_128",
+      "before": 2170680,
+      "after": 2171352
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_state_128",
+      "before": 148704,
+      "after": 148808
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_solve_128",
+      "before": 16157008,
+      "after": 15021024
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_shared_256",
+      "before": 2474200,
+      "after": 2474920
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_state_256",
+      "before": 148704,
+      "after": 148808
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_solve_256",
+      "before": 16488016,
+      "after": 15309024
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_shared_512",
+      "before": 4212312,
+      "after": 4213032
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_state_512",
+      "before": 247840,
+      "after": 247944
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_solve_512",
+      "before": 17217232,
+      "after": 15968608
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_shared_1024",
+      "before": 6474456,
+      "after": 6475176
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_state_1024",
+      "before": 446112,
+      "after": 446216
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_solve_1024",
+      "before": 17351632,
+      "after": 16135776
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_verify_256",
+      "before": 1549640,
+      "after": 1550208
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_pass_256",
+      "before": 1678344,
+      "after": 1657962
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_verify_512",
+      "before": 2731720,
+      "after": 2732320
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_pass_512",
+      "before": 2736712,
+      "after": 2738538
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_verify_1024",
+      "before": 3307976,
+      "after": 3308640
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "key": "estimate_w1_pass_1024",
+      "before": 4848072,
+      "after": 4899690
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 30528975,
+      "after": 30508450
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 23110879,
+      "after": 23082882
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 174311,
+      "after": 238253
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20091832,
+      "after": 20032573
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_shared_128",
+      "before": 839088,
+      "after": 839760
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_state_128",
+      "before": 63120,
+      "after": 63224
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_solve_128",
+      "before": 13253248,
+      "after": 3877824
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_shared_256",
+      "before": 966448,
+      "after": 967168
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_state_256",
+      "before": 63120,
+      "after": 63224
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_solve_256",
+      "before": 13393408,
+      "after": 3998784
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_shared_512",
+      "before": 1648080,
+      "after": 1648800
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_state_512",
+      "before": 105200,
+      "after": 105304
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_solve_512",
+      "before": 13701568,
+      "after": 4272640
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_shared_1024",
+      "before": 2501904,
+      "after": 2502624
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_state_1024",
+      "before": 189360,
+      "after": 189464
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_solve_1024",
+      "before": 13757248,
+      "after": 4336512
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_verify_256",
+      "before": 642440,
+      "after": 643008
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_pass_256",
+      "before": 575940,
+      "after": 561822
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_verify_512",
+      "before": 1132168,
+      "after": 1132768
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_pass_512",
+      "before": 934340,
+      "after": 925726
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_verify_1024",
+      "before": 1374344,
+      "after": 1375008
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "key": "estimate_w1_pass_1024",
+      "before": 1647300,
+      "after": 1653534
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 28983127,
+      "after": 28967302
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 22656999,
+      "after": 22628326
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 160367,
+      "after": 221057
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20060472,
+      "after": 19996621
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_shared_128",
+      "before": 710640,
+      "after": 711312
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_state_128",
+      "before": 57744,
+      "after": 57848
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_solve_128",
+      "before": 14130880,
+      "after": 7504064
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_shared_256",
+      "before": 827504,
+      "after": 828224
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_state_256",
+      "before": 57744,
+      "after": 57848
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_solve_256",
+      "before": 14267968,
+      "after": 7615808
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_shared_512",
+      "before": 1410448,
+      "after": 1411168
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_state_512",
+      "before": 96240,
+      "after": 96344
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_solve_512",
+      "before": 14585344,
+      "after": 7890688
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_shared_1024",
+      "before": 2108880,
+      "after": 2109600
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_state_1024",
+      "before": 173232,
+      "after": 173336
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_solve_1024",
+      "before": 14671744,
+      "after": 7993472
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_verify_256",
+      "before": 536456,
+      "after": 537024
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_pass_256",
+      "before": 502404,
+      "after": 503070
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_verify_512",
+      "before": 943240,
+      "after": 943840
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_pass_512",
+      "before": 808068,
+      "after": 822942
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_verify_1024",
+      "before": 1166984,
+      "after": 1167648
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "key": "estimate_w1_pass_1024",
+      "before": 1418628,
+      "after": 1462686
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_adm_bytes_w1a",
+      "before": 33021015,
+      "after": 33019063
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_sel128_bytes",
+      "before": 23871063,
+      "after": 23852231
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_fixed_bytes",
+      "before": 211935,
+      "after": 301501
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_decide_bytes",
+      "before": 20146992,
+      "after": 20074450
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_shared_128",
+      "before": 1044600,
+      "after": 1045272
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_state_128",
+      "before": 76608,
+      "after": 76712
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_solve_128",
+      "before": 14148880,
+      "after": 7527200
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_shared_256",
+      "before": 1199896,
+      "after": 1200616
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_state_256",
+      "before": 76608,
+      "after": 76712
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_solve_256",
+      "before": 14319376,
+      "after": 7674656
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_shared_512",
+      "before": 2045208,
+      "after": 2045928
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_state_512",
+      "before": 127680,
+      "after": 127784
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_solve_512",
+      "before": 14694928,
+      "after": 8012320
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_shared_1024",
+      "before": 3114648,
+      "after": 3115368
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_state_1024",
+      "before": 229824,
+      "after": 229928
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_solve_1024",
+      "before": 14764048,
+      "after": 8097824
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_verify_256",
+      "before": 785864,
+      "after": 786432
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_pass_256",
+      "before": 740064,
+      "after": 728562
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_verify_512",
+      "before": 1385032,
+      "after": 1385632
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_pass_512",
+      "before": 1202208,
+      "after": 1201266
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_verify_1024",
+      "before": 1680200,
+      "after": 1680864
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "key": "estimate_w1_pass_1024",
+      "before": 2122656,
+      "after": 2146674
+    }
+  ],
+  "adjacent_manifest_only_counts_changed": [
+    [
+      "fab0466a846ef26b1c530a261a6f1d134fc32ba1d70f57682010877a52373c05  counts.jsonl",
+      "29e4aba283a4edeb3287d72598d7f37d29ed65799959f89005cf58bcf1d4a9f4  counts.jsonl"
+    ]
+  ],
+  "historical_neighbors_unchanged": [
+    "k6b_packet.json",
+    "sources.txt"
+  ],
+  "h19_projection_checks": 726,
+  "mismatches": [],
+  "reference_sha256": "d1cd9a1f755fac28ebd8194501daa69c06ac463daa6c456309db8a9f8df9b956",
+  "diagnostic_named_phases": {
+    "solve": [
+      "own_initial_solve",
+      "own_residual",
+      "own_correction",
+      "own_fallback",
+      "fallback_selected_clone",
+      "own_recovery"
+    ],
+    "pass": [
+      "resolution_TOP",
+      "resolution_HATCHECK",
+      "first_formation_scale",
+      "pass_delta_solve",
+      "pass_recovery",
+      "pass_formation_scale",
+      "pass_one_contribution_operand",
+      "shift_factor_Nl_retry",
+      "report_build",
+      "attempt_refusal_transfer"
+    ]
+  }
+}
