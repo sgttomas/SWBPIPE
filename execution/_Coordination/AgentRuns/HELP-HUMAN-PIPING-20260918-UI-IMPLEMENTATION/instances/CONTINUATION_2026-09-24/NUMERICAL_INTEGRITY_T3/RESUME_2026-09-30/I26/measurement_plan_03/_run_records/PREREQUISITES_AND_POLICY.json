@@ -1,0 +1,72 @@
+{
+  "status": "Future prerequisites only; none observed for this artifact in this task.",
+  "ordered_prerequisites": [
+    {
+      "stage": "0 ordinary artifact acceptance",
+      "required": "RV36 and ROOT disposition for I28 source/compiler/type/request transfer; preserve fixed source/targets/compiled VR path. No acceptance inferred from read hashes."
+    },
+    {
+      "stage": "1 first input/launch qualification",
+      "required": "Later bounded grant for exact no-op and row139 counts prepass in FIRST_EXECUTION_PROPOSAL.json; compare seed structural/source/canonical metadata and normal/prepass H retained Strings; then stop."
+    },
+    {
+      "stage": "2 fresh W1-T1",
+      "required": "Separate grant for original60 processes: six10-member RF frames plus DEC053 nine, W1/sparse rotated pairs. Fresh same-binary per-tier no-op, prepass/admission and records; five requested repeats, first W1 pass prefixes/rows. This establishes actual10-member ascent attempts and small controls."
+    },
+    {
+      "stage": "3 fresh W1-T2",
+      "required": "Separate grant for original24 processes on six100-member frames, same shared chronological records; actual prior10-member orientation/mode attempt required. Successful smaller observations can begin fresh calibration for large tiers."
+    },
+    {
+      "stage": "4 fresh W1-T3",
+      "required": "Separate grant for original24 processes on six1000-member frames. Actual previous100-member model/orientation/mode attempt required. Ratio calibration uses only earlier successful smaller same-family/mode rows with minimum100 members; never use10-member rows for this threshold. First-pass actual prefix segments/limits and same-run parity required before ROOT considers T4."
+    },
+    {
+      "stage": "5 ROOT conditional W1-T4 release",
+      "required": "Explicit release after reviewing current artifact, lower-tier chronology, T3 prefixes, remaining comparison scope and host slot. Use exact existing b3 wrapper and unchanged run_tier; numeric deferral is never overridden."
+    }
+  ],
+  "admission_policy": {
+    "rss_cap_C": 8589934592,
+    "heap_cap": 8053063680,
+    "C_half": 4294967296,
+    "binary_half_heap_cap": 4026531840,
+    "projected_rss_limit": 6871947673,
+    "default_rho": 2.0,
+    "default_RSS_to_footprint": 1.45,
+    "projected_RSS_fraction": 0.8,
+    "rho_metric": "max(max(physical_peak_footprint-current_tier_noop_footprint,0), moving_heap_peak)/that earlier run own matching estimate; RSS fallback and current baseline behavior preserved as source.",
+    "ratio_population": "Chronologically earlier classification=ok, strictly smaller, same family and same mode; orientation pooled. Minimum size100 for targets>=1000. Sparse never calibrates W1. Same-size pass1 never calibrates pass2.",
+    "ascent": "Exact previous model/orientation and same mode needs a recorded classification other than None/not_run; success is not required by original ascent rule. This differs from successful ratio eligibility.",
+    "predicate_order": "Named never/conditional holds and recorded ascent precede any model-specific prepass; exact-argv W1 binding then numeric admission. Existing P1 Linux branch, floating operations and integer truncations remain unchanged.",
+    "reuse_boundary": "Historical I25/RV34 replay is conditional comparison, not fresh observations. Any proposed reuse must separately establish artifact/source/input/metric/fixed-term/denominator and chronology correspondence. No model-name-only reuse; default plan uses new lower-tier observations."
+  },
+  "host_runtime_prerequisites": {
+    "existing_guard": "Later confirm current approved M5 guard is active; no new guard/config changes. No guard runtime was checked now.",
+    "timed_slot": "ROOT exclusive slot; no Cargo or DEC025 sweep during samples. Existing wait_for_quiet_host preserves memorystatus>=80, load trigger>8 then resume<6, maxwait3600s; executor also honors separately granted elapsed cutoff.",
+    "darwin_measurement": "Existing /usr/bin/time -l wrapper captures RSS/physical footprint; RSS ps polling100ms at8GiB. No new rlimit substitute.",
+    "small_timeout_s": 600,
+    "large_timeout_s": 1800,
+    "small_inner_time_budget_s": 540,
+    "large_inner_time_budget_s": 1740,
+    "first_repeat_limit_s": 600,
+    "repeats": "Five requested, actual early source/refusal/time truncation recorded; never label requested count as completed count.",
+    "prefixes": "Only first W1 pass. Existing prefix_limits derives actual last-full-call segment ends, excludes last/full segment, maximum9. Concrete case budgets remain unknown until that full call; invocation defaultu64MAX. Not an invented fixed9 calls."
+  },
+  "stop_conditions": [
+    "Missing guard, slot, artifact/source/input/launch hash correspondence or required control: do not start/stop affected work.",
+    "Any admitted RSS-watchdog/heap-cap event, unexpected error or binary refusal is existing runner stop; inspect existing guard record without blind retry.",
+    "Timeout, budget/refusal or unavailable required prefix/control is retained as actual outcome; do not claim calibration/qualification that it did not provide.",
+    "Any matching H observed requested/moving source/solve/prefix heap above its matching H expression: stop and return.",
+    "Any changed numerical outcome/publication versus accepted comparator scope, false parity, work/storage/source mismatch or unexpectedly reached full-call work budget: stop.",
+    "Numeric admission deferral remains a record, never forced through allow-over-estimate, synthetic rho, cap edit or policy edit.",
+    "VR coarse10000 deferral remains; it neither authorizes VR scale nor waives H W1-T4 or historical full-value comparison."
+  ],
+  "finite_gaps": [
+    "RV36/ROOT ordinary-artifact acceptance still pending for this preparation.",
+    "Future directories and seed copy intentionally absent; first real canonical/source/count/argument witness not run.",
+    "No current same-binary baseline, calibration, ascent or prefix evidence; acquire in stages, no projected duration guarantee.",
+    "Exact later numeric admissions depend on fresh observations/current baseline and future prepass values; no decision invented.",
+    "KF3 complete historical published row values not retained in inspected record/dump inventory. ROOT comparison-scope disposition remains before stronger later closure; initial small input qualification independent."
+  ]
+}

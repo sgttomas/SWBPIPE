@@ -1,0 +1,41 @@
+{
+  "status": "Prospective only; I28 artifacts await independent RV36/ROOT acceptance. Hash reads are not execution qualification.",
+  "freeze": "81c03849033f3ce745668f581f446530789397b8",
+  "source_tree": "330540b6a64d5aa1bc1e5ffa26750492e76b8727",
+  "source_tree_kind": "whole repository Git tree",
+  "H": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+    "sha256": "48ae299e044240288486b82f15fd2a40c431803c21474ce5ad0372e6704c0561",
+    "bytes": 2861152
+  },
+  "VR_companion_not_scheduled": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale",
+    "sha256": "c3309cf68be2e6b5bd6ad14a873f4585f6bf664fccb89982b304152c8aac647a",
+    "bytes": 2772288
+  },
+  "source_root_fixed": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+  "source_archive": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source.tar",
+    "bytes": 30986240,
+    "sha256": "26b48ec62ea3f21849c288369f2ae245130fecde4fc69e7c9fa643562592a725"
+  },
+  "H_build_manifest_directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness",
+  "VR_actual_compiled_manifest_directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "VR_manifest_env_dep_line": "# env-dep:CARGO_MANIFEST_DIR=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "VR_dep_info_hashes": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale-72d243a83b4ebb3a.d",
+      "sha256": "61541404f3e628235cdac88ba0c003c2c9d4ce02c41dbeccf82962f88c6abf39"
+    }
+  ],
+  "H_manifest_scope": "H build directory bound by I28 Cargo manifest invocation; compose_h retained argument array has no manifest-directory or argv0 String. No extra runtime owner is inferred.",
+  "normal_execution_environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source"
+}

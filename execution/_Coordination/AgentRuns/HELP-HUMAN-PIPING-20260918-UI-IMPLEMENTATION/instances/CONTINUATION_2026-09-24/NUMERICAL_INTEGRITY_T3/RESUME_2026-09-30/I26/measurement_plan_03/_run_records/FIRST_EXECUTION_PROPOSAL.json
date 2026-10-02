@@ -1,0 +1,62 @@
+{
+  "status": "Later ROOT grant proposal only; no execution now.",
+  "prerequisites": [
+    "RV36 and ROOT ordinary-artifact acceptance",
+    "Separate elapsed-time runtime grant, exclusive slot and existing M5 guard confirmed",
+    "Artifact/source/runner/seed hashes rechecked; prospective directories and exact seed copy materialized only then"
+  ],
+  "sequence": [
+    {
+      "operation": "Existing wait_for_quiet_host, then baseline_run in qualification folder",
+      "call": "r.baseline_run(binary, qualification_directory, \"qualification_01\")",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--noop",
+        "--heap-cap-bytes",
+        "8053063680"
+      ],
+      "record_dir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification",
+      "run_id": "baseline_qualification_01",
+      "rss_cap_bytes": 8589934592,
+      "timeout_s": 60
+    },
+    {
+      "operation": "Select existing schedule row139, check eligibility at bottom tier, build exact future normal argv using existing binary_argv and append --counts-only; existing launch writes separate qualification logs",
+      "call": "r.launch(r.binary_argv(binary, run139, counts_path, records_directory)+[\"--counts-only\"], rss_cap_bytes=run139[\"rss_cap_bytes\"], timeout_s=run139[\"timeout_s\"], record_dir=qualification_directory, run_id=\"139_counts_binding_qualification\")",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-CHAIN-n00010-AX",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/139_RF-LARGE-CHAIN-n00010-AX_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "record_dir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification",
+      "run_id": "139_counts_binding_qualification",
+      "rss_cap_bytes": 8589934592,
+      "timeout_s": 600,
+      "checks": "One successful positive complete W1 counts row; exact canonical/source/structural identity versus seed; planned H retained arguments/repeats/prefix flag identical to normal139. Counts-only does not read counts_file, but retains its literal path. This is not rho calibration."
+    },
+    {
+      "operation": "Stop and return qualification evidence before any timed solve, larger model construction or ascent. Later lower-tier grants use original run_tier CLI and regenerate actual binding with final record paths."
+    }
+  ],
+  "time_note": "Existing60s/600s watchdog ceilings and3600s quiet-wait ceiling are not projected durations or a total grant. ROOT supplies an elapsed execution cutoff.",
+  "full_argv_preservation": "Runner normalizes absolute argv to basenames in its record. Preserve this sealed full-token manifest and the actual invocation under raw records before every launch; the normalized recorder alone cannot reconstruct retained path Strings.",
+  "qualification_output_no_overwrite": "Qualification logs are separate from the canonical per-run records/counts-binding filenames used later by run_tier."
+}

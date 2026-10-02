@@ -1,0 +1,12 @@
+{
+  "checked_utc": "2026-10-02T04:44:07.530091+00:00",
+  "input_origins_verified": 36,
+  "schedule_rows": 132,
+  "T4_W1": 12,
+  "T4_sparse": 12,
+  "T4_prefixes": 6,
+  "all_argv_lengths_verified": true,
+  "future_scratch_root_exists": false,
+  "product_runtime_executions": 0,
+  "remaining_acceptance": "Ordinary RV36/ROOT acceptance; lower-tier and later conditional scale grants; fresh runtime correspondence/calibration/prefix/admission; finite KF3 comparison-scope disposition."
+}
