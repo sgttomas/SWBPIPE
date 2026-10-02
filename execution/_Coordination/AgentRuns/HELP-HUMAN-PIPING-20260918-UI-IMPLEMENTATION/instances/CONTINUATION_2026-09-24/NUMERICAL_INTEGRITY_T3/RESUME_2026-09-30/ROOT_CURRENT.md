@@ -33,7 +33,7 @@ in numerics for missing evidence on the K6c branch.
   checks. All fifteen finite T1 contexts are qualified; these counts-only records
   supply no normal solve, admission, performance or rho result.
 
-## Current bounded assignments
+## Latest completed blocks
 
 I27's full mechanical V-K matrix D is independently closed by
 REVIEW_RV37/vk_mechanical_03. Runtime and review are stopped. Fresh composite
@@ -60,24 +60,23 @@ class counts. Process classificationok does not mean numerical Passed.
 Baseline/progress observations retain their actual limited timing. Immutable T2
 raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz.
 
-Other bounded workers/reviewers have returned and no automatic follow-on exists.
-
 ## Remaining path and holds
 
-T1/T2/T3 finite observations are accepted. T4 contexts, measurements and the owner
-comparison disposition are pending. T3 remains active at this owner-decision hold;
+W1-T1/W1-T2/W1-T3 finite observations are accepted. W1-T4 contexts, measurements
+and the owner comparison disposition are pending. The overall numerical-integrity
+workstream T3 remains active at this owner-decision hold;
 this is neither completion nor a new owner-requested pause.
 The original runner enumerates catalogue metadata before filtering a tier and
 does not itself reject a failed tier no-op or enforce full seed correspondence
 on each prepass. These inherited execution limits are disclosed in the latest
-ROOT ruling. The explicit tier grants account for inherited catalogue work and require
-actual baseline validation, repeated field checks, provisional results and
-truthful stops/monitoring limits. This index
-itself supplies no authority and grants no source repair or new host tool.
+ROOT ruling. The explicit tier grants account for inherited catalogue work and
+require actual baseline validation, repeated field checks, provisional results
+and truthful stops/monitoring limits. This index itself supplies no authority
+and grants no source repair or new host tool.
 
 Fresh W1-T1/T2/T3 chronology/calibration and required T3 prefixes are established.
-ROOT still needs the owner comparison decision and a separate bounded T4 grant. Preserve all numeric admission holds and the VR largest-size
-backstop; do not force a deferred run. Required W1-T4, complete K6c return and
+ROOT still needs the owner comparison decision and a separate bounded T4 grant.
+Preserve all numeric admission holds and the VR largest-size backstop; do not force a deferred run. Required W1-T4, complete K6c return and
 independent final review, full-SHA hosted CI, exact-final-head Mac DEC-025 and
 GEN-8 remain outstanding. K6c is not complete and no PR is ready to merge.
 
