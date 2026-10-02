@@ -40,23 +40,32 @@ REVIEW_RV37/vk_mechanical_03. Runtime and review are stopped. Fresh composite
 source review REVIEW_RV38/composite_source_01 is accepted at source scope with
 no actionable maintained-source finding; later measurements/gates need coverage.
 
-I26 /root/i26_uc_witness has the sole quiet/timed slot for original W1-T1 under
-BRIEFS/I26_T1_MEASUREMENTS_06.md. Receipt05:36:25 UTC, runtime stop/reap cutoff
-06:01:25, final return06:06:25. Active packet I26/t1_measurements_06 is unsealed
-and unaccepted. All fifteen small-tier input contexts were qualified before this
-grant; the live baseline/record checks and matched-window measurements remain
-part of the active assignment. No later tier or new tool/source change is granted.
+I26 /root/i26_uc_witness has the sole quiet/timed slot for original W1-T2 under
+BRIEFS/I26_T2_MEASUREMENTS_07.md. Receipt06:07:47 UTC, runtime stop/reap cutoff
+06:32:47, final return06:37:47. First acquire the six named100-member inputs and
+pass complete field/context checks; then run the unchanged original T2 once.
+Active packet I26/t2_measurements_07 is unsealed and unaccepted. No T3/T4 or new
+tool/source work is granted. Preserve old working-journal bytes as a prefix.
+
+W1-T1 finite observations are accepted through REVIEW_RV34/t1_measurements_02
+and t1_disposition_03, with explicit ROOT rulings. Its required external live
+inspections did not occur: the tier finished before first inspection. Full
+independent retrospective checks pass. That process failure remains historical;
+there is no live-compliance or performed-successful-group-scan claim. Immutable
+raw snapshot: MEASUREMENTS/W1_T1/_run_records/records.tar.gz. No retry occurred.
 
 Other bounded workers/reviewers have returned and no automatic follow-on exists.
 
 ## Remaining path and holds
 
-The small-tier contexts are qualified; larger-tier contexts remain unqualified.
+The small-tier contexts and finite T1 observations are qualified; T2 is active
+under its own conditional input gate. T3/T4 contexts and measurements are pending.
 The original runner enumerates catalogue metadata before filtering a tier and
 does not itself reject a failed tier no-op or enforce full seed correspondence
 on each prepass. These inherited execution limits are disclosed in the latest
-ROOT ruling. The explicit T1 grant accounts for that inherited catalogue work and requires
-actual baseline validation, repeated field checks and truthful stops. This index
+ROOT ruling. The explicit tier grants account for inherited catalogue work and require
+actual baseline validation, repeated field checks, provisional results and
+truthful stops/monitoring limits. This index
 itself supplies no authority and grants no source repair or new host tool.
 
 Complete fresh W1-T1, T2 and T3 chronology/calibration/prefix evidence before
