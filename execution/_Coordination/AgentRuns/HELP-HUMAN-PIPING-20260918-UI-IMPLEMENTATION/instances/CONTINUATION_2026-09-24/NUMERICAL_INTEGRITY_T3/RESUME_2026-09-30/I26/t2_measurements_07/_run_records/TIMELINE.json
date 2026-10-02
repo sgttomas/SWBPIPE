@@ -1,0 +1,16 @@
+{
+  "qualification_start_utc": "2026-10-02T06:10:27.747395+00:00",
+  "qualification_end_utc": "2026-10-02T06:10:28.249414+00:00",
+  "tier_dispatch_intent_utc": "2026-10-02T06:11:01.360081+00:00",
+  "driver_birth_utc": "2026-10-02T06:11:01.419611+00:00",
+  "driver_last_write_utc": "2026-10-02T06:11:16.289530+00:00",
+  "baseline_checked_utc": "2026-10-02T06:11:02.635388+00:00",
+  "baseline_check_had_active_runner": true,
+  "then_completed_normal_rows": 2,
+  "completed_record_progress_snapshot_utc": "2026-10-02T06:11:39.791213+00:00",
+  "tier_complete_by_snapshot": true,
+  "owned_commands_at_snapshot": [],
+  "outer_session_exit0_observed_at_same_tool_boundary": true,
+  "runtime_slot_released_after_snapshot_before_seal": true,
+  "scope": "Driver filesystem birth/last-write times are labelled as such, not invented sampled process timestamps. Baseline inspected while active; full per-record/window checks completed after the fast tier ended. No per-row live-gate claim or retry."
+}

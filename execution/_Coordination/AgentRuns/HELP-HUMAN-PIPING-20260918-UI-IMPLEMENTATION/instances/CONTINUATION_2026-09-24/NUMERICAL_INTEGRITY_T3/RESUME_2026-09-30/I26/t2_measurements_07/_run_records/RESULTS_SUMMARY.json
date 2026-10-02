@@ -1,0 +1,27 @@
+{
+  "six_qualifications_pass": true,
+  "normal_processes": 24,
+  "tier_W1_bindings": 12,
+  "tier_baseline": 1,
+  "total_product_processes": 43,
+  "normal_completed_repeats": 120,
+  "W1_outcomes": {
+    "('Selected', 128)": 12
+  },
+  "sparse_outcomes": {
+    "Sensitive": 8,
+    "Passed": 4
+  },
+  "prefix_calls": 18,
+  "W1_publication_dumps": 6,
+  "sparse_solution_dumps": 12,
+  "all24_admissions_reproduce_with_current_T2_baseline": true,
+  "all588_matched_heap_checks_pass": true,
+  "minimum_matched_slack": 6778,
+  "global_pre_reset_fields_excluded": 162,
+  "largest_observed_W1_requested_heap": 11460490,
+  "largest_observed_W1_moving_heap": 12562314,
+  "largest_observed_product_RSS": 19382272,
+  "unrun_authorized_normal_rows": [],
+  "pending": "ROOT/independent measurement disposition; no automatic T3/T4 or complete K6c/E_max/engineering acceptance."
+}

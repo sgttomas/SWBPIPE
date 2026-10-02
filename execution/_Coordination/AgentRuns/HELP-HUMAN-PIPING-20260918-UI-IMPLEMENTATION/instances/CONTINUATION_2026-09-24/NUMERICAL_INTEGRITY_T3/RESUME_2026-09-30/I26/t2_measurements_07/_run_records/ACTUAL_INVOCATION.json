@@ -1,0 +1,45 @@
+{
+  "argv": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+    "--run",
+    "--tier",
+    "W1-T2",
+    "--binary",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+    "--counts",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+    "--records",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records",
+    "--source-commit",
+    "81c03849033f3ce745668f581f446530789397b8",
+    "--source-tree",
+    "330540b6a64d5aa1bc1e5ffa26750492e76b8727"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "driver_log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/tier_W1-T2.driver.log",
+  "qualification_orders": [
+    199,
+    204,
+    207,
+    212,
+    215,
+    220
+  ],
+  "tier_cli_launches": 1,
+  "catalogue_metadata_granted": true,
+  "dispatch_intent_utc": "2026-10-02T06:11:01.360081+00:00",
+  "outer_exec_session_id": 40899,
+  "outer_PID_PGID": 15253,
+  "outer_exit_code": 0,
+  "tier_complete_observed_by_utc": "2026-10-02T06:11:39.791213+00:00"
+}

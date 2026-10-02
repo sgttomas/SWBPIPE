@@ -1,0 +1,1165 @@
+{
+  "scope": "New T2 qualification/measurement files plus explicitly appended journal. Earlier raw files remain indexed by accepted T1/qualification packets and immutable T1 snapshot.",
+  "new_files": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/199_counts_binding_qualification.jsonl",
+      "relative_to_measurement_root": "qualification/199_counts_binding_qualification.jsonl",
+      "sha256": "8da9b1bc5371d98809d94224aaf3a02414e07e62fd795ae5cbe0b89068f7e804",
+      "bytes": 3017
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/199_counts_binding_qualification.record.json",
+      "relative_to_measurement_root": "qualification/199_counts_binding_qualification.record.json",
+      "sha256": "62f2cb5e36168a47a02ce214a55b0cf79f210216f6a963c90fd377e985688edc",
+      "bytes": 1651
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/199_counts_binding_qualification.stderr.txt",
+      "relative_to_measurement_root": "qualification/199_counts_binding_qualification.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/199_counts_binding_qualification.time.txt",
+      "relative_to_measurement_root": "qualification/199_counts_binding_qualification.time.txt",
+      "sha256": "68e9150a6a47e2a33a9bae2ff11c762eeb04481dfe8f726ff5cf68ba8b0acad7",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/204_counts_binding_qualification.jsonl",
+      "relative_to_measurement_root": "qualification/204_counts_binding_qualification.jsonl",
+      "sha256": "df360a76e650b723f2f32d43fa707c088d708770ac0174c005f8f9a547e921bf",
+      "bytes": 3021
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/204_counts_binding_qualification.record.json",
+      "relative_to_measurement_root": "qualification/204_counts_binding_qualification.record.json",
+      "sha256": "404211f4c1188f7a1f92e8e498c1fee0d762e5044182032601fa5dde51aa442b",
+      "bytes": 1653
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/204_counts_binding_qualification.stderr.txt",
+      "relative_to_measurement_root": "qualification/204_counts_binding_qualification.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/204_counts_binding_qualification.time.txt",
+      "relative_to_measurement_root": "qualification/204_counts_binding_qualification.time.txt",
+      "sha256": "ea227a2b69fb2d7d639bd8c53192df29b7c23ae53d7d6bc7f7ab591598da4305",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/207_counts_binding_qualification.jsonl",
+      "relative_to_measurement_root": "qualification/207_counts_binding_qualification.jsonl",
+      "sha256": "4f6ba4d0882e8f29636ef0eb3a7c56feafd69f5c115945715e24f6f988c89991",
+      "bytes": 3016
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/207_counts_binding_qualification.record.json",
+      "relative_to_measurement_root": "qualification/207_counts_binding_qualification.record.json",
+      "sha256": "2f737f17f19c96759a42b41f58f77e1a87e5f687014d09da64678e84fa113b22",
+      "bytes": 1648
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/207_counts_binding_qualification.stderr.txt",
+      "relative_to_measurement_root": "qualification/207_counts_binding_qualification.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/207_counts_binding_qualification.time.txt",
+      "relative_to_measurement_root": "qualification/207_counts_binding_qualification.time.txt",
+      "sha256": "26369689c67f17bf8676364fa641c38aae9845856cc774461a4e729dea15f068",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/212_counts_binding_qualification.jsonl",
+      "relative_to_measurement_root": "qualification/212_counts_binding_qualification.jsonl",
+      "sha256": "6d62b893bdd1d905c34dbd37ebfb563c552f065237aa6e43e77053214bd01b85",
+      "bytes": 3020
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/212_counts_binding_qualification.record.json",
+      "relative_to_measurement_root": "qualification/212_counts_binding_qualification.record.json",
+      "sha256": "09cedd6a6b951ba51bab11191ea7aefbea16d11c7158647aeb5d5f5b527e815d",
+      "bytes": 1651
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/212_counts_binding_qualification.stderr.txt",
+      "relative_to_measurement_root": "qualification/212_counts_binding_qualification.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/212_counts_binding_qualification.time.txt",
+      "relative_to_measurement_root": "qualification/212_counts_binding_qualification.time.txt",
+      "sha256": "4508d5c8d880379efa1bedf0b0a69e1f5c64b18bd01841fe210e3653044701bb",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/215_counts_binding_qualification.jsonl",
+      "relative_to_measurement_root": "qualification/215_counts_binding_qualification.jsonl",
+      "sha256": "5f7913dae3ef56ac6cdbca47250d7aa66ae60b20d1cac52ea228145bd1270eca",
+      "bytes": 3018
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/215_counts_binding_qualification.record.json",
+      "relative_to_measurement_root": "qualification/215_counts_binding_qualification.record.json",
+      "sha256": "af6b7554a6ba1dc473d67d3fbf1377526b8a59da07eca19a3b08975adaa2a343",
+      "bytes": 1649
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/215_counts_binding_qualification.stderr.txt",
+      "relative_to_measurement_root": "qualification/215_counts_binding_qualification.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/215_counts_binding_qualification.time.txt",
+      "relative_to_measurement_root": "qualification/215_counts_binding_qualification.time.txt",
+      "sha256": "e6ad94a37a5ec16765455fe3572d91d2f4acb7fe0f3e361a3f55db7e3f9ea722",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/220_counts_binding_qualification.jsonl",
+      "relative_to_measurement_root": "qualification/220_counts_binding_qualification.jsonl",
+      "sha256": "c2a4239f2baf8bf378a3f08704424aa9eb4cffbb26a7d0ac80eaa28188cb8a43",
+      "bytes": 3024
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/220_counts_binding_qualification.record.json",
+      "relative_to_measurement_root": "qualification/220_counts_binding_qualification.record.json",
+      "sha256": "36604f6d39581c7af63f285f67ff25a41a172c1c218fcd10f89890774799213d",
+      "bytes": 1651
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/220_counts_binding_qualification.stderr.txt",
+      "relative_to_measurement_root": "qualification/220_counts_binding_qualification.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/220_counts_binding_qualification.time.txt",
+      "relative_to_measurement_root": "qualification/220_counts_binding_qualification.time.txt",
+      "sha256": "36b837b01d20ac66de2b5dc3050059f436f16e3e5d078ae4566956a2f35c0800",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/199_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.jsonl",
+      "sha256": "4be7e7ba13b636ef4f948ae58c1909f8ac834561cab9ef1788d70d096ada8172",
+      "bytes": 3017
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/199_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.record.json",
+      "sha256": "727faa30ff6ee6a0b782289c9c9525682fb9ebb52ff7c77c2a50de48fb7430f6",
+      "bytes": 1666
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/199_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/199_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.time.txt",
+      "sha256": "eec72425e8a93d9586b21b39782e04af3b4fe6d143cfb3e49fa3abfa3fe5df2c",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.jsonl",
+      "relative_to_measurement_root": "records/199_RF-LARGE-CHAIN-n00100-AX_w1a.jsonl",
+      "sha256": "bb6fe60e8563db0bcf4f500fd02a4084ee1eeed0834e1a3bb97ae34293a60826",
+      "bytes": 27263
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.record.json",
+      "relative_to_measurement_root": "records/199_RF-LARGE-CHAIN-n00100-AX_w1a.record.json",
+      "sha256": "cd26be55865278aff090a6987c8652c70a99a954637dea6165350897035ae145",
+      "bytes": 2138
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.rows",
+      "relative_to_measurement_root": "records/199_RF-LARGE-CHAIN-n00100-AX_w1a.rows",
+      "sha256": "8987e8cd8b2725a4bbded097613f899d3c50c5acfa146df303ce82aeea087720",
+      "bytes": 140133
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/199_RF-LARGE-CHAIN-n00100-AX_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.time.txt",
+      "relative_to_measurement_root": "records/199_RF-LARGE-CHAIN-n00100-AX_w1a.time.txt",
+      "sha256": "8823e6f6afafbc8eae59d6ea952ada4610f03d2a7ccf53954b5bfae7df0ddfbd",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/200_RF-LARGE-CHAIN-n00100-AX_sparse.jsonl",
+      "relative_to_measurement_root": "records/200_RF-LARGE-CHAIN-n00100-AX_sparse.jsonl",
+      "sha256": "ff0f8134db319f126b408265dacb0bfab72dd78431cca791b2a51e0a081c13f8",
+      "bytes": 22855
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/200_RF-LARGE-CHAIN-n00100-AX_sparse.record.json",
+      "relative_to_measurement_root": "records/200_RF-LARGE-CHAIN-n00100-AX_sparse.record.json",
+      "sha256": "1b971a94b229c9e932a48b18493236c8eb20e76a194ccab1827305f05408e210",
+      "bytes": 1922
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/200_RF-LARGE-CHAIN-n00100-AX_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/200_RF-LARGE-CHAIN-n00100-AX_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/200_RF-LARGE-CHAIN-n00100-AX_sparse.time.txt",
+      "relative_to_measurement_root": "records/200_RF-LARGE-CHAIN-n00100-AX_sparse.time.txt",
+      "sha256": "7716575c126c9e136c194f5c700e8a29677a57c6cf9095fae5b47963ae751569",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/200_RF-LARGE-CHAIN-n00100-AX_sparse.u",
+      "relative_to_measurement_root": "records/200_RF-LARGE-CHAIN-n00100-AX_sparse.u",
+      "sha256": "90d39c0c48f42db7c5a12a8f2419b1f1a7aed9a0939ff313469d510e615838d3",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/201_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/201_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.jsonl",
+      "sha256": "8cc1bba76e54102cbe8a27317a9f18a6edccc3526585e9c354a505bd1da120f4",
+      "bytes": 3019
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/201_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/201_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.record.json",
+      "sha256": "22f65bb33244e84ec331fea910ba4f793091a0adc1bf1bd2e45950f70e32a12d",
+      "bytes": 1582
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/201_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/201_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/201_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/201_RF-LARGE-CHAIN-n00100-AX_w1a.counts-binding.time.txt",
+      "sha256": "0e1ba16ba628b0deb06b5758db20f046cd1059fb8d711b23783680ac50726a36",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/201_RF-LARGE-CHAIN-n00100-AX_w1a.jsonl",
+      "relative_to_measurement_root": "records/201_RF-LARGE-CHAIN-n00100-AX_w1a.jsonl",
+      "sha256": "32867f1834c7d2694055daf966ed9e94b9bbfeee5df84d4eb3ed00636b20f3ec",
+      "bytes": 25625
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/201_RF-LARGE-CHAIN-n00100-AX_w1a.record.json",
+      "relative_to_measurement_root": "records/201_RF-LARGE-CHAIN-n00100-AX_w1a.record.json",
+      "sha256": "627a783fb3b00390c0b5519254180e4c33aee87070cce4ff1518dc94127f6fb8",
+      "bytes": 2021
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/201_RF-LARGE-CHAIN-n00100-AX_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/201_RF-LARGE-CHAIN-n00100-AX_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/201_RF-LARGE-CHAIN-n00100-AX_w1a.time.txt",
+      "relative_to_measurement_root": "records/201_RF-LARGE-CHAIN-n00100-AX_w1a.time.txt",
+      "sha256": "9ce1b88a5a4c1af27c88efd01960844f9a464ff90a58715195ce2dad1504ee8b",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/202_RF-LARGE-CHAIN-n00100-AX_sparse.jsonl",
+      "relative_to_measurement_root": "records/202_RF-LARGE-CHAIN-n00100-AX_sparse.jsonl",
+      "sha256": "dca3e14087e2ae1e73f0d0bab92d22c614069fc5bd754887b508d121e6bb3a9d",
+      "bytes": 22855
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/202_RF-LARGE-CHAIN-n00100-AX_sparse.record.json",
+      "relative_to_measurement_root": "records/202_RF-LARGE-CHAIN-n00100-AX_sparse.record.json",
+      "sha256": "ac457319b3af480416411d234678ceb020ad9525f8da82f1cf83ba0f9b75ca50",
+      "bytes": 1917
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/202_RF-LARGE-CHAIN-n00100-AX_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/202_RF-LARGE-CHAIN-n00100-AX_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/202_RF-LARGE-CHAIN-n00100-AX_sparse.time.txt",
+      "relative_to_measurement_root": "records/202_RF-LARGE-CHAIN-n00100-AX_sparse.time.txt",
+      "sha256": "c38286cb21316d5fdef7d24dda80b5978ce6ded086a6e2eaf5c819ff08328315",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/202_RF-LARGE-CHAIN-n00100-AX_sparse.u",
+      "relative_to_measurement_root": "records/202_RF-LARGE-CHAIN-n00100-AX_sparse.u",
+      "sha256": "90d39c0c48f42db7c5a12a8f2419b1f1a7aed9a0939ff313469d510e615838d3",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/203_RF-LARGE-CHAIN-n00100-ROT_sparse.jsonl",
+      "relative_to_measurement_root": "records/203_RF-LARGE-CHAIN-n00100-ROT_sparse.jsonl",
+      "sha256": "98b50e568f9ce20b7f78821dc427f6c640e08077bbf316cdaaae356c96b68ad5",
+      "bytes": 22879
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/203_RF-LARGE-CHAIN-n00100-ROT_sparse.record.json",
+      "relative_to_measurement_root": "records/203_RF-LARGE-CHAIN-n00100-ROT_sparse.record.json",
+      "sha256": "e773741abc515ec2f774f65a9fcdc2b5c1cac97241e29ca286cc5917c2f24a63",
+      "bytes": 1915
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/203_RF-LARGE-CHAIN-n00100-ROT_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/203_RF-LARGE-CHAIN-n00100-ROT_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/203_RF-LARGE-CHAIN-n00100-ROT_sparse.time.txt",
+      "relative_to_measurement_root": "records/203_RF-LARGE-CHAIN-n00100-ROT_sparse.time.txt",
+      "sha256": "c75aaa78fc5ed3f0b02f3d202da412517968c3d8d22dacc7b65647070f18d584",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/203_RF-LARGE-CHAIN-n00100-ROT_sparse.u",
+      "relative_to_measurement_root": "records/203_RF-LARGE-CHAIN-n00100-ROT_sparse.u",
+      "sha256": "1c78cc0ce97fd46ed957c5e3812044e6b047720d8fa8372e6fa9dacb14304a13",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.jsonl",
+      "sha256": "15ac9e4befeaa8b819142dfa47b510dbff1ec54b67d5addec845314346f6f828",
+      "bytes": 3021
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.record.json",
+      "sha256": "2632c2087a54481c2d2e4bf27b8bfe8d69af019f41fc845433f9228a60f051ae",
+      "bytes": 1659
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.time.txt",
+      "sha256": "e113765c255b91d0c0d447f1606c46fda12c4a831d1b92099fa9d2f2a2286f17",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.jsonl",
+      "relative_to_measurement_root": "records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.jsonl",
+      "sha256": "df4e90565af09e0967ab1b5c2ecce017f4c87a3dc4b1fb29d81616c3f9258a3f",
+      "bytes": 27301
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.record.json",
+      "relative_to_measurement_root": "records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.record.json",
+      "sha256": "5ee9d2e4124a1caeb04d0c8faf3008295d0fc37156b959023b9eb5a20ce8de63",
+      "bytes": 2274
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.rows",
+      "relative_to_measurement_root": "records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.rows",
+      "sha256": "eaca0de585fbc3172f8d45f855129fadd0424fa60f0f7de86ee2c68834429a9a",
+      "bytes": 140134
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.time.txt",
+      "relative_to_measurement_root": "records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.time.txt",
+      "sha256": "573ecaeca4c8464596ab8aba031d8c9e58dfe56a854cf2afb3b900734a47e912",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/205_RF-LARGE-CHAIN-n00100-ROT_sparse.jsonl",
+      "relative_to_measurement_root": "records/205_RF-LARGE-CHAIN-n00100-ROT_sparse.jsonl",
+      "sha256": "317200fb0f49c99abbed8d564f320da8dba6e7b9ccb67f0ccd5814b22d7b35cf",
+      "bytes": 22879
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/205_RF-LARGE-CHAIN-n00100-ROT_sparse.record.json",
+      "relative_to_measurement_root": "records/205_RF-LARGE-CHAIN-n00100-ROT_sparse.record.json",
+      "sha256": "e9b353acdc073cb38e28a638d2669a49f126af30358971065b3d65290555efdf",
+      "bytes": 1915
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/205_RF-LARGE-CHAIN-n00100-ROT_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/205_RF-LARGE-CHAIN-n00100-ROT_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/205_RF-LARGE-CHAIN-n00100-ROT_sparse.time.txt",
+      "relative_to_measurement_root": "records/205_RF-LARGE-CHAIN-n00100-ROT_sparse.time.txt",
+      "sha256": "21952daeab50a3ce99b06b17dbc6565d50deb0702d3ec1fed89fc97583ff5dc9",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/205_RF-LARGE-CHAIN-n00100-ROT_sparse.u",
+      "relative_to_measurement_root": "records/205_RF-LARGE-CHAIN-n00100-ROT_sparse.u",
+      "sha256": "1c78cc0ce97fd46ed957c5e3812044e6b047720d8fa8372e6fa9dacb14304a13",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.jsonl",
+      "sha256": "ee57e773dea62833ae80a2a85ae6ecff2fc75637b35013cc854dd404f3070d6e",
+      "bytes": 3023
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.record.json",
+      "sha256": "8255f6538b8d14bf82265b0ea86a065f4be3738e6c5f2e6accfe6ab4fe026792",
+      "bytes": 1574
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.counts-binding.time.txt",
+      "sha256": "d0e9e821cf6c347ddc865156eb524ddbdc0bad108d55b94bae6fa363cbcc5dee",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.jsonl",
+      "relative_to_measurement_root": "records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.jsonl",
+      "sha256": "b99314a687b4edf452eb02d6c55980b0518cf486ca6e552d53eade763e579aae",
+      "bytes": 25659
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.record.json",
+      "relative_to_measurement_root": "records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.record.json",
+      "sha256": "7f2baecd0d718c569ec80c9314576c69744bf2a11cacf7df0f3909fd225117c5",
+      "bytes": 2125
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.time.txt",
+      "relative_to_measurement_root": "records/206_RF-LARGE-CHAIN-n00100-ROT_w1a.time.txt",
+      "sha256": "b2bcd077e81845738f30be2f69275ec0060b0fdcdc05d306f852ef2283991719",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/207_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.jsonl",
+      "sha256": "a0063b6cb288a076f23406644baa04af131c219179ccd221f7f8550c86dc3b6a",
+      "bytes": 3016
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/207_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.record.json",
+      "sha256": "8495702d3f2afb3831a3b721f6bf61f523a95db6dbb52bcae6c9c5ef7ae000ff",
+      "bytes": 1653
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/207_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/207_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.time.txt",
+      "sha256": "8e26c7554c0caac69abcafe0812ab75199835283cce564a7224db3139c1070ee",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.jsonl",
+      "relative_to_measurement_root": "records/207_RF-LARGE-TREE-n00100-AX_w1a.jsonl",
+      "sha256": "829b34265bb0f2a4aded9067e12dc436bee13283227d787eca3a28be0ad20ec9",
+      "bytes": 27275
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.record.json",
+      "relative_to_measurement_root": "records/207_RF-LARGE-TREE-n00100-AX_w1a.record.json",
+      "sha256": "2f47a65b821fba37c017be4c1cc9a7e7aea1bfe055b74420982c20a3aede4543",
+      "bytes": 2151
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.rows",
+      "relative_to_measurement_root": "records/207_RF-LARGE-TREE-n00100-AX_w1a.rows",
+      "sha256": "407a036fe102258ff84da18f0a0d0a17174dda4da409293f2a6f4257e22cc789",
+      "bytes": 155897
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/207_RF-LARGE-TREE-n00100-AX_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.time.txt",
+      "relative_to_measurement_root": "records/207_RF-LARGE-TREE-n00100-AX_w1a.time.txt",
+      "sha256": "62e95a6f0cfc407c8497b5197b308ed92800358cb11f17cd4a3715ab50836854",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/208_RF-LARGE-TREE-n00100-AX_sparse.jsonl",
+      "relative_to_measurement_root": "records/208_RF-LARGE-TREE-n00100-AX_sparse.jsonl",
+      "sha256": "823ce3b38fc7d996fc32c00f92f8576d168636163c9a78678bdf21483d3d6d35",
+      "bytes": 22875
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/208_RF-LARGE-TREE-n00100-AX_sparse.record.json",
+      "relative_to_measurement_root": "records/208_RF-LARGE-TREE-n00100-AX_sparse.record.json",
+      "sha256": "79dac68e56f7f567aa8d166d53a40dc11920459ec577131e65a5b6ca6ef13fa2",
+      "bytes": 1909
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/208_RF-LARGE-TREE-n00100-AX_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/208_RF-LARGE-TREE-n00100-AX_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/208_RF-LARGE-TREE-n00100-AX_sparse.time.txt",
+      "relative_to_measurement_root": "records/208_RF-LARGE-TREE-n00100-AX_sparse.time.txt",
+      "sha256": "658d4db67e1d754cef2557da6fa12c89319f8733178bdcf4584577bb29d13309",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/208_RF-LARGE-TREE-n00100-AX_sparse.u",
+      "relative_to_measurement_root": "records/208_RF-LARGE-TREE-n00100-AX_sparse.u",
+      "sha256": "cc047cf1389bb21c35e508b14c33bedb19071a7712b41259c7f7be8e2f091853",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/209_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/209_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.jsonl",
+      "sha256": "485b1f6825a653c70d9f3bf32dd21b6790bc22778eac02873c31a89d70ec4c3e",
+      "bytes": 3018
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/209_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/209_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.record.json",
+      "sha256": "6c8022ce12ec3622cf52739a073ecad44c1e21378abfbba2b41294d8b22f8490",
+      "bytes": 1569
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/209_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/209_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/209_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/209_RF-LARGE-TREE-n00100-AX_w1a.counts-binding.time.txt",
+      "sha256": "4ffc206bdf29200c1054a34bf828c4dd6542c1e2d90fb7172720adc0e1554eb1",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/209_RF-LARGE-TREE-n00100-AX_w1a.jsonl",
+      "relative_to_measurement_root": "records/209_RF-LARGE-TREE-n00100-AX_w1a.jsonl",
+      "sha256": "f9ef300f3d7eba635fb0aadb044d5a94ec1f790e8b6a276495fcbdc735857b16",
+      "bytes": 25637
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/209_RF-LARGE-TREE-n00100-AX_w1a.record.json",
+      "relative_to_measurement_root": "records/209_RF-LARGE-TREE-n00100-AX_w1a.record.json",
+      "sha256": "f93e9b78151b741542bbac49c9fbdd082dc6d56ce5f3e07558e7404f5e8431a4",
+      "bytes": 2009
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/209_RF-LARGE-TREE-n00100-AX_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/209_RF-LARGE-TREE-n00100-AX_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/209_RF-LARGE-TREE-n00100-AX_w1a.time.txt",
+      "relative_to_measurement_root": "records/209_RF-LARGE-TREE-n00100-AX_w1a.time.txt",
+      "sha256": "8a8a20d31097b08380a0a7f9da3d482814a2ecdbfa1d6106fe79b9f3e954196f",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/210_RF-LARGE-TREE-n00100-AX_sparse.jsonl",
+      "relative_to_measurement_root": "records/210_RF-LARGE-TREE-n00100-AX_sparse.jsonl",
+      "sha256": "3156e5b523e2dcf685f9bd5f0f93864cbdd2bac8e187b23c7921fc18641b5243",
+      "bytes": 22874
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/210_RF-LARGE-TREE-n00100-AX_sparse.record.json",
+      "relative_to_measurement_root": "records/210_RF-LARGE-TREE-n00100-AX_sparse.record.json",
+      "sha256": "f93cbfc6aa7e2cd25b95f847d14c68000e2285280573bc8e13016aa8b8ecd1d0",
+      "bytes": 1917
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/210_RF-LARGE-TREE-n00100-AX_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/210_RF-LARGE-TREE-n00100-AX_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/210_RF-LARGE-TREE-n00100-AX_sparse.time.txt",
+      "relative_to_measurement_root": "records/210_RF-LARGE-TREE-n00100-AX_sparse.time.txt",
+      "sha256": "f1eb045139dd36fef9327e5bbb4b7c6cbf5fa3e1cb6df01e6c28d8bd7243bbbc",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/210_RF-LARGE-TREE-n00100-AX_sparse.u",
+      "relative_to_measurement_root": "records/210_RF-LARGE-TREE-n00100-AX_sparse.u",
+      "sha256": "cc047cf1389bb21c35e508b14c33bedb19071a7712b41259c7f7be8e2f091853",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/211_RF-LARGE-TREE-n00100-ROT_sparse.jsonl",
+      "relative_to_measurement_root": "records/211_RF-LARGE-TREE-n00100-ROT_sparse.jsonl",
+      "sha256": "067f68a675366646a65fc51f67a326b86aef75b5f73ce669325cdc11f7606382",
+      "bytes": 22903
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/211_RF-LARGE-TREE-n00100-ROT_sparse.record.json",
+      "relative_to_measurement_root": "records/211_RF-LARGE-TREE-n00100-ROT_sparse.record.json",
+      "sha256": "a0d9cbc2cb7fb18f9fa227dacfc2f9f6dbff91fb840816b5ced680eb7cf03b07",
+      "bytes": 1920
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/211_RF-LARGE-TREE-n00100-ROT_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/211_RF-LARGE-TREE-n00100-ROT_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/211_RF-LARGE-TREE-n00100-ROT_sparse.time.txt",
+      "relative_to_measurement_root": "records/211_RF-LARGE-TREE-n00100-ROT_sparse.time.txt",
+      "sha256": "ed9b226408e3e5b5cda66d23d99dd5bf35924cb81c13b7856635ef8cbe5acc7b",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/211_RF-LARGE-TREE-n00100-ROT_sparse.u",
+      "relative_to_measurement_root": "records/211_RF-LARGE-TREE-n00100-ROT_sparse.u",
+      "sha256": "be9270d7fad849a915ace12aa3d5afabe2d57db96119c81868fcfe0fa8d55683",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/212_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.jsonl",
+      "sha256": "58b4c1f53a07587aea6d5059131b270ff33f7f26aad90abdf95659d7e5f7826a",
+      "bytes": 3020
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/212_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.record.json",
+      "sha256": "720b8e4deef4ab316f9068215eea014f73bc22d25b7b73e74a8883cfcc811959",
+      "bytes": 1664
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/212_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/212_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.time.txt",
+      "sha256": "d8a99458569dbdda9ead5e4ce5f2044a6814e66143bcf4fb95ebd66a7c43df41",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.jsonl",
+      "relative_to_measurement_root": "records/212_RF-LARGE-TREE-n00100-ROT_w1a.jsonl",
+      "sha256": "213ab4d915202353f687e36a487987269d6c063507ae3d842cf12681f702d8c3",
+      "bytes": 27276
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.record.json",
+      "relative_to_measurement_root": "records/212_RF-LARGE-TREE-n00100-ROT_w1a.record.json",
+      "sha256": "3302ab3b47ed04fa6c4b00f1bdbc7635d809965307ad12b540b8ae837de547a0",
+      "bytes": 2245
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.rows",
+      "relative_to_measurement_root": "records/212_RF-LARGE-TREE-n00100-ROT_w1a.rows",
+      "sha256": "1c0c202c87b88393143a04cb5b5c8da193cbecb148ab669b681c6c463614d9a5",
+      "bytes": 150633
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/212_RF-LARGE-TREE-n00100-ROT_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.time.txt",
+      "relative_to_measurement_root": "records/212_RF-LARGE-TREE-n00100-ROT_w1a.time.txt",
+      "sha256": "e8846fefc678170cf8a0c4cd0b496bbc801415d456036524c09fef147efe5511",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/213_RF-LARGE-TREE-n00100-ROT_sparse.jsonl",
+      "relative_to_measurement_root": "records/213_RF-LARGE-TREE-n00100-ROT_sparse.jsonl",
+      "sha256": "9e96874ffcd0593cd6684a256d7b7abfdcaa82e2944213991f7c2634d176a155",
+      "bytes": 22903
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/213_RF-LARGE-TREE-n00100-ROT_sparse.record.json",
+      "relative_to_measurement_root": "records/213_RF-LARGE-TREE-n00100-ROT_sparse.record.json",
+      "sha256": "315dd0b22405ce44970491fbc5931a238f6c8a490dddc95e90ebde92e84c7a3e",
+      "bytes": 1920
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/213_RF-LARGE-TREE-n00100-ROT_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/213_RF-LARGE-TREE-n00100-ROT_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/213_RF-LARGE-TREE-n00100-ROT_sparse.time.txt",
+      "relative_to_measurement_root": "records/213_RF-LARGE-TREE-n00100-ROT_sparse.time.txt",
+      "sha256": "2975662b6284883824c671fb4922a3188103591f5cd60443e6778fefa8411707",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/213_RF-LARGE-TREE-n00100-ROT_sparse.u",
+      "relative_to_measurement_root": "records/213_RF-LARGE-TREE-n00100-ROT_sparse.u",
+      "sha256": "be9270d7fad849a915ace12aa3d5afabe2d57db96119c81868fcfe0fa8d55683",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/214_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/214_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.jsonl",
+      "sha256": "32b15b48d259a9fde546c9d1f8e46b60a8a360df8748a2d744cc19bf89eee3fc",
+      "bytes": 3022
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/214_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/214_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.record.json",
+      "sha256": "bf9ce2f27f107ad0b70626325c9efa7b3cb236c7cf0e670921d08021dfb27b29",
+      "bytes": 1579
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/214_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/214_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/214_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/214_RF-LARGE-TREE-n00100-ROT_w1a.counts-binding.time.txt",
+      "sha256": "edfbd255b6679d0a2eb4a5e1883290d6bb902577159d0d7a6d04cb5e3361d78a",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/214_RF-LARGE-TREE-n00100-ROT_w1a.jsonl",
+      "relative_to_measurement_root": "records/214_RF-LARGE-TREE-n00100-ROT_w1a.jsonl",
+      "sha256": "1a29e140ca9be5441c857d2936062cde51649ac39221a8afc8b96c9baae35960",
+      "bytes": 25634
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/214_RF-LARGE-TREE-n00100-ROT_w1a.record.json",
+      "relative_to_measurement_root": "records/214_RF-LARGE-TREE-n00100-ROT_w1a.record.json",
+      "sha256": "9673aa45bbcdc9668e9f4affbe14f65fa6364f61029aa98fefb583778d8daf04",
+      "bytes": 2096
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/214_RF-LARGE-TREE-n00100-ROT_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/214_RF-LARGE-TREE-n00100-ROT_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/214_RF-LARGE-TREE-n00100-ROT_w1a.time.txt",
+      "relative_to_measurement_root": "records/214_RF-LARGE-TREE-n00100-ROT_w1a.time.txt",
+      "sha256": "152d58884d58f77a71ffa69f24156dc000629589604cf3e9c73b6ffe1fdce4a0",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/215_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.jsonl",
+      "sha256": "2a6264f2bf0521f984d52c5cfe31f51e46b7416d42b4df8f9fc54b8e8b31c49d",
+      "bytes": 3018
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/215_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.record.json",
+      "sha256": "25099c38372bfc5dc31dbe0ba9e4b6ff300980ec1ff1980e8821b584aeef56cf",
+      "bytes": 1661
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/215_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/215_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.time.txt",
+      "sha256": "af2113a639368e8bc79b16b8d7b842f42fc126ad45063592a67cd0f29775847d",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.jsonl",
+      "relative_to_measurement_root": "records/215_RF-LARGE-CONT-n00100-AX_w1a.jsonl",
+      "sha256": "0c2476f43271d00a34a08786ffdd4be5b6ba1501ed241e0df8aa917537281163",
+      "bytes": 27209
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.record.json",
+      "relative_to_measurement_root": "records/215_RF-LARGE-CONT-n00100-AX_w1a.record.json",
+      "sha256": "d158213805a61f4cab4e8e2e1334efb1695a9abfec1bc53eaaf836645efcbdbe",
+      "bytes": 2106
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.rows",
+      "relative_to_measurement_root": "records/215_RF-LARGE-CONT-n00100-AX_w1a.rows",
+      "sha256": "dc3ca5a314fbcc9a9c53d9d65a89a85fd7c50253d0e716b2c4896681c287ea2e",
+      "bytes": 161630
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/215_RF-LARGE-CONT-n00100-AX_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.time.txt",
+      "relative_to_measurement_root": "records/215_RF-LARGE-CONT-n00100-AX_w1a.time.txt",
+      "sha256": "348eaa17f538e0af46655ac2850fa12d5bf227b8d6c20a4f3fecb7f6390569a3",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/216_RF-LARGE-CONT-n00100-AX_sparse.jsonl",
+      "relative_to_measurement_root": "records/216_RF-LARGE-CONT-n00100-AX_sparse.jsonl",
+      "sha256": "c353e3435b931abea04528681d767c3d0f4f25bdd8baf964007d76aaccd12ddc",
+      "bytes": 22816
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/216_RF-LARGE-CONT-n00100-AX_sparse.record.json",
+      "relative_to_measurement_root": "records/216_RF-LARGE-CONT-n00100-AX_sparse.record.json",
+      "sha256": "397b6d6730de70917e0a6d2285a020a5796635b55dd8aa1d876b1fe58942ead0",
+      "bytes": 1916
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/216_RF-LARGE-CONT-n00100-AX_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/216_RF-LARGE-CONT-n00100-AX_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/216_RF-LARGE-CONT-n00100-AX_sparse.time.txt",
+      "relative_to_measurement_root": "records/216_RF-LARGE-CONT-n00100-AX_sparse.time.txt",
+      "sha256": "173fe4f899573d055fac5eb97c1edcec43fc309a6df851deadaf310db5e369dd",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/216_RF-LARGE-CONT-n00100-AX_sparse.u",
+      "relative_to_measurement_root": "records/216_RF-LARGE-CONT-n00100-AX_sparse.u",
+      "sha256": "b3b8615077b27ecf5a28271851ebb711e43fabce54a4db11de7c0350030e28df",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/217_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/217_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.jsonl",
+      "sha256": "02730d7c65c3b052d2735a3a86bff293e9131f7f1177a9bbbbf0c1495d282aa6",
+      "bytes": 3020
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/217_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/217_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.record.json",
+      "sha256": "d675784054cb15b1baabd31ed4e39cc5aad6ade5aa26e7612ac6773001be4c6f",
+      "bytes": 1578
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/217_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/217_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/217_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/217_RF-LARGE-CONT-n00100-AX_w1a.counts-binding.time.txt",
+      "sha256": "f4fdb1a2746fb1dde45187f1aee2fdfef8f587efd8c662da9d79d44d282ff0f3",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/217_RF-LARGE-CONT-n00100-AX_w1a.jsonl",
+      "relative_to_measurement_root": "records/217_RF-LARGE-CONT-n00100-AX_w1a.jsonl",
+      "sha256": "5b61e39a96c2c89f6d3832fbe5180b3a54a81b373d753ab36f4c0e9d700f655e",
+      "bytes": 25571
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/217_RF-LARGE-CONT-n00100-AX_w1a.record.json",
+      "relative_to_measurement_root": "records/217_RF-LARGE-CONT-n00100-AX_w1a.record.json",
+      "sha256": "722306be4a93dbc9af14cafaeffa899677815e8f91c38ddb76fb9f86fb200e24",
+      "bytes": 1987
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/217_RF-LARGE-CONT-n00100-AX_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/217_RF-LARGE-CONT-n00100-AX_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/217_RF-LARGE-CONT-n00100-AX_w1a.time.txt",
+      "relative_to_measurement_root": "records/217_RF-LARGE-CONT-n00100-AX_w1a.time.txt",
+      "sha256": "5efb6a335965cefc485c4bcdd4e9794691b95f6898bd4ac6920382a3653b43e5",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/218_RF-LARGE-CONT-n00100-AX_sparse.jsonl",
+      "relative_to_measurement_root": "records/218_RF-LARGE-CONT-n00100-AX_sparse.jsonl",
+      "sha256": "b2a1be04aab90eb0c3f85b3a0573ebad6b5b84337084dd9bc022c72e4339decd",
+      "bytes": 22816
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/218_RF-LARGE-CONT-n00100-AX_sparse.record.json",
+      "relative_to_measurement_root": "records/218_RF-LARGE-CONT-n00100-AX_sparse.record.json",
+      "sha256": "776f346b0178ab72fece2e317a623d2e40ac6bb53dd8fdef3695ff82c0739b9c",
+      "bytes": 1916
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/218_RF-LARGE-CONT-n00100-AX_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/218_RF-LARGE-CONT-n00100-AX_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/218_RF-LARGE-CONT-n00100-AX_sparse.time.txt",
+      "relative_to_measurement_root": "records/218_RF-LARGE-CONT-n00100-AX_sparse.time.txt",
+      "sha256": "86aa0379e9358c8bf3118af4f4862b405ed3ef242b0e271cce4217d1ffe0ba6a",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/218_RF-LARGE-CONT-n00100-AX_sparse.u",
+      "relative_to_measurement_root": "records/218_RF-LARGE-CONT-n00100-AX_sparse.u",
+      "sha256": "b3b8615077b27ecf5a28271851ebb711e43fabce54a4db11de7c0350030e28df",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/219_RF-LARGE-CONT-n00100-ROT_sparse.jsonl",
+      "relative_to_measurement_root": "records/219_RF-LARGE-CONT-n00100-ROT_sparse.jsonl",
+      "sha256": "51d54e13f657e61a94fc834eb23e384e5c1e7e5f0b7a7b01cdad6eda015cbecb",
+      "bytes": 22837
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/219_RF-LARGE-CONT-n00100-ROT_sparse.record.json",
+      "relative_to_measurement_root": "records/219_RF-LARGE-CONT-n00100-ROT_sparse.record.json",
+      "sha256": "d399b7e2dc2ad0b983032d31de86bb2a7ecaab1416e116842bf7108b5be15cf1",
+      "bytes": 1918
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/219_RF-LARGE-CONT-n00100-ROT_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/219_RF-LARGE-CONT-n00100-ROT_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/219_RF-LARGE-CONT-n00100-ROT_sparse.time.txt",
+      "relative_to_measurement_root": "records/219_RF-LARGE-CONT-n00100-ROT_sparse.time.txt",
+      "sha256": "1348c7db54383a4d47dd7b4c3847af53f6a488f25231d6b7719d0d56e0be46c3",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/219_RF-LARGE-CONT-n00100-ROT_sparse.u",
+      "relative_to_measurement_root": "records/219_RF-LARGE-CONT-n00100-ROT_sparse.u",
+      "sha256": "ffc387294e07518af2770e0e98eacfda06a407b25b03f121b1b3252933a2895a",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/220_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.jsonl",
+      "sha256": "a32d2eeaea10d36d4496413d5f30d175e815bee70ba2f7f83790f7273fb799da",
+      "bytes": 3024
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/220_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.record.json",
+      "sha256": "aa14ed4c515fb5e0595b191c5be61675fa337300a7219dc83b09577df41dc99d",
+      "bytes": 1662
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/220_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/220_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.time.txt",
+      "sha256": "2328072685b3b9641229f501128bbd3d832df37abae7ba63880e142974b39a95",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.jsonl",
+      "relative_to_measurement_root": "records/220_RF-LARGE-CONT-n00100-ROT_w1a.jsonl",
+      "sha256": "805e807531da5de1a7499a8c1c3eb0c5e036294ab9a345cacd87db900fd7e1e8",
+      "bytes": 27296
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.record.json",
+      "relative_to_measurement_root": "records/220_RF-LARGE-CONT-n00100-ROT_w1a.record.json",
+      "sha256": "791c91d6b60444aede014a077ed060d68a758ae72e884342b37b5cd3abe3c278",
+      "bytes": 2218
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.rows",
+      "relative_to_measurement_root": "records/220_RF-LARGE-CONT-n00100-ROT_w1a.rows",
+      "sha256": "3373d2b7d80789ff7f2815704af1454ea32b608dc66c89964517f2b42c4b6b07",
+      "bytes": 157506
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/220_RF-LARGE-CONT-n00100-ROT_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.time.txt",
+      "relative_to_measurement_root": "records/220_RF-LARGE-CONT-n00100-ROT_w1a.time.txt",
+      "sha256": "b26fe3882e38bf7add2f2dd8704dacb6df9dcd858ad493c1455bd8a6fca9ef36",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/221_RF-LARGE-CONT-n00100-ROT_sparse.jsonl",
+      "relative_to_measurement_root": "records/221_RF-LARGE-CONT-n00100-ROT_sparse.jsonl",
+      "sha256": "67a084d510e0d80dee07f76996722cb06c07151652f68ce5bb51e50ce377feac",
+      "bytes": 22837
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/221_RF-LARGE-CONT-n00100-ROT_sparse.record.json",
+      "relative_to_measurement_root": "records/221_RF-LARGE-CONT-n00100-ROT_sparse.record.json",
+      "sha256": "9663657f794942078c918dec8bb2cb3484483388c05b631b754b6c3a2f245c1b",
+      "bytes": 1918
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/221_RF-LARGE-CONT-n00100-ROT_sparse.stderr.txt",
+      "relative_to_measurement_root": "records/221_RF-LARGE-CONT-n00100-ROT_sparse.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/221_RF-LARGE-CONT-n00100-ROT_sparse.time.txt",
+      "relative_to_measurement_root": "records/221_RF-LARGE-CONT-n00100-ROT_sparse.time.txt",
+      "sha256": "cbe1a566d217cf202772e2c9abb1b4fe5cfd0ad74bedb276fc0c95ba91f4dbb0",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/221_RF-LARGE-CONT-n00100-ROT_sparse.u",
+      "relative_to_measurement_root": "records/221_RF-LARGE-CONT-n00100-ROT_sparse.u",
+      "sha256": "ffc387294e07518af2770e0e98eacfda06a407b25b03f121b1b3252933a2895a",
+      "bytes": 10302
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/222_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.jsonl",
+      "relative_to_measurement_root": "records/222_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.jsonl",
+      "sha256": "99a5c677ecd2482c32f7e8974827ccc2082f92c3061e2587c5d5ad757cbcfb2d",
+      "bytes": 3026
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/222_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.record.json",
+      "relative_to_measurement_root": "records/222_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.record.json",
+      "sha256": "0d06dec444312d2670084119ebe7f314ad6bc55ac3e9a12ca78a516d26cba980",
+      "bytes": 1578
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/222_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "relative_to_measurement_root": "records/222_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/222_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.time.txt",
+      "relative_to_measurement_root": "records/222_RF-LARGE-CONT-n00100-ROT_w1a.counts-binding.time.txt",
+      "sha256": "f5d693ddbee676b8d958f2bdbcdba3965925bb26367118b73f18bd2befde2244",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/222_RF-LARGE-CONT-n00100-ROT_w1a.jsonl",
+      "relative_to_measurement_root": "records/222_RF-LARGE-CONT-n00100-ROT_w1a.jsonl",
+      "sha256": "62dacb7e6c83b0aeefff542b3e3eb07aa1ce95edc67f4bd19337b0611474a351",
+      "bytes": 25657
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/222_RF-LARGE-CONT-n00100-ROT_w1a.record.json",
+      "relative_to_measurement_root": "records/222_RF-LARGE-CONT-n00100-ROT_w1a.record.json",
+      "sha256": "83bfd194724e4e4b05ccc42926374ed44ed249065ac6830d81e4f7d79c4b0d6d",
+      "bytes": 2073
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/222_RF-LARGE-CONT-n00100-ROT_w1a.stderr.txt",
+      "relative_to_measurement_root": "records/222_RF-LARGE-CONT-n00100-ROT_w1a.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/222_RF-LARGE-CONT-n00100-ROT_w1a.time.txt",
+      "relative_to_measurement_root": "records/222_RF-LARGE-CONT-n00100-ROT_w1a.time.txt",
+      "sha256": "ea2b5986b837f65a8ef013c8fd0c64b6e02f7b8ddbfe972a8cce74db84d09f93",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/baseline_W1-T2.jsonl",
+      "relative_to_measurement_root": "records/baseline_W1-T2.jsonl",
+      "sha256": "a86dd0c4d12c46af260fdf6924a7b5ba797aa713280a4d839c6573d45bd564a8",
+      "bytes": 193
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/baseline_W1-T2.record.json",
+      "relative_to_measurement_root": "records/baseline_W1-T2.record.json",
+      "sha256": "da033ae50237d5fe6c988ee72fd3769d6014dd4b5f40f8b0378aa00df73f5187",
+      "bytes": 1317
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/baseline_W1-T2.stderr.txt",
+      "relative_to_measurement_root": "records/baseline_W1-T2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/baseline_W1-T2.time.txt",
+      "relative_to_measurement_root": "records/baseline_W1-T2.time.txt",
+      "sha256": "96f8f7e01bad1eb3cb027bb26b4087a5481cd4406447b05b003b6ae93ed76bc5",
+      "bytes": 777
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/tier_W1-T2.driver.log",
+      "relative_to_measurement_root": "records/tier_W1-T2.driver.log",
+      "sha256": "e81a24c2d7c882d591cb4d50a11af4c9ebf5c073b62dd32f0a53119ec511b677",
+      "bytes": 2169
+    }
+  ],
+  "new_file_count": 191,
+  "journal": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/records.jsonl",
+    "bytes": 313009,
+    "sha256": "7a8ab1d9d185bb62967647b41ab8797f5a4d02358da4346bc286a6683c3fe493",
+    "original_T1_prefix_bytes": 223099,
+    "original_T1_prefix_sha256": "185ea9c3a1ac593160fbce93b02fbec012f769531a4edcd610259d6baac4a861",
+    "prefix_preserved": true,
+    "appended_bytes": 89910,
+    "appended_sha256": "aa6bfb9b3148ab80bc12382c645c7533ee264d1293a592ddc098f6adb3152868",
+    "total_rows": 84,
+    "T1_rows": 60,
+    "T2_rows": 24
+  }
+}

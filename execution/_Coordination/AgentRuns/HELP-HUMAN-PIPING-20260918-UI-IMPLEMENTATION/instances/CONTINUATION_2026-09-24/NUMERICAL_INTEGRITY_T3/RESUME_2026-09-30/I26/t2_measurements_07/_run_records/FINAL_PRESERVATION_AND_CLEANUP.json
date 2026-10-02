@@ -1,0 +1,31 @@
+{
+  "checked_utc": "2026-10-02T06:15:50.712886+00:00",
+  "source_files_hash_mode_exact_set_unchanged": 299,
+  "binary_seed_unchanged": true,
+  "earlier_working_files_unchanged_except_append": 476,
+  "earlier_reference_files_including_immutable_T1_snapshot_unchanged": 15,
+  "journal_T1_prefix_unchanged": true,
+  "new_files_exact": 191,
+  "all43_process_records_exit0_and_survivors_empty": true,
+  "ps_argv": [
+    "ps",
+    "-axo",
+    "pid,ppid,pgid,command"
+  ],
+  "owned_runner_wrapper_product_matches": [],
+  "outer_exec_session": 40899,
+  "outer_exit_code": 0,
+  "known_outer_PID_PGID": 15253,
+  "maintained_diff": {
+    "argv": [
+      "git",
+      "diff",
+      "--exit-code",
+      "--",
+      "projects/chirality-piping/core",
+      "projects/chirality-piping/validation/benchmarks/numerical_robustness"
+    ],
+    "returncode": 0,
+    "stdout": ""
+  }
+}

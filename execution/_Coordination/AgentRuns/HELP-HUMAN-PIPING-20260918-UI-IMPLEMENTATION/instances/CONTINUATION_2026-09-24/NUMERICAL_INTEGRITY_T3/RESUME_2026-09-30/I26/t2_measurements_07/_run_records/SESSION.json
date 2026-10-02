@@ -1,0 +1,12 @@
+{
+  "parent": "/root",
+  "task": "/root/i26_uc_witness",
+  "receipt_utc": "2026-10-02T06:07:47Z",
+  "runtime_cutoff_utc": "2026-10-02T06:32:47Z",
+  "hard_deadline_utc": "2026-10-02T06:37:47Z",
+  "brief_commit": "f64102d22c6077056fb8cfbd12315c1d8c266dd1",
+  "ruling_commit": "4c77de14711303d0a6d8aa0597fb1c4c3099ec10",
+  "accepted_T1_commit": "009f9a2c4b76811777ba328a3e7261197841ccf8",
+  "scope": "Six100-member qualifications; only on all-pass one original T2 CLI; no retry, other tier or new tooling",
+  "setup_complete_utc": "2026-10-02T06:09:49.975067+00:00"
+}

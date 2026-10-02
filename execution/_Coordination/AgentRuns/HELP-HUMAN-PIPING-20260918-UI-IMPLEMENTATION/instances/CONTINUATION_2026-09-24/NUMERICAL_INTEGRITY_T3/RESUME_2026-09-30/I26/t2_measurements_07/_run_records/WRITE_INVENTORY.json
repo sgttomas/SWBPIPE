@@ -1,0 +1,110 @@
+{
+  "packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/t2_measurements_07",
+  "measurement_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01",
+  "new_raw_files": 191,
+  "permitted_modified_file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/records.jsonl",
+  "prior_journal_prefix_preserved": true,
+  "maintained_changes": [],
+  "packet_payloads_before_inventory_and_seal": [
+    {
+      "path": "RETURN.md",
+      "sha256": "c429b710dcfd02da15a8c0107a1c789e5980308be017af86fb498367cddf5c06"
+    },
+    {
+      "path": "_run_records/199_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/204_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/207_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/212_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/215_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/220_counts_binding_qualification.quiet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/ACTUAL_INVOCATION.json",
+      "sha256": "2aa2c7fe7be609e85cdb600bf079f67421924c2e9f87691633bcd8d739a11a6f"
+    },
+    {
+      "path": "_run_records/BASELINE_CHECK.json",
+      "sha256": "0289913f9eec0ba17f0336221f3544c3e1470795dbbcb0c881948563f9371685"
+    },
+    {
+      "path": "_run_records/CHECK_METHOD.md",
+      "sha256": "ceb9f5c5fce2e7502a7890e683dff85b46cc46179210e5585109acce634bef44"
+    },
+    {
+      "path": "_run_records/FIELD_MAP.json",
+      "sha256": "2a6b66cd0f0605b72f4d4a5151ccc665d3e58867f5a3b94c9b23433a0acbc82c"
+    },
+    {
+      "path": "_run_records/FINAL_PRESERVATION_AND_CLEANUP.json",
+      "sha256": "5014003256601721461d281c61282efa511193d650249779804f62e56468d502"
+    },
+    {
+      "path": "_run_records/FULL_CHECKS.json",
+      "sha256": "a7272d8a6a7cc9022a718531c4c9d1fa11aa165e00f184cd7dde39d8021a72d7"
+    },
+    {
+      "path": "_run_records/INPUT_BINDING.json",
+      "sha256": "9a1caa706addd73bd5f61de689c7ece442604ed6addf20a6ca9bd87127f61146"
+    },
+    {
+      "path": "_run_records/METRIC_WINDOW_CHECKS.json",
+      "sha256": "6b19c0fe697f295869635b36783e5e054b7ff0e36730a2329a45417cc0372eda"
+    },
+    {
+      "path": "_run_records/PRETIER_HOST.json",
+      "sha256": "45dc8b68f40a7cf010a0375ffda358db6d28499236849bef18e641a9f0bd428b"
+    },
+    {
+      "path": "_run_records/PRETIER_QUIET.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/PROGRESS_CHECK_01.json",
+      "sha256": "0b912b7cf36b681230683b30acd4ff7dbc5295c9970c201620d7dcbe08501959"
+    },
+    {
+      "path": "_run_records/QUALIFICATIONS.json",
+      "sha256": "e219b40557432b34ac783692bda397ae39e46ef11e4c2766060182feeaf700ea"
+    },
+    {
+      "path": "_run_records/RAW_INVENTORY.json",
+      "sha256": "6942067ce1a6e534b790ee6e06c8e1139d51aa201e79e2b607d1b757dfdc50ae"
+    },
+    {
+      "path": "_run_records/RESULTS_SUMMARY.json",
+      "sha256": "4bb66305a4ad308226f975e044a7800688d93ecd0c17b52199728af5c5539757"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "sha256": "ec9476a4244bea5e0c60cd6d7843060313b88f0f1de20468eb1dd3f6d1289d3f"
+    },
+    {
+      "path": "_run_records/T2_LAUNCHES.json",
+      "sha256": "194449b2fb19440abf87cc580fc5909696be22540c9845c09471aee09319d9e7"
+    },
+    {
+      "path": "_run_records/TIMELINE.json",
+      "sha256": "62ca08d83c073160d99a6d955b005d5c46a5cd1487f9a36a60fff31662c2aea5"
+    },
+    {
+      "path": "_run_records/WINDOW_BASIS.json",
+      "sha256": "464e8ad167217b4f5bbd06af49a54b30fb5a623f21bff816904f21c5ed87c9c5"
+    }
+  ]
+}

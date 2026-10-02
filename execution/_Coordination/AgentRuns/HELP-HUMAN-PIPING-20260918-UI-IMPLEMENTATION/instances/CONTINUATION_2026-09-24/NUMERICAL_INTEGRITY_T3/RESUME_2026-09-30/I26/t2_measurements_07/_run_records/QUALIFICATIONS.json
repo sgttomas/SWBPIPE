@@ -1,0 +1,3747 @@
+{
+  "start_utc": "2026-10-02T06:10:27.747395+00:00",
+  "calls": [
+    {
+      "order": 199,
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "start_utc": "2026-10-02T06:10:27.800996+00:00",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "token_utf8_bytes": [
+        166,
+        7,
+        24,
+        6,
+        3,
+        16,
+        10,
+        9,
+        1,
+        15,
+        1,
+        15,
+        3,
+        22,
+        3,
+        13,
+        131,
+        16,
+        157,
+        13,
+        13
+      ],
+      "H_retained_arguments": [
+        "RF-LARGE-CHAIN-n00100-AX",
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        null,
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.rows"
+      ],
+      "H_retained_argument_utf8_bytes": [
+        24,
+        0,
+        131,
+        0,
+        0,
+        157
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "quiet": {
+        "waited_s": 0,
+        "memorystatus_level": 95,
+        "load1_at_start": 2.32080078125
+      },
+      "run_id": "199_counts_binding_qualification",
+      "wrapper_argv": [
+        "/usr/bin/time",
+        "-l",
+        "-o",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/199_counts_binding_qualification.time.txt",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/199_RF-LARGE-CHAIN-n00100-AX_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "end_utc": "2026-10-02T06:10:27.833441+00:00",
+      "record": {
+        "schema": "k6-runner-record-v1",
+        "run_id": "199_counts_binding_qualification",
+        "system": "Darwin",
+        "argv": [
+          "k6_observe",
+          "--model",
+          "RF-LARGE-CHAIN-n00100-AX",
+          "--mode",
+          "w1a",
+          "--heap-cap-bytes",
+          "8053063680",
+          "--repeats",
+          "5",
+          "--entry-repeats",
+          "5",
+          "--time-budget-s",
+          "540",
+          "--first-repeat-limit-s",
+          "600",
+          "--counts-file",
+          "counts.jsonl",
+          "--dump-published",
+          "199_RF-LARGE-CHAIN-n00100-AX_w1a.rows",
+          "--w1-prefixes",
+          "--counts-only"
+        ],
+        "wrapper": "/usr/bin/time -l",
+        "rss_cap_bytes": 8589934592,
+        "timeout_s": 600,
+        "poll_s": 0.1,
+        "rlimit_as_applied": false,
+        "load_before": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_before": 95,
+        "classification": "ok",
+        "classification_detail": null,
+        "exit_code": 0,
+        "wall_s": 0.0248,
+        "binary_pid_found": false,
+        "killed_by_rss_watchdog": false,
+        "timed_out": false,
+        "kill_after_s": null,
+        "watchdog_last_kib": null,
+        "watchdog_polls": 0,
+        "watchdog_samples": [],
+        "survivors": [],
+        "rss": {
+          "wait4_maxrss_bytes": 5603328,
+          "ps_max_kib": null,
+          "ps_samples": 0,
+          "time_max_rss_bytes": 5603328,
+          "time_peak_footprint_bytes": 4227408
+        },
+        "peak_rss_bytes": 5603328,
+        "peak_rss_source": "time",
+        "load_after": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_after": 95,
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1638384,
+          "heap_peak_move": 1662960
+        },
+        "stdout_lines": 3,
+        "stderr_tail": "",
+        "repeats_heap_peak": null,
+        "repeats_heap_peak_move": null,
+        "stdout_sha256": "8da9b1bc5371d98809d94224aaf3a02414e07e62fd795ae5cbe0b89068f7e804"
+      },
+      "comparison": {
+        "consumed_fields": 37,
+        "invariants": 20,
+        "field_checks": [
+          {
+            "field": "kind",
+            "expected": "counts",
+            "actual": "counts",
+            "equal": true
+          },
+          {
+            "field": "model",
+            "expected": "RF-LARGE-CHAIN-n00100-AX",
+            "actual": "RF-LARGE-CHAIN-n00100-AX",
+            "equal": true
+          },
+          {
+            "field": "model_canonical_fnv64",
+            "expected": "a684a5a72e60aefd",
+            "actual": "a684a5a72e60aefd",
+            "equal": true
+          },
+          {
+            "field": "nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "free_dofs",
+            "expected": 600,
+            "actual": 600,
+            "equal": true
+          },
+          {
+            "field": "restrained_dofs",
+            "expected": 6,
+            "actual": 6,
+            "equal": true
+          },
+          {
+            "field": "pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "lower_entries",
+            "expected": 5721,
+            "actual": 5721,
+            "equal": true
+          },
+          {
+            "field": "free_entries",
+            "expected": 10728,
+            "actual": 10728,
+            "equal": true
+          },
+          {
+            "field": "free_lower_entries",
+            "expected": 5664,
+            "actual": 5664,
+            "equal": true
+          },
+          {
+            "field": "free_lower_nonzero",
+            "expected": 1592,
+            "actual": 1592,
+            "equal": true
+          },
+          {
+            "field": "rcm_profile_entries",
+            "expected": 1788,
+            "actual": 1788,
+            "equal": true
+          },
+          {
+            "field": "rcm_half_bandwidth",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "identity_profile_entries",
+            "expected": 4764,
+            "actual": 4764,
+            "equal": true
+          },
+          {
+            "field": "identity_half_bandwidth",
+            "expected": 10,
+            "actual": 10,
+            "equal": true
+          },
+          {
+            "field": "lane_entries",
+            "expected": 2582,
+            "actual": 2582,
+            "equal": true
+          },
+          {
+            "field": "lane_off_diagonal",
+            "expected": 1388,
+            "actual": 1388,
+            "equal": true
+          },
+          {
+            "field": "contributions",
+            "expected": 14400,
+            "actual": 14400,
+            "equal": true
+          },
+          {
+            "field": "dense_entries",
+            "expected": 367236,
+            "actual": 367236,
+            "equal": true
+          },
+          {
+            "field": "w1_source_ok",
+            "expected": true,
+            "actual": true,
+            "equal": true
+          },
+          {
+            "field": "w1_nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "w1_members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_stations",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_constraints",
+            "expected": 6,
+            "actual": 6,
+            "equal": true
+          },
+          {
+            "field": "w1_loads",
+            "expected": 6,
+            "actual": 6,
+            "equal": true
+          },
+          {
+            "field": "w1_dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "w1_free_dofs",
+            "expected": 600,
+            "actual": 600,
+            "equal": true
+          },
+          {
+            "field": "w1_bodies",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "w1_profile_entries",
+            "expected": 5664,
+            "actual": 5664,
+            "equal": true
+          },
+          {
+            "field": "w1_half_bandwidth",
+            "expected": 11,
+            "actual": 11,
+            "equal": true
+          },
+          {
+            "field": "w1_blocks",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_rows",
+            "expected": 2513,
+            "actual": 2513,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_len",
+            "expected": 12678,
+            "actual": 12678,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_fnv64",
+            "expected": "cbbf93bdf79b1fd8",
+            "actual": "cbbf93bdf79b1fd8",
+            "equal": true
+          },
+          {
+            "field": "family",
+            "expected": "CHAIN",
+            "actual": "CHAIN",
+            "equal": true
+          },
+          {
+            "field": "w1_source_error",
+            "expected": null,
+            "actual": null,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_128",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_128",
+            "expected": 528000,
+            "actual": 528000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_256",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_256",
+            "expected": 528000,
+            "actual": 528000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_512",
+            "expected": 8,
+            "actual": 8,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_512",
+            "expected": 1056000,
+            "actual": 1056000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_1024",
+            "expected": 16,
+            "actual": 16,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_1024",
+            "expected": 2112000,
+            "actual": 2112000,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_4",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_8",
+            "expected": 80,
+            "actual": 80,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_16",
+            "expected": 144,
+            "actual": 144,
+            "equal": true
+          },
+          {
+            "field": "size_stiffness_contribution",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "size_contribution_rounding",
+            "expected": 96,
+            "actual": 96,
+            "equal": true
+          },
+          {
+            "field": "size_residual_row",
+            "expected": 104,
+            "actual": 104,
+            "equal": true
+          },
+          {
+            "field": "size_pivot_evidence",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "size_frame_element",
+            "expected": 136,
+            "actual": 136,
+            "equal": true
+          },
+          {
+            "field": "size_symmetric_matrix_entry",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "model_canonical_len",
+            "expected": 13820,
+            "actual": 13820,
+            "equal": true
+          }
+        ],
+        "metadata_checks": {
+          "counts_source": true,
+          "mode": true,
+          "w1_source_ok": true,
+          "w1_source_error": true
+        },
+        "estimates": {
+          "estimate_adm_bytes_w1a": 48274953,
+          "estimate_w1_sel128_bytes": 28522281,
+          "estimate_w1_fixed_bytes": 681056,
+          "estimate_w1_decide_bytes": 20330161,
+          "estimate_w1_shared_128": 2217648,
+          "estimate_w1_state_128": 178616,
+          "estimate_w1_solve_128": 18667584,
+          "estimate_w1_shared_256": 2580448,
+          "estimate_w1_state_256": 178616,
+          "estimate_w1_solve_256": 19014336,
+          "estimate_w1_shared_512": 4397184,
+          "estimate_w1_state_512": 297624,
+          "estimate_w1_solve_512": 19875200,
+          "estimate_w1_shared_1024": 6579648,
+          "estimate_w1_state_1024": 535640,
+          "estimate_w1_solve_1024": 20209920,
+          "estimate_w1_verify_256": 1672896,
+          "estimate_w1_pass_256": 1580334,
+          "estimate_w1_verify_512": 2941408,
+          "estimate_w1_pass_512": 2586286,
+          "estimate_w1_verify_1024": 3635232,
+          "estimate_w1_pass_1024": 4598190
+        },
+        "estimate_integer_nonnegative": true,
+        "positive_max": true,
+        "start_expected": {
+          "schema": "k6-observe-v1",
+          "model": "RF-LARGE-CHAIN-n00100-AX",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_actual": {
+          "kind": "start",
+          "schema": "k6-observe-v1",
+          "pid": 15000,
+          "model": "RF-LARGE-CHAIN-n00100-AX",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_checks": {
+          "schema": true,
+          "model": true,
+          "model_from_file": true,
+          "mode": true,
+          "counts_only": true,
+          "repeats": true,
+          "entry_repeats": true,
+          "heap_cap_bytes": true,
+          "time_budget_s": true,
+          "first_repeat_limit_s": true,
+          "allow_over_estimate": true,
+          "case_limit": true,
+          "invocation_limit": true,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1638384,
+          "heap_peak_move": 1662960
+        },
+        "publication_dump_exists": false
+      },
+      "pass": true
+    },
+    {
+      "order": 204,
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "start_utc": "2026-10-02T06:10:27.887800+00:00",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-CHAIN-n00100-ROT",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "token_utf8_bytes": [
+        166,
+        7,
+        25,
+        6,
+        3,
+        16,
+        10,
+        9,
+        1,
+        15,
+        1,
+        15,
+        3,
+        22,
+        3,
+        13,
+        131,
+        16,
+        158,
+        13,
+        13
+      ],
+      "H_retained_arguments": [
+        "RF-LARGE-CHAIN-n00100-ROT",
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        null,
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.rows"
+      ],
+      "H_retained_argument_utf8_bytes": [
+        25,
+        0,
+        131,
+        0,
+        0,
+        158
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "quiet": {
+        "waited_s": 0,
+        "memorystatus_level": 95,
+        "load1_at_start": 2.32080078125
+      },
+      "run_id": "204_counts_binding_qualification",
+      "wrapper_argv": [
+        "/usr/bin/time",
+        "-l",
+        "-o",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/204_counts_binding_qualification.time.txt",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-CHAIN-n00100-ROT",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/204_RF-LARGE-CHAIN-n00100-ROT_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "end_utc": "2026-10-02T06:10:27.917121+00:00",
+      "record": {
+        "schema": "k6-runner-record-v1",
+        "run_id": "204_counts_binding_qualification",
+        "system": "Darwin",
+        "argv": [
+          "k6_observe",
+          "--model",
+          "RF-LARGE-CHAIN-n00100-ROT",
+          "--mode",
+          "w1a",
+          "--heap-cap-bytes",
+          "8053063680",
+          "--repeats",
+          "5",
+          "--entry-repeats",
+          "5",
+          "--time-budget-s",
+          "540",
+          "--first-repeat-limit-s",
+          "600",
+          "--counts-file",
+          "counts.jsonl",
+          "--dump-published",
+          "204_RF-LARGE-CHAIN-n00100-ROT_w1a.rows",
+          "--w1-prefixes",
+          "--counts-only"
+        ],
+        "wrapper": "/usr/bin/time -l",
+        "rss_cap_bytes": 8589934592,
+        "timeout_s": 600,
+        "poll_s": 0.1,
+        "rlimit_as_applied": false,
+        "load_before": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_before": 95,
+        "classification": "ok",
+        "classification_detail": null,
+        "exit_code": 0,
+        "wall_s": 0.0226,
+        "binary_pid_found": false,
+        "killed_by_rss_watchdog": false,
+        "timed_out": false,
+        "kill_after_s": null,
+        "watchdog_last_kib": null,
+        "watchdog_polls": 0,
+        "watchdog_samples": [],
+        "survivors": [],
+        "rss": {
+          "wait4_maxrss_bytes": 5734400,
+          "ps_max_kib": null,
+          "ps_samples": 0,
+          "time_max_rss_bytes": 5734400,
+          "time_peak_footprint_bytes": 4342096
+        },
+        "peak_rss_bytes": 5734400,
+        "peak_rss_source": "time",
+        "load_after": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_after": 95,
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1785843,
+          "heap_peak_move": 1884147
+        },
+        "stdout_lines": 3,
+        "stderr_tail": "",
+        "repeats_heap_peak": null,
+        "repeats_heap_peak_move": null,
+        "stdout_sha256": "df360a76e650b723f2f32d43fa707c088d708770ac0174c005f8f9a547e921bf"
+      },
+      "comparison": {
+        "consumed_fields": 37,
+        "invariants": 20,
+        "field_checks": [
+          {
+            "field": "kind",
+            "expected": "counts",
+            "actual": "counts",
+            "equal": true
+          },
+          {
+            "field": "model",
+            "expected": "RF-LARGE-CHAIN-n00100-ROT",
+            "actual": "RF-LARGE-CHAIN-n00100-ROT",
+            "equal": true
+          },
+          {
+            "field": "model_canonical_fnv64",
+            "expected": "cef5179fa23e560e",
+            "actual": "cef5179fa23e560e",
+            "equal": true
+          },
+          {
+            "field": "nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "free_dofs",
+            "expected": 600,
+            "actual": 600,
+            "equal": true
+          },
+          {
+            "field": "restrained_dofs",
+            "expected": 6,
+            "actual": 6,
+            "equal": true
+          },
+          {
+            "field": "pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "lower_entries",
+            "expected": 5721,
+            "actual": 5721,
+            "equal": true
+          },
+          {
+            "field": "free_entries",
+            "expected": 10728,
+            "actual": 10728,
+            "equal": true
+          },
+          {
+            "field": "free_lower_entries",
+            "expected": 5664,
+            "actual": 5664,
+            "equal": true
+          },
+          {
+            "field": "free_lower_nonzero",
+            "expected": 4176,
+            "actual": 4176,
+            "equal": true
+          },
+          {
+            "field": "rcm_profile_entries",
+            "expected": 5569,
+            "actual": 5569,
+            "equal": true
+          },
+          {
+            "field": "rcm_half_bandwidth",
+            "expected": 13,
+            "actual": 13,
+            "equal": true
+          },
+          {
+            "field": "identity_profile_entries",
+            "expected": 5564,
+            "actual": 5564,
+            "equal": true
+          },
+          {
+            "field": "identity_half_bandwidth",
+            "expected": 11,
+            "actual": 11,
+            "equal": true
+          },
+          {
+            "field": "lane_entries",
+            "expected": 7346,
+            "actual": 7346,
+            "equal": true
+          },
+          {
+            "field": "lane_off_diagonal",
+            "expected": 6152,
+            "actual": 6152,
+            "equal": true
+          },
+          {
+            "field": "contributions",
+            "expected": 14400,
+            "actual": 14400,
+            "equal": true
+          },
+          {
+            "field": "dense_entries",
+            "expected": 367236,
+            "actual": 367236,
+            "equal": true
+          },
+          {
+            "field": "w1_source_ok",
+            "expected": true,
+            "actual": true,
+            "equal": true
+          },
+          {
+            "field": "w1_nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "w1_members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_stations",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_constraints",
+            "expected": 6,
+            "actual": 6,
+            "equal": true
+          },
+          {
+            "field": "w1_loads",
+            "expected": 6,
+            "actual": 6,
+            "equal": true
+          },
+          {
+            "field": "w1_dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "w1_free_dofs",
+            "expected": 600,
+            "actual": 600,
+            "equal": true
+          },
+          {
+            "field": "w1_bodies",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "w1_profile_entries",
+            "expected": 5664,
+            "actual": 5664,
+            "equal": true
+          },
+          {
+            "field": "w1_half_bandwidth",
+            "expected": 11,
+            "actual": 11,
+            "equal": true
+          },
+          {
+            "field": "w1_blocks",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_rows",
+            "expected": 2513,
+            "actual": 2513,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_len",
+            "expected": 12678,
+            "actual": 12678,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_fnv64",
+            "expected": "6a52f7ca04eab597",
+            "actual": "6a52f7ca04eab597",
+            "equal": true
+          },
+          {
+            "field": "family",
+            "expected": "CHAIN",
+            "actual": "CHAIN",
+            "equal": true
+          },
+          {
+            "field": "w1_source_error",
+            "expected": null,
+            "actual": null,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_128",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_128",
+            "expected": 528000,
+            "actual": 528000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_256",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_256",
+            "expected": 528000,
+            "actual": 528000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_512",
+            "expected": 8,
+            "actual": 8,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_512",
+            "expected": 1056000,
+            "actual": 1056000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_1024",
+            "expected": 16,
+            "actual": 16,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_1024",
+            "expected": 2112000,
+            "actual": 2112000,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_4",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_8",
+            "expected": 80,
+            "actual": 80,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_16",
+            "expected": 144,
+            "actual": 144,
+            "equal": true
+          },
+          {
+            "field": "size_stiffness_contribution",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "size_contribution_rounding",
+            "expected": 96,
+            "actual": 96,
+            "equal": true
+          },
+          {
+            "field": "size_residual_row",
+            "expected": 104,
+            "actual": 104,
+            "equal": true
+          },
+          {
+            "field": "size_pivot_evidence",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "size_frame_element",
+            "expected": 136,
+            "actual": 136,
+            "equal": true
+          },
+          {
+            "field": "size_symmetric_matrix_entry",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "model_canonical_len",
+            "expected": 13821,
+            "actual": 13821,
+            "equal": true
+          }
+        ],
+        "metadata_checks": {
+          "counts_source": true,
+          "mode": true,
+          "w1_source_ok": true,
+          "w1_source_error": true
+        },
+        "estimates": {
+          "estimate_adm_bytes_w1a": 48274956,
+          "estimate_w1_sel128_bytes": 28522284,
+          "estimate_w1_fixed_bytes": 681059,
+          "estimate_w1_decide_bytes": 20330161,
+          "estimate_w1_shared_128": 2217648,
+          "estimate_w1_state_128": 178616,
+          "estimate_w1_solve_128": 18667584,
+          "estimate_w1_shared_256": 2580448,
+          "estimate_w1_state_256": 178616,
+          "estimate_w1_solve_256": 19014336,
+          "estimate_w1_shared_512": 4397184,
+          "estimate_w1_state_512": 297624,
+          "estimate_w1_solve_512": 19875200,
+          "estimate_w1_shared_1024": 6579648,
+          "estimate_w1_state_1024": 535640,
+          "estimate_w1_solve_1024": 20209920,
+          "estimate_w1_verify_256": 1672896,
+          "estimate_w1_pass_256": 1580334,
+          "estimate_w1_verify_512": 2941408,
+          "estimate_w1_pass_512": 2586286,
+          "estimate_w1_verify_1024": 3635232,
+          "estimate_w1_pass_1024": 4598190
+        },
+        "estimate_integer_nonnegative": true,
+        "positive_max": true,
+        "start_expected": {
+          "schema": "k6-observe-v1",
+          "model": "RF-LARGE-CHAIN-n00100-ROT",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_actual": {
+          "kind": "start",
+          "schema": "k6-observe-v1",
+          "pid": 15011,
+          "model": "RF-LARGE-CHAIN-n00100-ROT",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_checks": {
+          "schema": true,
+          "model": true,
+          "model_from_file": true,
+          "mode": true,
+          "counts_only": true,
+          "repeats": true,
+          "entry_repeats": true,
+          "heap_cap_bytes": true,
+          "time_budget_s": true,
+          "first_repeat_limit_s": true,
+          "allow_over_estimate": true,
+          "case_limit": true,
+          "invocation_limit": true,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1785843,
+          "heap_peak_move": 1884147
+        },
+        "publication_dump_exists": false
+      },
+      "pass": true
+    },
+    {
+      "order": 207,
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "start_utc": "2026-10-02T06:10:27.968862+00:00",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-TREE-n00100-AX",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "token_utf8_bytes": [
+        166,
+        7,
+        23,
+        6,
+        3,
+        16,
+        10,
+        9,
+        1,
+        15,
+        1,
+        15,
+        3,
+        22,
+        3,
+        13,
+        131,
+        16,
+        156,
+        13,
+        13
+      ],
+      "H_retained_arguments": [
+        "RF-LARGE-TREE-n00100-AX",
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        null,
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.rows"
+      ],
+      "H_retained_argument_utf8_bytes": [
+        23,
+        0,
+        131,
+        0,
+        0,
+        156
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "quiet": {
+        "waited_s": 0,
+        "memorystatus_level": 95,
+        "load1_at_start": 2.32080078125
+      },
+      "run_id": "207_counts_binding_qualification",
+      "wrapper_argv": [
+        "/usr/bin/time",
+        "-l",
+        "-o",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/207_counts_binding_qualification.time.txt",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-TREE-n00100-AX",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/207_RF-LARGE-TREE-n00100-AX_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "end_utc": "2026-10-02T06:10:27.997915+00:00",
+      "record": {
+        "schema": "k6-runner-record-v1",
+        "run_id": "207_counts_binding_qualification",
+        "system": "Darwin",
+        "argv": [
+          "k6_observe",
+          "--model",
+          "RF-LARGE-TREE-n00100-AX",
+          "--mode",
+          "w1a",
+          "--heap-cap-bytes",
+          "8053063680",
+          "--repeats",
+          "5",
+          "--entry-repeats",
+          "5",
+          "--time-budget-s",
+          "540",
+          "--first-repeat-limit-s",
+          "600",
+          "--counts-file",
+          "counts.jsonl",
+          "--dump-published",
+          "207_RF-LARGE-TREE-n00100-AX_w1a.rows",
+          "--w1-prefixes",
+          "--counts-only"
+        ],
+        "wrapper": "/usr/bin/time -l",
+        "rss_cap_bytes": 8589934592,
+        "timeout_s": 600,
+        "poll_s": 0.1,
+        "rlimit_as_applied": false,
+        "load_before": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_before": 95,
+        "classification": "ok",
+        "classification_detail": null,
+        "exit_code": 0,
+        "wall_s": 0.022,
+        "binary_pid_found": false,
+        "killed_by_rss_watchdog": false,
+        "timed_out": false,
+        "kill_after_s": null,
+        "watchdog_last_kib": null,
+        "watchdog_polls": 0,
+        "watchdog_samples": [],
+        "survivors": [],
+        "rss": {
+          "wait4_maxrss_bytes": 5357568,
+          "ps_max_kib": null,
+          "ps_samples": 0,
+          "time_max_rss_bytes": 5357568,
+          "time_peak_footprint_bytes": 3965264
+        },
+        "peak_rss_bytes": 5357568,
+        "peak_rss_source": "time",
+        "load_after": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_after": 95,
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1639213,
+          "heap_peak_move": 1663789
+        },
+        "stdout_lines": 3,
+        "stderr_tail": "",
+        "repeats_heap_peak": null,
+        "repeats_heap_peak_move": null,
+        "stdout_sha256": "4f6ba4d0882e8f29636ef0eb3a7c56feafd69f5c115945715e24f6f988c89991"
+      },
+      "comparison": {
+        "consumed_fields": 37,
+        "invariants": 20,
+        "field_checks": [
+          {
+            "field": "kind",
+            "expected": "counts",
+            "actual": "counts",
+            "equal": true
+          },
+          {
+            "field": "model",
+            "expected": "RF-LARGE-TREE-n00100-AX",
+            "actual": "RF-LARGE-TREE-n00100-AX",
+            "equal": true
+          },
+          {
+            "field": "model_canonical_fnv64",
+            "expected": "5d150dde17da200c",
+            "actual": "5d150dde17da200c",
+            "equal": true
+          },
+          {
+            "field": "nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "free_dofs",
+            "expected": 600,
+            "actual": 600,
+            "equal": true
+          },
+          {
+            "field": "restrained_dofs",
+            "expected": 6,
+            "actual": 6,
+            "equal": true
+          },
+          {
+            "field": "pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "lower_entries",
+            "expected": 5721,
+            "actual": 5721,
+            "equal": true
+          },
+          {
+            "field": "free_entries",
+            "expected": 10728,
+            "actual": 10728,
+            "equal": true
+          },
+          {
+            "field": "free_lower_entries",
+            "expected": 5664,
+            "actual": 5664,
+            "equal": true
+          },
+          {
+            "field": "free_lower_nonzero",
+            "expected": 1792,
+            "actual": 1792,
+            "equal": true
+          },
+          {
+            "field": "rcm_profile_entries",
+            "expected": 4933,
+            "actual": 4933,
+            "equal": true
+          },
+          {
+            "field": "rcm_half_bandwidth",
+            "expected": 19,
+            "actual": 19,
+            "equal": true
+          },
+          {
+            "field": "identity_profile_entries",
+            "expected": 6530,
+            "actual": 6530,
+            "equal": true
+          },
+          {
+            "field": "identity_half_bandwidth",
+            "expected": 16,
+            "actual": 16,
+            "equal": true
+          },
+          {
+            "field": "lane_entries",
+            "expected": 2582,
+            "actual": 2582,
+            "equal": true
+          },
+          {
+            "field": "lane_off_diagonal",
+            "expected": 1388,
+            "actual": 1388,
+            "equal": true
+          },
+          {
+            "field": "contributions",
+            "expected": 14400,
+            "actual": 14400,
+            "equal": true
+          },
+          {
+            "field": "dense_entries",
+            "expected": 367236,
+            "actual": 367236,
+            "equal": true
+          },
+          {
+            "field": "w1_source_ok",
+            "expected": true,
+            "actual": true,
+            "equal": true
+          },
+          {
+            "field": "w1_nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "w1_members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_stations",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_constraints",
+            "expected": 6,
+            "actual": 6,
+            "equal": true
+          },
+          {
+            "field": "w1_loads",
+            "expected": 43,
+            "actual": 43,
+            "equal": true
+          },
+          {
+            "field": "w1_dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "w1_free_dofs",
+            "expected": 600,
+            "actual": 600,
+            "equal": true
+          },
+          {
+            "field": "w1_bodies",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "w1_profile_entries",
+            "expected": 5664,
+            "actual": 5664,
+            "equal": true
+          },
+          {
+            "field": "w1_half_bandwidth",
+            "expected": 17,
+            "actual": 17,
+            "equal": true
+          },
+          {
+            "field": "w1_blocks",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_rows",
+            "expected": 2513,
+            "actual": 2513,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_len",
+            "expected": 13522,
+            "actual": 13522,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_fnv64",
+            "expected": "2aa106345cc2149c",
+            "actual": "2aa106345cc2149c",
+            "equal": true
+          },
+          {
+            "field": "family",
+            "expected": "TREE",
+            "actual": "TREE",
+            "equal": true
+          },
+          {
+            "field": "w1_source_error",
+            "expected": null,
+            "actual": null,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_128",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_128",
+            "expected": 528000,
+            "actual": 528000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_256",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_256",
+            "expected": 528000,
+            "actual": 528000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_512",
+            "expected": 8,
+            "actual": 8,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_512",
+            "expected": 1056000,
+            "actual": 1056000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_1024",
+            "expected": 16,
+            "actual": 16,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_1024",
+            "expected": 2112000,
+            "actual": 2112000,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_4",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_8",
+            "expected": 80,
+            "actual": 80,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_16",
+            "expected": 144,
+            "actual": 144,
+            "equal": true
+          },
+          {
+            "field": "size_stiffness_contribution",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "size_contribution_rounding",
+            "expected": 96,
+            "actual": 96,
+            "equal": true
+          },
+          {
+            "field": "size_residual_row",
+            "expected": 104,
+            "actual": 104,
+            "equal": true
+          },
+          {
+            "field": "size_pivot_evidence",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "size_frame_element",
+            "expected": 136,
+            "actual": 136,
+            "equal": true
+          },
+          {
+            "field": "size_symmetric_matrix_entry",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "model_canonical_len",
+            "expected": 14754,
+            "actual": 14754,
+            "equal": true
+          }
+        ],
+        "metadata_checks": {
+          "counts_source": true,
+          "mode": true,
+          "w1_source_ok": true,
+          "w1_source_error": true
+        },
+        "estimates": {
+          "estimate_adm_bytes_w1a": 48303070,
+          "estimate_w1_sel128_bytes": 28550398,
+          "estimate_w1_fixed_bytes": 709173,
+          "estimate_w1_decide_bytes": 20330161,
+          "estimate_w1_shared_128": 2217648,
+          "estimate_w1_state_128": 178616,
+          "estimate_w1_solve_128": 18667584,
+          "estimate_w1_shared_256": 2580448,
+          "estimate_w1_state_256": 178616,
+          "estimate_w1_solve_256": 19014336,
+          "estimate_w1_shared_512": 4397184,
+          "estimate_w1_state_512": 297624,
+          "estimate_w1_solve_512": 19875200,
+          "estimate_w1_shared_1024": 6579648,
+          "estimate_w1_state_1024": 535640,
+          "estimate_w1_solve_1024": 20209920,
+          "estimate_w1_verify_256": 1672896,
+          "estimate_w1_pass_256": 1580334,
+          "estimate_w1_verify_512": 2941408,
+          "estimate_w1_pass_512": 2586286,
+          "estimate_w1_verify_1024": 3635232,
+          "estimate_w1_pass_1024": 4598190
+        },
+        "estimate_integer_nonnegative": true,
+        "positive_max": true,
+        "start_expected": {
+          "schema": "k6-observe-v1",
+          "model": "RF-LARGE-TREE-n00100-AX",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_actual": {
+          "kind": "start",
+          "schema": "k6-observe-v1",
+          "pid": 15020,
+          "model": "RF-LARGE-TREE-n00100-AX",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_checks": {
+          "schema": true,
+          "model": true,
+          "model_from_file": true,
+          "mode": true,
+          "counts_only": true,
+          "repeats": true,
+          "entry_repeats": true,
+          "heap_cap_bytes": true,
+          "time_budget_s": true,
+          "first_repeat_limit_s": true,
+          "allow_over_estimate": true,
+          "case_limit": true,
+          "invocation_limit": true,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1639213,
+          "heap_peak_move": 1663789
+        },
+        "publication_dump_exists": false
+      },
+      "pass": true
+    },
+    {
+      "order": 212,
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "start_utc": "2026-10-02T06:10:28.052156+00:00",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-TREE-n00100-ROT",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "token_utf8_bytes": [
+        166,
+        7,
+        24,
+        6,
+        3,
+        16,
+        10,
+        9,
+        1,
+        15,
+        1,
+        15,
+        3,
+        22,
+        3,
+        13,
+        131,
+        16,
+        157,
+        13,
+        13
+      ],
+      "H_retained_arguments": [
+        "RF-LARGE-TREE-n00100-ROT",
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        null,
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.rows"
+      ],
+      "H_retained_argument_utf8_bytes": [
+        24,
+        0,
+        131,
+        0,
+        0,
+        157
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "quiet": {
+        "waited_s": 0,
+        "memorystatus_level": 95,
+        "load1_at_start": 2.32080078125
+      },
+      "run_id": "212_counts_binding_qualification",
+      "wrapper_argv": [
+        "/usr/bin/time",
+        "-l",
+        "-o",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/212_counts_binding_qualification.time.txt",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-TREE-n00100-ROT",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/212_RF-LARGE-TREE-n00100-ROT_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "end_utc": "2026-10-02T06:10:28.081415+00:00",
+      "record": {
+        "schema": "k6-runner-record-v1",
+        "run_id": "212_counts_binding_qualification",
+        "system": "Darwin",
+        "argv": [
+          "k6_observe",
+          "--model",
+          "RF-LARGE-TREE-n00100-ROT",
+          "--mode",
+          "w1a",
+          "--heap-cap-bytes",
+          "8053063680",
+          "--repeats",
+          "5",
+          "--entry-repeats",
+          "5",
+          "--time-budget-s",
+          "540",
+          "--first-repeat-limit-s",
+          "600",
+          "--counts-file",
+          "counts.jsonl",
+          "--dump-published",
+          "212_RF-LARGE-TREE-n00100-ROT_w1a.rows",
+          "--w1-prefixes",
+          "--counts-only"
+        ],
+        "wrapper": "/usr/bin/time -l",
+        "rss_cap_bytes": 8589934592,
+        "timeout_s": 600,
+        "poll_s": 0.1,
+        "rlimit_as_applied": false,
+        "load_before": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_before": 95,
+        "classification": "ok",
+        "classification_detail": null,
+        "exit_code": 0,
+        "wall_s": 0.0224,
+        "binary_pid_found": false,
+        "killed_by_rss_watchdog": false,
+        "timed_out": false,
+        "kill_after_s": null,
+        "watchdog_last_kib": null,
+        "watchdog_polls": 0,
+        "watchdog_samples": [],
+        "survivors": [],
+        "rss": {
+          "wait4_maxrss_bytes": 5455872,
+          "ps_max_kib": null,
+          "ps_samples": 0,
+          "time_max_rss_bytes": 5455872,
+          "time_peak_footprint_bytes": 4047184
+        },
+        "peak_rss_bytes": 5455872,
+        "peak_rss_source": "time",
+        "load_after": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_after": 95,
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1789744,
+          "heap_peak_move": 1888048
+        },
+        "stdout_lines": 3,
+        "stderr_tail": "",
+        "repeats_heap_peak": null,
+        "repeats_heap_peak_move": null,
+        "stdout_sha256": "6d62b893bdd1d905c34dbd37ebfb563c552f065237aa6e43e77053214bd01b85"
+      },
+      "comparison": {
+        "consumed_fields": 37,
+        "invariants": 20,
+        "field_checks": [
+          {
+            "field": "kind",
+            "expected": "counts",
+            "actual": "counts",
+            "equal": true
+          },
+          {
+            "field": "model",
+            "expected": "RF-LARGE-TREE-n00100-ROT",
+            "actual": "RF-LARGE-TREE-n00100-ROT",
+            "equal": true
+          },
+          {
+            "field": "model_canonical_fnv64",
+            "expected": "8356e7c11d7e3dda",
+            "actual": "8356e7c11d7e3dda",
+            "equal": true
+          },
+          {
+            "field": "nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "free_dofs",
+            "expected": 600,
+            "actual": 600,
+            "equal": true
+          },
+          {
+            "field": "restrained_dofs",
+            "expected": 6,
+            "actual": 6,
+            "equal": true
+          },
+          {
+            "field": "pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "lower_entries",
+            "expected": 5721,
+            "actual": 5721,
+            "equal": true
+          },
+          {
+            "field": "free_entries",
+            "expected": 10728,
+            "actual": 10728,
+            "equal": true
+          },
+          {
+            "field": "free_lower_entries",
+            "expected": 5664,
+            "actual": 5664,
+            "equal": true
+          },
+          {
+            "field": "free_lower_nonzero",
+            "expected": 4672,
+            "actual": 4672,
+            "equal": true
+          },
+          {
+            "field": "rcm_profile_entries",
+            "expected": 6715,
+            "actual": 6715,
+            "equal": true
+          },
+          {
+            "field": "rcm_half_bandwidth",
+            "expected": 17,
+            "actual": 17,
+            "equal": true
+          },
+          {
+            "field": "identity_profile_entries",
+            "expected": 7379,
+            "actual": 7379,
+            "equal": true
+          },
+          {
+            "field": "identity_half_bandwidth",
+            "expected": 17,
+            "actual": 17,
+            "equal": true
+          },
+          {
+            "field": "lane_entries",
+            "expected": 7346,
+            "actual": 7346,
+            "equal": true
+          },
+          {
+            "field": "lane_off_diagonal",
+            "expected": 6152,
+            "actual": 6152,
+            "equal": true
+          },
+          {
+            "field": "contributions",
+            "expected": 14400,
+            "actual": 14400,
+            "equal": true
+          },
+          {
+            "field": "dense_entries",
+            "expected": 367236,
+            "actual": 367236,
+            "equal": true
+          },
+          {
+            "field": "w1_source_ok",
+            "expected": true,
+            "actual": true,
+            "equal": true
+          },
+          {
+            "field": "w1_nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "w1_members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_stations",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_constraints",
+            "expected": 6,
+            "actual": 6,
+            "equal": true
+          },
+          {
+            "field": "w1_loads",
+            "expected": 129,
+            "actual": 129,
+            "equal": true
+          },
+          {
+            "field": "w1_dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "w1_free_dofs",
+            "expected": 600,
+            "actual": 600,
+            "equal": true
+          },
+          {
+            "field": "w1_bodies",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "w1_profile_entries",
+            "expected": 5664,
+            "actual": 5664,
+            "equal": true
+          },
+          {
+            "field": "w1_half_bandwidth",
+            "expected": 17,
+            "actual": 17,
+            "equal": true
+          },
+          {
+            "field": "w1_blocks",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_rows",
+            "expected": 2513,
+            "actual": 2513,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_len",
+            "expected": 15486,
+            "actual": 15486,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_fnv64",
+            "expected": "af0750ec14a5a22b",
+            "actual": "af0750ec14a5a22b",
+            "equal": true
+          },
+          {
+            "field": "family",
+            "expected": "TREE",
+            "actual": "TREE",
+            "equal": true
+          },
+          {
+            "field": "w1_source_error",
+            "expected": null,
+            "actual": null,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_128",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_128",
+            "expected": 528000,
+            "actual": 528000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_256",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_256",
+            "expected": 528000,
+            "actual": 528000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_512",
+            "expected": 8,
+            "actual": 8,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_512",
+            "expected": 1056000,
+            "actual": 1056000,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_1024",
+            "expected": 16,
+            "actual": 16,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_1024",
+            "expected": 2112000,
+            "actual": 2112000,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_4",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_8",
+            "expected": 80,
+            "actual": 80,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_16",
+            "expected": 144,
+            "actual": 144,
+            "equal": true
+          },
+          {
+            "field": "size_stiffness_contribution",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "size_contribution_rounding",
+            "expected": 96,
+            "actual": 96,
+            "equal": true
+          },
+          {
+            "field": "size_residual_row",
+            "expected": 104,
+            "actual": 104,
+            "equal": true
+          },
+          {
+            "field": "size_pivot_evidence",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "size_frame_element",
+            "expected": 136,
+            "actual": 136,
+            "equal": true
+          },
+          {
+            "field": "size_symmetric_matrix_entry",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "model_canonical_len",
+            "expected": 16978,
+            "actual": 16978,
+            "equal": true
+          }
+        ],
+        "metadata_checks": {
+          "counts_source": true,
+          "mode": true,
+          "w1_source_ok": true,
+          "w1_source_error": true
+        },
+        "estimates": {
+          "estimate_adm_bytes_w1a": 48369457,
+          "estimate_w1_sel128_bytes": 28616785,
+          "estimate_w1_fixed_bytes": 775560,
+          "estimate_w1_decide_bytes": 20330161,
+          "estimate_w1_shared_128": 2217648,
+          "estimate_w1_state_128": 178616,
+          "estimate_w1_solve_128": 18667584,
+          "estimate_w1_shared_256": 2580448,
+          "estimate_w1_state_256": 178616,
+          "estimate_w1_solve_256": 19014336,
+          "estimate_w1_shared_512": 4397184,
+          "estimate_w1_state_512": 297624,
+          "estimate_w1_solve_512": 19875200,
+          "estimate_w1_shared_1024": 6579648,
+          "estimate_w1_state_1024": 535640,
+          "estimate_w1_solve_1024": 20209920,
+          "estimate_w1_verify_256": 1672896,
+          "estimate_w1_pass_256": 1580334,
+          "estimate_w1_verify_512": 2941408,
+          "estimate_w1_pass_512": 2586286,
+          "estimate_w1_verify_1024": 3635232,
+          "estimate_w1_pass_1024": 4598190
+        },
+        "estimate_integer_nonnegative": true,
+        "positive_max": true,
+        "start_expected": {
+          "schema": "k6-observe-v1",
+          "model": "RF-LARGE-TREE-n00100-ROT",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_actual": {
+          "kind": "start",
+          "schema": "k6-observe-v1",
+          "pid": 15029,
+          "model": "RF-LARGE-TREE-n00100-ROT",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_checks": {
+          "schema": true,
+          "model": true,
+          "model_from_file": true,
+          "mode": true,
+          "counts_only": true,
+          "repeats": true,
+          "entry_repeats": true,
+          "heap_cap_bytes": true,
+          "time_budget_s": true,
+          "first_repeat_limit_s": true,
+          "allow_over_estimate": true,
+          "case_limit": true,
+          "invocation_limit": true,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1789744,
+          "heap_peak_move": 1888048
+        },
+        "publication_dump_exists": false
+      },
+      "pass": true
+    },
+    {
+      "order": 215,
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "start_utc": "2026-10-02T06:10:28.134633+00:00",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-CONT-n00100-AX",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "token_utf8_bytes": [
+        166,
+        7,
+        23,
+        6,
+        3,
+        16,
+        10,
+        9,
+        1,
+        15,
+        1,
+        15,
+        3,
+        22,
+        3,
+        13,
+        131,
+        16,
+        156,
+        13,
+        13
+      ],
+      "H_retained_arguments": [
+        "RF-LARGE-CONT-n00100-AX",
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        null,
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.rows"
+      ],
+      "H_retained_argument_utf8_bytes": [
+        23,
+        0,
+        131,
+        0,
+        0,
+        156
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "quiet": {
+        "waited_s": 0,
+        "memorystatus_level": 95,
+        "load1_at_start": 2.32080078125
+      },
+      "run_id": "215_counts_binding_qualification",
+      "wrapper_argv": [
+        "/usr/bin/time",
+        "-l",
+        "-o",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/215_counts_binding_qualification.time.txt",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-CONT-n00100-AX",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/215_RF-LARGE-CONT-n00100-AX_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "end_utc": "2026-10-02T06:10:28.163979+00:00",
+      "record": {
+        "schema": "k6-runner-record-v1",
+        "run_id": "215_counts_binding_qualification",
+        "system": "Darwin",
+        "argv": [
+          "k6_observe",
+          "--model",
+          "RF-LARGE-CONT-n00100-AX",
+          "--mode",
+          "w1a",
+          "--heap-cap-bytes",
+          "8053063680",
+          "--repeats",
+          "5",
+          "--entry-repeats",
+          "5",
+          "--time-budget-s",
+          "540",
+          "--first-repeat-limit-s",
+          "600",
+          "--counts-file",
+          "counts.jsonl",
+          "--dump-published",
+          "215_RF-LARGE-CONT-n00100-AX_w1a.rows",
+          "--w1-prefixes",
+          "--counts-only"
+        ],
+        "wrapper": "/usr/bin/time -l",
+        "rss_cap_bytes": 8589934592,
+        "timeout_s": 600,
+        "poll_s": 0.1,
+        "rlimit_as_applied": false,
+        "load_before": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_before": 95,
+        "classification": "ok",
+        "classification_detail": null,
+        "exit_code": 0,
+        "wall_s": 0.0221,
+        "binary_pid_found": false,
+        "killed_by_rss_watchdog": false,
+        "timed_out": false,
+        "kill_after_s": null,
+        "watchdog_last_kib": null,
+        "watchdog_polls": 0,
+        "watchdog_samples": [],
+        "survivors": [],
+        "rss": {
+          "wait4_maxrss_bytes": 5062656,
+          "ps_max_kib": null,
+          "ps_samples": 0,
+          "time_max_rss_bytes": 5062656,
+          "time_peak_footprint_bytes": 3670352
+        },
+        "peak_rss_bytes": 5062656,
+        "peak_rss_source": "time",
+        "load_after": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_after": 95,
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1376789,
+          "heap_peak_move": 1447820
+        },
+        "stdout_lines": 3,
+        "stderr_tail": "",
+        "repeats_heap_peak": null,
+        "repeats_heap_peak_move": null,
+        "stdout_sha256": "5f7913dae3ef56ac6cdbca47250d7aa66ae60b20d1cac52ea228145bd1270eca"
+      },
+      "comparison": {
+        "consumed_fields": 37,
+        "invariants": 20,
+        "field_checks": [
+          {
+            "field": "kind",
+            "expected": "counts",
+            "actual": "counts",
+            "equal": true
+          },
+          {
+            "field": "model",
+            "expected": "RF-LARGE-CONT-n00100-AX",
+            "actual": "RF-LARGE-CONT-n00100-AX",
+            "equal": true
+          },
+          {
+            "field": "model_canonical_fnv64",
+            "expected": "e0cd83c568374614",
+            "actual": "e0cd83c568374614",
+            "equal": true
+          },
+          {
+            "field": "nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "free_dofs",
+            "expected": 450,
+            "actual": 450,
+            "equal": true
+          },
+          {
+            "field": "restrained_dofs",
+            "expected": 156,
+            "actual": 156,
+            "equal": true
+          },
+          {
+            "field": "pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "lower_entries",
+            "expected": 5721,
+            "actual": 5721,
+            "equal": true
+          },
+          {
+            "field": "free_entries",
+            "expected": 5814,
+            "actual": 5814,
+            "equal": true
+          },
+          {
+            "field": "free_lower_entries",
+            "expected": 3132,
+            "actual": 3132,
+            "equal": true
+          },
+          {
+            "field": "free_lower_nonzero",
+            "expected": 945,
+            "actual": 945,
+            "equal": true
+          },
+          {
+            "field": "rcm_profile_entries",
+            "expected": 1043,
+            "actual": 1043,
+            "equal": true
+          },
+          {
+            "field": "rcm_half_bandwidth",
+            "expected": 3,
+            "actual": 3,
+            "equal": true
+          },
+          {
+            "field": "identity_profile_entries",
+            "expected": 57510,
+            "actual": 57510,
+            "equal": true
+          },
+          {
+            "field": "identity_half_bandwidth",
+            "expected": 303,
+            "actual": 303,
+            "equal": true
+          },
+          {
+            "field": "lane_entries",
+            "expected": 1592,
+            "actual": 1592,
+            "equal": true
+          },
+          {
+            "field": "lane_off_diagonal",
+            "expected": 695,
+            "actual": 695,
+            "equal": true
+          },
+          {
+            "field": "contributions",
+            "expected": 14400,
+            "actual": 14400,
+            "equal": true
+          },
+          {
+            "field": "dense_entries",
+            "expected": 367236,
+            "actual": 367236,
+            "equal": true
+          },
+          {
+            "field": "w1_source_ok",
+            "expected": true,
+            "actual": true,
+            "equal": true
+          },
+          {
+            "field": "w1_nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "w1_members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_stations",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_constraints",
+            "expected": 156,
+            "actual": 156,
+            "equal": true
+          },
+          {
+            "field": "w1_loads",
+            "expected": 73,
+            "actual": 73,
+            "equal": true
+          },
+          {
+            "field": "w1_dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "w1_free_dofs",
+            "expected": 450,
+            "actual": 450,
+            "equal": true
+          },
+          {
+            "field": "w1_bodies",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "w1_profile_entries",
+            "expected": 3132,
+            "actual": 3132,
+            "equal": true
+          },
+          {
+            "field": "w1_half_bandwidth",
+            "expected": 8,
+            "actual": 8,
+            "equal": true
+          },
+          {
+            "field": "w1_blocks",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_rows",
+            "expected": 2663,
+            "actual": 2663,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_len",
+            "expected": 16169,
+            "actual": 16169,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_fnv64",
+            "expected": "19b446f76216f864",
+            "actual": "19b446f76216f864",
+            "equal": true
+          },
+          {
+            "field": "family",
+            "expected": "CONT",
+            "actual": "CONT",
+            "equal": true
+          },
+          {
+            "field": "w1_source_error",
+            "expected": null,
+            "actual": null,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_128",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_128",
+            "expected": 446976,
+            "actual": 446976,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_256",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_256",
+            "expected": 446976,
+            "actual": 446976,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_512",
+            "expected": 8,
+            "actual": 8,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_512",
+            "expected": 893952,
+            "actual": 893952,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_1024",
+            "expected": 16,
+            "actual": 16,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_1024",
+            "expected": 1787904,
+            "actual": 1787904,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_4",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_8",
+            "expected": 80,
+            "actual": 80,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_16",
+            "expected": 144,
+            "actual": 144,
+            "equal": true
+          },
+          {
+            "field": "size_stiffness_contribution",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "size_contribution_rounding",
+            "expected": 96,
+            "actual": 96,
+            "equal": true
+          },
+          {
+            "field": "size_residual_row",
+            "expected": 104,
+            "actual": 104,
+            "equal": true
+          },
+          {
+            "field": "size_pivot_evidence",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "size_frame_element",
+            "expected": 136,
+            "actual": 136,
+            "equal": true
+          },
+          {
+            "field": "size_symmetric_matrix_entry",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "model_canonical_len",
+            "expected": 16534,
+            "actual": 16534,
+            "equal": true
+          }
+        ],
+        "metadata_checks": {
+          "counts_source": true,
+          "mode": true,
+          "w1_source_ok": true,
+          "w1_source_error": true
+        },
+        "estimates": {
+          "estimate_adm_bytes_w1a": 47490885,
+          "estimate_w1_sel128_bytes": 28347333,
+          "estimate_w1_fixed_bytes": 740006,
+          "estimate_w1_decide_bytes": 20366311,
+          "estimate_w1_shared_128": 2073312,
+          "estimate_w1_state_128": 185816,
+          "estimate_w1_solve_128": 15231936,
+          "estimate_w1_shared_256": 2436112,
+          "estimate_w1_state_256": 185816,
+          "estimate_w1_solve_256": 15578688,
+          "estimate_w1_shared_512": 4162224,
+          "estimate_w1_state_512": 309624,
+          "estimate_w1_solve_512": 16394368,
+          "estimate_w1_shared_1024": 6163440,
+          "estimate_w1_state_1024": 557240,
+          "estimate_w1_solve_1024": 16638720,
+          "estimate_w1_verify_256": 1672896,
+          "estimate_w1_pass_256": 1252086,
+          "estimate_w1_verify_512": 2941408,
+          "estimate_w1_pass_512": 2046006,
+          "estimate_w1_verify_1024": 3635232,
+          "estimate_w1_pass_1024": 3633846
+        },
+        "estimate_integer_nonnegative": true,
+        "positive_max": true,
+        "start_expected": {
+          "schema": "k6-observe-v1",
+          "model": "RF-LARGE-CONT-n00100-AX",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_actual": {
+          "kind": "start",
+          "schema": "k6-observe-v1",
+          "pid": 15041,
+          "model": "RF-LARGE-CONT-n00100-AX",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_checks": {
+          "schema": true,
+          "model": true,
+          "model_from_file": true,
+          "mode": true,
+          "counts_only": true,
+          "repeats": true,
+          "entry_repeats": true,
+          "heap_cap_bytes": true,
+          "time_budget_s": true,
+          "first_repeat_limit_s": true,
+          "allow_over_estimate": true,
+          "case_limit": true,
+          "invocation_limit": true,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1376789,
+          "heap_peak_move": 1447820
+        },
+        "publication_dump_exists": false
+      },
+      "pass": true
+    },
+    {
+      "order": 220,
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "start_utc": "2026-10-02T06:10:28.217572+00:00",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-CONT-n00100-ROT",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "token_utf8_bytes": [
+        166,
+        7,
+        24,
+        6,
+        3,
+        16,
+        10,
+        9,
+        1,
+        15,
+        1,
+        15,
+        3,
+        22,
+        3,
+        13,
+        131,
+        16,
+        157,
+        13,
+        13
+      ],
+      "H_retained_arguments": [
+        "RF-LARGE-CONT-n00100-ROT",
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        null,
+        null,
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.rows"
+      ],
+      "H_retained_argument_utf8_bytes": [
+        24,
+        0,
+        131,
+        0,
+        0,
+        157
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "quiet": {
+        "waited_s": 0,
+        "memorystatus_level": 95,
+        "load1_at_start": 2.32080078125
+      },
+      "run_id": "220_counts_binding_qualification",
+      "wrapper_argv": [
+        "/usr/bin/time",
+        "-l",
+        "-o",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/qualification/220_counts_binding_qualification.time.txt",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+        "--model",
+        "RF-LARGE-CONT-n00100-ROT",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        "8053063680",
+        "--repeats",
+        "5",
+        "--entry-repeats",
+        "5",
+        "--time-budget-s",
+        "540",
+        "--first-repeat-limit-s",
+        "600",
+        "--counts-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl",
+        "--dump-published",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/220_RF-LARGE-CONT-n00100-ROT_w1a.rows",
+        "--w1-prefixes",
+        "--counts-only"
+      ],
+      "end_utc": "2026-10-02T06:10:28.248668+00:00",
+      "record": {
+        "schema": "k6-runner-record-v1",
+        "run_id": "220_counts_binding_qualification",
+        "system": "Darwin",
+        "argv": [
+          "k6_observe",
+          "--model",
+          "RF-LARGE-CONT-n00100-ROT",
+          "--mode",
+          "w1a",
+          "--heap-cap-bytes",
+          "8053063680",
+          "--repeats",
+          "5",
+          "--entry-repeats",
+          "5",
+          "--time-budget-s",
+          "540",
+          "--first-repeat-limit-s",
+          "600",
+          "--counts-file",
+          "counts.jsonl",
+          "--dump-published",
+          "220_RF-LARGE-CONT-n00100-ROT_w1a.rows",
+          "--w1-prefixes",
+          "--counts-only"
+        ],
+        "wrapper": "/usr/bin/time -l",
+        "rss_cap_bytes": 8589934592,
+        "timeout_s": 600,
+        "poll_s": 0.1,
+        "rlimit_as_applied": false,
+        "load_before": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_before": 95,
+        "classification": "ok",
+        "classification_detail": null,
+        "exit_code": 0,
+        "wall_s": 0.0236,
+        "binary_pid_found": false,
+        "killed_by_rss_watchdog": false,
+        "timed_out": false,
+        "kill_after_s": null,
+        "watchdog_last_kib": null,
+        "watchdog_polls": 0,
+        "watchdog_samples": [],
+        "survivors": [],
+        "rss": {
+          "wait4_maxrss_bytes": 5193728,
+          "ps_max_kib": null,
+          "ps_samples": 0,
+          "time_max_rss_bytes": 5193728,
+          "time_peak_footprint_bytes": 3785040
+        },
+        "peak_rss_bytes": 5193728,
+        "peak_rss_source": "time",
+        "load_after": [
+          2.32080078125,
+          2.66943359375,
+          2.9794921875
+        ],
+        "memorystatus_after": 95,
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1450520,
+          "heap_peak_move": 1499672
+        },
+        "stdout_lines": 3,
+        "stderr_tail": "",
+        "repeats_heap_peak": null,
+        "repeats_heap_peak_move": null,
+        "stdout_sha256": "c2a4239f2baf8bf378a3f08704424aa9eb4cffbb26a7d0ac80eaa28188cb8a43"
+      },
+      "comparison": {
+        "consumed_fields": 37,
+        "invariants": 20,
+        "field_checks": [
+          {
+            "field": "kind",
+            "expected": "counts",
+            "actual": "counts",
+            "equal": true
+          },
+          {
+            "field": "model",
+            "expected": "RF-LARGE-CONT-n00100-ROT",
+            "actual": "RF-LARGE-CONT-n00100-ROT",
+            "equal": true
+          },
+          {
+            "field": "model_canonical_fnv64",
+            "expected": "722ed416563df327",
+            "actual": "722ed416563df327",
+            "equal": true
+          },
+          {
+            "field": "nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "free_dofs",
+            "expected": 450,
+            "actual": 450,
+            "equal": true
+          },
+          {
+            "field": "restrained_dofs",
+            "expected": 156,
+            "actual": 156,
+            "equal": true
+          },
+          {
+            "field": "pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "lower_entries",
+            "expected": 5721,
+            "actual": 5721,
+            "equal": true
+          },
+          {
+            "field": "free_entries",
+            "expected": 5814,
+            "actual": 5814,
+            "equal": true
+          },
+          {
+            "field": "free_lower_entries",
+            "expected": 3132,
+            "actual": 3132,
+            "equal": true
+          },
+          {
+            "field": "free_lower_nonzero",
+            "expected": 2385,
+            "actual": 2385,
+            "equal": true
+          },
+          {
+            "field": "rcm_profile_entries",
+            "expected": 3024,
+            "actual": 3024,
+            "equal": true
+          },
+          {
+            "field": "rcm_half_bandwidth",
+            "expected": 10,
+            "actual": 10,
+            "equal": true
+          },
+          {
+            "field": "identity_profile_entries",
+            "expected": 69232,
+            "actual": 69232,
+            "equal": true
+          },
+          {
+            "field": "identity_half_bandwidth",
+            "expected": 305,
+            "actual": 305,
+            "equal": true
+          },
+          {
+            "field": "lane_entries",
+            "expected": 4277,
+            "actual": 4277,
+            "equal": true
+          },
+          {
+            "field": "lane_off_diagonal",
+            "expected": 3380,
+            "actual": 3380,
+            "equal": true
+          },
+          {
+            "field": "contributions",
+            "expected": 14400,
+            "actual": 14400,
+            "equal": true
+          },
+          {
+            "field": "dense_entries",
+            "expected": 367236,
+            "actual": 367236,
+            "equal": true
+          },
+          {
+            "field": "w1_source_ok",
+            "expected": true,
+            "actual": true,
+            "equal": true
+          },
+          {
+            "field": "w1_nodes",
+            "expected": 101,
+            "actual": 101,
+            "equal": true
+          },
+          {
+            "field": "w1_members",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_stations",
+            "expected": 100,
+            "actual": 100,
+            "equal": true
+          },
+          {
+            "field": "w1_constraints",
+            "expected": 156,
+            "actual": 156,
+            "equal": true
+          },
+          {
+            "field": "w1_loads",
+            "expected": 128,
+            "actual": 128,
+            "equal": true
+          },
+          {
+            "field": "w1_dofs",
+            "expected": 606,
+            "actual": 606,
+            "equal": true
+          },
+          {
+            "field": "w1_free_dofs",
+            "expected": 450,
+            "actual": 450,
+            "equal": true
+          },
+          {
+            "field": "w1_bodies",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_pattern_entries",
+            "expected": 10836,
+            "actual": 10836,
+            "equal": true
+          },
+          {
+            "field": "w1_profile_entries",
+            "expected": 3132,
+            "actual": 3132,
+            "equal": true
+          },
+          {
+            "field": "w1_half_bandwidth",
+            "expected": 8,
+            "actual": 8,
+            "equal": true
+          },
+          {
+            "field": "w1_blocks",
+            "expected": 1,
+            "actual": 1,
+            "equal": true
+          },
+          {
+            "field": "w1_rows",
+            "expected": 2663,
+            "actual": 2663,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_len",
+            "expected": 17434,
+            "actual": 17434,
+            "equal": true
+          },
+          {
+            "field": "w1_source_encoding_fnv64",
+            "expected": "bdf8301cd80140dd",
+            "actual": "bdf8301cd80140dd",
+            "equal": true
+          },
+          {
+            "field": "family",
+            "expected": "CONT",
+            "actual": "CONT",
+            "equal": true
+          },
+          {
+            "field": "w1_source_error",
+            "expected": null,
+            "actual": null,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_128",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_128",
+            "expected": 446976,
+            "actual": 446976,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_256",
+            "expected": 4,
+            "actual": 4,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_256",
+            "expected": 446976,
+            "actual": 446976,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_512",
+            "expected": 8,
+            "actual": 8,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_512",
+            "expected": 893952,
+            "actual": 893952,
+            "equal": true
+          },
+          {
+            "field": "w1_limbs_per_entry_1024",
+            "expected": 16,
+            "actual": 16,
+            "equal": true
+          },
+          {
+            "field": "w1_storage_bytes_1024",
+            "expected": 1787904,
+            "actual": 1787904,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_4",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_8",
+            "expected": 80,
+            "actual": 80,
+            "equal": true
+          },
+          {
+            "field": "w1_wide_bytes_16",
+            "expected": 144,
+            "actual": 144,
+            "equal": true
+          },
+          {
+            "field": "size_stiffness_contribution",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "size_contribution_rounding",
+            "expected": 96,
+            "actual": 96,
+            "equal": true
+          },
+          {
+            "field": "size_residual_row",
+            "expected": 104,
+            "actual": 104,
+            "equal": true
+          },
+          {
+            "field": "size_pivot_evidence",
+            "expected": 48,
+            "actual": 48,
+            "equal": true
+          },
+          {
+            "field": "size_frame_element",
+            "expected": 136,
+            "actual": 136,
+            "equal": true
+          },
+          {
+            "field": "size_symmetric_matrix_entry",
+            "expected": 24,
+            "actual": 24,
+            "equal": true
+          },
+          {
+            "field": "model_canonical_len",
+            "expected": 17966,
+            "actual": 17966,
+            "equal": true
+          }
+        ],
+        "metadata_checks": {
+          "counts_source": true,
+          "mode": true,
+          "w1_source_ok": true,
+          "w1_source_error": true
+        },
+        "estimates": {
+          "estimate_adm_bytes_w1a": 47531423,
+          "estimate_w1_sel128_bytes": 28387871,
+          "estimate_w1_fixed_bytes": 780544,
+          "estimate_w1_decide_bytes": 20366311,
+          "estimate_w1_shared_128": 2073312,
+          "estimate_w1_state_128": 185816,
+          "estimate_w1_solve_128": 15231936,
+          "estimate_w1_shared_256": 2436112,
+          "estimate_w1_state_256": 185816,
+          "estimate_w1_solve_256": 15578688,
+          "estimate_w1_shared_512": 4162224,
+          "estimate_w1_state_512": 309624,
+          "estimate_w1_solve_512": 16394368,
+          "estimate_w1_shared_1024": 6163440,
+          "estimate_w1_state_1024": 557240,
+          "estimate_w1_solve_1024": 16638720,
+          "estimate_w1_verify_256": 1672896,
+          "estimate_w1_pass_256": 1252086,
+          "estimate_w1_verify_512": 2941408,
+          "estimate_w1_pass_512": 2046006,
+          "estimate_w1_verify_1024": 3635232,
+          "estimate_w1_pass_1024": 3633846
+        },
+        "estimate_integer_nonnegative": true,
+        "positive_max": true,
+        "start_expected": {
+          "schema": "k6-observe-v1",
+          "model": "RF-LARGE-CONT-n00100-ROT",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_actual": {
+          "kind": "start",
+          "schema": "k6-observe-v1",
+          "pid": 15053,
+          "model": "RF-LARGE-CONT-n00100-ROT",
+          "model_from_file": false,
+          "mode": "w1a",
+          "counts_only": true,
+          "repeats": 5,
+          "entry_repeats": 5,
+          "heap_cap_bytes": 8053063680,
+          "time_budget_s": 540,
+          "first_repeat_limit_s": 600,
+          "allow_over_estimate": false,
+          "case_limit": 18446744073709551615,
+          "invocation_limit": 18446744073709551615,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "start_checks": {
+          "schema": true,
+          "model": true,
+          "model_from_file": true,
+          "mode": true,
+          "counts_only": true,
+          "repeats": true,
+          "entry_repeats": true,
+          "heap_cap_bytes": true,
+          "time_budget_s": true,
+          "first_repeat_limit_s": true,
+          "allow_over_estimate": true,
+          "case_limit": true,
+          "invocation_limit": true,
+          "w1_prefixes": true,
+          "dump_published": true
+        },
+        "summary": {
+          "kind": "summary",
+          "repeats_completed": 0,
+          "stop_reason": null,
+          "heap_peak": 1450520,
+          "heap_peak_move": 1499672
+        },
+        "publication_dump_exists": false
+      },
+      "pass": true
+    }
+  ],
+  "all_pass": true,
+  "normal_solve_or_admission": false,
+  "end_utc": "2026-10-02T06:10:28.249414+00:00",
+  "actual_processes": 6
+}
