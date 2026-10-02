@@ -1,0 +1,41 @@
+{
+  "full_vr_all_targets": {
+    "log": "full_vr_02.log",
+    "status": "pass",
+    "rust_tests": 58,
+    "test_binaries": 13,
+    "failed": 0,
+    "ignored": 0
+  },
+  "reference_comparisons": {
+    "reference193": 193,
+    "caller_phase_values": 5790,
+    "kernel_addends": 1930,
+    "five_field_values": 1930,
+    "embedded_exact_cli12": 12,
+    "external1000_changed_path": "EXTERNAL1000_MATCHED_CONTEXT_CHECK.json"
+  },
+  "runner": {
+    "log": "runner_tests_02.log",
+    "tests": 12,
+    "status": "pass"
+  },
+  "cli": {
+    "commands": "CLI_COMMANDS_FINAL.json",
+    "status": "pass",
+    "normal_semantics": "counts storage, accounted report, zero fail, class matches, not-covered equals, RCM equality",
+    "half_cap": "exit3 estimate_exceeds_half_cap unchanged"
+  },
+  "first_compile": "check_01.log failed with one delimiter error in newly authored tol; repaired; check_02.log passed",
+  "last_boundary_change": "explicit checked u64 conversion in vk_scale; example_build_02 and all four final functional CLI checks cover it after full_vr_02",
+  "new_heap": "normal capture/composition uses inline scalars/fixed arrays/borrows only; review required. Static error strings fit existing failure reason/output alternatives. No added heap is declared as observed zero.",
+  "missing_required_mathematical_cells": [],
+  "qualification": "conditional reference arithmetic only; no current-executable, admission replay, measurement, timing, RSS or footprint acceptance",
+  "scope": {
+    "delegation": false,
+    "explicit_git_index_writes": false,
+    "H_FK_CI_records_expected_edits": false,
+    "no_10000_run": true
+  },
+  "processes_running": false
+}

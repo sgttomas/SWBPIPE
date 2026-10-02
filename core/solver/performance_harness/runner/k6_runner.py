@@ -1074,6 +1074,26 @@ def binary_argv(binary, run, counts_path, record_dir):
     return argv
 
 
+def bind_w1_launch_counts(binary, run, counts_path, record_dir):
+    """Recompute conditional W1 bytes for precisely the planned normal argv.
+
+    The existing --counts-only branch ignores reading --counts-file, while
+    retaining its path and every other planned String. Use the same bounded
+    launch machinery; this prepass is not a performance sample or a rho datum.
+    """
+    argv = binary_argv(binary, run, counts_path, record_dir) + ['--counts-only']
+    binding_id = run['run_id'] + '.counts-binding'
+    result = launch(argv, rss_cap_bytes=run['rss_cap_bytes'], timeout_s=run['timeout_s'],
+                    record_dir=record_dir, run_id=binding_id)
+    if result.get('classification') != 'ok':
+        raise RuntimeError('W1 counts binding failed: %s' % result.get('classification'))
+    with open(os.path.join(record_dir, binding_id + '.jsonl')) as fh:
+        rows = [o for o in jsonl(fh) if o.get('kind') == 'counts' and o.get('model') == run['model']]
+    if len(rows) != 1 or not isinstance(rows[0].get('estimate_adm_bytes_w1a'), int) or rows[0]['estimate_adm_bytes_w1a'] <= 0:
+        raise RuntimeError('W1 counts binding did not return one positive complete estimate')
+    return rows[0]
+
+
 def read_counts(path):
     counts = {}
     if path and os.path.exists(path):
@@ -1175,7 +1195,14 @@ def run_tier(tier, binary, counts_path, record_dir, source_commit, source_tree, 
                for x in run_entries(records)):
             log('%s %s %s: already recorded; not repeated' % (run['run_id'], run['model'], run['mode']))
             continue
-        decision = admission(run, counts, records, baseline_rss, baseline_footprint_bytes=baseline_footprint)
+        # Conditional tiers remain process-free here, including their prepasses.
+        # --plan has its own static path and never invokes this refresh.
+        bound_counts = counts
+        if run['mode'] == 'w1a' and not run['conditional']:
+            wait_for_quiet_host(log)
+            row = bind_w1_launch_counts(binary, run, counts_path, record_dir)
+            bound_counts = dict(counts, **{run['model']: row})
+        decision = admission(run, bound_counts, records, baseline_rss, baseline_footprint_bytes=baseline_footprint)
         entry = dict(run, admission=decision, baseline_rss_bytes=baseline_rss,
                      baseline_footprint_bytes=baseline_footprint, source_commit=source_commit,
                      source_tree=source_tree)
@@ -1224,7 +1251,11 @@ def run_tier(tier, binary, counts_path, record_dir, source_commit, source_tree, 
 
 
 def plan(counts_path):
-    """--plan: the full schedule with each run's estimates, caps and admission. No child process."""
+    """--plan: static schedule/criteria preview from the supplied counts. No child process.
+
+    W1 values here are reference data, not an actual-launch binding. run_tier
+    recomputes the planned context before using a W1 admission/ratio denominator.
+    """
     counts = read_counts(counts_path)
     rows = []
     for run in schedule():

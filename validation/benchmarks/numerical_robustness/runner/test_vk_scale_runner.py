@@ -97,5 +97,67 @@ class Kf3AvailabilityException(unittest.TestCase):
         self.assertEqual(v.stop_reasons(OK, objs, True, run(10000)), [])
 
 
+
+class LaunchContextBinding(unittest.TestCase):
+    def test_actual_case_and_model_path_are_rebound_before_admission(self):
+        from unittest.mock import patch
+        run = dict(v.schedule()[12], run_id='binding-test')
+        row = {'kind': 'counts', 'case': run['model'], 'estimate_max_bytes': 123456}
+        with patch.object(v.k6, 'launch', return_value={'classification': 'ok'}) as launch, \
+                patch.object(v, 'objects_of', return_value=[row]):
+            result = v.bind_scale_launch_counts('/new/path/vk_scale', run,
+                                                 '/changed/models', '/records')
+        argv = launch.call_args.args[0]
+        expected = v.binary_argv('/new/path/vk_scale', run, '/changed/models',
+                                counts_only=True, heap_cap=v.COUNTS_CAP_BYTES)
+        self.assertEqual(argv, expected)
+        self.assertEqual(result['estimate_max_bytes'], 123456)
+        self.assertEqual(result[v.k6.estimate_key(v.MODE)], 123456)
+        self.assertEqual(result['model'], run['model'])
+        self.assertEqual(launch.call_args.kwargs['run_id'], 'binding-test.counts-binding')
+
+    def test_plan_stays_process_free(self):
+        import contextlib
+        import io
+        from unittest.mock import patch
+        with patch.object(v.k6, 'read_counts', return_value={}), \
+                patch.object(v.k6, 'launch') as launch, contextlib.redirect_stdout(io.StringIO()):
+            rows = v.plan('counts.jsonl', None, False)
+        self.assertEqual(len(rows), len(v.schedule()))
+        launch.assert_not_called()
+
+    def test_tier_admission_and_record_denominator_use_the_refreshed_context(self):
+        import tempfile
+        from unittest.mock import patch
+        run = dict(v.schedule()[0], run_id='binding-test')
+        fresh = {'model': run['model'], 'estimate_max_bytes': 987654,
+                 v.k6.estimate_key(v.MODE): 987654}
+        with tempfile.TemporaryDirectory() as directory:
+            with open(os.path.join(directory, 'metadata.json'), 'w') as fh:
+                fh.write('{}')
+            with patch.object(v, 'schedule', return_value=[run]), \
+                    patch.object(v.k6, 'read_counts', return_value={run['model']: {'estimate_max_bytes': 1}}), \
+                    patch.object(v.k6, 'read_records', return_value=[]), \
+                    patch.object(v.k6, 'launch', return_value={}), \
+                    patch.object(v, 'bind_scale_launch_counts', return_value=fresh) as bind, \
+                    patch.object(v, 'admission', return_value={'decision': 'deferred', 'reason': 'test'}) as admission, \
+                    patch.object(v.k6, 'append_record') as append:
+                v.run_tier(run['tier'], '/binary', '/changed-models', '/counts', directory,
+                           'source', 'tree', log=lambda _: None)
+            bind.assert_called_once()
+            self.assertEqual(admission.call_args.args[1][run['model']], fresh)
+            self.assertEqual(append.call_args.args[1]['estimate_adm_bytes'], 987654)
+
+    def test_failed_or_incomplete_binding_never_uses_old_estimate(self):
+        from unittest.mock import patch
+        run = dict(v.schedule()[0], run_id='binding-test')
+        for outcome, rows in [('error', []), ('ok', []),
+                              ('ok', [{'kind': 'counts', 'case': run['model'],
+                                       'estimate_max_bytes': 0}])]:
+            with patch.object(v.k6, 'launch', return_value={'classification': outcome}), \
+                    patch.object(v, 'objects_of', return_value=rows):
+                with self.assertRaises(RuntimeError):
+                    v.bind_scale_launch_counts('/bin/vk_scale', run, '/models', '/records')
+
 if __name__ == '__main__':
     unittest.main()

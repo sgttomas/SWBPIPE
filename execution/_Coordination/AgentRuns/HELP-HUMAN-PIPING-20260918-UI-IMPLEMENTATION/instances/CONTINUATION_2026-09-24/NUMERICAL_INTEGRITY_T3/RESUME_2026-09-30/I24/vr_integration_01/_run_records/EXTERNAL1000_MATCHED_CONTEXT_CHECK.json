@@ -1,0 +1,37 @@
+{
+  "id": "RF-LARGE-CHAIN-n01000-AX",
+  "path_byte_delta": 261,
+  "justification": "fixed/max/selected dominant source alternatives contain the retained model path once; model and R7 exclude it. Changed manifest/argv prefix remains below the complete selected/full maxima. Exact source/count policy unchanged.",
+  "checks": [
+    {
+      "field": "model",
+      "actual": 4908168,
+      "expected": 4908168,
+      "pass_": true
+    },
+    {
+      "field": "fixed",
+      "actual": 11325514,
+      "expected": 11325514,
+      "pass_": true
+    },
+    {
+      "field": "decide",
+      "actual": 25608917,
+      "expected": 25608917,
+      "pass_": true
+    },
+    {
+      "field": "max",
+      "actual": 481972861,
+      "expected": 481972861,
+      "pass_": true
+    },
+    {
+      "field": "sel128",
+      "actual": 481972861,
+      "expected": 481972861,
+      "pass_": true
+    }
+  ]
+}

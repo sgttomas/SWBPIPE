@@ -8,17 +8,9 @@
 //! and itself). Nothing is solved. Every count is checked at run time against
 //! each attempt's `StorageCounts` (parity lines).
 //!
-//! The estimate counts the bytes alive at W1's peak, as K6 derived E_adm
-//! (K6 plan §7). Sizes of FK's crate-private types are derived from their
-//! definitions (the constants below cite them); sizes of exported types come
-//! from `size_of`. It is an admission estimate: the measured ratio ρ
-//! calibrates it, and nothing asserts a memory bound.
-//!
-//! It bounds every modelled phase of the schedule, each Vec growth under the
-//! allocator's move model (the old and new buffers alive together), which is
-//! the model ρ reads: the shared builds, each solve with its fallback, each
-//! verification build and pass (with the shift), each decision, and the end
-//! (ROOT's ruling on RV22-2).
+//! H admission now requires an explicit model/source/launch context and the named
+//! conditional reference profile in `h_envelope`; current public sizes remain
+//! separate observations. Executable qualification remains external.
 
 use super::super::models::K6Model;
 use super::super::Fnv64;
@@ -164,6 +156,19 @@ pub fn structural_profile(
 /// W1's counts of `model`, in O(nnz) memory, with the source's refusal if
 /// `PrimitiveSource::new` refuses it.
 pub fn compute(model: &K6Model) -> (W1Counts, Option<String>) {
+    let (counts, error, _) = compute_described(model);
+    (counts, error)
+}
+
+/// Captures inline source facts before the existing source drops. No second
+/// source, graph, free-DOF, layout or encoding computation is performed.
+pub fn compute_described(
+    model: &K6Model,
+) -> (
+    W1Counts,
+    Option<String>,
+    Result<super::h_envelope::HSourceFacts, super::envelope::EnvelopeError>,
+) {
     let source = match adapter::source(model) {
         Ok(source) => source,
         Err(error) => {
@@ -185,7 +190,8 @@ pub fn compute(model: &K6Model) -> (W1Counts, Option<String>) {
                 source_encoding_len: 0,
                 source_encoding_fnv64: 0,
             };
-            return (counts, Some(format!("{error:?}")));
+            let capture = super::h_envelope::HSourceFacts::from_counts(model, &counts);
+            return (counts, Some(format!("{error:?}")), capture);
         }
     };
     let (adjacent, touched) = node_graph(source.node_count(), source.members());
@@ -214,10 +220,26 @@ pub fn compute(model: &K6Model) -> (W1Counts, Option<String>) {
         source_encoding_len: encoding.len(),
         source_encoding_fnv64: fnv64(&encoding),
     };
-    (counts, None)
+    let ids = source.loads().iter().try_fold(0u128, |sum, load| {
+        sum.checked_add(load.source_id.len() as u128)
+    });
+    let max_id = source
+        .loads()
+        .iter()
+        .map(|load| load.source_id.len() as u128)
+        .max()
+        .unwrap_or(0);
+    let capture = ids
+        .ok_or(super::envelope::EnvelopeError::ArithmeticOverflow)
+        .and_then(|ids| super::h_envelope::HSourceFacts::successful(&counts, ids, max_id));
+    (counts, None, capture)
 }
 
 // ------------------------------------------------------------------ estimate
+
+// Historical K6b scalar constants below remain compatibility exports. They are
+// not the named reference-profile facts and are not used by the H estimator.
+// Current public type observations remain separately available in W1SizeFacts.
 
 /// The bytes of one `Wide<L>`: `{ negative: bool, exponent: i64,
 /// significand: [u64; L] }` (`K4R/wide.rs:200-204`), 8L + 16 with padding.
@@ -380,18 +402,20 @@ impl W1SizeFacts {
     }
 }
 
-/// The W1 estimate and its terms (bytes).
+/// Complete H moving-request fields under the selected reference premises.
+/// For SourceRefused (source_ok=false), max=sel128 is the positive source-window
+/// bound and fixed is the caller baseline; kernel arrays/decide are explicitly
+/// unexecuted zeros. They are never missing proof or successful kernel values.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct W1Estimate {
     /// The stop rule's tracker bound (a transient at each decision).
     pub decide: u128,
-    /// Each attempt's solve transient, with the fallback.
+    /// Max named own-solve phase extras above the padded kernel prefix.
     pub solve: [u128; 4],
-    /// Each verification pass's transient, at its larger of the shift and
-    /// after it.
+    /// Max named pass/resolution/shift/report-construction extras above the prefix.
     pub pass: [u128; 3],
-    /// Alive through the call: the harness's model and frames, the source
-    /// twice, the case and the group.
+    /// Kernel Base plus the selected caller/saved-attempt/prefix baseline.
+    /// SourceRefused has only its caller baseline.
     pub fixed: u128,
     /// S(p): each attempt's shared build (kept in the group cache).
     pub shared: [u128; 4],
@@ -399,165 +423,16 @@ pub struct W1Estimate {
     pub state: [u128; 4],
     /// V(P): each verification's shared data (kept).
     pub verify: [u128; 3],
-    /// E_max: the peak over the whole schedule (128 … v1024).
+    /// Complete H source/solve/outer-prefix moving envelope for the full schedule.
     pub max: u128,
-    /// E_sel128: the peak of the path selected at 128 (128, 256, v256).
+    /// Complete conditional H envelope for S/U128,256 + V256.
+    /// A source refusal shares this prefix without asserting selection.
     pub sel128: u128,
 }
 
-/// The W1 estimate (plan §3.5; ROOT's ruling on RV22-2). Each phase's
-/// transient is added to the bytes kept when it runs, so the estimate bounds
-/// every modelled phase rather than tracking the peak.
-pub fn estimate(c: &W1Counts, s: &W1SizeFacts) -> W1Estimate {
-    let u = |x: usize| x as u128;
-    let (m, n, nf, nnz) = (
-        u(c.members),
-        u(c.dofs),
-        u(c.free_dofs),
-        u(c.pattern_entries),
-    );
-    let (p_entries, blocks, rows) = (u(c.profile_entries), u(c.blocks.max(1)), u(c.rows));
-    let (nodes, r, loads, stations) = (u(c.nodes), u(c.constraints), u(c.loads), u(c.stations));
-    let enc = u(c.source_encoding_len);
-    let w = wide_bytes;
-
-    let harness =
-        nodes * MODEL_NODE_BYTES + m * MODEL_MEMBER_BYTES + loads * 16 + m * u(s.frame_element);
-    let source = 24 * nodes
-        + m * u(s.straight_member)
-        + r * u(s.constraint)
-        + loads * (u(s.nodal_load) + SOURCE_ID_BYTES)
-        + stations * u(s.station)
-        + 16 * n
-        + 4 * nodes;
-    let case = loads * LEDGER_ENTRY_BYTES
-        + r * PRESCRIBED_ENTRY_BYTES
-        + enc
-        + rows * u(s.quantity_meta)
-        + 8 * u(c.bodies);
-    let group = 8 * (n + 1)
-        + 16 * nnz
-        + 8 * (nnz + 1)
-        + m * CONTRIBUTIONS_PER_MEMBER * CONTRIBUTION_BYTES
-        + 32 * nf
-        + 8 * n
-        + 12 * nf
-        + 24 * blocks;
-    let group_build = m * CONTRIBUTIONS_PER_MEMBER * (TAGGED_CONTRIBUTION_BYTES + 16);
-    let fixed = harness + 2 * source + case + group;
-
-    let shared = ATTEMPT_WIDTHS.map(|(_, l, r)| {
-        m * (MEMBER_OPERATOR_WIDES * w(l) + MEMBER_OPERATOR_EXTRA)
-            + nnz * (w(l) + w(r))
-            + m * (BOUNDED_WIDES * w(r) + BOUNDED_EXTRA)
-            + p_entries * w(l)
-            + nf * (FACTOR_ROW_WIDES * w(l) + FACTOR_ROW_EXTRA)
-            + blocks * w(l)
-    });
-    let shared_build = ATTEMPT_WIDTHS.map(|(p, _, r)| {
-        if p == 1024 {
-            0
-        } else {
-            m * (MEMBER_OPERATOR_WIDES * w(r) + MEMBER_OPERATOR_EXTRA)
-        }
-    });
-    let state = ATTEMPT_WIDTHS.map(|(_, l, _)| (n + 6 * m + rows) * w(l));
-    // KF1: a solve attempt's trackers (bounded) and their tables.
-    let solve_trackers = SOLVE_TRACKER_PEAK_ROWS * TRACKER_ENTRY_BYTES
-        + (VEC_SLACK * SOLVE_TABLE_ROWS_PER_FREE_DOF + TABLE_MOVE_EXTRA)
-            * nf
-            * TRACKER_TABLE_ENTRY_BYTES;
-    // The solve (`K4R/adaptive.rs:1554-1700`): its working vectors and the
-    // residual gate's row list, then the fallback (`:1437-1500`, RV22-2):
-    // `u_free`, the evaluated states and `abar_q`, alive throughout; then
-    // either `assemble_bounded`'s member blocks (while `abar_q` is built) or,
-    // per state, the copy of u and the row list under the move model.
-    let solve = ATTEMPT_WIDTHS.map(|(_, l, r)| {
-        let fallback = nf * w(l)
-            + EVALUATED_STATES * (nf * w(l) + VEC_HEADER_BYTES)
-            + nnz * w(r)
-            + (m * BLOCK_WIDES * w(r))
-                .max(n * w(l) + fallback_row_list_rows(nf) * TRACKER_ENTRY_BYTES);
-        SOLVE_VECTORS * n * w(r) + nf * (RESIDUAL_ROW_EXTRA + w(l)) + solve_trackers + fallback
-    });
-    let verify = VERIFY_WIDTHS.map(|(_, l, ww)| {
-        nnz * w(l)
-            + m * BLOCK_WIDES * w(ww)
-            + blocks * (BLOCK_BOUND_WIDES * w(l) + BLOCK_BOUND_EXTRA)
-    });
-    let verify_build = VERIFY_WIDTHS.map(|(p, l, ww)| {
-        m * (BOUNDED_WIDES * w(l) + BOUNDED_EXTRA)
-            + m * BLOCK_WIDES * w(l)
-            + if p == 1024 {
-                0
-            } else {
-                m * (MEMBER_OPERATOR_WIDES * w(ww) + MEMBER_OPERATOR_EXTRA)
-            }
-    });
-    // The report, kept after the pass: its row vectors and two over the free
-    // DOFs.
-    let report = VERIFY_WIDTHS
-        .map(|(_, l, _)| REPORT_ROW_VECTORS * rows * (w(l) + OPTION_EXTRA) + 2 * nf * w(l));
-    // The pass (`K4R/verify.rs:731-925`, RV22-2): its locals, with either the
-    // first three row vectors and the shift's two profiles (`K4R/bound.rs`
-    // `scaled_profile`, `shifted_factor`) or, after the shift, all five row
-    // vectors.
-    let pass = VERIFY_WIDTHS.map(|(_, l, ww)| {
-        let live = PASS_FULL_VECTORS * n * w(l)
-            + PASS_FREE_VECTORS * nf * w(l)
-            + (rows + 6 * m) * w(l)
-            + n * PASS_PER_DOF_EXTRA
-            + r * (w(ww) + w(l));
-        let at_shift = PASS_EARLY_ROW_VECTORS * rows * (w(l) + OPTION_EXTRA)
-            + p_entries * w(l)
-            + nf * PROFILE_ROW_EXTRA
-            + p_entries * w(l)
-            + nf * (PROFILE_CLONE_ROW_EXTRA + (w(l) + OPTION_EXTRA) + w(l));
-        let after = REPORT_ROW_VECTORS * rows * (w(l) + OPTION_EXTRA);
-        live + at_shift.max(after)
-    });
-    // KF1: the stop rule's trackers at their peak, and their tables.
-    let decide = STOP_RULE_PEAK_ROWS * TRACKER_ENTRY_BYTES
-        + (DECIDE_TRACKER_SETS * VEC_SLACK + TABLE_MOVE_EXTRA) * rows * TRACKER_TABLE_ENTRY_BYTES;
-    // KF1: the pivot margin's tracker in each shared build, and its table.
-    let pivot = PIVOT_TRACKER_PEAK_ROWS * TRACKER_ENTRY_BYTES
-        + (VEC_SLACK + TABLE_MOVE_EXTRA) * nf * TRACKER_TABLE_ENTRY_BYTES;
-    let end = rows * (u(s.published_row) + 40)
-        + enc
-        + (n + 6 * m) * (9 + 8 * 16)
-        + 8 * u(s.attempt_record);
-
-    let mut kept = fixed;
-    let mut peak = fixed + group_build;
-    let mut sel128 = 0;
-    for (k, &(p, _, _)) in ATTEMPT_WIDTHS.iter().enumerate() {
-        peak = peak.max(kept + shared[k] + shared_build[k] + pivot);
-        kept += shared[k];
-        peak = peak.max(kept + state[k] + solve[k]);
-        kept += state[k];
-        if let Some(v) = VERIFY_WIDTHS.iter().position(|&(vp, _, _)| vp == p) {
-            peak = peak.max(kept + verify[v] + verify_build[v]);
-            kept += verify[v];
-            peak = peak.max(kept + pass[v]);
-            peak = peak.max(kept + report[v] + decide);
-            if p == 256 {
-                sel128 = peak.max(kept + report[v] + end);
-            }
-        }
-    }
-    let max = peak.max(kept + report[2] + end);
-    W1Estimate {
-        decide,
-        solve,
-        pass,
-        fixed,
-        shared,
-        state,
-        verify,
-        max,
-        sel128,
-    }
-}
+/// Complete H composition requires explicit source/model/launch facts; there is
+/// no Counts/SizeFacts fallback. See `h_envelope` for the reference contract.
+pub use super::h_envelope::estimate;
 
 /// K4's storage bytes at precision `p` as K4 counts them: (pattern + profile)
 /// entries × limbs × 8.

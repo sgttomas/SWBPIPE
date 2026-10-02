@@ -18,7 +18,7 @@ use open_pipe_stress_solver_performance_harness::k6::counts::{
     admission_estimate_bytes, compute, f1b_estimate_bytes, parse_counts_line, K6Counts, SizeFacts,
 };
 use open_pipe_stress_solver_performance_harness::k6::models::{
-    extra_model_ids, model, sealed_model_ids, K6Model,
+    extra_model_ids, model_described, sealed_model_ids, K6Model, ModelOrigin,
 };
 use open_pipe_stress_solver_performance_harness::k6::parity::bitwise_k;
 use open_pipe_stress_solver_performance_harness::k6::staged::{
@@ -27,8 +27,11 @@ use open_pipe_stress_solver_performance_harness::k6::staged::{
 };
 use open_pipe_stress_solver_performance_harness::k6::w1::adapter as w1_adapter;
 use open_pipe_stress_solver_performance_harness::k6::w1::counts::{
-    compute as w1_compute, estimate as w1_estimate, storage_bytes, wide_bytes, W1SizeFacts,
-    LIMBS_PER_ENTRY,
+    compute_described as w1_compute, storage_bytes, wide_bytes, LIMBS_PER_ENTRY,
+};
+use open_pipe_stress_solver_performance_harness::k6::w1::envelope::EnvelopeError;
+use open_pipe_stress_solver_performance_harness::k6::w1::h_envelope::{
+    self, HComposedEstimate, HLaunch, HModelFacts, HSourceFacts, ReferenceHProfile,
 };
 use open_pipe_stress_solver_performance_harness::k6::w1::staged::{
     attempts_of, prefix_limits, w1_solve, w1_source, W1Limits,
@@ -252,16 +255,50 @@ fn parse_args() -> Args {
     args
 }
 
-fn load_model(args: &Args) -> K6Model {
+fn load_model(args: &Args) -> (K6Model, ModelOrigin) {
     match (&args.model, &args.model_file) {
-        (Some(id), None) => model(id).unwrap_or_else(|e| usage(&e)),
+        (Some(id), None) => model_described(id).unwrap_or_else(|e| usage(&e)),
         (None, Some(path)) => {
             let text = std::fs::read_to_string(path)
                 .unwrap_or_else(|e| usage(&format!("cannot read the model file: {e}")));
-            canonical::parse(&text).unwrap_or_else(|e| usage(&e))
+            canonical::parse_described(&text).unwrap_or_else(|e| usage(&e))
         }
         _ => usage("give exactly one of --model and --model-file"),
     }
+}
+
+fn compose_h(
+    model: &K6Model,
+    origin: ModelOrigin,
+    counts: &K6Counts,
+    captured: Option<Result<HSourceFacts, EnvelopeError>>,
+    args: &Args,
+) -> Option<HComposedEstimate> {
+    counts.w1.as_ref().map(|w| {
+        let source = captured
+            .unwrap_or_else(|| HSourceFacts::from_counts(model, w))
+            .unwrap_or_else(|e| usage(&format!("W1 source facts unavailable: {e:?}")));
+        let facts = HModelFacts::capture(model, origin)
+            .unwrap_or_else(|e| usage(&format!("W1 model facts unavailable: {e:?}")));
+        h_envelope::estimate(
+            facts,
+            source,
+            HLaunch {
+                retained_arguments: [
+                    args.model.as_deref(),
+                    args.model_file.as_deref(),
+                    args.counts_file.as_deref(),
+                    args.dump_solution.as_deref(),
+                    args.dump_pattern.as_deref(),
+                    args.dump_published.as_deref(),
+                ],
+                repeats: args.repeats,
+                prefixes: args.w1_prefixes,
+            },
+            &ReferenceHProfile::source40129_rust1971_aarch64_v1(),
+        )
+        .unwrap_or_else(|e| usage(&format!("W1 envelope unavailable: {e:?}")))
+    })
 }
 
 // ------------------------------------------------------------------ observer
@@ -345,6 +382,7 @@ fn counts_line(
     source: &str,
     phase: Option<(u128, usize, usize)>,
     w1_error: Option<&str>,
+    composed: Option<&HComposedEstimate>,
 ) {
     let sizes = SizeFacts::of_this_build();
     let (canonical_len, canonical_fnv) = canonical_digest(model);
@@ -378,13 +416,18 @@ fn counts_line(
             )
             .n(
                 &format!("estimate_adm_bytes_{}", m.as_str().replace('-', "_")),
-                admission_estimate_bytes(m, c, &sizes),
+                admission_estimate_bytes(m, c, &sizes, None).expect("non-W1 mode"),
             );
     }
     // K6b: W1's counts, storage and estimate (plan §3.4, §3.5), when the
     // counts carry them.
+    // Under w1_source_ok=false the typed SourceRefused result emits positive
+    // source-window max/sel128 and caller-only fixed. Its zero kernel fields
+    // mean unexecuted phases, never unavailable proof or a successful kernel.
     if let Some(w) = &c.w1 {
-        let e = w1_estimate(w, &W1SizeFacts::of_this_build());
+        let e = &composed
+            .expect("W1 fields require complete H composition")
+            .legacy;
         line = line
             .null("estimate_f1b_bytes_w1a")
             .n("estimate_adm_bytes_w1a", e.max)
@@ -480,13 +523,13 @@ fn main() {
         return;
     }
     if args.emit_model {
-        let model = load_model(&args);
+        let (model, _) = load_model(&args);
         print!("{}", canonical::serialize(&model));
         return;
     }
     if args.emit_source {
         // K6b (Q6): the adapter's K4SRC bytes, in hex, for the independent check.
-        let model = load_model(&args);
+        let (model, _) = load_model(&args);
         match w1_adapter::source(&model) {
             Ok(source) => {
                 let hex: String = source
@@ -556,7 +599,7 @@ fn main() {
         start
     };
     start.emit();
-    let model = load_model(&args);
+    let (model, model_origin) = load_model(&args);
 
     // The refusals by name (host rule; ROOT's rulings Q12 and on RV16-N4),
     // before any count or n² allocation.
@@ -579,7 +622,7 @@ fn main() {
     // The counts: from the counts-only record (`--counts-file`, so the
     // observed process carries no counts phase), or computed here in O(nnz)
     // memory, with no n² array and no profile values.
-    let (counts, phase) = match &args.counts_file {
+    let (counts, phase, h_estimate) = match &args.counts_file {
         Some(path) if !args.counts_only => {
             let text = std::fs::read_to_string(path)
                 .unwrap_or_else(|e| usage(&format!("cannot read the counts file: {e}")));
@@ -600,8 +643,17 @@ fn main() {
             if mode == Some(Mode::W1a) && found.1.w1.is_none() {
                 usage("the counts line carries no W1 counts (run --counts-only on this binary)");
             }
-            counts_line(&model, mode, &found.1, "file", None, None);
-            (found.1, None)
+            let estimate = compose_h(&model, model_origin, &found.1, None, &args);
+            counts_line(
+                &model,
+                mode,
+                &found.1,
+                "file",
+                None,
+                None,
+                estimate.as_ref(),
+            );
+            (found.1, None, estimate)
         }
         _ => {
             alloc::stage_reset();
@@ -619,8 +671,10 @@ fn main() {
             });
             // K6b: W1's counts in the counts-only record and the w1a mode.
             let mut w1_error = None;
+            let mut captured = None;
             if args.counts_only || mode == Some(Mode::W1a) {
-                let (w1, error) = w1_compute(&model);
+                let (w1, error, source_facts) = w1_compute(&model);
+                captured = Some(source_facts);
                 counts.w1 = Some(w1);
                 w1_error = error;
             }
@@ -633,6 +687,7 @@ fn main() {
                 alloc::stage_peak(),
                 alloc::stage_peak_move(),
             );
+            let estimate = compose_h(&model, model_origin, &counts, captured, &args);
             counts_line(
                 &model,
                 mode,
@@ -640,8 +695,9 @@ fn main() {
                 "computed",
                 Some(phase),
                 w1_error.as_deref(),
+                estimate.as_ref(),
             );
-            (counts, Some(phase))
+            (counts, Some(phase), estimate)
         }
     };
     let sizes = SizeFacts::of_this_build();
@@ -656,7 +712,13 @@ fn main() {
         return;
     };
 
-    let estimate = admission_estimate_bytes(mode, &counts, &sizes);
+    let estimate = admission_estimate_bytes(
+        mode,
+        &counts,
+        &sizes,
+        h_estimate.as_ref().map(|h| &h.legacy),
+    )
+    .unwrap_or_else(|e| usage(&format!("admission estimate unavailable: {e:?}")));
     if estimate > (cap as u128) / 2 && !args.allow_over_estimate {
         refusal("estimate_exceeds_half_cap", Some(estimate));
     }

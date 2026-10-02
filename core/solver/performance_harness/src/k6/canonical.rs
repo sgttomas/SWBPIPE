@@ -177,6 +177,16 @@ pub fn parse(text: &str) -> Result<K6Model, String> {
     Ok(model)
 }
 
+/// Same parse and drop edges, with inline construction provenance.
+pub fn parse_described(text: &str) -> Result<(K6Model, super::models::ModelOrigin), String> {
+    parse(text).map(|model| {
+        (
+            model,
+            super::models::ModelOrigin(super::models::ModelRecipe::Canonical),
+        )
+    })
+}
+
 fn family_of(id: &str) -> Family {
     if id.starts_with("RF-LARGE-CHAIN") || id.starts_with("K6-CEIL-CHAIN") {
         Family::Chain

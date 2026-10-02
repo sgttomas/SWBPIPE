@@ -20,7 +20,7 @@ The tiers follow ROOT's Q5 ruling, 100 → 1,000 → 10,000:
 Every run uses C = 8 GiB, a heap cap of C − 512 MiB and a 1,800 s timeout.
 
 **Admission** is K6's rule on V-K's estimate (`vk_scale --counts-only`, whose
-`estimate_max_bytes` is K6b's E_max, ported). The binary's own backstop (an
+`estimate_max_bytes` is the complete conditional VR composition). The binary's own backstop (an
 estimate above half the heap cap) is checked here first. A row the binary
 would refuse is deferred by name (K6b's C ruling), so every admitted row is
 one the binary also admits.
@@ -266,6 +266,31 @@ def stop_reasons(record, objects, admitted, run=None):
     return reasons
 
 
+def bind_scale_launch_counts(binary, run, models_dir, record_dir):
+    """Bind the same executable/input/path continuation before real admission.
+
+    Counts-only reports max(actual prefix, canonical normal continuation with
+    a <=20-digit cap). The normal argv below uses exactly the same case/path.
+    This prepass is not a performance sample or a ratio datum; --plan stays
+    process-free and uses its explicitly provisional stored estimates.
+    """
+    binding_id = run['run_id'] + '.counts-binding'
+    result = k6.launch(binary_argv(binary, run, models_dir, counts_only=True,
+                                   heap_cap=COUNTS_CAP_BYTES),
+                       rss_cap_bytes=run['rss_cap_bytes'], timeout_s=600,
+                       record_dir=record_dir, run_id=binding_id)
+    if result.get('classification') != 'ok':
+        raise RuntimeError('VR counts binding failed: %s' % result.get('classification'))
+    rows = [o for o in objects_of(record_dir, binding_id)
+            if o.get('kind') == 'counts' and o.get('case') == run['model']]
+    if (len(rows) != 1 or type(rows[0].get('estimate_max_bytes')) is not int
+            or rows[0]['estimate_max_bytes'] <= 0):
+        raise RuntimeError('VR counts binding did not return one positive complete estimate')
+    row = dict(rows[0], model=run['model'])
+    row[k6.estimate_key(MODE)] = row['estimate_max_bytes']
+    return row
+
+
 def run_tier(tier, binary, models_dir, counts_path, record_dir, source_commit, source_tree,
              approve_10000=False, memguard_log=None, log=print):
     counts = k6.read_counts(counts_path)
@@ -289,6 +314,7 @@ def run_tier(tier, binary, models_dir, counts_path, record_dir, source_commit, s
                for x in k6.run_entries(records)):
             log('%s: already recorded; not repeated' % run['run_id'])
             continue
+        counts[run['model']] = bind_scale_launch_counts(binary, run, models_dir, record_dir)
         decision = admission(run, counts, records, baseline_rss, baseline_footprint, approve_10000)
         entry = dict(run, admission=decision, baseline_rss_bytes=baseline_rss,
                      baseline_footprint_bytes=baseline_footprint, source_commit=source_commit,

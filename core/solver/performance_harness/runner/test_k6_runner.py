@@ -949,5 +949,51 @@ class LiveLimit(unittest.TestCase):
         self.assertEqual(survivors, [], 'a terminated runner left a process of the observation group')
 
 
+
+class W1ContextBinding(unittest.TestCase):
+    def test_actual_planned_context_is_rebound_before_admission_and_denominator(self):
+        run = next(x for x in r.schedule() if x['mode'] == 'w1a' and not x['conditional'])
+        events = []
+        with tempfile.TemporaryDirectory() as folder:
+            counts_path = os.path.join(folder, 'counts with a longer path.jsonl')
+            with open(counts_path, 'w') as f:
+                f.write(json.dumps({'kind': 'counts', 'model': run['model'], 'estimate_adm_bytes_w1a': 1}) + '\n')
+            with open(os.path.join(folder, 'metadata.json'), 'w') as f:
+                f.write('{}\n')
+            def fake_launch(argv, *, record_dir, run_id, **kw):
+                prepass = '--counts-only' in argv
+                events.append(('prepass' if prepass else 'normal', argv))
+                with open(os.path.join(record_dir, run_id + '.jsonl'), 'w') as f:
+                    f.write(json.dumps({'kind': 'counts', 'model': run['model'], 'estimate_adm_bytes_w1a': 321}) + '\n')
+                    f.write('{"kind":"summary"}\n')
+                return {'classification': 'ok', 'wall_s': 0.0, 'exit_code': 0, 'rss': {}, 'peak_rss_bytes': 1}
+            original_admission = r.admission
+            def admitted(run, counts, *args, **kwargs):
+                events.append(('admission', counts[run['model']]['estimate_adm_bytes_w1a']))
+                return original_admission(run, counts, *args, **kwargs)
+            with mock.patch.object(r, 'schedule', return_value=[run]), \
+                    mock.patch.object(r, 'launch', side_effect=fake_launch), \
+                    mock.patch.object(r, 'baseline_run', return_value={'rss': {}}), \
+                    mock.patch.object(r, 'wait_for_quiet_host', return_value={}), \
+                    mock.patch.object(r, 'admission', side_effect=admitted):
+                r.run_tier(run['tier'], 'k6_observe', counts_path, folder, 'c', 't', log=lambda *a: None)
+            self.assertEqual([x[0] for x in events], ['prepass', 'admission', 'normal'])
+            self.assertEqual(events[0][1], events[2][1] + ['--counts-only'])
+            self.assertEqual(events[1][1], 321)
+            records = r.run_entries(r.read_records(folder))
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0]['estimate_adm_bytes'], 321)
+
+    def test_binding_failure_has_no_stale_numeric_fallback(self):
+        run = next(x for x in r.schedule() if x['mode'] == 'w1a')
+        with mock.patch.object(r, 'launch', return_value={'classification': 'heap_cap_abort'}):
+            with self.assertRaisesRegex(RuntimeError, 'counts binding failed'):
+                r.bind_w1_launch_counts('binary', run, 'counts', 'records')
+
+    def test_plan_never_starts_a_binding_process(self):
+        with mock.patch.object(r, 'launch', side_effect=AssertionError('plan launched')), \
+                mock.patch.object(r, 'bind_w1_launch_counts', side_effect=AssertionError('plan rebound')):
+            self.assertTrue(r.plan(None))
+
 if __name__ == '__main__':
     unittest.main()

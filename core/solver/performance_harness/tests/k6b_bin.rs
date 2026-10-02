@@ -228,3 +228,133 @@ fn w1a_admission_and_counts_file() {
     assert_eq!(Mode::parse("w1a"), Some(Mode::W1a));
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn actual_planned_counts_context_matches_binary_and_rebinds_changed_paths() {
+    let dir = temp_dir("h_context");
+    let counts_path = dir
+        .join("planned counts.jsonl")
+        .to_string_lossy()
+        .into_owned();
+    let rows_path = dir.join("planned.rows").to_string_lossy().into_owned();
+    let planned = vec![
+        "--model",
+        "RF-LARGE-CHAIN-n00010-AX",
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        CAP_512_MIB,
+        "--repeats",
+        "1",
+        "--counts-file",
+        &counts_path,
+        "--dump-published",
+        &rows_path,
+        "--w1-prefixes",
+    ];
+    let mut pre = planned.clone();
+    pre.push("--counts-only");
+    let counts = run(&pre);
+    assert!(counts.status.success(), "{}", stdout(&counts));
+    let text = stdout(&counts);
+    let before = number(lines_of(&text, "counts")[0], "estimate_adm_bytes_w1a").unwrap();
+    std::fs::write(&counts_path, &text).unwrap();
+    let normal = run(&planned);
+    let normal_text = stdout(&normal);
+    assert!(normal.status.success(), "{normal_text}");
+    assert_eq!(
+        number(
+            lines_of(&normal_text, "counts")[0],
+            "estimate_adm_bytes_w1a"
+        ),
+        Some(before)
+    );
+    let unused = "unused retained solution path with nonascii é";
+    let mut changed = planned.clone();
+    changed.extend(["--dump-solution", unused]);
+    let changed = run(&changed);
+    let changed_text = stdout(&changed);
+    assert!(changed.status.success(), "{changed_text}");
+    assert_eq!(
+        number(
+            lines_of(&changed_text, "counts")[0],
+            "estimate_adm_bytes_w1a"
+        ),
+        Some(before + unused.len() as u128)
+    );
+    let cap = (2 * before - 1).to_string();
+    let mut below = planned.clone();
+    below[5] = &cap;
+    let refused = run(&below);
+    let refused_text = stdout(&refused);
+    assert_eq!(refused.status.code(), Some(3), "{refused_text}");
+    assert_eq!(
+        number(lines_of(&refused_text, "refusal")[0], "estimate_adm_bytes"),
+        Some(before)
+    );
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn computed_and_file_source_refusals_keep_positive_source_window() {
+    use open_pipe_stress_solver_performance_harness::k6::{canonical, models::model};
+    let dir = temp_dir("h_refusal");
+    let mut model = model("RF-LARGE-CHAIN-n00010-AX").unwrap();
+    // An unused source node is validated by PrimitiveSource but does not change
+    // any existing frame. This exercises the real source-refusal branch.
+    model
+        .nodes
+        .push(("unused".to_string(), [f64::NAN, 0.0, 0.0]));
+    model.restraints.push((11, [true; 6]));
+    let model_path = dir.join("refused.model").to_string_lossy().into_owned();
+    let counts_path = dir.join("refused.counts").to_string_lossy().into_owned();
+    std::fs::write(&model_path, canonical::serialize(&model)).unwrap();
+    let base = [
+        "--model-file",
+        &model_path,
+        "--mode",
+        "w1a",
+        "--heap-cap-bytes",
+        CAP_512_MIB,
+        "--repeats",
+        "1",
+    ];
+    let computed = run(&base);
+    let computed_text = stdout(&computed);
+    assert!(
+        computed.status.success(),
+        "stdout={computed_text}, stderr={}",
+        String::from_utf8_lossy(&computed.stderr)
+    );
+    let c = lines_of(&computed_text, "counts")[0];
+    assert!(c.contains("\"w1_source_ok\":false"));
+    let e = number(c, "estimate_adm_bytes_w1a").unwrap();
+    assert!(e > 0);
+    assert_eq!(number(c, "estimate_w1_sel128_bytes"), Some(e));
+    for key in [
+        "estimate_w1_decide_bytes",
+        "estimate_w1_shared_128",
+        "estimate_w1_state_128",
+        "estimate_w1_solve_128",
+        "estimate_w1_verify_256",
+        "estimate_w1_pass_256",
+    ] {
+        assert_eq!(number(c, key), Some(0), "{key}");
+    }
+    assert!(computed_text.contains("\"class\":\"SourceRefused\""));
+    assert!(computed_text.contains("\"stop_reason\":\"source_refused\""));
+    assert!(!computed_text.contains("\"stage\":\"w1_solve\""));
+    std::fs::write(&counts_path, &computed_text).unwrap();
+    let mut with_file = base.to_vec();
+    with_file.extend(["--counts-file", &counts_path]);
+    let file = run(&with_file);
+    let file_text = stdout(&file);
+    assert!(file.status.success(), "{file_text}");
+    assert!(file_text.contains("\"counts_source\":\"file\""));
+    assert!(file_text.contains("\"class\":\"SourceRefused\""));
+    assert_eq!(
+        number(lines_of(&file_text, "counts")[0], "estimate_adm_bytes_w1a"),
+        Some(e + counts_path.len() as u128)
+    );
+    let _ = std::fs::remove_dir_all(dir);
+}

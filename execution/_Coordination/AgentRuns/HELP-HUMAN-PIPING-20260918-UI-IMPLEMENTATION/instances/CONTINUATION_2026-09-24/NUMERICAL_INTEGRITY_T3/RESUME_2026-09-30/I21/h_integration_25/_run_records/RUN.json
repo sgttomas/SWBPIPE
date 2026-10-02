@@ -1,0 +1,17 @@
+{
+  "native": "/root/i21_kernel_resume",
+  "parent": "/root",
+  "role": "TASK Type2",
+  "start_utc": "2026-10-02 01:01:52 UTC",
+  "stop_new_work_utc": "2026-10-02 01:56:52 UTC",
+  "hard_end_utc": "2026-10-02 02:01:52 UTC",
+  "base": "4a6cb3402f95d98c6f46f702055fe4b0c5245c56",
+  "delegation": false,
+  "git_index_writes": false,
+  "host": "instruction write fence under danger-full-access host; existing M5 guard",
+  "shared_extraction": "ROOT notified and confirmed only minimal crate-visible raw H constructor helper; preserve successful results; needs RV33 backcheck",
+  "scope_addenda": [
+    "ROOT permitted only the counts.jsonl hash line in H/observations/k6b/SHA256SUMS; packet and sources.txt remain historical bytes",
+    "ROOT requested --all-targets including k6_alloc and C-N1 coverage/disposition; no heavy10k solve/count/performance scope added"
+  ]
+}

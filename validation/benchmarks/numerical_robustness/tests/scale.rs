@@ -5,8 +5,11 @@
 //!   factored.
 //! - The estimate's terms are ordered as K6b's derivation builds them.
 use open_pipe_stress_frame_kernel::structural::retained_api::PrimitiveSource;
-use piping_numerical_robustness::cases::{crate_dir, load_all, FAMILY_FILES};
-use piping_numerical_robustness::scale::{counts, estimate, Sizes};
+use piping_numerical_robustness::cases::{crate_dir, load_all_described, FAMILY_FILES};
+use piping_numerical_robustness::envelope::{
+    PopulationPolicy, ReferenceKernelProfile, ReferenceVRProfile, VrEstimateContext, VrInvocation,
+};
+use piping_numerical_robustness::scale::{counts, estimate};
 use serde_json::Value;
 use std::collections::BTreeMap;
 
@@ -40,9 +43,9 @@ fn committed_storage() -> BTreeMap<String, (u64, u64)> {
 #[test]
 fn the_counts_equal_k4s_storage_counts_on_every_factored_ci_case() {
     let storage = committed_storage();
-    let sizes = Sizes::of_this_build();
+    let (cases, family_facts) = load_all_described();
     let mut n = 0;
-    for c in load_all().iter().filter(|c| !c.is_large()) {
+    for c in cases.iter().filter(|c| !c.is_large()) {
         let Some(&(pattern, profile)) = storage.get(&c.id) else {
             continue;
         };
@@ -59,7 +62,30 @@ fn the_counts_equal_k4s_storage_counts_on_every_factored_ci_case() {
             "{}: profile entries",
             c.id
         );
-        let e = estimate(&k, &sizes);
+        let family = FAMILY_FILES
+            .iter()
+            .position(|(f, _)| *f == c.family)
+            .unwrap();
+        let invocation = VrInvocation::single_case_family_reference(&c.id);
+        let context = VrEstimateContext::capture(
+            c,
+            model,
+            &source,
+            &k,
+            family_facts[family],
+            None,
+            invocation,
+            PopulationPolicy::NodesAndFreeDofsUpper,
+        )
+        .unwrap();
+        drop(source); // The context deliberately does not borrow the source.
+        let e = estimate(
+            &context,
+            &ReferenceKernelProfile::source40129_rust1971_aarch64_v1(),
+            &ReferenceVRProfile::source40129_rust1971_aarch64_v1(),
+        )
+        .unwrap()
+        .moving;
         assert!(
             e.model < e.fixed && e.fixed < e.sel128 && e.sel128 <= e.max,
             "{}: {e:?}",

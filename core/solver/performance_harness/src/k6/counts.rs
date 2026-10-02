@@ -11,7 +11,7 @@
 
 use super::lanes::{identity_profile, off_diagonal_entries, reduced_entry_system};
 use super::models::K6Model;
-use super::w1::counts::{estimate as w1_estimate, W1Counts, W1SizeFacts};
+use super::w1::counts::W1Counts;
 use super::Mode;
 use open_pipe_stress_frame_kernel::structural::{
     assemble_sparse_stiffness, prepare_sparse_structural, ContributionRounding, PivotEvidence,
@@ -305,20 +305,24 @@ pub fn base_bytes(c: &K6Counts, s: &SizeFacts) -> u128 {
 /// The admission estimate per mode (plan §7; ROOT's rulings N8 and N9). The
 /// counts R (contribution-rounding rows) and Z (nonzero entries) are bounded
 /// by the pattern's entry count.
-pub fn admission_estimate_bytes(mode: Mode, c: &K6Counts, s: &SizeFacts) -> u128 {
+pub fn admission_estimate_bytes(
+    mode: Mode,
+    c: &K6Counts,
+    s: &SizeFacts,
+    w1: Option<&super::w1::counts::W1Estimate>,
+) -> Result<u128, super::w1::envelope::EnvelopeError> {
     let nnz = c.pattern_entries as u128;
     let n = c.dofs as u128;
     let nf = c.free_dofs as u128;
     let nnz_f = c.free_entries as u128;
     let p = c.rcm_profile_entries;
     let base = base_bytes(c, s);
-    match mode {
-        // K6b: E_max of the W1 estimate (`w1::counts::estimate`); without W1
-        // counts the estimate is unknown, and the half-cap rule refuses it.
+    Ok(match mode {
         Mode::W1a => {
-            c.w1.as_ref()
-                .map(|w| w1_estimate(w, &W1SizeFacts::of_this_build()).max)
-                .unwrap_or(u128::MAX)
+            w1.ok_or(super::w1::envelope::EnvelopeError::MissingDescriptor(
+                "complete H estimate",
+            ))?
+            .max
         }
         Mode::Dense => F1B_DENSE_BYTES_PER_ENTRY * c.dense_entries + base,
         Mode::Sparse => {
@@ -363,7 +367,7 @@ pub fn admission_estimate_bytes(mode: Mode, c: &K6Counts, s: &SizeFacts) -> u128
                 + 24 * (n + nf)
                 + 16 * nf
         }
-    }
+    })
 }
 
 /// The integer value of `"key":<digits>` in one of K6's own JSON lines.

@@ -1,0 +1,23 @@
+{
+  "manifests_and_locks": [
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "sha256": "ba730845fa377a8f2b0f4d910b317a1c1bbc5000881a8a433a2ca0e10f4f7c8a"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/Cargo.lock",
+      "sha256": "7b689c8c109f17220157d0bdb934642b06881a4f7c0f6c8154e8df5edd56572e"
+    }
+  ],
+  "binary": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-h-integration-target/debug/k6_observe",
+    "sha256": "ac0ce08bb059459c2a42316b28487dcc367a3bb51b269d586f1fc6397d3eba67"
+  },
+  "selected_environment": {
+    "RUSTFLAGS": null,
+    "CARGO_ENCODED_RUSTFLAGS": null,
+    "RUSTUP_TOOLCHAIN": "stable"
+  },
+  "python_version": "Python 3.13.14",
+  "qualification": "Normal debug behavior/arithmetic checks only; no production executable qualification or measured-bound reliance granted."
+}

@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/Users/ryan/.cargo/bin/rustup",
+    "run",
+    "1.97.1",
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+    "--locked",
+    "--offline",
+    "-j",
+    "4",
+    "--all-targets",
+    "--",
+    "--test-threads=2"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+  "env": {
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-h-integration-target"
+  },
+  "start": "2026-10-02T01:26:33.059652+00:00",
+  "guard": " 5387 03-23:50:14 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)\n",
+  "purpose": "Original complete H non-performance suite, including allocator; 10k-shaped named-refusal/emit tests do not execute 10k counts/solves.",
+  "end": "2026-10-02T01:27:59.251122+00:00",
+  "returncode": 0,
+  "owned_inputs_unchanged": true
+}

@@ -6,8 +6,9 @@
 //! ROOT's rulings on the K6B-S3 stop and on RV22's review: the outcome's
 //! per-precision work is the charged totals, and each attempt line carries the
 //! work it was charged that no stage records (`own_unstaged`,
-//! `shared_unstaged`; zero on completed builds) and whether that is none
-//! (`stages_complete`).
+//! `shared_unstaged`; since KF3, zero on completed and stopped builds) and
+//! whether that is none (`stages_complete`). Partial stages retain their
+//! charged work, including a stop inside an own solve.
 
 use super::Line;
 use open_pipe_stress_frame_kernel::structural::retained_api::{

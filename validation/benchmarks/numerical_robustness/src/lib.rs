@@ -19,6 +19,7 @@
 //! committed here.
 pub mod cases;
 pub mod compare;
+pub mod envelope;
 pub mod exact;
 pub mod floor;
 pub mod invariance;

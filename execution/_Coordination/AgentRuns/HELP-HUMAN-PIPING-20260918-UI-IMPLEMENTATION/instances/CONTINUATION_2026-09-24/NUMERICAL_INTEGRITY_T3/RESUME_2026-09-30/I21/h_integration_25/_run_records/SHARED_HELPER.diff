@@ -1,0 +1,81 @@
+diff --git a/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs b/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs
+index 91db18a818..f61f4066a8 100644
+--- a/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs
++++ b/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs
+@@ -685,6 +685,59 @@ struct Prepared {
+     verification: [C; 3],
+     ledger_encoding: C,
+ }
++
++fn h_constructor(
++    original: C,
++    nodes: C,
++    members: C,
++    constraints: C,
++    loads: C,
++    stations: C,
++    max_id: C,
++) -> Pair {
++    peak(&[
++        Pair::exact(
++            original
++                + max(&[
++                    sort(88, members),
++                    sort(16, constraints),
++                    sort(40, loads),
++                    sort(16, stations),
++                ]),
++        ),
++        Pair::exact(original + 6432),
++        Pair::exact(original + 12 * nodes),
++        Pair::new(original + g(8, constraints), old(8, constraints)),
++        Pair::new(original, max_id),
++    ])
++}
++
++/// Raw H source window, including partial constructor failures. Unlike a successful
++/// descriptor, raw restraints need not be unique or fit the model's DOF count.
++pub(crate) fn h_source_constructor(
++    nodes: u128,
++    members: u128,
++    constraints: u128,
++    loads: u128,
++    id_bytes: u128,
++    max_id_bytes: u128,
++) -> Result<MetricBytes, EnvelopeError> {
++    for value in [nodes, members, constraints, loads] {
++        if value > u128::from(u32::MAX) {
++            return Err(EnvelopeError::ReferenceWidthExceeded);
++        }
++    }
++    let (nn, m, r, l, ids) = (
++        C::new(nodes),
++        C::new(members),
++        C::new(constraints),
++        C::new(loads),
++        C::new(id_bytes),
++    );
++    let original = 24 * nn + 88 * m + 16 * r + 40 * l + 16 * m + 16 * (6 * nn) + 4 * nn + 2 * ids;
++    h_constructor(original, nn, m, r, l, m, C::new(max_id_bytes)).finish()
++}
++
+ fn prepare(d: &KernelDescriptor) -> Prepared {
+     let x = Shape::new(d.input, d.structure, d.bodies, d.blocks);
+     let Shape {
+@@ -761,13 +814,9 @@ fn prepare(d: &KernelDescriptor) -> Prepared {
+                     old(16, t),
+                 ]),
+         },
+-        SourceConstruction::HModelV1 => peak(&[
+-            Pair::exact(original + sort_input),
+-            Pair::exact(original + 6432),
+-            Pair::exact(original + 12 * nn),
+-            Pair::new(original + g(8, r), old(8, r)),
+-            Pair::new(original, C::new(d.input.max_load_id_bytes)),
+-        ]),
++        SourceConstruction::HModelV1 => {
++            h_constructor(original, nn, m, r, l, t, C::new(d.input.max_load_id_bytes))
++        }
+     };
+     let grounds = r + axis + 6 * nn;
+     let common = g(4, nn) + tree(nn, 240) + 24 * nn + g(8, grounds);

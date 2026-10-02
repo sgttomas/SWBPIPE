@@ -15,8 +15,69 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
+name = "open_pipe_stress_curved_bend"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_frame_kernel",
+]
+
+[[package]]
 name = "open_pipe_stress_frame_kernel"
 version = "0.1.0"
+
+[[package]]
+name = "open_pipe_stress_linear_supports"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_frame_kernel",
+]
+
+[[package]]
+name = "open_pipe_stress_nonlinear_integration"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_curved_bend",
+ "open_pipe_stress_frame_kernel",
+ "open_pipe_stress_nonlinear_supports",
+ "open_pipe_stress_solver_diagnostics",
+ "open_pipe_stress_sparse_direct",
+]
+
+[[package]]
+name = "open_pipe_stress_nonlinear_supports"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_linear_supports",
+ "open_pipe_stress_solver_diagnostics",
+]
+
+[[package]]
+name = "open_pipe_stress_primitive_loads"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_frame_kernel",
+ "open_pipe_stress_linear_supports",
+]
+
+[[package]]
+name = "open_pipe_stress_solver_diagnostics"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_frame_kernel",
+ "open_pipe_stress_linear_supports",
+ "open_pipe_stress_primitive_loads",
+ "open_pipe_stress_sparse_direct",
+]
+
+[[package]]
+name = "open_pipe_stress_solver_performance_harness"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_frame_kernel",
+ "open_pipe_stress_nonlinear_integration",
+ "open_pipe_stress_solver_diagnostics",
+ "open_pipe_stress_sparse_direct",
+]
 
 [[package]]
 name = "open_pipe_stress_sparse_direct"
@@ -30,6 +91,7 @@ name = "piping_numerical_robustness"
 version = "0.1.0"
 dependencies = [
  "open_pipe_stress_frame_kernel",
+ "open_pipe_stress_solver_performance_harness",
  "open_pipe_stress_sparse_direct",
  "serde_json",
 ]

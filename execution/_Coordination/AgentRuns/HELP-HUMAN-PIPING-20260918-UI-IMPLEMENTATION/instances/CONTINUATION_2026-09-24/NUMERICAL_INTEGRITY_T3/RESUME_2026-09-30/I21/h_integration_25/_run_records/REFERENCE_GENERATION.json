@@ -1,0 +1,9 @@
+{
+  "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/PHASES.json",
+  "source_sha256": "d1cd9a1f755fac28ebd8194501daa69c06ac463daa6c456309db8a9f8df9b956",
+  "rows": 33,
+  "method": "literal owner/phase projections and reviewed original-pair values; no calculator executed",
+  "non_estimate_identity": "all33 retained JSON records equal outside explicitly enumerated estimate fields",
+  "before_counts_sha256": "fab0466a846ef26b1c530a261a6f1d134fc32ba1d70f57682010877a52373c05",
+  "after_counts_sha256": "29e4aba283a4edeb3287d72598d7f37d29ed65799959f89005cf58bcf1d4a9f4"
+}

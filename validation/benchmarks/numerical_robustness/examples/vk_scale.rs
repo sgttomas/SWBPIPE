@@ -8,7 +8,7 @@
 //! - `start`: the case, the model file's sha256 against the committed one,
 //!   and the heap cap;
 //! - `counts`: W1's counts in O(nnz) with no solve, and the admission estimate
-//!   (`scale.rs`: K6b's E_max, ported). **The backstop:** an estimate above
+//!   (`envelope.rs`: complete conditional VR composition). **The backstop:** an estimate above
 //!   half the heap cap is refused (exit 3), independently of the runner;
 //! - `w1`: the case through `lane::run_case_with`, the same code the CI lane
 //!   judges with, with `CaseLimit` and `InvocationMeter` at `u64::MAX`;
@@ -32,7 +32,11 @@
 //! the solve (unknown case, model sha256, K4SRC, source refusal). A heap-cap
 //! refusal aborts after the allocator's marker.
 use open_pipe_stress_frame_kernel::structural::retained_api::PrimitiveSource;
-use piping_numerical_robustness::cases::{load_family, load_large_model, Case, Model};
+use piping_numerical_robustness::cases::{load_family_described, load_large_model_described, Case};
+use piping_numerical_robustness::envelope::{
+    ArgumentFacts, PopulationPolicy, ReferenceKernelProfile, ReferenceVRProfile, VrEstimateContext,
+    VrInvocation,
+};
 use piping_numerical_robustness::{floor, lane, parity, rcm, scale, sha256};
 use serde_json::{json, Value};
 use std::io::Write;
@@ -286,6 +290,16 @@ struct Args {
     heap_cap: Option<usize>,
     counts_only: bool,
     noop: bool,
+    argument_facts: ArgumentFacts,
+}
+
+fn observed_next(
+    it: &mut impl Iterator<Item = String>,
+    facts: &mut ArgumentFacts,
+) -> Option<String> {
+    let value = it.next()?;
+    facts.observe(&value);
+    Some(value)
 }
 
 fn args() -> Args {
@@ -295,19 +309,30 @@ fn args() -> Args {
         heap_cap: None,
         counts_only: false,
         noop: false,
+        argument_facts: ArgumentFacts::default(),
     };
-    let mut it = std::env::args().skip(1);
-    while let Some(arg) = it.next() {
+    let mut it = std::env::args();
+    let _ = observed_next(&mut it, &mut a.argument_facts);
+    while let Some(arg) = observed_next(&mut it, &mut a.argument_facts) {
         match arg.as_str() {
-            "--case" => a.case = it.next(),
-            "--model-file" => a.model_file = it.next(),
-            "--heap-cap-bytes" => a.heap_cap = it.next().and_then(|v| v.parse().ok()),
+            "--case" => a.case = observed_next(&mut it, &mut a.argument_facts),
+            "--model-file" => a.model_file = observed_next(&mut it, &mut a.argument_facts),
+            "--heap-cap-bytes" => {
+                a.heap_cap =
+                    observed_next(&mut it, &mut a.argument_facts).and_then(|v| v.parse().ok())
+            }
             "--counts-only" => a.counts_only = true,
             "--noop" => a.noop = true,
             other => fail(2, "usage", format!("unknown argument {other:?}")),
         }
     }
     a
+}
+
+// The checked composition enforces the reference request width; keep the JSON
+// conversion checked at the boundary as well. Errors use a bounded static reason.
+fn estimate_bytes(value: u128) -> u64 {
+    u64::try_from(value).unwrap_or_else(|_| fail(4, "error", "estimate byte width exceeded".into()))
 }
 
 /// S(kind) of the complete reference solution, in `floor::maxima`'s order.
@@ -344,14 +369,15 @@ fn main() {
 
     // ------------------------------------------------------------ load
     let phase = Phase::start();
-    let Some(case) = load_family("RF-LARGE").into_iter().find(|c| c.id == id) else {
+    let (family_cases, family_facts) = load_family_described("RF-LARGE");
+    let Some(case) = family_cases.into_iter().find(|c| c.id == id) else {
         fail(4, "error", format!("unknown case {id}"));
     };
-    let (model, model_sha256): (Model, Option<String>) = match (&case.model, &a.model_file) {
-        (Some(m), None) => (m.clone(), None),
+    let (model, model_sha256, external_facts) = match (&case.model, &a.model_file) {
+        (Some(m), None) => (m.clone(), None, None),
         (None, Some(path)) => {
-            let (m, sha) = load_large_model(std::path::Path::new(path));
-            (m, Some(sha))
+            let (m, sha, facts) = load_large_model_described(std::path::Path::new(path));
+            (m, Some(sha), Some(facts))
         }
         _ => fail(
             2,
@@ -396,9 +422,37 @@ fn main() {
         );
     }
     let counts = scale::counts(&model, &source);
+    let invocation = VrInvocation::actual(
+        env!("CARGO_MANIFEST_DIR"),
+        &id,
+        a.model_file.as_deref(),
+        a.argument_facts,
+        a.counts_only,
+    );
+    let context = VrEstimateContext::capture(
+        &case,
+        &model,
+        &source,
+        &counts,
+        family_facts,
+        external_facts,
+        invocation,
+        PopulationPolicy::Exact {
+            bodies: counts.bodies as u128,
+            free_blocks: counts.blocks as u128,
+        },
+    )
+    .unwrap_or_else(|_| fail(4, "error", "complete estimate context unavailable".into()));
     drop(source);
-    let sizes = scale::Sizes::of_this_build();
-    let est = scale::estimate(&counts, &sizes);
+    let complete = scale::estimate(
+        &context,
+        &ReferenceKernelProfile::source40129_rust1971_aarch64_v1(),
+        &ReferenceVRProfile::source40129_rust1971_aarch64_v1(),
+    )
+    .unwrap_or_else(|_| fail(4, "error", "complete estimate unavailable".into()));
+    // Legacy fields use the complete moving metric. Reference arithmetic does
+    // not qualify this executable; external artifact/input/launch binding remains.
+    let est = complete.moving;
     emit(merge(
         json!({
             "kind": "counts", "case": id, "k4src_sha256": k4src,
@@ -409,9 +463,9 @@ fn main() {
             "profile_entries": counts.profile_entries, "half_bandwidth": counts.half_bandwidth,
             "blocks": counts.blocks, "rows": counts.rows,
             "source_encoding_len": counts.source_encoding_len,
-            "estimate_max_bytes": est.max as u64, "estimate_sel128_bytes": est.sel128 as u64,
-            "estimate_fixed_bytes": est.fixed as u64, "estimate_model_bytes": est.model as u64,
-            "estimate_decide_bytes": est.decide as u64,
+            "estimate_max_bytes": estimate_bytes(est.max), "estimate_sel128_bytes": estimate_bytes(est.sel128),
+            "estimate_fixed_bytes": estimate_bytes(est.fixed), "estimate_model_bytes": estimate_bytes(est.model),
+            "estimate_decide_bytes": estimate_bytes(est.decide),
         }),
         phase.fields(),
     ));
@@ -425,7 +479,7 @@ fn main() {
     if est.max > (cap / 2) as u128 {
         emit(json!({
             "kind": "refusal", "case": id, "reason": "estimate_exceeds_half_cap",
-            "estimate_max_bytes": est.max as u64, "half_cap_bytes": cap / 2,
+            "estimate_max_bytes": estimate_bytes(est.max), "half_cap_bytes": cap / 2,
         }));
         std::process::exit(3);
     }

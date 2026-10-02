@@ -1,0 +1,13 @@
+{
+  "added_local_packages": [
+    "open_pipe_stress_curved_bend",
+    "open_pipe_stress_linear_supports",
+    "open_pipe_stress_nonlinear_integration",
+    "open_pipe_stress_nonlinear_supports",
+    "open_pipe_stress_primitive_loads",
+    "open_pipe_stress_solver_diagnostics",
+    "open_pipe_stress_solver_performance_harness"
+  ],
+  "registry_packages_unchanged": true,
+  "method": "one offline materialization, then every later cargo call used --locked; registry package blocks compared byte for byte"
+}

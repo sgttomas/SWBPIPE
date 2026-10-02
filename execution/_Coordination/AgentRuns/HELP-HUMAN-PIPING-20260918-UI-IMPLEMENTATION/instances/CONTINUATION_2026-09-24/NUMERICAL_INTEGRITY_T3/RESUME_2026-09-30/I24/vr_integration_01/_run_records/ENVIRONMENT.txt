@@ -1,0 +1,15 @@
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+binary: rustc
+commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452
+commit-date: 2026-07-14
+host: aarch64-apple-darwin
+release: 1.97.1
+LLVM version: 22.1.6
+
+CARGO_NET_OFFLINE=true
+CARGO_INCREMENTAL=0
+RUSTUP_AUTO_INSTALL=0
+-j4
+--test-threads=2
+CARGO_TARGET_DIR=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-vr-integration-target
+Existing M5 guard PID 5387 was live; no installs/configuration changes.

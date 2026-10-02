@@ -168,27 +168,46 @@ pub fn extra_model_ids() -> Vec<String> {
 
 /// Builds a model by id.
 pub fn model(id: &str) -> Result<K6Model, String> {
+    model_described(id).map(|(model, _)| model)
+}
+
+/// Construction provenance from the branch that actually created the model.
+/// Kept separately so model/element representation and allocation remain unchanged.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ModelOrigin(pub(crate) ModelRecipe);
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ModelRecipe {
+    Builder,
+    Fixture,
+    Canonical,
+}
+
+pub fn model_described(id: &str) -> Result<(K6Model, ModelOrigin), String> {
     if let Some(rest) = id.strip_prefix("RF-LARGE-") {
-        return rf_large(id, rest);
+        return rf_large(id, rest).map(|m| (m, ModelOrigin(ModelRecipe::Builder)));
     }
     if let Some(fixture_id) = id.strip_prefix("DEC053:") {
         for spec in crate::sparse_default_promotion_fixture_specs() {
             let fixture = spec.fixture().map_err(|e| format!("{e:?}"))?;
             if fixture.fixture_id == fixture_id {
-                return from_fixture(id, &format!("dec053:{fixture_id}"), Family::Dec053, fixture);
+                return from_fixture(id, &format!("dec053:{fixture_id}"), Family::Dec053, fixture)
+                    .map(|m| (m, ModelOrigin(ModelRecipe::Fixture)));
             }
         }
         return Err(format!("unknown DEC-053 fixture: {fixture_id}"));
     }
     if id == format!("K6-CEIL-CHAIN-n{CEILING_CHAIN_MEMBERS:05}-AX") {
         let (s, s2) = chain_exponents(CEILING_CHAIN_MEMBERS).ok_or("no chain exponents")?;
-        return Ok(chain(
-            id,
-            "k6-invented:rf-large-chain-rule",
-            CEILING_CHAIN_MEMBERS,
-            false,
-            s,
-            s2,
+        return Ok((
+            chain(
+                id,
+                "k6-invented:rf-large-chain-rule",
+                CEILING_CHAIN_MEMBERS,
+                false,
+                s,
+                s2,
+            ),
+            ModelOrigin(ModelRecipe::Builder),
         ));
     }
     if let Some(rest) = id.strip_prefix("K6-GRID-") {
@@ -204,7 +223,8 @@ pub fn model(id: &str) -> Result<K6Model, String> {
             "k6-invented:invented_grid_frame_fixture",
             Family::Grid,
             fixture,
-        );
+        )
+        .map(|m| (m, ModelOrigin(ModelRecipe::Fixture)));
     }
     Err(format!("unknown model id: {id}"))
 }

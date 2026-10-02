@@ -1,0 +1,82 @@
+[
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_10/H_ENVELOPE.md",
+    "sha256": "df2bbc47b46c188ab74bd475888df873f6f859b28fcc038c3be430d5bb78ac8a",
+    "consultation": "Document/source mapping"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/FORMULAS.md",
+    "sha256": "51fc5a84991d1e31eeed4ab67e4680b218b37db5b1ce6b3b90225dccb865410d",
+    "consultation": "Document/source mapping"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/PHASES.json",
+    "sha256": "d1cd9a1f755fac28ebd8194501daa69c06ac463daa6c456309db8a9f8df9b956",
+    "consultation": "Historical source/calculator was read as data, not executed; selected scalar projections used for literal fixtures."
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/LAUNCH_BINDING.json",
+    "sha256": "8884c00228894b8c1539018ab0c9a8a71f2568c55adb27d47970391df752d364",
+    "consultation": "Historical source/calculator was read as data, not executed; selected scalar projections used for literal fixtures."
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/_run_records/NUMERIC_ARITHMETIC.py",
+    "sha256": "fd435d89ffd7a02adf396b73fc32b6954c908015c48edec95d5b69b36b13f4b2",
+    "consultation": "Historical source/calculator was read as data, not executed; selected scalar projections used for literal fixtures."
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/api_compatibility_21/COMPATIBILITY.md",
+    "sha256": "cd90f3305eb48a690af7d3528b632bb5423578650c2bd6fbdb8695f6faf84825",
+    "consultation": "Document/source mapping"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_13_api_contract/CONTRACT.md",
+    "sha256": "e314e8b259da7e08c448b643b8c9d6777a13072bd693a30e7eba10b87c5db3b9",
+    "consultation": "Document/source mapping"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_16_context_translation/PLAN.md",
+    "sha256": "5255c3fc060f063edbd7e69d91f0f7129efc205366ca27ffc3dceac32d59c50a",
+    "consultation": "Document/source mapping"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/_run_records/h_context_01/RETURN.md",
+    "sha256": "3d1267b2a10d1b08ee337b350508484a73ce4cc1ec95d88e2726d69277ff8f99",
+    "consultation": "Document/source mapping"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/_run_records/h_context_01/REVIEW.md",
+    "sha256": "8e0280f09edbc96e4e7b4082998870d8de48488e78478c18892299993048795f",
+    "consultation": "Document/source mapping"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/_run_records/h_context_01/ROOT_CLARIFICATION.md",
+    "sha256": "ac1d128433d25b78f01ed154492d290abb99e9fd71fcdd60efe67d5f0932b10e",
+    "consultation": "Document/source mapping"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_numeric_23/RETURN.md",
+    "sha256": "fc111c798cfa768a586372cd740279cef6ff96eafcb89f8469caf0eec14e710e",
+    "consultation": "Document/source mapping"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md",
+    "sha256": "d0ae59f52fc5812b50350a8ea7b9736b5d3d61c4deecb4f1b936ec0c5a2c0b7f",
+    "consultation": "C-N1/inside-solve search excerpts only; other historical grants not activated"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REVIEW/K6B_REVIEW.md",
+    "sha256": "4170fda20a3d101cb79a0218b079c865b3c2ae411c5b2b9bc0b2379d5a67b328",
+    "consultation": "C-N1/inside-solve search excerpts only; other historical grants not activated"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+    "sha256": "7c712bb577f6b34869039e23ddf3a27678ff9663a78341ced1b0dc7b4775bdaf",
+    "consultation": "C-N1/inside-solve search excerpts only; other historical grants not activated"
+  },
+  {
+    "origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/chirality-change/SKILL.md",
+    "sha256": "1a2b056263ec77e4104efdf99afe3fe76dda792334a243fb2f21c60bc9c81450",
+    "consultation": "Reused selected skill loaded in the preceding continuation; no Git/index authority inferred over the task prohibition"
+  }
+]

@@ -1,0 +1,91 @@
+{
+  "binary": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-vr-integration-target/debug/examples/vk_scale",
+  "binary_sha256": "17391c54dd52b01966210c68bc5dd84d76da8e57e8d96b31b07a5da193294ebf",
+  "external_input_sha256": "f05afa36126c1adfb2d61f35bd99e98e845ca3727b2bebf34573e116815b49a8",
+  "functional_checks_only": true,
+  "commands": [
+    {
+      "name": "counts",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-vr-integration-target/debug/examples/vk_scale",
+        "--case",
+        "RF-LARGE-CHAIN-n00010-AX",
+        "--heap-cap-bytes",
+        "536870912",
+        "--counts-only"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+      "returncode": 0,
+      "kinds": [
+        "start",
+        "counts",
+        "summary"
+      ]
+    },
+    {
+      "name": "normal",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-vr-integration-target/debug/examples/vk_scale",
+        "--case",
+        "RF-LARGE-CHAIN-n00010-AX",
+        "--heap-cap-bytes",
+        "8053063680"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+      "returncode": 0,
+      "kinds": [
+        "start",
+        "counts",
+        "w1",
+        "report",
+        "record",
+        "rcm",
+        "binary64",
+        "summary"
+      ]
+    },
+    {
+      "name": "duplicates_changed_external",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-vr-integration-target/debug/examples/vk_scale",
+        "--case",
+        "overwritten",
+        "--case",
+        "RF-LARGE-CHAIN-n01000-AX",
+        "--model-file",
+        "overwritten-path",
+        "--model-file",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I24/vr_integration_01/_run_records/changed_model_path_for_context_capture_and_duplicate_arguments/RF-LARGE-CHAIN-n01000-AX.json",
+        "--heap-cap-bytes",
+        "123",
+        "--heap-cap-bytes",
+        "536870912",
+        "--counts-only"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+      "returncode": 0,
+      "kinds": [
+        "start",
+        "counts",
+        "summary"
+      ]
+    },
+    {
+      "name": "half_cap",
+      "argv": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-vr-integration-target/debug/examples/vk_scale",
+        "--case",
+        "RF-LARGE-CHAIN-n00010-AX",
+        "--heap-cap-bytes",
+        "30000000"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+      "returncode": 3,
+      "kinds": [
+        "start",
+        "counts",
+        "refusal"
+      ]
+    }
+  ]
+}

@@ -221,6 +221,10 @@ pub fn parse_model(m: &Value) -> Model {
 }
 
 pub fn parse_case(line: &str) -> Case {
+    parse_case_capture(line, None)
+}
+
+fn parse_case_capture(line: &str, facts: Option<&mut crate::envelope::FamilyInputFacts>) -> Case {
     let v: Value = serde_json::from_str(line).expect("case JSON");
     let rows = v["rows"]
         .as_array()
@@ -258,7 +262,7 @@ pub fn parse_case(line: &str) -> Case {
             .map(|o| o.iter().map(|(k, v)| (k.clone(), text(v))).collect())
             .unwrap_or_default()
     };
-    Case {
+    let case = Case {
         id: text(&v["id"]),
         family: text(&v["family"]),
         basis: text(&v["basis"]),
@@ -278,7 +282,11 @@ pub fn parse_case(line: &str) -> Case {
             .map(text)
             .collect(),
         s_full: v.get("s_full").map(strings),
+    };
+    if let Some(facts) = facts {
+        facts.observe(&v, &case);
     }
+    case
 }
 
 pub fn load_file(path: &Path) -> Vec<Case> {
@@ -303,6 +311,41 @@ pub fn load_all() -> Vec<Case> {
         .iter()
         .flat_map(|(_, f)| load_file(&cases_dir().join(f)))
         .collect()
+}
+
+/// Described loader: original Case iterator/collect, separate inline history.
+pub fn load_file_described(path: &Path) -> (Vec<Case>, crate::envelope::FamilyInputFacts) {
+    let text = std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    let mut facts =
+        crate::envelope::FamilyInputFacts::begin(&text, path.file_name().unwrap().len());
+    let cases = text
+        .lines()
+        .filter(|l| !l.is_empty())
+        .map(|line| parse_case_capture(line, Some(&mut facts)))
+        .collect();
+    (cases, facts)
+}
+
+pub fn load_family_described(family: &str) -> (Vec<Case>, crate::envelope::FamilyInputFacts) {
+    let (_, file) = FAMILY_FILES
+        .iter()
+        .find(|(f, _)| *f == family)
+        .unwrap_or_else(|| panic!("{family}"));
+    load_file_described(&cases_dir().join(file))
+}
+
+pub fn load_all_described() -> (Vec<Case>, [crate::envelope::FamilyInputFacts; 10]) {
+    let mut facts = [crate::envelope::FamilyInputFacts::default(); 10];
+    let cases = FAMILY_FILES
+        .iter()
+        .enumerate()
+        .flat_map(|(i, (_, file))| {
+            let (cases, description) = load_file_described(&cases_dir().join(file));
+            facts[i] = description;
+            cases
+        })
+        .collect();
+    (cases, facts)
 }
 
 /// The committed expected-unresolved list (`cases/expected_unresolved.json`;
@@ -332,6 +375,17 @@ pub fn load_large_model(path: &Path) -> (Model, String) {
     let text = std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
     let v: Value = serde_json::from_str(&text).expect("model JSON");
     (parse_model(&v), crate::sha256::sha256_hex(text.as_bytes()))
+}
+
+/// Same read/parse/model/hash evaluation and drops, with inline source facts.
+pub fn load_large_model_described(
+    path: &Path,
+) -> (Model, String, crate::envelope::ExternalModelFacts) {
+    let text = std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    let v: Value = serde_json::from_str(&text).expect("model JSON");
+    let model = parse_model(&v);
+    let facts = crate::envelope::ExternalModelFacts::capture(&text, &v, &model);
+    (model, crate::sha256::sha256_hex(text.as_bytes()), facts)
 }
 
 /// The kernel quantity an R1 key is compared with (plan §4.2).

@@ -16,5 +16,6 @@
 pub mod adapter;
 pub mod counts;
 pub mod envelope;
+pub mod h_envelope;
 pub mod rows;
 pub mod staged;

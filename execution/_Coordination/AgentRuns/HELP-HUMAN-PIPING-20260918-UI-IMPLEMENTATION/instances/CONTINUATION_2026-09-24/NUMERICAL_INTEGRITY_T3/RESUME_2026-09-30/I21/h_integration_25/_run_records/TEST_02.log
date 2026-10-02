@@ -1,0 +1,56 @@
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness)
+    Finished `release` profile [optimized] target(s) in 0.94s
+     Running tests/k6b_bin.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-h-integration-target/release/deps/k6b_bin-f85720de2d516dc5)
+
+running 3 tests
+test emit_source_prints_the_adapters_encoding ... ok
+test w1a_admission_and_counts_file ... ok
+test w1a_prints_its_lines_and_every_parity_holds ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+
+     Running tests/k6b_w1.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-h-integration-target/release/deps/k6b_w1-cc703946a964bb8d)
+
+running 15 tests
+test a_build_that_stops_partway_is_checked_against_its_charged_total ... ok
+test a_stop_in_the_stop_rule_is_held_to_equality ... ok
+test every_stopped_build_leaves_nothing_unstaged ... ok
+test prefixes_stop_on_the_case_budget_after_each_segment ... ok
+test r1_large_txt_is_the_pinned_file ... ok
+test outcomes_publications_evidence_and_work_are_deterministic ... ok
+test r1_predicate_and_counts_at_100_members_chain ... ok
+test r1_predicate_and_counts_at_100_members_cont ... ok
+test r1_predicate_and_counts_at_10_members ... ok
+test the_committed_counts_carry_this_codes_estimate ... ok
+test the_estimate_equals_a_hand_derivation ... ok
+test the_solve_and_pass_terms_bind_on_the_large_models ... ok
+test the_staged_solve_equals_k4s_own_entries ... ok
+test work_by_precision_files_each_attempt_under_its_own_precision ... ok
+test r1_predicate_and_counts_at_100_members_tree ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s
+
+     Running tests/k6c_envelope.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-h-integration-target/release/deps/k6c_envelope-034a985cc2519b0e)
+
+running 9 tests
+test cancellation_keeps_all_loads_and_non_power_of_two_body_capacity ... ok
+test axis_spring_reference_and_owner_phase_regressions ... ok
+test count_and_encoding_overflow_fail_closed ... ok
+test directional_operators_are_distinct_from_axis_springs ... ok
+test five_body_upper_preserves_resolution_move_and_report_aliases ... ok
+test h_and_vr_construction_classes_and_tagged_population_policy ... ok
+test maximum_id_length_must_fit_the_retained_nonempty_ids ... ok
+test missing_invalid_and_unproved_inputs_return_errors_not_totals ... ok
+test reference_request_width_failure_returns_no_envelope ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/k6c_h_envelope.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-h-integration-target/release/deps/k6c_h_envelope-c4ae8c5e198e1c5c)
+
+running 3 tests
+test actual_arguments_and_repeat_digits_are_bound_without_reference_substitution ... ok
+test refused_raw_source_never_uses_successful_count_identities ... ok
+test constructor_origin_is_captured_on_real_routes_and_keeps_models_identical ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

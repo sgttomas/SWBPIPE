@@ -26,7 +26,11 @@ use open_pipe_stress_solver_performance_harness::k6::models::model;
 use open_pipe_stress_solver_performance_harness::k6::staged::{NoObserver, Stage};
 use open_pipe_stress_solver_performance_harness::k6::w1::adapter::source;
 use open_pipe_stress_solver_performance_harness::k6::w1::counts::{
-    compute, estimate, limbs_per_entry, W1Counts, W1SizeFacts,
+    compute, limbs_per_entry, W1Counts, W1Estimate,
+};
+use open_pipe_stress_solver_performance_harness::k6::w1::envelope::{KernelPhase, PhaseId};
+use open_pipe_stress_solver_performance_harness::k6::w1::h_envelope::{
+    original_k6b_pair, HComposedEstimate, ReferenceHProfile,
 };
 use open_pipe_stress_solver_performance_harness::k6::w1::rows::{r1_passes, r1_values};
 use open_pipe_stress_solver_performance_harness::k6::w1::staged::{
@@ -364,6 +368,43 @@ fn every_stopped_build_leaves_nothing_unstaged() {
     assert!(stopped_builds > 0);
 }
 
+/// RV22 C-N1: stop after the 128 shared build, ten LME into the own solve.
+/// KF3 records partial own work exactly; "short" here means less work than
+/// the completed own solve, never permission for an unrecorded stage remainder.
+#[test]
+fn into_solve_128_records_partial_own_work_and_complete_shared_work() {
+    let id = "RF-LARGE-CHAIN-n00010-AX";
+    let full = run(id, W1Limits::default());
+    let original = &attempts_of(&full.outcome)[0];
+    let stopped = run(
+        id,
+        W1Limits {
+            case: shared_total(original) + 10,
+            invocation: u64::MAX,
+        },
+    );
+    assert!(matches!(
+        stopped.outcome,
+        CaseOutcome::Unresolved {
+            reason: UnresolvedReason::Budget(BudgetScope::Case),
+            ..
+        }
+    ));
+    let attempts = attempts_of(&stopped.outcome);
+    assert_eq!(attempts.len(), 1);
+    let a = &attempts[0];
+    assert_eq!(a.precision, 128);
+    assert_eq!(shared_total(a), shared_total(original));
+    assert!(own_total(a) > 0 && own_total(a) < own_total(original));
+    assert_eq!(unstaged(a), (0, 0));
+    assert!(stages_equal_totals(attempts));
+    assert!(work_closes(attempts, stopped.charged));
+    assert!(a.stages.rhs > 0);
+    let mut under = attempts.to_vec();
+    under[0].stages.rhs -= 1;
+    assert!(!stages_equal_totals(&under));
+}
+
 /// RV22-1: a candidate stopped in its stop rule (a case limit at the end of
 /// the 256 verification) had every build complete, and K4 files the stop
 /// rule's partial work in its stages. So it is held to equality: RV22's probe,
@@ -463,219 +504,621 @@ fn prefixes_stop_on_the_case_budget_after_each_segment() {
     assert!(!prefix_matches(1, &full_attempts, &full.outcome));
 }
 
-/// The W1 estimate derived by hand from the counts, term by term (plan §3.5;
-/// KF1's bounds; ROOT's ruling on RV22-2), with the phase that sets E_max and
-/// E_sel128. Every constant is written out here, independently of
-/// `counts.rs`.
-struct Hand {
-    fixed: u128,
-    shared: [u128; 4],
-    state: [u128; 4],
-    solve: [u128; 4],
-    verify: [u128; 3],
-    pass: [u128; 3],
-    decide: u128,
-    max: u128,
-    sel128: u128,
-    max_at: String,
-    sel_at: String,
+// Independent source-reviewed H19/RV30 numeric fixtures. All fields are literal
+// outputs of the accepted equations; no duplicate estimator or evidence reader.
+fn hand(id: &str) -> (W1Estimate, PhaseId) {
+    match id {
+        "RF-LARGE-CHAIN-n00010-AX" => (
+            W1Estimate {
+                fixed: 87693,
+                shared: [223968, 261328, 445104, 663408],
+                state: [18776, 18776, 31224, 56120],
+                verify: [169536, 297568, 369312],
+                solve: [1910144, 1945856, 2032960, 2064320],
+                pass: [157254, 256966, 456390],
+                decide: 19888711,
+                max: 22744300,
+                sel128: 20739628,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CHAIN-n00010-ROT" => (
+            W1Estimate {
+                fixed: 87696,
+                shared: [223968, 261328, 445104, 663408],
+                state: [18776, 18776, 31224, 56120],
+                verify: [169536, 297568, 369312],
+                solve: [1910144, 1945856, 2032960, 2064320],
+                pass: [157254, 256966, 456390],
+                decide: 19888711,
+                max: 22744303,
+                sel128: 20739631,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CHAIN-n00100-AX" => (
+            W1Estimate {
+                fixed: 681261,
+                shared: [2217648, 2580448, 4397184, 6579648],
+                state: [178616, 178616, 297624, 535640],
+                verify: [1672896, 2941408, 3635232],
+                solve: [18667584, 19014336, 19875200, 20209920],
+                pass: [1580334, 2586286, 4598190],
+                decide: 20330161,
+                max: 48275158,
+                sel128: 28522486,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CHAIN-n00100-ROT" => (
+            W1Estimate {
+                fixed: 681264,
+                shared: [2217648, 2580448, 4397184, 6579648],
+                state: [178616, 178616, 297624, 535640],
+                verify: [1672896, 2941408, 3635232],
+                solve: [18667584, 19014336, 19875200, 20209920],
+                pass: [1580334, 2586286, 4598190],
+                decide: 20330161,
+                max: 48275161,
+                sel128: 28522489,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CHAIN-n01000-AX" => (
+            W1Estimate {
+                fixed: 6415541,
+                shared: [22154448, 25771648, 43917984, 65742048],
+                state: [1777016, 1777016, 2961624, 5330840],
+                verify: [16706496, 29379808, 36294432],
+                solve: [74014656, 77471808, 85992448, 89205120],
+                pass: [15694398, 25684926, 45665982],
+                decide: 25608917,
+                max: 347434501,
+                sel128: 152074133,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CHAIN-n01000-ROT" => (
+            W1Estimate {
+                fixed: 6415544,
+                shared: [22154448, 25771648, 43917984, 65742048],
+                state: [1777016, 1777016, 2961624, 5330840],
+                verify: [16706496, 29379808, 36294432],
+                solve: [74014656, 77471808, 85992448, 89205120],
+                pass: [15694398, 25684926, 45665982],
+                decide: 25608917,
+                max: 347434504,
+                sel128: 152074136,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CHAIN-n10000-AX" => (
+            W1Estimate {
+                fixed: 63701085,
+                shared: [221522448, 257683648, 439125984, 657366048],
+                state: [17761016, 17761016, 29601624, 53282840],
+                verify: [167042496, 293763808, 362886432],
+                solve: [534661824, 569222976, 653882624, 684957312],
+                pass: [156146910, 255524446, 454279518],
+                decide: 83516477,
+                max: 3266456237,
+                sel128: 1314694845,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CHAIN-n10000-ROT" => (
+            W1Estimate {
+                fixed: 63701088,
+                shared: [221522448, 257683648, 439125984, 657366048],
+                state: [17761016, 17761016, 29601624, 53282840],
+                verify: [167042496, 293763808, 362886432],
+                solve: [534661824, 569222976, 653882624, 684957312],
+                pass: [156146910, 255524446, 454279518],
+                decide: 83516477,
+                max: 3266456240,
+                sel128: 1314694848,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-TREE-n00010-AX" => (
+            W1Estimate {
+                fixed: 86162,
+                shared: [223968, 261328, 445104, 663408],
+                state: [18776, 18776, 31224, 56120],
+                verify: [169536, 297568, 369312],
+                solve: [1910144, 1945856, 2032960, 2064320],
+                pass: [157254, 256966, 456390],
+                decide: 19888711,
+                max: 22742769,
+                sel128: 20738097,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-TREE-n00010-ROT" => (
+            W1Estimate {
+                fixed: 92213,
+                shared: [223968, 261328, 445104, 663408],
+                state: [18776, 18776, 31224, 56120],
+                verify: [169536, 297568, 369312],
+                solve: [1910144, 1945856, 2032960, 2064320],
+                pass: [157254, 256966, 456390],
+                decide: 19888711,
+                max: 22748820,
+                sel128: 20744148,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-TREE-n00100-AX" => (
+            W1Estimate {
+                fixed: 709388,
+                shared: [2217648, 2580448, 4397184, 6579648],
+                state: [178616, 178616, 297624, 535640],
+                verify: [1672896, 2941408, 3635232],
+                solve: [18667584, 19014336, 19875200, 20209920],
+                pass: [1580334, 2586286, 4598190],
+                decide: 20330161,
+                max: 48303285,
+                sel128: 28550613,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-TREE-n00100-ROT" => (
+            W1Estimate {
+                fixed: 775775,
+                shared: [2217648, 2580448, 4397184, 6579648],
+                state: [178616, 178616, 297624, 535640],
+                verify: [1672896, 2941408, 3635232],
+                solve: [18667584, 19014336, 19875200, 20209920],
+                pass: [1580334, 2586286, 4598190],
+                decide: 20330161,
+                max: 48369672,
+                sel128: 28617000,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-TREE-n01000-AX" => (
+            W1Estimate {
+                fixed: 6736336,
+                shared: [22154448, 25771648, 43917984, 65742048],
+                state: [1777016, 1777016, 2961624, 5330840],
+                verify: [16706496, 29379808, 36294432],
+                solve: [74014656, 77471808, 85992448, 89205120],
+                pass: [15694398, 25684926, 45665982],
+                decide: 25608917,
+                max: 347755296,
+                sel128: 152394928,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-TREE-n01000-ROT" => (
+            W1Estimate {
+                fixed: 7395287,
+                shared: [22154448, 25771648, 43917984, 65742048],
+                state: [1777016, 1777016, 2961624, 5330840],
+                verify: [16706496, 29379808, 36294432],
+                solve: [74014656, 77471808, 85992448, 89205120],
+                pass: [15694398, 25684926, 45665982],
+                decide: 25608917,
+                max: 348414247,
+                sel128: 153053879,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-TREE-n10000-AX" => (
+            W1Estimate {
+                fixed: 67025226,
+                shared: [221522448, 257683648, 439125984, 657366048],
+                state: [17761016, 17761016, 29601624, 53282840],
+                verify: [167042496, 293763808, 362886432],
+                solve: [534661824, 569222976, 653882624, 684957312],
+                pass: [156146910, 255524446, 454279518],
+                decide: 83516477,
+                max: 3269780378,
+                sel128: 1318018986,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-TREE-n10000-ROT" => (
+            W1Estimate {
+                fixed: 73551665,
+                shared: [221522448, 257683648, 439125984, 657366048],
+                state: [17761016, 17761016, 29601624, 53282840],
+                verify: [167042496, 293763808, 362886432],
+                solve: [534661824, 569222976, 653882624, 684957312],
+                pass: [156146910, 255524446, 454279518],
+                decide: 83516477,
+                max: 3276306817,
+                sel128: 1324545425,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CONT-n00010-AX" => (
+            W1Estimate {
+                fixed: 89630,
+                shared: [210312, 247672, 422904, 624120],
+                state: [19496, 19496, 32424, 58280],
+                verify: [169536, 297568, 369312],
+                solve: [1899584, 1935296, 2019520, 2045120],
+                pass: [128442, 209626, 371994],
+                decide: 19892326,
+                max: 22674492,
+                sel128: 20722188,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CONT-n00010-ROT" => (
+            W1Estimate {
+                fixed: 94885,
+                shared: [210312, 247672, 422904, 624120],
+                state: [19496, 19496, 32424, 58280],
+                verify: [169536, 297568, 369312],
+                solve: [1899584, 1935296, 2019520, 2045120],
+                pass: [128442, 209626, 371994],
+                decide: 19892326,
+                max: 22679747,
+                sel128: 20727443,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CONT-n00100-AX" => (
+            W1Estimate {
+                fixed: 741181,
+                shared: [2073312, 2436112, 4162224, 6163440],
+                state: [185816, 185816, 309624, 557240],
+                verify: [1672896, 2941408, 3635232],
+                solve: [15231936, 15578688, 16394368, 16638720],
+                pass: [1252086, 2046006, 3633846],
+                decide: 20366311,
+                max: 47492060,
+                sel128: 28348508,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CONT-n00100-ROT" => (
+            W1Estimate {
+                fixed: 781719,
+                shared: [2073312, 2436112, 4162224, 6163440],
+                state: [185816, 185816, 309624, 557240],
+                verify: [1672896, 2941408, 3635232],
+                solve: [15231936, 15578688, 16394368, 16638720],
+                pass: [1252086, 2046006, 3633846],
+                decide: 20366311,
+                max: 47532598,
+                sel128: 28389046,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CONT-n01000-AX" => (
+            W1Estimate {
+                fixed: 7095484,
+                shared: [20703312, 24320512, 41555424, 61556640],
+                state: [1849016, 1849016, 3081624, 5546840],
+                verify: [16706496, 29379808, 36294432],
+                solve: [72958656, 76415808, 84648448, 87285120],
+                pass: [12642126, 20665806, 36713166],
+                decide: 25970417,
+                max: 337224204,
+                sel128: 148939804,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CONT-n01000-ROT" => (
+            W1Estimate {
+                fixed: 7508841,
+                shared: [20703312, 24320512, 41555424, 61556640],
+                state: [1849016, 1849016, 3081624, 5546840],
+                verify: [16706496, 29379808, 36294432],
+                solve: [72958656, 76415808, 84648448, 87285120],
+                pass: [12642126, 20665806, 36713166],
+                decide: 25970417,
+                max: 337637561,
+                sel128: 149353161,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CONT-n10000-AX" => (
+            W1Estimate {
+                fixed: 75890191,
+                shared: [207003312, 243164512, 415487424, 615488640],
+                state: [18481016, 18481016, 30801624, 55442840],
+                verify: [167042496, 293763808, 362886432],
+                solve: [524101824, 558662976, 640442624, 665757312],
+                pass: [125608638, 205307326, 364704702],
+                decide: 102860117,
+                max: 3169691103,
+                sel128: 1288725679,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "RF-LARGE-CONT-n10000-ROT" => (
+            W1Estimate {
+                fixed: 80006511,
+                shared: [207003312, 243164512, 415487424, 615488640],
+                state: [18481016, 18481016, 30801624, 55442840],
+                verify: [167042496, 293763808, 362886432],
+                solve: [524101824, 558662976, 640442624, 665757312],
+                pass: [125608638, 205307326, 364704702],
+                decide: 102860117,
+                max: 3173807423,
+                sel128: 1292841999,
+            },
+            PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(1024),
+            },
+        ),
+        "DEC053:invented-cantilever-chain-8" => (
+            W1Estimate {
+                fixed: 66872,
+                shared: [179664, 209792, 357280, 531936],
+                state: [15224, 15224, 25304, 45464],
+                verify: [136128, 238816, 296736],
+                solve: [1890752, 1919552, 1990144, 2016128],
+                pass: [126654, 206910, 367422],
+                decide: 19878901,
+                max: 22172389,
+                sel128: 20560069,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "DEC053:invented-cantilever-chain-24" => (
+            W1Estimate {
+                fixed: 175617,
+                shared: [534096, 622080, 1059872, 1583712],
+                state: [43640, 43640, 72664, 130712],
+                verify: [403392, 708832, 877344],
+                solve: [7426496, 7510592, 7719424, 7800704],
+                pass: [380670, 622718, 1106814],
+                decide: 19957381,
+                max: 26717502,
+                sel128: 21947934,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "DEC053:invented-cantilever-chain-48" => (
+            W1Estimate {
+                fixed: 335745,
+                shared: [1065744, 1240512, 2113760, 3161376],
+                state: [86264, 86264, 143704, 258584],
+                verify: [804288, 1413856, 1748256],
+                solve: [14833344, 15000384, 15415552, 15577728],
+                pass: [760158, 1243870, 2211294],
+                decide: 20075101,
+                max: 33527574,
+                sel128: 24025206,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "DEC053:invented-grid-frame-4x3" => (
+            W1Estimate {
+                fixed: 114584,
+                shared: [335832, 391592, 668680, 1000008],
+                state: [28328, 28328, 47144, 84776],
+                verify: [276096, 485920, 592224],
+                solve: [1927904, 1980896, 2100448, 2127584],
+                pass: [192066, 315330, 561858],
+                decide: 19923982,
+                max: 24297262,
+                sel128: 21205246,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "DEC053:invented-grid-frame-6x8" => (
+            W1Estimate {
+                fixed: 465109,
+                shared: [1811232, 2068624, 3522288, 5400240],
+                state: [126248, 126248, 210344, 378536],
+                verify: [1311744, 2311840, 2800608],
+                solve: [7749344, 7993568, 8547808, 8679392],
+                pass: [1342530, 2216322, 3963906],
+                decide: 20229256,
+                max: 42171589,
+                sel128: 26608133,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "DEC053:invented-grid-frame-7x8" => (
+            W1Estimate {
+                fixed: 577485,
+                shared: [2171352, 2474920, 4213032, 6475176],
+                state: [148808, 148808, 247944, 446216],
+                verify: [1550208, 2732320, 3308640],
+                solve: [15021024, 15309024, 15968608, 16135776],
+                pass: [1657962, 2738538, 4899690],
+                decide: 20300308,
+                max: 46486441,
+                sel128: 27935545,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "DEC053:invented-grid-frame-5x5" => (
+            W1Estimate {
+                fixed: 238253,
+                shared: [839760, 967168, 1648800, 2502624],
+                state: [63224, 63224, 105304, 189464],
+                verify: [643008, 1132768, 1375008],
+                solve: [3877824, 3998784, 4272640, 4336512],
+                pass: [561822, 925726, 1653534],
+                decide: 20032573,
+                max: 30508450,
+                sel128: 23082882,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "DEC053:invented-cantilever-chain-32" => (
+            W1Estimate {
+                fixed: 221057,
+                shared: [711312, 828224, 1411168, 2109600],
+                state: [57848, 57848, 96344, 173336],
+                verify: [537024, 943840, 1167648],
+                solve: [7504064, 7615808, 7890688, 7993472],
+                pass: [503070, 822942, 1462686],
+                decide: 19996621,
+                max: 28967302,
+                sel128: 22628326,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        "DEC053:invented-grid-frame-5x6" => (
+            W1Estimate {
+                fixed: 301501,
+                shared: [1045272, 1200616, 2045928, 3115368],
+                state: [76712, 76712, 127784, 229928],
+                verify: [786432, 1385632, 1680864],
+                solve: [7527200, 7674656, 8012320, 8097824],
+                pass: [728562, 1201266, 2146674],
+                decide: 20074450,
+                max: 33019063,
+                sel128: 23852231,
+            },
+            PhaseId {
+                phase: KernelPhase::StopRule,
+                precision: Some(1024),
+            },
+        ),
+        _ => panic!("no reviewed reference fixture for {id}"),
+    }
+}
+fn assert_estimate_is_hand(c: &W1Counts, id: &str) -> HComposedEstimate {
+    let e =
+        original_k6b_pair(id, c, &ReferenceHProfile::source40129_rust1971_aarch64_v1()).unwrap();
+    let (expected, phase) = hand(id);
+    assert_eq!(e.legacy, expected, "every corrected field: {id}");
+    assert_eq!(e.dominant_kernel, Some(phase), "phase owner: {id}");
+    e
 }
 
-fn hand(c: &W1Counts, s: &W1SizeFacts) -> Hand {
-    let z = |x: usize| x as u128;
-    let (m, n, nf, nnz) = (
-        z(c.members),
-        z(c.dofs),
-        z(c.free_dofs),
-        z(c.pattern_entries),
-    );
-    let (p, b, rows) = (z(c.profile_entries), z(c.blocks.max(1)), z(c.rows));
-    let (nodes, r, loads, stations, enc) = (
-        z(c.nodes),
-        z(c.constraints),
-        z(c.loads),
-        z(c.stations),
-        z(c.source_encoding_len),
-    );
-    let w = |l: u128| 8 * l + 16;
-    let harness = nodes * 64 + m * 80 + loads * 16 + m * z(s.frame_element);
-    let src = 24 * nodes
-        + m * z(s.straight_member)
-        + r * z(s.constraint)
-        + loads * (z(s.nodal_load) + 16)
-        + stations * z(s.station)
-        + 16 * n
-        + 4 * nodes;
-    let case = loads * 64 + r * 48 + enc + rows * z(s.quantity_meta) + 8 * z(c.bodies);
-    let group =
-        8 * (n + 1) + 16 * nnz + 8 * (nnz + 1) + m * 78 * 8 + 32 * nf + 8 * n + 12 * nf + 24 * b;
-    let fixed = harness + 2 * src + case + group;
-    let shared = |l: u128, r: u128| {
-        m * (164 * w(l) + 16)
-            + nnz * (w(l) + w(r))
-            + m * (5 * w(r) + 8)
-            + p * w(l)
-            + nf * (2 * w(l) + 56)
-            + b * w(l)
-    };
-    let state = |l: u128| (n + 6 * m + rows) * w(l);
-    let verify = |l: u128, ww: u128| nnz * w(l) + m * 144 * w(ww) + b * (4 * w(l) + 8);
-    // KF1's bounds (KF1 RETURN addendum 2): a row is 4,304 B, a table entry
-    // 40 B; the stop rule peaks at G + T = 4,608 rows, the pivot margin's
-    // tracker at 768, a solve attempt's trackers at 2,816. Tables: 2 × their
-    // entries in place, plus one more entry per row for the one growing under
-    // the move model.
-    let row = 2 * 2144 + 16;
-    let decide = 4608 * row + (3 * 2 + 1) * rows * 40;
-    let pivot = 768 * row + (2 + 1) * nf * 40;
-    // The solve: 4 working vectors at R over n, the gate's rows, the trackers
-    // and tables; the fallback's u_free, 4 evaluated states and abar_q, then
-    // the larger of assemble_bounded's member blocks and (a state's copy of u
-    // with the row list: capacity C = 2^⌈log2 n_f⌉, C/2 + C rows at its last
-    // growth under the move model).
-    let mut cap = 1u128;
-    while cap < nf {
-        cap *= 2;
-    }
-    let row_list = if nf == 0 { 0 } else { cap + cap / 2 };
-    let solve = |l: u128, r: u128| {
-        4 * n * w(r)
-            + nf * (16 + w(l))
-            + 2816 * row
-            + (2 * 5 + 1) * nf * 40
-            + nf * w(l)
-            + 4 * (nf * w(l) + 24)
-            + nnz * w(r)
-            + (m * 144 * w(r)).max(n * w(l) + row_list * row)
-    };
-    // The verification pass: 3 n and 8 n_f values, recover's rows + 6m, 50 B
-    // per DOF and the prescribed terms, with either 3 row vectors and the
-    // shift's two profiles or all 5 row vectors.
-    let pass = |l: u128, ww: u128| {
-        let live =
-            3 * n * w(l) + 8 * nf * w(l) + (rows + 6 * m) * w(l) + 50 * n + r * (w(ww) + w(l));
-        let at_shift =
-            3 * rows * (w(l) + 8) + p * w(l) + 36 * nf + p * w(l) + nf * (32 + (w(l) + 8) + w(l));
-        live + at_shift.max(5 * rows * (w(l) + 8))
-    };
-    let build =
-        |l: u128, r: u128, same: bool| shared(l, r) + if same { 0 } else { m * (164 * w(r) + 16) };
-    let vbuild = |l: u128, ww: u128, same: bool| {
-        verify(l, ww)
-            + m * (5 * w(l) + 8)
-            + m * 144 * w(l)
-            + if same { 0 } else { m * (164 * w(ww) + 16) }
-    };
-    let report = |l: u128| 5 * rows * (w(l) + 8) + 2 * nf * w(l);
-    let end =
-        rows * (z(s.published_row) + 40) + enc + (n + 6 * m) * (9 + 128) + 8 * z(s.attempt_record);
-    let mut kept = fixed;
-    let mut peak = (fixed + m * 78 * 32, "group".to_string());
-    let mut sel = (0, String::new());
-    let up = |peak: &mut (u128, String), v: u128, at: String| {
-        if v > peak.0 {
-            *peak = (v, at);
-        }
-    };
-    // (p, L, R, shared build at R?, verification (L_P, W, member operators at W?))
-    let steps: [(u32, u128, u128, bool, Option<(u128, u128, bool)>); 4] = [
-        (128, 4, 4, false, None),
-        (256, 4, 8, false, Some((4, 8, false))),
-        (512, 8, 16, false, Some((8, 16, false))),
-        (1024, 16, 16, true, Some((16, 16, true))),
-    ];
-    for (pr, l, r, same, v) in steps {
-        up(
-            &mut peak,
-            kept + build(l, r, same) + pivot,
-            format!("build_{pr}"),
-        );
-        kept += shared(l, r);
-        up(
-            &mut peak,
-            kept + state(l) + solve(l, r),
-            format!("solve_{pr}"),
-        );
-        kept += state(l);
-        if let Some((vl, vw, vsame)) = v {
-            up(
-                &mut peak,
-                kept + vbuild(vl, vw, vsame),
-                format!("vbuild_{pr}"),
-            );
-            kept += verify(vl, vw);
-            up(&mut peak, kept + pass(vl, vw), format!("pass_{pr}"));
-            up(
-                &mut peak,
-                kept + report(vl) + decide,
-                format!("decide_{pr}"),
-            );
-            if pr == 256 {
-                sel = peak.clone();
-                up(&mut sel, kept + report(vl) + end, "end_128".to_string());
-            }
-        }
-    }
-    up(&mut peak, kept + report(16) + end, "end".to_string());
-    Hand {
-        fixed,
-        shared: [shared(4, 4), shared(4, 8), shared(8, 16), shared(16, 16)],
-        state: [state(4), state(4), state(8), state(16)],
-        solve: [solve(4, 4), solve(4, 8), solve(8, 16), solve(16, 16)],
-        verify: [verify(4, 8), verify(8, 16), verify(16, 16)],
-        pass: [pass(4, 8), pass(8, 16), pass(16, 16)],
-        decide,
-        max: peak.0,
-        sel128: sel.0,
-        max_at: peak.1,
-        sel_at: sel.1,
-    }
-}
-
-fn assert_estimate_is_hand(c: &W1Counts, id: &str) -> Hand {
-    let s = W1SizeFacts::of_this_build();
-    let (e, h) = (estimate(c, &s), hand(c, &s));
-    assert_eq!(e.fixed, h.fixed, "{id}");
-    assert_eq!(e.shared, h.shared, "{id}");
-    assert_eq!(e.state, h.state, "{id}");
-    assert_eq!(e.solve, h.solve, "{id}");
-    assert_eq!(e.verify, h.verify, "{id}");
-    assert_eq!(e.pass, h.pass, "{id}");
-    assert_eq!(e.decide, h.decide, "{id}");
-    assert_eq!(e.sel128, h.sel128, "{id}");
-    assert_eq!(e.max, h.max, "{id}");
-    h
-}
-
-/// The estimate by hand for RF-LARGE-CHAIN-n00010-AX, from its counts.
 #[test]
 fn the_estimate_equals_a_hand_derivation() {
     let m = model("RF-LARGE-CHAIN-n00010-AX").unwrap();
     let (c, _) = compute(&m);
-    let expected_counts = W1Counts {
-        source_ok: true,
-        nodes: 11,
-        members: 10,
-        stations: 10,
-        constraints: 6,
-        loads: 6,
-        dofs: 66,
-        free_dofs: 60,
-        bodies: 1,
-        pattern_entries: 1116,
-        profile_entries: 534,
-        half_bandwidth: 11,
-        blocks: 1,
-        rows: 263,
-        source_encoding_len: 1512,
-        source_encoding_fnv64: c.source_encoding_fnv64,
-    };
-    assert_eq!(c, expected_counts);
-    let h = assert_estimate_is_hand(&c, "RF-LARGE-CHAIN-n00010-AX");
-    // At 10 members the stop rule's tracker term sets both.
     assert_eq!(
-        (h.max_at.as_str(), h.sel_at.as_str()),
-        ("decide_1024", "decide_256")
+        [
+            c.nodes,
+            c.members,
+            c.stations,
+            c.constraints,
+            c.loads,
+            c.dofs,
+            c.free_dofs,
+            c.bodies,
+            c.pattern_entries,
+            c.profile_entries,
+            c.half_bandwidth,
+            c.blocks,
+            c.rows,
+            c.source_encoding_len
+        ],
+        [11, 10, 10, 6, 6, 66, 60, 1, 1116, 534, 11, 1, 263, 1512]
+    );
+    assert!(c.source_ok);
+    let e = assert_estimate_is_hand(&c, &m.id);
+    // Independent persistent owner arithmetic at p128: Arc, members, pattern,
+    // residual coefficients, skyline and per-free-row factor data, no b term.
+    assert_eq!(
+        e.legacy.shared[0],
+        720 + 10 * 7888 + 1116 * (48 + 48) + 10 * 248 + 534 * 48 + 60 * (48 + 104)
+    );
+    assert_eq!(e.legacy.state[0], 104 + (66 + 6 * 10 + 263) * 48);
+    assert_eq!(
+        e.dominant_kernel,
+        Some(PhaseId {
+            phase: KernelPhase::StopRule,
+            precision: Some(1024)
+        })
     );
 }
 
@@ -693,18 +1136,37 @@ fn number(line: &str, key: &str) -> u128 {
 }
 
 /// RV22-3: every committed counts line carries this code's E_max and
-/// E_sel128, so the runner's admission (from the file) and the binary's
-/// backstop (recomputed from the file's counts) use one figure.
+/// E_sel128 for the explicit immutable OriginalK6bPair. Actual runner/binary
+/// contexts rebind their paths and use one newly composed result per process.
 #[test]
 fn the_committed_counts_carry_this_codes_estimate() {
-    let s = W1SizeFacts::of_this_build();
     let mut lines = 0;
     for line in COUNTS.lines().filter(|l| !l.trim().is_empty()) {
         let (id, counts, _) = parse_counts_line(line).expect("a counts line");
         let w1 = counts.w1.expect("W1 counts");
-        let e = estimate(&w1, &s);
+        let e = assert_estimate_is_hand(&w1, &id).legacy;
         assert_eq!(e.max, number(line, "estimate_adm_bytes_w1a"), "{id}");
         assert_eq!(e.sel128, number(line, "estimate_w1_sel128_bytes"), "{id}");
+        assert_eq!(e.fixed, number(line, "estimate_w1_fixed_bytes"), "{id}");
+        assert_eq!(e.decide, number(line, "estimate_w1_decide_bytes"), "{id}");
+        for (name, values) in [("shared", e.shared), ("state", e.state), ("solve", e.solve)] {
+            for (p, value) in [128, 256, 512, 1024].into_iter().zip(values) {
+                assert_eq!(
+                    value,
+                    number(line, &format!("estimate_w1_{name}_{p}")),
+                    "{id}"
+                );
+            }
+        }
+        for (name, values) in [("verify", e.verify), ("pass", e.pass)] {
+            for (p, value) in [256, 512, 1024].into_iter().zip(values) {
+                assert_eq!(
+                    value,
+                    number(line, &format!("estimate_w1_{name}_{p}")),
+                    "{id}"
+                );
+            }
+        }
         lines += 1;
     }
     assert_eq!(lines, 33);
@@ -721,12 +1183,22 @@ fn the_solve_and_pass_terms_bind_on_the_large_models() {
             continue;
         }
         let h = assert_estimate_is_hand(&counts.w1.expect("W1 counts"), &id);
-        assert_eq!(h.sel_at, "solve_256", "{id}");
+        assert_eq!(
+            h.selected128_dominant_kernel,
+            Some(PhaseId {
+                phase: KernelPhase::Fallback,
+                precision: Some(256)
+            }),
+            "{id}"
+        );
         if id.contains("-n10000-") {
             assert!(
-                h.max_at.starts_with("solve_") || h.max_at.starts_with("pass_"),
+                matches!(
+                    h.dominant_kernel.unwrap().phase,
+                    KernelPhase::Fallback | KernelPhase::Shift
+                ),
                 "{id}: {}",
-                h.max_at
+                format!("{:?}", h.dominant_kernel)
             );
         }
     }
