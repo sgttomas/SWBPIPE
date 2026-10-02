@@ -4199,3 +4199,41 @@ archive-only kernel/H mutation assignment against908, with actual patches and
 NONE control under I21/kernel_mutants_26. No performance slot or final-bound
 acceptance follows from either assignment. Native tasks retain no Git/index
 write authority; ROOT integrates. A1 remains merged and its audit closure stands.
+
+
+## Owner pause after K6c runner closure and mutation stop (ROOT, 2026-10-02 UTC)
+
+The owner requested a graceful halt at the current convenient conclusion.
+All current bounded TASKs returned and stopped; no follow-on implementation,
+experiment or performance slot was granted. T3 is paused by owner direction,
+not complete. HANDOFF_2026-10-02_OWNER_PAUSE.md is the recovery entrypoint.
+
+ROOT read both complete same-reviewer backchecks and verified their payloads.
+Close RV33-H1 and RV32-V1 on10315a8167c47f43aa41402beb88ed2c70e62cf2:
+R/source_review_RV33/runner_backcheck_03 and
+R/design_review_RV32/_run_records/runner_backcheck_03. The latter was relocated
+intact into its raw evidence role; the navigation pointer and custody ledger
+preserve every sealed byte/mode. No numeric admission policy was weakened.
+Author system-Python use is disclosed; independent backchecks used the requested
+VENV. This closes the runner defects only, not complete K6c qualification.
+
+Preserve I21/kernel_mutants_26 as an incomplete required programme: its RETURN
+reports NONE passing, four numerical assertion kills and the real M05 Uc-overlap
+survivor. The archive is restored but its last compiled mutant binary remains
+diagnostic. Seven later kernel variants are unrun. No mutant survivor is waived.
+I24/vr_mutants_prep_03 is uncompiled/unexecuted preparation with two pending
+witness cells; I25/historical_replay_01 is a conditional author replay awaiting
+independent review and historical VR launch-gap disposition. Neither is accepted
+as complete E_max or a measurement/admission grant.
+
+The source/review/evidence checkpoint is K6C4be7239b9f356beee5c7e4ab2f689033fad30245;
+maintained source remains10315. ROOT verified the returned seals and preserved
+the requested interpreter note and all raw evidence. No target/baseline was
+pruned. A1 remains merged at3a0251874d6ab38008173a22ef09d651a0f20d9e, with the
+corrected retained-route AUD-T3-01 closure and broader F2a prerequisites distinct.
+
+ROOT also reconciled the graph's stale Current table cell with A1's already
+recorded merge and this pause; historical progression remains preserved. Resume
+only after owner direction, starting with the narrow M05 witness/test gap and
+then the existing K6c sequence. Standing TASK/Git/gate rules and all owner-held
+T3 choices remain in force.
