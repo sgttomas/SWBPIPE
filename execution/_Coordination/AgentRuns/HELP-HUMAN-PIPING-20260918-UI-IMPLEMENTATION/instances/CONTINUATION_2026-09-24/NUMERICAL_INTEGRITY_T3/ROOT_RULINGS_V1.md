@@ -4799,3 +4799,30 @@ still incomplete/invalid at the original cutoff, stop there and return partial
 without R1. No retry, new model, cap/tolerance/admission/first-repeat/per-process
 watchdog change is authorized. Every existing stop condition still applies.
 The original grant and checkpoints remain unedited historical evidence.
+
+
+## T4 author custody and bounded final review (ROOT, 2026-10-02 UTC)
+
+ROOT read I26 t4_measurements_10 RETURN, verified its54-payload seal
+9d331a4f6cc9ea637fe24d42a07cf62c69cd4859d0a01f2367ab46ec44d10f84
+and committed the owned write set. MEASUREMENTS/W1_T4 preserves all new raw files
+plus the full journal, checked byte-for-byte against the author inventory and
+the prior immutable T3 prefix. This is custody, not final numerical acceptance.
+The author RETURN's scope/outcome, metric-window, TREE-work and comparison sections
+retain actual numerical classes, unavailable per-internal-precision heap peaks,
+RSS projection misses and unpublished TREE cases. The explicit final-family time
+extension and observation limits remain visible. Runtime is stopped.
+
+Dispatch RV34_T4_MEASUREMENTS_07 for independent actual measurement/comparison
+review, I28_FINAL_K6C_D_04 for revisable final D assembly, and fresh RV39_K6C_FINAL_01
+for full final source/custody/slice review. Native TASKs own disjoint records-only
+paths, use their finite briefs and return to ROOT; no runtime or Git/index writes.
+Final independent review, exact-head gates and complete K6c disposition remain.
+
+ROOT applied RV38's finite evidence-placement plan only after I26 sealed and
+released its paths, before these reviewers started. The relocation ledger binds
+all original manifests/payloads/modes and the complete archived historical packet.
+Its failed initial archive-mode check was repaired by a command-local standard
+Git archive option before deleting the original extracted packet; no Git config,
+policy, classifier or sealed evidence changed. The bounded existing-classifier
+preflight passes; actual GEN-8 remains. This closes custody placement only.

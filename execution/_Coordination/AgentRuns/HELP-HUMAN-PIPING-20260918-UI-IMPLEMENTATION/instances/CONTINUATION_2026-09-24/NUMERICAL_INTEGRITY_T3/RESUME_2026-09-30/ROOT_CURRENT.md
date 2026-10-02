@@ -62,27 +62,30 @@ class counts. Process classificationok does not mean numerical Passed.
 Baseline/progress observations retain their actual limited timing. Immutable T2
 raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz.
 
-## Current bounded assignment
+## Current bounded assignments
 
-I26 reports the original T4 normal tier complete and reaped, first observed at
-15:33:50.997 UTC, and the unchanged comparator complete by15:35:41.750 UTC.
-These author results remain provisional pending a sealed return and independent
-review. No further runtime is granted. The original normal cutoff was extended
-explicitly by ROOT bf234cf6 for only the remaining original CONT family; the
-condition was met before the old cutoff. Its final return deadline is16:00:52.
-The extension is not compliance with the original deadline.
+I26 t4_measurements_10 has sealed and stopped. ROOT read its full RETURN,
+verified all54 payloads and preserved the complete raw delta under MEASUREMENTS/
+W1_T4, including all new full published dumps and the unchanged T3 journal prefix.
+The original normal/comparison runtime and explicit CONT-only time extension are
+preserved, with actual observation limits. Numerical acceptance awaits RV34.
 
-ROOT preserves the raw delta before any subsequent journal append. RV34's prepared
-t4_measurements_07 review will inspect committed immutable evidence. I28's prepared
-final D assignment will assemble the complete return after ROOT dispatch. The
-historical evidence placement plan is prepared under REVIEW_RV38/placement_plan_02;
-actual movement waits for the author to seal and release the current assignment.
-This support work changes custody/navigation only, not numerical evidence bytes.
+Three read-only/drafting TASKs are active, with separate write scopes:
+- RV34 actual T4/comparison review: receipt15:48:22 UTC, new-check cutoff16:18:22,
+  return16:23:22; R/REVIEW_RV34/t4_measurements_07.
+- I28 final-form revisable D assembly: receipt15:48:20 UTC, analysis cutoff16:13:20,
+  return16:18:20; T3/IMPLEMENTATION/K6C only.
+- Fresh RV39 full final source/custody/slice review: receipt15:50:18 UTC, new-check
+  cutoff16:35:18, return16:40:18; R/REVIEW_RV39/final_slice_01. Initial frozen
+  basisb8b678917c2e4556946b0ea6b8c23ec44add81f8; ROOT must supply the later committed
+  D and T4 review records/delta. Gates are still unrun.
 
-Readiness is independently accepted under REVIEW_RV34/t4_readiness_06; raw
-qualification archive is MEASUREMENTS/W1_T4_READINESS. Owner adoption is confirmed
-by REVIEW_RV36/comparison_adoption_04. I28/closeout_index_03 remains a revisable
-draft/index, not final acceptance.
+Historical evidence placement is complete under verification/k6c_record_placement_01/
+_run_records/RELOCATION.json. All original payload/manifest bytes and modes verify.
+Old packet locations are navigation; sealed historical consumers replay the frozen
+original tree or recovered original-relative layout. The existing-classifier
+changed-file check found no remaining finding; this is not final GEN-8. Source,
+ordinary artifacts, audit and I26 paths are untouched. No runtime is authorized.
 
 ## Remaining path and holds
 
