@@ -4732,3 +4732,50 @@ clean records branches remain. Release only I26_T4_READINESS_09.md under its
 25-minute bound: exact-context input acquisitions, no-op and prospective numeric
 decisions. No normal solve or R1 process yet. Actual T4 execution requires the
 next bounded ROOT grant after readiness; no numeric deferral may be overridden.
+
+
+## Scoped comparison adoption independently confirmed (ROOT, 2026-10-02 UTC)
+
+ROOT read RV36 comparison_adoption_04 and verified its3-payload seal
+1f55f2b355db885a4985d5adbfe701e6a54512f61f45399859ba4c12ab8cbd64.
+The decision is faithfully propagated with all five obligations and no further
+permission request for that same policy choice. Actual runtime/comparison evidence
+and final gates remain. The reviewer confirms its earlier boundary concerned
+comparison closure, not all independent acquisition.
+
+ROOT also read I28 closeout_index_03's full draft and obligation map and checked
+its informational write inventory. These remain revisable drafting material,
+not accepted final D records or a new numerical claim. T4 readiness has returned
+and its raw evidence is preserved; RV34 reviews it independently before ROOT
+normal-execution disposition. I26_T4_MEASUREMENTS_10.md is prepared, not released.
+
+
+## T4 readiness accepted; original measurements and scoped comparison released (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV34 t4_readiness_06 RETURN and verified its17-payload
+seal22f339b27f2973e80f08aa5456053400daba0e71d5fcfbfb062a7c7a49f5e423.
+Accept finite input/context/readiness evidence. The review's caller/projection
+section reproduces all prospective numeric predicates; its recipe section
+confirms unchanged wrapper/reference criteria and mandatory complete Selected-
+dump accounting. These projections are not actual future admissions or measured
+consumption. The current hold and prior journal remain untouched by readiness.
+
+Release I26_T4_MEASUREMENTS_10.md on the fixed ordinary artifact/source81c038.
+ROOT's explicit native dispatch starts60 minutes total: normal solver stop/reap
+by40 minutes, no comparator runtime after50, final return by60. This extends only
+the separately budgeted post-solver comparison/analysis time, not the normal
+execution cutoff or original per-process limits. Use the original wrapper once
+and its sole named W1-T4 hold lift, with actual fresh baseline/prepasses and all
+numeric predicates. No numeric deferral, cap or tolerance may be overridden.
+
+Only a complete valid normal tier with critical checks passing may proceed to
+the unchanged R1 comparator within the separate time bound. Account every first-
+pass outcome, require every Selected dump, preserve unavailable/unpublished cases
+without pass credit and investigate changed supported KF3 facts. Preserve full
+new outputs and all prior journal prefixes. Partial/interrupted/invalid runtime
+returns for disposition instead of silently extending or retrying. Existing
+M5 guard and sole quiet/timed lane apply; no build or new host tooling follows.
+
+Complete K6c/E_max, final comparison acceptance, exact-head final review/gates,
+W1 limits and F2a remain open. No owner decision is re-requested for the already
+approved scoped comparison.

@@ -61,16 +61,19 @@ class counts. Process classificationok does not mean numerical Passed.
 Baseline/progress observations retain their actual limited timing. Immutable T2
 raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz.
 
-## Current bounded assignments
+## Current bounded assignment
 
-I26 t4_readiness_09: receipt14:10:10 UTC, new-runtime cutoff14:30:10, hard
-return14:35:10. Exact twelve W1 T4 counts contexts plus one no-op; prospective
-numeric admission only, no normal solve/R1 or changed global hold. Sole quiet
-acquisition lane on the existing M5 guard.
+I26 t4_measurements_10 is released: receipt14:50:52 UTC, hard normal solver
+stop/reap15:30:52, comparator cutoff15:40:52, final return15:50:52. Original
+wrapper once, named T4 hold lift only, unchanged actual numeric gates. Existing
+M5 guard and sole quiet/timed lane; no builds. A valid completed normal tier may
+proceed to the exact unchanged R1 comparison under the approved scope. Partial
+or invalid normal work returns without retry or comparator execution.
 
-RV36 comparison_adoption_04: read-only, receipt14:14:42 UTC, return14:24:42.
-I28 closeout_index_03: draft/index only, receipt14:14:58, cutoff14:34:58,
-return14:39:58. These tasks introduce no host tooling or source changes.
+Readiness is independently accepted under REVIEW_RV34/t4_readiness_06; raw
+qualification archive is MEASUREMENTS/W1_T4_READINESS. Owner adoption is confirmed
+by REVIEW_RV36/comparison_adoption_04. I28/closeout_index_03 has a revisable draft
+and obligation map; it is not final acceptance. Those bounded tasks returned.
 
 ## Remaining path and holds
 
@@ -88,8 +91,8 @@ and truthful stops/monitoring limits. This index itself supplies no authority
 and grants no source repair or new host tool.
 
 Fresh W1-T1/T2/T3 chronology/calibration and required T3 prefixes are established.
-ROOT still needs completed T4 input/readiness evidence and a separate bounded
-normal-execution grant.
+T4 input/readiness evidence is accepted and the separate bounded normal-execution
+grant is active. Actual results/comparisons and independent review remain.
 Preserve all numeric admission holds and the VR largest-size backstop; do not force a deferred run. Required W1-T4, complete K6c return and
 independent final review, full-SHA hosted CI, exact-final-head Mac DEC-025 and
 GEN-8 remain outstanding. K6c is not complete and no PR is ready to merge.
