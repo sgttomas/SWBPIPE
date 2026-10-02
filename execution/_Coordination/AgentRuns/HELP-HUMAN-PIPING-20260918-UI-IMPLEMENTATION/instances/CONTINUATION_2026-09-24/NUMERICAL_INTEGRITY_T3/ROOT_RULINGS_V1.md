@@ -4337,3 +4337,28 @@ writes are authorized; stop rules and no criterion/source weakening remain.
 This grant is execution of required validation, not acceptance of I26's unreviewed
 return or any artifact/measurement qualification. No scale or V-K matrix slot
 is implied.
+
+
+## Estimate mutation programme closed; ordinary artifact freeze (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV35 mutant_programme_02 return and verified its65 payloads
+under seal28cdda3eae3bb9f0bb14ed5f8d1f284afbbe05c306c48d652a3688f798bf29d4.
+Accept the complete estimate-mutation obligation at maintained81c03849033f3ce745668f581f446530789397b8:
+its disposition table accounts for12 kernel and6 VR variants with actual compiled
+intended failures, valid normal controls, source carry and separate historical
+outcomes. This is conditional identity/named-phase coverage, not a measured heap
+claim or complete E_max/current-artifact acceptance. The V-K seeded matrix is
+a separate outstanding obligation.
+
+ROOT also read I28's complete preflight plan/commands/source-binding table and
+verified its17 payloads under seal3dec8828da450103fba7ede7ab46826d186a901fd00fec9290aa27a87e8483f3.
+Select maintained81c038 as the production source freeze for the next bounded
+ordinary artifact preparation/correspondence block. Required V-K/final gates
+remain; later maintained changes reopen affected bindings.
+
+Dispatch I28 under R/BRIEFS/I28_ORDINARY_ARTIFACTS_02.md for45 minutes on the existing
+M5 guard/sole Cargo lane. Only ordinary H/VR builds, finite existing native request
+inspection and one unchanged accepted ten-type reporter are authorized. No new
+tool/reader/guard/probe, arbitrary private-layout inference, counts/model/solver
+or measurement run. Missing attribution remains a named unqualified cell. ROOT
+will independently review returned evidence before relying on a bound.
