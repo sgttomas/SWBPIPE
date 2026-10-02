@@ -64,28 +64,32 @@ raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz.
 
 ## Current closeout
 
-RV34 t4_measurements_07 returned and stopped at16:18:48 UTC. ROOT read the full
-RETURN, verified its31-payload seal282d49093e6ea08c7fc0a72cab150a44371a00be0b9709874014779d2ba1bfeb
-and accepted finite T4 observations plus the owner-adopted comparison. Per-attempt
-work/storage and whole-call heap windows span the reached512/1024 attempts;
-precision-isolated/internal-phase peaks remain unavailable. Eight RSS projection
-misses are mandatory input to later W1 policy; projection is not an upper guarantee.
-All full new dumps and earlier journal prefixes remain preserved.
+RV34 T4 and fresh RV39 final-slice reviews are complete, verified and accepted at
+scope. RV39 final_slice_01 seals16 payloads under
+b881aef306b4e79414a89923264b0c5266205e93dfd2beea512c88a7061b883f and covers
+cd98b0e903c9c4ebdeff8292f53467b0723f6ea1. No actionable finding remains. I28's D
+return is frozen under IMPLEMENTATION/K6C/SHA256SUMS; original at-return metadata
+is preserved. All TASKs have returned and stopped.
 
-I28 returned the complete revisable D package at16:12:01, now committed at
-0e66a4323296fac876cf2d9460e85c5372774c1a. ROOT updates its accepted T4 references
-and freezes it for RV39. RV39's complete source/custody/current-record review
-and D substance review have no actionable finding so far. Its final delta is
-pending; new-check cutoff16:35:18, return16:40:18 UTC. No other TASK is active.
-The final exact-head gates are not yet run. Maintained source remains81c038.
+ROOT now owns the exact-head gate slot: existing GEN-8, fresh-target Mac DEC-025,
+hosted CI and the full-SHA dispatch, followed by independent final metadata/gate
+confirmation and immediate unchanged-main/head check. No numerical rerun or
+new host tool is authorized. K6c remains unmerged until those gates pass.
+Maintained source remains81c038; final review/source/ruling bases remain separate
+from actual gate execution. Gate progress is in ROOT's existing scratch record;
+post-merge custody goes into IMPLEMENTATION/K6C_MERGE with its ruling/graph update.
 
-Historical evidence placement is complete under verification/k6c_record_placement_01/
-_run_records/RELOCATION.json. Old locations are navigation; sealed historical
-consumers use the frozen original tree or recovered original-relative layout.
-All original bytes/manifests/modes verify. Existing-classifier changed-file checks
-have no remaining finding; actual GEN-8 remains. No raw evidence or build target
-was pruned. The previous sweep target and generated worktree sweep were preserved;
-the existing Mac sweep checkout is clean and the next target will be fresh.
+Finite T4 acceptance retains per-attempt512/1024 work/storage and whole-call heap
+windows, with precision-isolated peaks unavailable. All eight RSS projection
+misses must inform later W1 policy; projection is not an upper guarantee. Full
+new output custody and prior journal prefixes remain preserved. Historical VR,
+T1 monitoring and T2 correction qualifications remain at their owning reports.
+
+Historical placement is complete under verification/k6c_record_placement_01/
+_run_records/RELOCATION.json. Original bytes/manifests/modes verify; old locations
+are navigation and historical consumers replay their frozen original tree/layout.
+No raw evidence or build target was pruned. The prior sweep target/worktree output
+were preserved and the existing sweep checkout is clean for the final candidate.
 
 ## Remaining path and holds
 
@@ -105,8 +109,7 @@ and grants no source repair or new host tool.
 Fresh W1-T1/T2/T3 chronology/calibration and required T3 prefixes are established.
 T4 input/readiness evidence is accepted; the normal/comparison runtime has stopped.
 Author custody and actual result/comparison review are accepted; final closure remains.
-Preserve all numeric admission holds and the VR largest-size backstop; do not force a deferred run. Final K6c return disposition and
-independent final review, full-SHA hosted CI, exact-final-head Mac DEC-025 and
+Preserve all numeric admission holds and the VR largest-size backstop; do not force a deferred run. Final D/review are accepted. Full-SHA hosted CI, exact-final-head Mac DEC-025 and
 GEN-8 remain outstanding. K6c is not complete and no PR is ready to merge.
 
 The approved comparison preserves available KF3 fields, unchanged R1 and other

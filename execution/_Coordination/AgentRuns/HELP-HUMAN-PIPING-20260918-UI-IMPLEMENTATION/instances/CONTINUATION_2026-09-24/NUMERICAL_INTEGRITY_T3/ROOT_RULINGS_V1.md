@@ -4868,3 +4868,27 @@ updates only the accepted T4 reference/status and freezes D for RV39's final
 records delta. Complete K6c/E_max disposition, final independent exact-candidate
 review, hosted CI/full-SHA dispatch, exact-final-head Mac DEC-025/fresh target and
 GEN-8 remain. W1 limits wait for K6c's merge; F2a retains its own adoption/gates.
+
+
+## K6c D accepted for final gates (ROOT, 2026-10-02 UTC)
+
+ROOT read RV39 final_slice_01 RETURN in full and verified its16-payload seal
+b881aef306b4e79414a89923264b0c5266205e93dfd2beea512c88a7061b883f.
+The fresh reviewer covers the complete maintained diff and final D/records delta
+atcd98b0e903c9c4ebdeff8292f53467b0723f6ea1, with no actionable finding or open
+SHOULD-FIX. Accept checkpointD for final gates under the conditional source,
+artifact/input and metric-window premises stated in that return. Historical VR
+qualifications, precision-isolated heap unavailability and RSS projection misses
+remain explicit; no broader memory or numerical guarantee follows.
+
+ROOT freezes the candidate after adding this truthful review/disposition record.
+Run existing GEN-8, the Mac DEC-025 driver with a fresh target and preserved prior
+raw evidence, plus required hosted CI/full-SHA dispatch. Maintained source remains
+81c038. The exact reviewed-source carry and final metadata delta need confirmation
+on the actual merging revision. T9/both-entry remain inapplicable to this verified
+harness/validation-only scope. No new numerical run or host tool is commissioned.
+
+Only after those exact-head gates and the immediate unchanged-main/head check
+may ROOT merge under standing Git authority. Complete K6c disposition is then
+recorded with the merge record, ruling and graph in the same pass. W1 limits and
+F2a are subsequent work; their decisions are not inferred from this D acceptance.
