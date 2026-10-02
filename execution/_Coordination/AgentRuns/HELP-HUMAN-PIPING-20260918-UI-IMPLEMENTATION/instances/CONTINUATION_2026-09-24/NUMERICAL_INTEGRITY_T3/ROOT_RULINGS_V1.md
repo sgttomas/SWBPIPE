@@ -4043,3 +4043,47 @@ No field is zeroed or forced solely to satisfy ordering. The complete result
 join, context/allocation translation, checked maintained implementation, final
 ordinary-production correspondence, admission and measurements remain open.
 These component dispositions do not accept full E_max or delay A1's own gates.
+
+
+## Remaining precision/mechanism witnesses qualified (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV29 vk_remaining_43/REVIEW.md, verified every payload
+under sealcb1d7ce04d69db302d5d5c6b1dc26735b22d3bbb619a876f80c558e0fb2c6248,
+and accepts the scoped UNKNOWN/F05/F06/F07 semantic witnesses and their actual
+planned normal controls. The report's Scoped semantic results and Controls and
+full scope sections preserve the exact verdicts, roles, bodies and parity scope.
+Generic failure, record/work drift and the F17 alternative supply no credit.
+
+Preserve the manager's disclosed late closeout as a timing exception: the review's
+Source, artifact and raw provenance section establishes actual execution inside
+the grant and distinguishes the manager's later seal. ROOT does not retroactively
+extend the window or call the entire closeout compliant. Its child-seal timing
+was reported by ROOT, not independently reconstructed from a manifest-write stamp.
+The numerical/source/artifact evidence remains independently assessable and was
+verified. The next runtime block reserved explicit sealing time and has returned;
+R28/R02/scalar results remain pending independent review44. Final A1 gates remain.
+
+
+## Conditional K6c result composition verified (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV30 result5_join_28/RETURN.md and verified every payload
+under seald0f850310a9519441d274b7a270bdb834162811d5bc048b880edee70da354eac.
+Accept the matching conditional reference/CLI composition and five-field ordering
+within its exact inherited input, profile, launch and metric premises. The report
+states all numerical maxima and comparison windows; they are expression bounds,
+not measurements or admission decisions. No actual graph count, unspecified
+future path allowance or current-executable qualification is inferred.
+
+The accepted kernel/caller/join review packets live on the separate K6c branch,
+currently commit60a52da9467b73d25898e01312e20d7a4c533902; their immutable manifests
+are the warrants even where another checkout does not carry the relative paths.
+ROOT merged reviewed A1 source/accounting942572 into K6c at8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3
+and verified exact maintained core/validation equality before releasing the
+bounded shared-kernel implementation. Original reference storage facts remain
+pinned to their prior origins, not rebound to refreshed A1 observations.
+
+Context16 is an unaccepted implementation proposal with named H caller binding
+and origin/failure questions; their bounded reviews are in progress. Shared-kernel
+translation does not release a partial legacy estimate or adapter. Complete
+context translation, checked implementation, final artifact/source/request/input/
+launch correspondence, admission replay and required measurements remain open.
