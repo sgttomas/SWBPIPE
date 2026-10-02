@@ -4620,3 +4620,21 @@ all numeric limits and full post-run checks. Existing tools should observe
 progress while possible; a missed external observation must be disclosed and
 results remain provisional until validated. No new guard/runner or source change
 is authorized. The owner-held KF3 T4 comparison and all later gates remain held.
+
+
+## T1 disposition confirmed; T2 released (ROOT, 2026-10-02 UTC)
+
+ROOT read RV34 t1_disposition_03 and verified its3-payload seal
+b3b562a58f2f69203256443a61ed4eb122f97c97b0d07976f98d529881623391.
+The same independent reviewer confirms RV34-T1-F1 has a truthful sufficient ROOT
+disposition for finite T1 observations, with no unsupported inference. Close its
+disposition requirement; the historical live-inspection failure remains recorded.
+The unchanged minimum-size rule still prevents these sub100-member observations
+from calibrating a target at least1000; they can support their eligible next tier.
+
+Release only the prepared I26_T2_MEASUREMENTS_07.md scope. ROOT's explicit native
+message starts its30-minute bound/cutoff25 and sole quiet/timed slot. Six named
+100-member input acquisitions must satisfy the complete map before the original
+W1-T2 tier begins; the shared journal preserves its old prefix and immutable T1
+snapshot. All numeric holds, successful baseline and complete measurement checks
+remain. No T3/T4, new tooling, source change or owner comparison amendment follows.
