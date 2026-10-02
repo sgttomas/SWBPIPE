@@ -1,0 +1,90 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+000000010002e2f0 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>>:
+10002e2f0: d10303ff    	sub	sp, sp, #0xc0
+10002e2f4: a90957f6    	stp	x22, x21, [sp, #0x90]
+10002e2f8: a90a4ff4    	stp	x20, x19, [sp, #0xa0]
+10002e2fc: a90b7bfd    	stp	x29, x30, [sp, #0xb0]
+10002e300: 9102c3fd    	add	x29, sp, #0xb0
+10002e304: aa0803f3    	mov	x19, x8
+10002e308: ad410400    	ldp	q0, q1, [x0, #0x20]
+10002e30c: ad0287e0    	stp	q0, q1, [sp, #0x50]
+10002e310: f9402008    	ldr	x8, [x0, #0x40]
+10002e314: f9003be8    	str	x8, [sp, #0x70]
+10002e318: ad400001    	ldp	q1, q0, [x0]
+10002e31c: ad0183e1    	stp	q1, q0, [sp, #0x30]
+10002e320: 910003e8    	mov	x8, sp
+10002e324: 9100c3e0    	add	x0, sp, #0x30
+10002e328: 97ffa9bb    	bl	0x100018a14 <<alloc::vec::Vec<(alloc::string::String, alloc::string::String)> as alloc::vec::spec_from_iter::SpecFromIter<(alloc::string::String, alloc::string::String), core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>>::from_iter>
+10002e32c: f9400be1    	ldr	x1, [sp, #0x10]
+10002e330: b40003e1    	cbz	x1, 0x10002e3ac <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>+0xbc>
+10002e334: f94007e0    	ldr	x0, [sp, #0x8]
+10002e338: d10087a8    	sub	x8, x29, #0x21
+10002e33c: f9001be8    	str	x8, [sp, #0x30]
+10002e340: f100043f    	cmp	x1, #0x1
+10002e344: 54000501    	b.ne	0x10002e3e4 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>+0xf4>
+10002e348: a94057f4    	ldp	x20, x21, [sp]
+10002e34c: f9400bf6    	ldr	x22, [sp, #0x10]
+10002e350: 97ff936e    	bl	0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+10002e354: 52804400    	mov	w0, #0x220              ; =544
+10002e358: 52800101    	mov	w1, #0x8                ; =8
+10002e35c: 97ff792e    	bl	0x10000c814 <__rustc::__rust_alloc>
+10002e360: b40004e0    	cbz	x0, 0x10002e3fc <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>+0x10c>
+10002e364: f900001f    	str	xzr, [x0]
+10002e368: 7904341f    	strh	wzr, [x0, #0x21a]
+10002e36c: a901ffe0    	stp	x0, xzr, [sp, #0x18]
+10002e370: 52800608    	mov	w8, #0x30               ; =48
+10002e374: 9b0856c8    	madd	x8, x22, x8, x21
+10002e378: 92800029    	mov	x9, #-0x2               ; =-2
+10002e37c: a902a7ff    	stp	xzr, x9, [sp, #0x28]
+10002e380: a90657f5    	stp	x21, x21, [sp, #0x60]
+10002e384: a90723f4    	stp	x20, x8, [sp, #0x70]
+10002e388: 910063e0    	add	x0, sp, #0x18
+10002e38c: 9100c3e1    	add	x1, sp, #0x30
+10002e390: 9100a3e2    	add	x2, sp, #0x28
+10002e394: 97ff935e    	bl	0x10001310c <<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Owned, alloc::string::String, alloc::string::String, alloc::collections::btree::node::marker::LeafOrInternal>>::bulk_push::<alloc::collections::btree::dedup_sorted_iter::DedupSortedIter<alloc::string::String, alloc::string::String, alloc::vec::into_iter::IntoIter<(alloc::string::String, alloc::string::String)>>, alloc::alloc::Global>>
+10002e398: a941a7e8    	ldp	x8, x9, [sp, #0x18]
+10002e39c: f94017ea    	ldr	x10, [sp, #0x28]
+10002e3a0: a9002668    	stp	x8, x9, [x19]
+10002e3a4: f9000a6a    	str	x10, [x19, #0x10]
+10002e3a8: 1400000a    	b	0x10002e3d0 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>+0xe0>
+10002e3ac: f900027f    	str	xzr, [x19]
+10002e3b0: f9000a7f    	str	xzr, [x19, #0x10]
+10002e3b4: f94003e8    	ldr	x8, [sp]
+10002e3b8: b40000c8    	cbz	x8, 0x10002e3d0 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>+0xe0>
+10002e3bc: f94007e0    	ldr	x0, [sp, #0x8]
+10002e3c0: 8b080508    	add	x8, x8, x8, lsl #1
+10002e3c4: d37ced01    	lsl	x1, x8, #4
+10002e3c8: 52800102    	mov	w2, #0x8                ; =8
+10002e3cc: 97ff7954    	bl	0x10000c91c <__rustc::__rust_dealloc>
+10002e3d0: a94b7bfd    	ldp	x29, x30, [sp, #0xb0]
+10002e3d4: a94a4ff4    	ldp	x20, x19, [sp, #0xa0]
+10002e3d8: a94957f6    	ldp	x22, x21, [sp, #0x90]
+10002e3dc: 910303ff    	add	sp, sp, #0xc0
+10002e3e0: d65f03c0    	ret
+10002e3e4: f100543f    	cmp	x1, #0x15
+10002e3e8: 54000122    	b.hs	0x10002e40c <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>+0x11c>
+10002e3ec: 9100c3e3    	add	x3, sp, #0x30
+10002e3f0: 52800022    	mov	w2, #0x1                ; =1
+10002e3f4: 940020f7    	bl	0x1000367d0 <core::slice::sort::shared::smallsort::insertion_sort_shift_left::<(alloc::string::String, alloc::string::String), <[(alloc::string::String, alloc::string::String)]>::sort_by<<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>::{closure#0}>::{closure#0}>>
+10002e3f8: 17ffffd4    	b	0x10002e348 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>+0x58>
+10002e3fc: 52800100    	mov	w0, #0x8                ; =8
+10002e400: 52804401    	mov	w1, #0x220              ; =544
+10002e404: 94069cef    	bl	0x1001d57c0 <alloc::alloc::handle_alloc_error>
+10002e408: d4200020    	brk	#0x1
+10002e40c: 9100c3e2    	add	x2, sp, #0x30
+10002e410: 94004045    	bl	0x10003e524 <core::slice::sort::stable::driftsort_main::<(alloc::string::String, alloc::string::String), <[(alloc::string::String, alloc::string::String)]>::sort_by<<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>::{closure#0}>::{closure#0}, alloc::vec::Vec<(alloc::string::String, alloc::string::String)>>>
+10002e414: 17ffffcd    	b	0x10002e348 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>+0x58>
+10002e418: aa0003f3    	mov	x19, x0
+10002e41c: 910003e0    	mov	x0, sp
+10002e420: 97fffe05    	bl	0x10002dc34 <core::ptr::drop_glue::<alloc::vec::Vec<(alloc::string::String, alloc::string::String)>>>
+10002e424: aa1303e0    	mov	x0, x19
+10002e428: 94069e24    	bl	0x1001d5cb8 <dyld_stub_binder+0x1001d5cb8>
+10002e42c: aa0003f3    	mov	x19, x0
+10002e430: 910003e0    	mov	x0, sp
+10002e434: 97fffe00    	bl	0x10002dc34 <core::ptr::drop_glue::<alloc::vec::Vec<(alloc::string::String, alloc::string::String)>>>
+10002e438: aa1303e0    	mov	x0, x19
+10002e43c: 94069e1f    	bl	0x1001d5cb8 <dyld_stub_binder+0x1001d5cb8>

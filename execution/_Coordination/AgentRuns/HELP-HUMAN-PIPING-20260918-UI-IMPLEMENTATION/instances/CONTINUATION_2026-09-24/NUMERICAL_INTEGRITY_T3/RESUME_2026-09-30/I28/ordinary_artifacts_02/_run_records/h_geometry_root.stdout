@@ -1,0 +1,61 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+00000001001543cc <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry>:
+1001543cc: d101c3ff    	sub	sp, sp, #0x70
+1001543d0: a90457f6    	stp	x22, x21, [sp, #0x40]
+1001543d4: a9054ff4    	stp	x20, x19, [sp, #0x50]
+1001543d8: a9067bfd    	stp	x29, x30, [sp, #0x60]
+1001543dc: 910183fd    	add	x29, sp, #0x60
+1001543e0: aa0103f5    	mov	x21, x1
+1001543e4: aa0003f4    	mov	x20, x0
+1001543e8: aa0803f3    	mov	x19, x8
+1001543ec: aa0003e8    	mov	x8, x0
+1001543f0: f8408d09    	ldr	x9, [x8, #0x8]!
+1001543f4: b4000209    	cbz	x9, 0x100154434 <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry+0x68>
+1001543f8: 3dc00100    	ldr	q0, [x8]
+1001543fc: 3d800be0    	str	q0, [sp, #0x20]
+100154400: f9400908    	ldr	x8, [x8, #0x10]
+100154404: f9001be8    	str	x8, [sp, #0x30]
+100154408: b9402281    	ldr	w1, [x20, #0x20]
+10015440c: 910023e8    	add	x8, sp, #0x8
+100154410: 910083e0    	add	x0, sp, #0x20
+100154414: 91009284    	add	x4, x20, #0x24
+100154418: aa1503e2    	mov	x2, x21
+10015441c: aa1403e3    	mov	x3, x20
+100154420: 94000f1c    	bl	0x100158090 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>>
+100154424: f9400296    	ldr	x22, [x20]
+100154428: f94007e0    	ldr	x0, [sp, #0x8]
+10015442c: 3cc103e0    	ldur	q0, [sp, #0x10]
+100154430: 1400000f    	b	0x10015446c <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry+0xa0>
+100154434: f9400296    	ldr	x22, [x20]
+100154438: 97fb33ad    	bl	0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+10015443c: 52801200    	mov	w0, #0x90               ; =144
+100154440: 52800101    	mov	w1, #0x8                ; =8
+100154444: 97fabe8d    	bl	0x100003e78 <__rustc::__rust_alloc>
+100154448: b40002a0    	cbz	x0, 0x10015449c <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry+0xd0>
+10015444c: f900001f    	str	xzr, [x0]
+100154450: a9007ec0    	stp	x0, xzr, [x22]
+100154454: b9402288    	ldr	w8, [x20, #0x20]
+100154458: 52800029    	mov	w9, #0x1                ; =1
+10015445c: 79011c09    	strh	w9, [x0, #0x8e]
+100154460: b9006008    	str	w8, [x0, #0x60]
+100154464: f9000415    	str	x21, [x0, #0x8]
+100154468: 6f00e400    	movi.2d	v0, #0000000000000000
+10015446c: f9400ac8    	ldr	x8, [x22, #0x10]
+100154470: 91000508    	add	x8, x8, #0x1
+100154474: f9000ac8    	str	x8, [x22, #0x10]
+100154478: f9400288    	ldr	x8, [x20]
+10015447c: f9000260    	str	x0, [x19]
+100154480: 3c808260    	stur	q0, [x19, #0x8]
+100154484: f9000e68    	str	x8, [x19, #0x18]
+100154488: a9467bfd    	ldp	x29, x30, [sp, #0x60]
+10015448c: a9454ff4    	ldp	x20, x19, [sp, #0x50]
+100154490: a94457f6    	ldp	x22, x21, [sp, #0x40]
+100154494: 9101c3ff    	add	sp, sp, #0x70
+100154498: d65f03c0    	ret
+10015449c: 52800100    	mov	w0, #0x8                ; =8
+1001544a0: 52801201    	mov	w1, #0x90               ; =144
+1001544a4: 94020b17    	bl	0x1001d7100 <alloc::alloc::handle_alloc_error>

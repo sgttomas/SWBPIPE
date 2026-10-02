@@ -1,0 +1,1166 @@
+[
+  {
+    "label": "h_mutex",
+    "range": {
+      "start": "0x1001d5de0",
+      "stop": "0x1001d5ec4"
+    },
+    "demangled_symbol": "00000001001d5de0 <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "1001d5e28",
+        "size": 64,
+        "alignment": 8,
+        "context": [
+          "1001d5e18: 3d801fe1    \tstr\tq1, [sp, #0x70]",
+          "1001d5e1c: 97f92d34    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001d5e20: 52800800    \tmov\tw0, #0x40               ; =64",
+          "1001d5e24: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001d5e28: 97f8b814    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "1001d5e2c: b4000300    \tcbz\tx0, 0x1001d5e8c <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>+0xac>",
+          "1001d5e30: aa0003f3    \tmov\tx19, x0",
+          "1001d5e34: ad4107e0    \tldp\tq0, q1, [sp, #0x20]"
+        ]
+      }
+    ],
+    "source_raw": "h_mutex.stdout"
+  },
+  {
+    "label": "h_registry",
+    "range": {
+      "start": "0x1001b6c70",
+      "stop": "0x1001b7950"
+    },
+    "demangled_symbol": "00000001001b6c70 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info>:",
+    "calls": [
+      {
+        "address": "1001b6d74",
+        "size": 4,
+        "alignment": 1,
+        "context": [
+          "1001b6d64: 540004a1    \tb.ne\t0x1001b6df8 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0x188>",
+          "1001b6d68: 97f9a961    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b6d6c: 52800080    \tmov\tw0, #0x4                ; =4",
+          "1001b6d70: 52800021    \tmov\tw1, #0x1                ; =1",
+          "1001b6d74: 97f93441    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "1001b6d78: b4005420    \tcbz\tx0, 0x1001b77fc <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xb8c>",
+          "1001b6d7c: aa0003f5    \tmov\tx21, x0",
+          "1001b6d80: 528c2da8    \tmov\tw8, #0x616d             ; =24941"
+        ]
+      },
+      {
+        "address": "1001b6ddc",
+        "size": null,
+        "alignment": 1,
+        "context": [
+          "1001b6dcc: 52800093    \tmov\tw19, #0x4               ; =4",
+          "1001b6dd0: 97f9a947    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b6dd4: aa1303e0    \tmov\tx0, x19",
+          "1001b6dd8: 52800021    \tmov\tw1, #0x1                ; =1",
+          "1001b6ddc: 97f93427    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "1001b6de0: b4005080    \tcbz\tx0, 0x1001b77f0 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xb80>",
+          "1001b6de4: aa0003f5    \tmov\tx21, x0",
+          "1001b6de8: aa1503e0    \tmov\tx0, x21"
+        ]
+      },
+      {
+        "address": "1001b6f44",
+        "size": 544,
+        "alignment": 8,
+        "context": [
+          "1001b6f34: 14000019    \tb\t0x1001b6f98 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0x328>",
+          "1001b6f38: 97f9a8ed    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b6f3c: 52804400    \tmov\tw0, #0x220              ; =544",
+          "1001b6f40: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001b6f44: 97f933cd    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "1001b6f48: b4003d40    \tcbz\tx0, 0x1001b76f0 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xa80>",
+          "1001b6f4c: d00003c8    \tadrp\tx8, 0x100230000 <dyld_stub_binder+0x100230000>",
+          "1001b6f50: 9137a108    \tadd\tx8, x8, #0xde8"
+        ]
+      },
+      {
+        "address": "1001b70dc",
+        "size": 544,
+        "alignment": 8,
+        "context": [
+          "1001b70cc: 528000d6    \tmov\tw22, #0x6               ; =6",
+          "1001b70d0: 97f9a887    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b70d4: 52804400    \tmov\tw0, #0x220              ; =544",
+          "1001b70d8: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001b70dc: 97f93367    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "1001b70e0: b4003520    \tcbz\tx0, 0x1001b7784 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xb14>",
+          "1001b70e4: aa0003f7    \tmov\tx23, x0",
+          "1001b70e8: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "1001b72c4",
+        "size": 640,
+        "alignment": 8,
+        "context": [
+          "1001b72b4: aa1603f4    \tmov\tx20, x22",
+          "1001b72b8: 97f9a80d    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b72bc: 52805000    \tmov\tw0, #0x280              ; =640",
+          "1001b72c0: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001b72c4: 97f932ed    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "1001b72c8: b4002380    \tcbz\tx0, 0x1001b7738 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xac8>",
+          "1001b72cc: aa0003f7    \tmov\tx23, x0",
+          "1001b72d0: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "1001b7520",
+        "size": 640,
+        "alignment": 8,
+        "context": [
+          "1001b7510: f946f9b5    \tldr\tx21, [x13, #0xdf0]",
+          "1001b7514: 97f9a776    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b7518: 52805000    \tmov\tw0, #0x280              ; =640",
+          "1001b751c: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001b7520: 97f93256    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "1001b7524: b4001440    \tcbz\tx0, 0x1001b77ac <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xb3c>",
+          "1001b7528: aa0003f3    \tmov\tx19, x0",
+          "1001b752c: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "h_registry.stdout"
+  },
+  {
+    "label": "h_geometry_root",
+    "range": {
+      "start": "0x1001543cc",
+      "stop": "0x1001544a8"
+    },
+    "demangled_symbol": "00000001001543cc <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry>:",
+    "calls": [
+      {
+        "address": "100154444",
+        "size": 144,
+        "alignment": 8,
+        "context": [
+          "100154434: f9400296    \tldr\tx22, [x20]",
+          "100154438: 97fb33ad    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "10015443c: 52801200    \tmov\tw0, #0x90               ; =144",
+          "100154440: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100154444: 97fabe8d    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "100154448: b40002a0    \tcbz\tx0, 0x10015449c <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry+0xd0>",
+          "10015444c: f900001f    \tstr\txzr, [x0]",
+          "100154450: a9007ec0    \tstp\tx0, xzr, [x22]"
+        ]
+      }
+    ],
+    "source_raw": "h_geometry_root.stdout"
+  },
+  {
+    "label": "h_geometry_split",
+    "range": {
+      "start": "0x100158090",
+      "stop": "0x100158794"
+    },
+    "demangled_symbol": "0000000100158090 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "100158144",
+        "size": 144,
+        "alignment": 8,
+        "context": [
+          "100158134: 9a8a3135    \tcsel\tx21, x9, x10, lo",
+          "100158138: 97fb246d    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "10015813c: 52801200    \tmov\tw0, #0x90               ; =144",
+          "100158140: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100158144: 97faaf4d    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "100158148: b4002d40    \tcbz\tx0, 0x1001586f0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>+0x660>",
+          "10015814c: aa0003f4    \tmov\tx20, x0",
+          "100158150: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "100158330",
+        "size": 240,
+        "alignment": 8,
+        "context": [
+          "100158320: 1a8a33fc    \tcsel\tw28, wzr, w10, lo",
+          "100158324: 97fb23f2    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100158328: 52801e00    \tmov\tw0, #0xf0               ; =240",
+          "10015832c: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100158330: 97faaed2    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "100158334: b4001bc0    \tcbz\tx0, 0x1001586ac <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>+0x61c>",
+          "100158338: aa0003f4    \tmov\tx20, x0",
+          "10015833c: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "100158504",
+        "size": 240,
+        "alignment": 8,
+        "context": [
+          "1001584f4: f9400677    \tldr\tx23, [x19, #0x8]",
+          "1001584f8: 97fb237d    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001584fc: 52801e00    \tmov\tw0, #0xf0               ; =240",
+          "100158500: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100158504: 97faae5d    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "100158508: b4001000    \tcbz\tx0, 0x100158708 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>+0x678>",
+          "10015850c: aa0003f5    \tmov\tx21, x0",
+          "100158510: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "h_geometry_split.stdout"
+  },
+  {
+    "label": "h_tracker_root",
+    "range": {
+      "start": "0x100153440",
+      "stop": "0x100153598"
+    },
+    "demangled_symbol": "0000000100153440 <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "100153508",
+        "size": 1072,
+        "alignment": 8,
+        "context": [
+          "1001534f8: f9400ff3    \tldr\tx19, [sp, #0x18]",
+          "1001534fc: 97fb377c    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100153500: 52808600    \tmov\tw0, #0x430              ; =1072",
+          "100153504: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100153508: 97fac25c    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "10015350c: b4000340    \tcbz\tx0, 0x100153574 <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>+0x134>",
+          "100153510: d2800008    \tmov\tx8, #0x0                ; =0",
+          "100153514: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "h_tracker_root.stdout"
+  },
+  {
+    "label": "h_tracker_split",
+    "range": {
+      "start": "0x100156fa0",
+      "stop": "0x100157a70"
+    },
+    "demangled_symbol": "0000000100156fa0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "10015707c",
+        "size": 1072,
+        "alignment": 8,
+        "context": [
+          "10015706c: f90027e8    \tstr\tx8, [sp, #0x48]",
+          "100157070: 97fb289f    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100157074: 52808600    \tmov\tw0, #0x430              ; =1072",
+          "100157078: 52800101    \tmov\tw1, #0x8                ; =8",
+          "10015707c: 97fab37f    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "100157080: b40046e0    \tcbz\tx0, 0x10015795c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>+0x9bc>",
+          "100157084: aa0003fa    \tmov\tx26, x0",
+          "100157088: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "100157504",
+        "size": 1168,
+        "alignment": 8,
+        "context": [
+          "1001574f4: 528000da    \tmov\tw26, #0x6               ; =6",
+          "1001574f8: 97fb277d    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001574fc: 52809200    \tmov\tw0, #0x490              ; =1168",
+          "100157500: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100157504: 97fab25d    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "100157508: b4002060    \tcbz\tx0, 0x100157914 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>+0x974>",
+          "10015750c: aa0003f6    \tmov\tx22, x0",
+          "100157510: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "100157818",
+        "size": 1168,
+        "alignment": 8,
+        "context": [
+          "100157808: f9400677    \tldr\tx23, [x19, #0x8]",
+          "10015780c: 97fb26b8    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100157810: 52809200    \tmov\tw0, #0x490              ; =1168",
+          "100157814: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100157818: 97fab198    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "10015781c: b4000b00    \tcbz\tx0, 0x10015797c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>+0x9dc>",
+          "100157820: aa0003f4    \tmov\tx20, x0",
+          "100157824: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "h_tracker_split.stdout"
+  },
+  {
+    "label": "h_holding_split",
+    "range": {
+      "start": "0x100157a70",
+      "stop": "0x100158090"
+    },
+    "demangled_symbol": "0000000100157a70 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "100157b4c",
+        "size": 104,
+        "alignment": 8,
+        "context": [
+          "100157b3c: f9001fe8    \tstr\tx8, [sp, #0x38]",
+          "100157b40: 97fb25eb    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100157b44: 52800d00    \tmov\tw0, #0x68               ; =104",
+          "100157b48: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100157b4c: 97fab0cb    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "100157b50: b40024e0    \tcbz\tx0, 0x100157fec <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x57c>",
+          "100157b54: aa0003fa    \tmov\tx26, x0",
+          "100157b58: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "100157d30",
+        "size": 200,
+        "alignment": 8,
+        "context": [
+          "100157d20: 528000dc    \tmov\tw28, #0x6               ; =6",
+          "100157d24: 97fb2572    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100157d28: 52801900    \tmov\tw0, #0xc8               ; =200",
+          "100157d2c: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100157d30: 97fab052    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "100157d34: b40013c0    \tcbz\tx0, 0x100157fac <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x53c>",
+          "100157d38: aa0003f6    \tmov\tx22, x0",
+          "100157d3c: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "100157ed8",
+        "size": 200,
+        "alignment": 8,
+        "context": [
+          "100157ec8: f9400676    \tldr\tx22, [x19, #0x8]",
+          "100157ecc: 97fb2508    \tbl\t0x1000212ec <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100157ed0: 52801900    \tmov\tw0, #0xc8               ; =200",
+          "100157ed4: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100157ed8: 97faafe8    \tbl\t0x100003e78 <__rustc::__rust_alloc>",
+          "100157edc: b4000940    \tcbz\tx0, 0x100158004 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x594>",
+          "100157ee0: aa0003f4    \tmov\tx20, x0",
+          "100157ee4: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "h_holding_split.stdout"
+  },
+  {
+    "label": "vr_mutex",
+    "range": {
+      "start": "0x1001d44a0",
+      "stop": "0x1001d4584"
+    },
+    "demangled_symbol": "00000001001d44a0 <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "1001d44e8",
+        "size": 64,
+        "alignment": 8,
+        "context": [
+          "1001d44d8: 3d801fe1    \tstr\tq1, [sp, #0x70]",
+          "1001d44dc: 97f8fb0b    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001d44e0: 52800800    \tmov\tw0, #0x40               ; =64",
+          "1001d44e4: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001d44e8: 97f8e0cb    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001d44ec: b4000300    \tcbz\tx0, 0x1001d454c <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>+0xac>",
+          "1001d44f0: aa0003f3    \tmov\tx19, x0",
+          "1001d44f4: ad4107e0    \tldp\tq0, q1, [sp, #0x20]"
+        ]
+      }
+    ],
+    "source_raw": "vr_mutex.stdout"
+  },
+  {
+    "label": "vr_registry",
+    "range": {
+      "start": "0x1001b3f7c",
+      "stop": "0x1001b4c5c"
+    },
+    "demangled_symbol": "00000001001b3f7c <std::sys::pal::unix::stack_overflow::thread_info::set_current_info>:",
+    "calls": [
+      {
+        "address": "1001b4080",
+        "size": 4,
+        "alignment": 1,
+        "context": [
+          "1001b4070: 540004a1    \tb.ne\t0x1001b4104 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0x188>",
+          "1001b4074: 97f97c25    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b4078: 52800080    \tmov\tw0, #0x4                ; =4",
+          "1001b407c: 52800021    \tmov\tw1, #0x1                ; =1",
+          "1001b4080: 97f961e5    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001b4084: b4005420    \tcbz\tx0, 0x1001b4b08 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xb8c>",
+          "1001b4088: aa0003f5    \tmov\tx21, x0",
+          "1001b408c: 528c2da8    \tmov\tw8, #0x616d             ; =24941"
+        ]
+      },
+      {
+        "address": "1001b40e8",
+        "size": null,
+        "alignment": 1,
+        "context": [
+          "1001b40d8: 52800093    \tmov\tw19, #0x4               ; =4",
+          "1001b40dc: 97f97c0b    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b40e0: aa1303e0    \tmov\tx0, x19",
+          "1001b40e4: 52800021    \tmov\tw1, #0x1                ; =1",
+          "1001b40e8: 97f961cb    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001b40ec: b4005080    \tcbz\tx0, 0x1001b4afc <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xb80>",
+          "1001b40f0: aa0003f5    \tmov\tx21, x0",
+          "1001b40f4: aa1503e0    \tmov\tx0, x21"
+        ]
+      },
+      {
+        "address": "1001b4250",
+        "size": 544,
+        "alignment": 8,
+        "context": [
+          "1001b4240: 14000019    \tb\t0x1001b42a4 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0x328>",
+          "1001b4244: 97f97bb1    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b4248: 52804400    \tmov\tw0, #0x220              ; =544",
+          "1001b424c: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001b4250: 97f96171    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001b4254: b4003d40    \tcbz\tx0, 0x1001b49fc <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xa80>",
+          "1001b4258: 900003c8    \tadrp\tx8, 0x10022c000 <dyld_stub_binder+0x10022c000>",
+          "1001b425c: 91370108    \tadd\tx8, x8, #0xdc0"
+        ]
+      },
+      {
+        "address": "1001b43e8",
+        "size": 544,
+        "alignment": 8,
+        "context": [
+          "1001b43d8: 528000d6    \tmov\tw22, #0x6               ; =6",
+          "1001b43dc: 97f97b4b    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b43e0: 52804400    \tmov\tw0, #0x220              ; =544",
+          "1001b43e4: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001b43e8: 97f9610b    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001b43ec: b4003520    \tcbz\tx0, 0x1001b4a90 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xb14>",
+          "1001b43f0: aa0003f7    \tmov\tx23, x0",
+          "1001b43f4: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "1001b45d0",
+        "size": 640,
+        "alignment": 8,
+        "context": [
+          "1001b45c0: aa1603f4    \tmov\tx20, x22",
+          "1001b45c4: 97f97ad1    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b45c8: 52805000    \tmov\tw0, #0x280              ; =640",
+          "1001b45cc: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001b45d0: 97f96091    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001b45d4: b4002380    \tcbz\tx0, 0x1001b4a44 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xac8>",
+          "1001b45d8: aa0003f7    \tmov\tx23, x0",
+          "1001b45dc: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "1001b482c",
+        "size": 640,
+        "alignment": 8,
+        "context": [
+          "1001b481c: f946e5b5    \tldr\tx21, [x13, #0xdc8]",
+          "1001b4820: 97f97a3a    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001b4824: 52805000    \tmov\tw0, #0x280              ; =640",
+          "1001b4828: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001b482c: 97f95ffa    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001b4830: b4001440    \tcbz\tx0, 0x1001b4ab8 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0xb3c>",
+          "1001b4834: aa0003f3    \tmov\tx19, x0",
+          "1001b4838: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "vr_registry.stdout"
+  },
+  {
+    "label": "vr_geometry_root",
+    "range": {
+      "start": "0x1001526a8",
+      "stop": "0x100152784"
+    },
+    "demangled_symbol": "00000001001526a8 <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry>:",
+    "calls": [
+      {
+        "address": "100152720",
+        "size": 144,
+        "alignment": 8,
+        "context": [
+          "100152710: f9400296    \tldr\tx22, [x20]",
+          "100152714: 97fb027d    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100152718: 52801200    \tmov\tw0, #0x90               ; =144",
+          "10015271c: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100152720: 97fae83d    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100152724: b40002a0    \tcbz\tx0, 0x100152778 <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry+0xd0>",
+          "100152728: f900001f    \tstr\txzr, [x0]",
+          "10015272c: a9007ec0    \tstp\tx0, xzr, [x22]"
+        ]
+      }
+    ],
+    "source_raw": "vr_geometry_root.stdout"
+  },
+  {
+    "label": "vr_geometry_split",
+    "range": {
+      "start": "0x10015636c",
+      "stop": "0x100156a70"
+    },
+    "demangled_symbol": "000000010015636c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "100156420",
+        "size": 144,
+        "alignment": 8,
+        "context": [
+          "100156410: 9a8a3135    \tcsel\tx21, x9, x10, lo",
+          "100156414: 97faf33d    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100156418: 52801200    \tmov\tw0, #0x90               ; =144",
+          "10015641c: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100156420: 97fad8fd    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100156424: b4002d40    \tcbz\tx0, 0x1001569cc <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>+0x660>",
+          "100156428: aa0003f4    \tmov\tx20, x0",
+          "10015642c: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "10015660c",
+        "size": 240,
+        "alignment": 8,
+        "context": [
+          "1001565fc: 1a8a33fc    \tcsel\tw28, wzr, w10, lo",
+          "100156600: 97faf2c2    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100156604: 52801e00    \tmov\tw0, #0xf0               ; =240",
+          "100156608: 52800101    \tmov\tw1, #0x8                ; =8",
+          "10015660c: 97fad882    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100156610: b4001bc0    \tcbz\tx0, 0x100156988 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>+0x61c>",
+          "100156614: aa0003f4    \tmov\tx20, x0",
+          "100156618: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "1001567e0",
+        "size": 240,
+        "alignment": 8,
+        "context": [
+          "1001567d0: f9400677    \tldr\tx23, [x19, #0x8]",
+          "1001567d4: 97faf24d    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001567d8: 52801e00    \tmov\tw0, #0xf0               ; =240",
+          "1001567dc: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001567e0: 97fad80d    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001567e4: b4001000    \tcbz\tx0, 0x1001569e4 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>+0x678>",
+          "1001567e8: aa0003f5    \tmov\tx21, x0",
+          "1001567ec: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "vr_geometry_split.stdout"
+  },
+  {
+    "label": "vr_tracker_root",
+    "range": {
+      "start": "0x100151f2c",
+      "stop": "0x100152084"
+    },
+    "demangled_symbol": "0000000100151f2c <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "100151ff4",
+        "size": 1072,
+        "alignment": 8,
+        "context": [
+          "100151fe4: f9400ff3    \tldr\tx19, [sp, #0x18]",
+          "100151fe8: 97fb0448    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100151fec: 52808600    \tmov\tw0, #0x430              ; =1072",
+          "100151ff0: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100151ff4: 97faea08    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100151ff8: b4000340    \tcbz\tx0, 0x100152060 <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>+0x134>",
+          "100151ffc: d2800008    \tmov\tx8, #0x0                ; =0",
+          "100152000: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "vr_tracker_root.stdout"
+  },
+  {
+    "label": "vr_tracker_split",
+    "range": {
+      "start": "0x10015527c",
+      "stop": "0x100155d4c"
+    },
+    "demangled_symbol": "000000010015527c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "100155358",
+        "size": 1072,
+        "alignment": 8,
+        "context": [
+          "100155348: f90027e8    \tstr\tx8, [sp, #0x48]",
+          "10015534c: 97faf76f    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100155350: 52808600    \tmov\tw0, #0x430              ; =1072",
+          "100155354: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100155358: 97fadd2f    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "10015535c: b40046e0    \tcbz\tx0, 0x100155c38 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>+0x9bc>",
+          "100155360: aa0003fa    \tmov\tx26, x0",
+          "100155364: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "1001557e0",
+        "size": 1168,
+        "alignment": 8,
+        "context": [
+          "1001557d0: 528000da    \tmov\tw26, #0x6               ; =6",
+          "1001557d4: 97faf64d    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001557d8: 52809200    \tmov\tw0, #0x490              ; =1168",
+          "1001557dc: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001557e0: 97fadc0d    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001557e4: b4002060    \tcbz\tx0, 0x100155bf0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>+0x974>",
+          "1001557e8: aa0003f6    \tmov\tx22, x0",
+          "1001557ec: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "100155af4",
+        "size": 1168,
+        "alignment": 8,
+        "context": [
+          "100155ae4: f9400677    \tldr\tx23, [x19, #0x8]",
+          "100155ae8: 97faf588    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100155aec: 52809200    \tmov\tw0, #0x490              ; =1168",
+          "100155af0: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100155af4: 97fadb48    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100155af8: b4000b00    \tcbz\tx0, 0x100155c58 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>+0x9dc>",
+          "100155afc: aa0003f4    \tmov\tx20, x0",
+          "100155b00: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "vr_tracker_split.stdout"
+  },
+  {
+    "label": "vr_holding_split",
+    "range": {
+      "start": "0x100155d4c",
+      "stop": "0x10015636c"
+    },
+    "demangled_symbol": "0000000100155d4c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "100155e28",
+        "size": 104,
+        "alignment": 8,
+        "context": [
+          "100155e18: f9001fe8    \tstr\tx8, [sp, #0x38]",
+          "100155e1c: 97faf4bb    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100155e20: 52800d00    \tmov\tw0, #0x68               ; =104",
+          "100155e24: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100155e28: 97fada7b    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100155e2c: b40024e0    \tcbz\tx0, 0x1001562c8 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x57c>",
+          "100155e30: aa0003fa    \tmov\tx26, x0",
+          "100155e34: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "10015600c",
+        "size": 200,
+        "alignment": 8,
+        "context": [
+          "100155ffc: 528000dc    \tmov\tw28, #0x6               ; =6",
+          "100156000: 97faf442    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100156004: 52801900    \tmov\tw0, #0xc8               ; =200",
+          "100156008: 52800101    \tmov\tw1, #0x8                ; =8",
+          "10015600c: 97fada02    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100156010: b40013c0    \tcbz\tx0, 0x100156288 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x53c>",
+          "100156014: aa0003f6    \tmov\tx22, x0",
+          "100156018: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "1001561b4",
+        "size": 200,
+        "alignment": 8,
+        "context": [
+          "1001561a4: f9400676    \tldr\tx22, [x19, #0x8]",
+          "1001561a8: 97faf3d8    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001561ac: 52801900    \tmov\tw0, #0xc8               ; =200",
+          "1001561b0: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001561b4: 97fad998    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001561b8: b4000940    \tcbz\tx0, 0x1001562e0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x594>",
+          "1001561bc: aa0003f4    \tmov\tx20, x0",
+          "1001561c0: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "vr_holding_split.stdout"
+  },
+  {
+    "label": "vr_json_root",
+    "range": {
+      "start": "0x10006b018",
+      "stop": "0x10006b144"
+    },
+    "demangled_symbol": "000000010006b018 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry>:",
+    "calls": [
+      {
+        "address": "10006b0a0",
+        "size": 632,
+        "alignment": 8,
+        "context": [
+          "10006b090: f9400e76    \tldr\tx22, [x19, #0x18]",
+          "10006b094: 97fea01d    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "10006b098: 52804f00    \tmov\tw0, #0x278              ; =632",
+          "10006b09c: 52800101    \tmov\tw1, #0x8                ; =8",
+          "10006b0a0: 97fe85dd    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "10006b0a4: b4000320    \tcbz\tx0, 0x10006b108 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry+0xf0>",
+          "10006b0a8: f900b01f    \tstr\txzr, [x0, #0x160]",
+          "10006b0ac: a9007ec0    \tstp\tx0, xzr, [x22]"
+        ]
+      }
+    ],
+    "source_raw": "vr_json_root.stdout"
+  },
+  {
+    "label": "vr_publication_split",
+    "range": {
+      "start": "0x100014b10",
+      "stop": "0x10001549c"
+    },
+    "demangled_symbol": "0000000100014b10 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "100014bd4",
+        "size": 848,
+        "alignment": 8,
+        "context": [
+          "100014bc4: 9a8a3136    \tcsel\tx22, x9, x10, lo",
+          "100014bc8: 97fff950    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100014bcc: 52806a00    \tmov\tw0, #0x350              ; =848",
+          "100014bd0: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100014bd4: 97ffdf10    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100014bd8: b4004100    \tcbz\tx0, 0x1000153f8 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x8e8>",
+          "100014bdc: aa0003fa    \tmov\tx26, x0",
+          "100014be0: f901601f    \tstr\txzr, [x0, #0x2c0]"
+        ]
+      },
+      {
+        "address": "100014eb8",
+        "size": 944,
+        "alignment": 8,
+        "context": [
+          "100014ea8: 1a8a33f9    \tcsel\tw25, wzr, w10, lo",
+          "100014eac: 97fff897    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100014eb0: 52807600    \tmov\tw0, #0x3b0              ; =944",
+          "100014eb4: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100014eb8: 97ffde57    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100014ebc: b40027c0    \tcbz\tx0, 0x1000153b4 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x8a4>",
+          "100014ec0: aa0003f5    \tmov\tx21, x0",
+          "100014ec4: f901601f    \tstr\txzr, [x0, #0x2c0]"
+        ]
+      },
+      {
+        "address": "1000152bc",
+        "size": 944,
+        "alignment": 8,
+        "context": [
+          "1000152ac: f94006d9    \tldr\tx25, [x22, #0x8]",
+          "1000152b0: 97fff796    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1000152b4: 52807600    \tmov\tw0, #0x3b0              ; =944",
+          "1000152b8: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1000152bc: 97ffdd56    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1000152c0: b4000a80    \tcbz\tx0, 0x100015410 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x900>",
+          "1000152c4: aa0003f4    \tmov\tx20, x0",
+          "1000152c8: f901601f    \tstr\txzr, [x0, #0x2c0]"
+        ]
+      }
+    ],
+    "source_raw": "vr_publication_split.stdout"
+  },
+  {
+    "label": "vr_allowance_split",
+    "range": {
+      "start": "0x10001549c",
+      "stop": "0x100015c1c"
+    },
+    "demangled_symbol": "000000010001549c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (usize, usize), (f64, usize), alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(usize, usize), (f64, usize)>>::insert_entry::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "1000155cc",
+        "size": 368,
+        "alignment": 8,
+        "context": [
+          "1000155bc: 9a8a3135    \tcsel\tx21, x9, x10, lo",
+          "1000155c0: 97fff6d2    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1000155c4: 52802e00    \tmov\tw0, #0x170              ; =368",
+          "1000155c8: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1000155cc: 97ffdc92    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1000155d0: b4002d40    \tcbz\tx0, 0x100015b78 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (usize, usize), (f64, usize), alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(usize, usize), (f64, usize)>>::insert_entry::{closure#0}>+0x6dc>",
+          "1000155d4: aa0003f4    \tmov\tx20, x0",
+          "1000155d8: f900b01f    \tstr\txzr, [x0, #0x160]"
+        ]
+      },
+      {
+        "address": "100015784",
+        "size": 464,
+        "alignment": 8,
+        "context": [
+          "100015774: 1a8a33f5    \tcsel\tw21, wzr, w10, lo",
+          "100015778: 97fff664    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "10001577c: 52803a00    \tmov\tw0, #0x1d0              ; =464",
+          "100015780: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100015784: 97ffdc24    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100015788: b4001d80    \tcbz\tx0, 0x100015b38 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (usize, usize), (f64, usize), alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(usize, usize), (f64, usize)>>::insert_entry::{closure#0}>+0x69c>",
+          "10001578c: aa0003f4    \tmov\tx20, x0",
+          "100015790: f900b01f    \tstr\txzr, [x0, #0x160]"
+        ]
+      },
+      {
+        "address": "100015988",
+        "size": 464,
+        "alignment": 8,
+        "context": [
+          "100015978: f9400677    \tldr\tx23, [x19, #0x8]",
+          "10001597c: 97fff5e3    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100015980: 52803a00    \tmov\tw0, #0x1d0              ; =464",
+          "100015984: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100015988: 97ffdba3    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "10001598c: b4001020    \tcbz\tx0, 0x100015b90 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (usize, usize), (f64, usize), alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(usize, usize), (f64, usize)>>::insert_entry::{closure#0}>+0x6f4>",
+          "100015990: aa0003f5    \tmov\tx21, x0",
+          "100015994: f900b01f    \tstr\txzr, [x0, #0x160]"
+        ]
+      }
+    ],
+    "source_raw": "vr_allowance_split.stdout"
+  },
+  {
+    "label": "vr_pair_set_split",
+    "range": {
+      "start": "0x1000162bc",
+      "stop": "0x1000168e0"
+    },
+    "demangled_symbol": "00000001000162bc <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (u32, u32), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(u32, u32), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "100016398",
+        "size": 104,
+        "alignment": 8,
+        "context": [
+          "100016388: 9a8a3138    \tcsel\tx24, x9, x10, lo",
+          "10001638c: 97fff35f    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100016390: 52800d00    \tmov\tw0, #0x68               ; =104",
+          "100016394: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100016398: 97ffd91f    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "10001639c: b4002500    \tcbz\tx0, 0x10001683c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (u32, u32), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(u32, u32), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x580>",
+          "1000163a0: aa0003f4    \tmov\tx20, x0",
+          "1000163a4: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "1000164e4",
+        "size": 200,
+        "alignment": 8,
+        "context": [
+          "1000164d4: 528000dc    \tmov\tw28, #0x6               ; =6",
+          "1000164d8: 97fff30c    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1000164dc: 52801900    \tmov\tw0, #0xc8               ; =200",
+          "1000164e0: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1000164e4: 97ffd8cc    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1000164e8: b40018a0    \tcbz\tx0, 0x1000167fc <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (u32, u32), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(u32, u32), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x540>",
+          "1000164ec: aa0003f4    \tmov\tx20, x0",
+          "1000164f0: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "10001667c",
+        "size": 200,
+        "alignment": 8,
+        "context": [
+          "10001666c: f9400677    \tldr\tx23, [x19, #0x8]",
+          "100016670: 97fff2a6    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100016674: 52801900    \tmov\tw0, #0xc8               ; =200",
+          "100016678: 52800101    \tmov\tw1, #0x8                ; =8",
+          "10001667c: 97ffd866    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100016680: b4000ea0    \tcbz\tx0, 0x100016854 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (u32, u32), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(u32, u32), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x598>",
+          "100016684: aa0003f5    \tmov\tx21, x0",
+          "100016688: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "vr_pair_set_split.stdout"
+  },
+  {
+    "label": "vr_usize_set_split",
+    "range": {
+      "start": "0x1000168e0",
+      "stop": "0x100016ee8"
+    },
+    "demangled_symbol": "00000001000168e0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, usize, alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<usize, alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+    "calls": [
+      {
+        "address": "1000169b4",
+        "size": 104,
+        "alignment": 8,
+        "context": [
+          "1000169a4: aa0203fb    \tmov\tx27, x2",
+          "1000169a8: 97fff1d8    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1000169ac: 52800d00    \tmov\tw0, #0x68               ; =104",
+          "1000169b0: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1000169b4: 97ffd798    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1000169b8: b4002460    \tcbz\tx0, 0x100016e44 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, usize, alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<usize, alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x564>",
+          "1000169bc: aa0003f4    \tmov\tx20, x0",
+          "1000169c0: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "100016ae8",
+        "size": 200,
+        "alignment": 8,
+        "context": [
+          "100016ad8: 528000d5    \tmov\tw21, #0x6               ; =6",
+          "100016adc: 97fff18b    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100016ae0: 52801900    \tmov\tw0, #0xc8               ; =200",
+          "100016ae4: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100016ae8: 97ffd74b    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100016aec: b40018c0    \tcbz\tx0, 0x100016e04 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, usize, alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<usize, alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x524>",
+          "100016af0: aa0003f4    \tmov\tx20, x0",
+          "100016af4: f900001f    \tstr\txzr, [x0]"
+        ]
+      },
+      {
+        "address": "100016c7c",
+        "size": 200,
+        "alignment": 8,
+        "context": [
+          "100016c6c: f94006d3    \tldr\tx19, [x22, #0x8]",
+          "100016c70: 97fff126    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100016c74: 52801900    \tmov\tw0, #0xc8               ; =200",
+          "100016c78: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100016c7c: 97ffd6e6    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100016c80: b4000ee0    \tcbz\tx0, 0x100016e5c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, usize, alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<usize, alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>+0x57c>",
+          "100016c84: aa0003f5    \tmov\tx21, x0",
+          "100016c88: f900001f    \tstr\txzr, [x0]"
+        ]
+      }
+    ],
+    "source_raw": "vr_usize_set_split.stdout"
+  },
+  {
+    "label": "vr_case_bulk",
+    "range": {
+      "start": "0x10002e2f0",
+      "stop": "0x10002e440"
+    },
+    "demangled_symbol": "000000010002e2f0 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>>:",
+    "calls": [
+      {
+        "address": "10002e35c",
+        "size": 544,
+        "alignment": 8,
+        "context": [
+          "10002e34c: f9400bf6    \tldr\tx22, [sp, #0x10]",
+          "10002e350: 97ff936e    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "10002e354: 52804400    \tmov\tw0, #0x220              ; =544",
+          "10002e358: 52800101    \tmov\tw1, #0x8                ; =8",
+          "10002e35c: 97ff792e    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "10002e360: b40004e0    \tcbz\tx0, 0x10002e3fc <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>+0x10c>",
+          "10002e364: f900001f    \tstr\txzr, [x0]",
+          "10002e368: 7904341f    \tstrh\twzr, [x0, #0x21a]"
+        ]
+      }
+    ],
+    "source_raw": "vr_case_bulk.stdout"
+  },
+  {
+    "label": "vr_floor_bulk",
+    "range": {
+      "start": "0x10002e440",
+      "stop": "0x10002e580"
+    },
+    "demangled_symbol": "000000010002e440 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>>:",
+    "calls": [
+      {
+        "address": "10002e490",
+        "size": 456,
+        "alignment": 8,
+        "context": [
+          "10002e480: f9400bf6    \tldr\tx22, [sp, #0x10]",
+          "10002e484: 97ff9321    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "10002e488: 52803900    \tmov\tw0, #0x1c8              ; =456",
+          "10002e48c: 52800101    \tmov\tw1, #0x8                ; =8",
+          "10002e490: 97ff78e1    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "10002e494: b4000540    \tcbz\tx0, 0x10002e53c <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>+0xfc>",
+          "10002e498: f900581f    \tstr\txzr, [x0, #0xb0]",
+          "10002e49c: 7903841f    \tstrh\twzr, [x0, #0x1c2]"
+        ]
+      }
+    ],
+    "source_raw": "vr_floor_bulk.stdout"
+  },
+  {
+    "label": "vr_controls_bulk",
+    "range": {
+      "start": "0x10002e580",
+      "stop": "0x10002e754"
+    },
+    "demangled_symbol": "000000010002e580 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>>:",
+    "calls": [
+      {
+        "address": "10002e5cc",
+        "size": null,
+        "alignment": 8,
+        "context": [
+          "10002e5bc: d37df114    \tlsl\tx20, x8, #3",
+          "10002e5c0: 97ff92d2    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "10002e5c4: aa1403e0    \tmov\tx0, x20",
+          "10002e5c8: 52800101    \tmov\tw1, #0x8                ; =8",
+          "10002e5cc: 97ff7892    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "10002e5d0: b4000a20    \tcbz\tx0, 0x10002e714 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x194>",
+          "10002e5d4: aa0003f5    \tmov\tx21, x0",
+          "10002e5d8: f103031f    \tcmp\tx24, #0xc0"
+        ]
+      },
+      {
+        "address": "10002e684",
+        "size": 280,
+        "alignment": 8,
+        "context": [
+          "10002e674: 54000381    \tb.ne\t0x10002e6e4 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x164>",
+          "10002e678: 97ff92a4    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "10002e67c: 52802300    \tmov\tw0, #0x118              ; =280",
+          "10002e680: 52800101    \tmov\tw1, #0x8                ; =8",
+          "10002e684: 97ff7864    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "10002e688: b40003e0    \tcbz\tx0, 0x10002e704 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x184>",
+          "10002e68c: f900581f    \tstr\txzr, [x0, #0xb0]",
+          "10002e690: 7902241f    \tstrh\twzr, [x0, #0x112]"
+        ]
+      }
+    ],
+    "source_raw": "vr_controls_bulk.stdout"
+  },
+  {
+    "label": "vr_io_new_str",
+    "range": {
+      "start": "0x1001966c4",
+      "stop": "0x1001967e4"
+    },
+    "demangled_symbol": "00000001001966c4 <<std::io::error::Error>::new::<&str>>:",
+    "calls": [
+      {
+        "address": "1001966f0",
+        "size": null,
+        "alignment": 1,
+        "context": [
+          "1001966e0: aa0103f6    \tmov\tx22, x1",
+          "1001966e4: 97f9f289    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001966e8: aa1303e0    \tmov\tx0, x19",
+          "1001966ec: 52800021    \tmov\tw1, #0x1                ; =1",
+          "1001966f0: 97f9d849    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001966f4: b4000520    \tcbz\tx0, 0x100196798 <<std::io::error::Error>::new::<&str>+0xd4>",
+          "1001966f8: aa0003f5    \tmov\tx21, x0",
+          "1001966fc: aa1603e1    \tmov\tx1, x22"
+        ]
+      },
+      {
+        "address": "100196714",
+        "size": 24,
+        "alignment": 8,
+        "context": [
+          "100196704: 9400fdc7    \tbl\t0x1001d5e20 <dyld_stub_binder+0x1001d5e20>",
+          "100196708: 97f9f280    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "10019670c: 52800300    \tmov\tw0, #0x18               ; =24",
+          "100196710: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100196714: 97f9d840    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100196718: b4000300    \tcbz\tx0, 0x100196778 <<std::io::error::Error>::new::<&str>+0xb4>",
+          "10019671c: aa0003f6    \tmov\tx22, x0",
+          "100196720: a9005413    \tstp\tx19, x21, [x0]"
+        ]
+      },
+      {
+        "address": "100196734",
+        "size": 24,
+        "alignment": 8,
+        "context": [
+          "100196724: f9000813    \tstr\tx19, [x0, #0x10]",
+          "100196728: 97f9f278    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "10019672c: 52800300    \tmov\tw0, #0x18               ; =24",
+          "100196730: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100196734: 97f9d838    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100196738: b4000280    \tcbz\tx0, 0x100196788 <<std::io::error::Error>::new::<&str>+0xc4>",
+          "10019673c: b0000488    \tadrp\tx8, 0x100227000 <_anon.8d4b0d3590e8cd0d094b48a82af941ca.46+0x990>",
+          "100196740: 91362108    \tadd\tx8, x8, #0xd88"
+        ]
+      },
+      {
+        "address": "100196770",
+        "size": 24,
+        "alignment": 8,
+        "context": [
+          "100196760: 52800035    \tmov\tw21, #0x1               ; =1",
+          "100196764: 97f9f269    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "100196768: 52800300    \tmov\tw0, #0x18               ; =24",
+          "10019676c: 52800101    \tmov\tw1, #0x8                ; =8",
+          "100196770: 97f9d829    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "100196774: b5fffd40    \tcbnz\tx0, 0x10019671c <<std::io::error::Error>::new::<&str>+0x58>",
+          "100196778: 52800100    \tmov\tw0, #0x8                ; =8",
+          "10019677c: 52800301    \tmov\tw1, #0x18               ; =24"
+        ]
+      }
+    ],
+    "source_raw": "vr_io_new_str.stdout"
+  },
+  {
+    "label": "vr_json_error_io",
+    "range": {
+      "start": "0x1001ce400",
+      "stop": "0x1001ce47c"
+    },
+    "demangled_symbol": "00000001001ce400 <<serde_json::error::Error>::io>:",
+    "calls": [
+      {
+        "address": "1001ce428",
+        "size": 40,
+        "alignment": 8,
+        "context": [
+          "1001ce418: a9027fff    \tstp\txzr, xzr, [sp, #0x20]",
+          "1001ce41c: 97f9133b    \tbl\t0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+          "1001ce420: 52800500    \tmov\tw0, #0x28               ; =40",
+          "1001ce424: 52800101    \tmov\tw1, #0x8                ; =8",
+          "1001ce428: 97f8f8fb    \tbl\t0x10000c814 <__rustc::__rust_alloc>",
+          "1001ce42c: b4000140    \tcbz\tx0, 0x1001ce454 <<serde_json::error::Error>::io+0x54>",
+          "1001ce430: 3cc083e0    \tldur\tq0, [sp, #0x8]",
+          "1001ce434: 3cc183e1    \tldur\tq1, [sp, #0x18]"
+        ]
+      }
+    ],
+    "source_raw": "vr_json_error_io.stdout"
+  },
+  {
+    "label": "vr_writer_formatter",
+    "range": {
+      "start": "0x100067bdc",
+      "stop": "0x100067cb4"
+    },
+    "demangled_symbol": "0000000100067bdc <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>:",
+    "calls": [],
+    "source_raw": "vr_writer_formatter.stdout"
+  },
+  {
+    "label": "vr_compact_escaped",
+    "range": {
+      "start": "0x100067e00",
+      "stop": "0x100067f4c"
+    },
+    "demangled_symbol": "0000000100067e00 <serde_json::ser::format_escaped_str::<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter, serde_json::ser::CompactFormatter>>:",
+    "calls": [],
+    "source_raw": "vr_compact_escaped.stdout"
+  },
+  {
+    "label": "vr_compact_value_serialize",
+    "range": {
+      "start": "0x100067f4c",
+      "stop": "0x1000681d4"
+    },
+    "demangled_symbol": "0000000100067f4c <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>>:",
+    "calls": [],
+    "source_raw": "vr_compact_value_serialize.stdout"
+  }
+]

@@ -1,0 +1,1575 @@
+{
+  "exit": 0,
+  "start_observed_utc": "2026-10-02T03:59:05Z",
+  "completion_observed_utc": "2026-10-02T03:59:24Z",
+  "all_verbose_running_argv": [
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "open_pipe_stress_frame_kernel",
+      "--edition=2021",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"mutation-controls\"))",
+      "-C",
+      "metadata=0f957e6870219c30",
+      "-C",
+      "extra-filename=-a2a4dba02f18c59b",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "build_script_build",
+      "--edition=2021",
+      "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.229/build.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "bin",
+      "--emit=dep-info,link",
+      "-C",
+      "embed-bitcode=no",
+      "-C",
+      "debug-assertions=off",
+      "--cfg",
+      "feature=\"std\"",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"alloc\", \"default\", \"rc\", \"result\", \"std\", \"unstable\"))",
+      "-C",
+      "metadata=37799248d9f9fdc6",
+      "-C",
+      "extra-filename=-c518f8ca729e38f7",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/build/serde_core-c518f8ca729e38f7",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--cap-lints",
+      "allow"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "build_script_build",
+      "--edition=2021",
+      "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.23/build.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "bin",
+      "--emit=dep-info,link",
+      "-C",
+      "embed-bitcode=no",
+      "-C",
+      "debug-assertions=off",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"no-panic\"))",
+      "-C",
+      "metadata=25ac0893248562ed",
+      "-C",
+      "extra-filename=-7308fab9626bb41d",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/build/zmij-7308fab9626bb41d",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--cap-lints",
+      "allow"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "build_script_build",
+      "--edition=2021",
+      "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/build.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "bin",
+      "--emit=dep-info,link",
+      "-C",
+      "embed-bitcode=no",
+      "-C",
+      "debug-assertions=off",
+      "--cfg",
+      "feature=\"default\"",
+      "--cfg",
+      "feature=\"float_roundtrip\"",
+      "--cfg",
+      "feature=\"std\"",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"alloc\", \"arbitrary_precision\", \"default\", \"float_roundtrip\", \"indexmap\", \"preserve_order\", \"raw_value\", \"std\", \"unbounded_depth\"))",
+      "-C",
+      "metadata=21718739a347082b",
+      "-C",
+      "extra-filename=-b6da70f105635ee0",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/build/serde_json-b6da70f105635ee0",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--cap-lints",
+      "allow"
+    ],
+    [
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/build/zmij-7308fab9626bb41d/build-script-build"
+    ],
+    [
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/build/serde_json-b6da70f105635ee0/build-script-build"
+    ],
+    [
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/build/serde_core-c518f8ca729e38f7/build-script-build"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "zmij",
+      "--edition=2021",
+      "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.23/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"no-panic\"))",
+      "-C",
+      "metadata=d583d5ef599107a9",
+      "-C",
+      "extra-filename=-22ff7f7fe42d4148",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--cap-lints",
+      "allow",
+      "--check-cfg",
+      "cfg(exhaustive)",
+      "--check-cfg",
+      "cfg(opt_level, values(\"s\"))",
+      "--check-cfg",
+      "cfg(zmij_no_select_unpredictable)"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "memchr",
+      "--edition=2021",
+      "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/memchr-2.8.3/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--cfg",
+      "feature=\"alloc\"",
+      "--cfg",
+      "feature=\"std\"",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"alloc\", \"core\", \"default\", \"libc\", \"logging\", \"rustc-dep-of-std\", \"std\", \"use_std\"))",
+      "-C",
+      "metadata=ac03ef1034e72740",
+      "-C",
+      "extra-filename=-28e45147a8c5cc2b",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--cap-lints",
+      "allow"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "serde_core",
+      "--edition=2021",
+      "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.229/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--cfg",
+      "feature=\"std\"",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"alloc\", \"default\", \"rc\", \"result\", \"std\", \"unstable\"))",
+      "-C",
+      "metadata=68d36ff9cffc9ab0",
+      "-C",
+      "extra-filename=-51235c24c2bcd73e",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--cap-lints",
+      "allow",
+      "--check-cfg",
+      "cfg(if_docsrs_then_no_serde_core)",
+      "--check-cfg",
+      "cfg(no_core_cstr)",
+      "--check-cfg",
+      "cfg(no_core_error)",
+      "--check-cfg",
+      "cfg(no_core_net)",
+      "--check-cfg",
+      "cfg(no_core_num_saturating)",
+      "--check-cfg",
+      "cfg(no_diagnostic_namespace)",
+      "--check-cfg",
+      "cfg(no_serde_derive)",
+      "--check-cfg",
+      "cfg(no_std_atomic)",
+      "--check-cfg",
+      "cfg(no_std_atomic64)",
+      "--check-cfg",
+      "cfg(no_target_has_atomic)"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "itoa",
+      "--edition=2021",
+      "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/itoa-1.0.18/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"no-panic\"))",
+      "-C",
+      "metadata=1a93b1e72c7e2da4",
+      "-C",
+      "extra-filename=-d5cab72286e0b9fe",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--cap-lints",
+      "allow"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "serde_json",
+      "--edition=2021",
+      "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--cfg",
+      "feature=\"default\"",
+      "--cfg",
+      "feature=\"float_roundtrip\"",
+      "--cfg",
+      "feature=\"std\"",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"alloc\", \"arbitrary_precision\", \"default\", \"float_roundtrip\", \"indexmap\", \"preserve_order\", \"raw_value\", \"std\", \"unbounded_depth\"))",
+      "-C",
+      "metadata=a85ac0f38e3b8f22",
+      "-C",
+      "extra-filename=-44b4147a1e625485",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "itoa=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libitoa-d5cab72286e0b9fe.rmeta",
+      "--extern",
+      "memchr=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libmemchr-28e45147a8c5cc2b.rmeta",
+      "--extern",
+      "serde_core=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libserde_core-51235c24c2bcd73e.rmeta",
+      "--extern",
+      "zmij=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libzmij-22ff7f7fe42d4148.rmeta",
+      "--cap-lints",
+      "allow",
+      "--cfg",
+      "fast_arithmetic=\"64\"",
+      "--check-cfg",
+      "cfg(fast_arithmetic, values(\"32\", \"64\"))"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "open_pipe_stress_sparse_direct",
+      "--edition=2021",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values())",
+      "-C",
+      "metadata=ea07f2e455be9fc6",
+      "-C",
+      "extra-filename=-91c5af8a950e448a",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "open_pipe_stress_frame_kernel=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rmeta"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "open_pipe_stress_linear_supports",
+      "--edition=2021",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values())",
+      "-C",
+      "metadata=76ed57794af5383c",
+      "-C",
+      "extra-filename=-6569a5fa96baca45",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "open_pipe_stress_frame_kernel=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rmeta"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "open_pipe_stress_primitive_loads",
+      "--edition=2021",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/loads/primitive_loads/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values())",
+      "-C",
+      "metadata=2664cf3bb295d75f",
+      "-C",
+      "extra-filename=-66fca0dcf80513b3",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "open_pipe_stress_frame_kernel=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rmeta",
+      "--extern",
+      "open_pipe_stress_linear_supports=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_linear_supports-6569a5fa96baca45.rmeta"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "open_pipe_stress_solver_diagnostics",
+      "--edition=2021",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/diagnostics/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values())",
+      "-C",
+      "metadata=3c6efda71834b50e",
+      "-C",
+      "extra-filename=-1a5e06f31519277f",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "open_pipe_stress_frame_kernel=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rmeta",
+      "--extern",
+      "open_pipe_stress_linear_supports=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_linear_supports-6569a5fa96baca45.rmeta",
+      "--extern",
+      "open_pipe_stress_primitive_loads=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_primitive_loads-66fca0dcf80513b3.rmeta",
+      "--extern",
+      "open_pipe_stress_sparse_direct=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_sparse_direct-91c5af8a950e448a.rmeta"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "open_pipe_stress_nonlinear_supports",
+      "--edition=2021",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values())",
+      "-C",
+      "metadata=e10555a5a3d529b9",
+      "-C",
+      "extra-filename=-64c9753c3b31100c",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "open_pipe_stress_linear_supports=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_linear_supports-6569a5fa96baca45.rmeta",
+      "--extern",
+      "open_pipe_stress_solver_diagnostics=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_solver_diagnostics-1a5e06f31519277f.rmeta"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "open_pipe_stress_curved_bend",
+      "--edition=2021",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/curved_bend/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values())",
+      "-C",
+      "metadata=abf9d6857451ba67",
+      "-C",
+      "extra-filename=-3281d93fefe69d75",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "open_pipe_stress_frame_kernel=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rmeta"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "open_pipe_stress_nonlinear_integration",
+      "--edition=2021",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values())",
+      "-C",
+      "metadata=73fefc1a5566cf91",
+      "-C",
+      "extra-filename=-7e1e9e8729ae8002",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "open_pipe_stress_curved_bend=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_curved_bend-3281d93fefe69d75.rmeta",
+      "--extern",
+      "open_pipe_stress_frame_kernel=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rmeta",
+      "--extern",
+      "open_pipe_stress_nonlinear_supports=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_nonlinear_supports-64c9753c3b31100c.rmeta",
+      "--extern",
+      "open_pipe_stress_solver_diagnostics=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_solver_diagnostics-1a5e06f31519277f.rmeta",
+      "--extern",
+      "open_pipe_stress_sparse_direct=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_sparse_direct-91c5af8a950e448a.rmeta"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "open_pipe_stress_solver_performance_harness",
+      "--edition=2021",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values())",
+      "-C",
+      "metadata=b8017da16ebdc675",
+      "-C",
+      "extra-filename=-f655379ed7fd998d",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "open_pipe_stress_frame_kernel=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rmeta",
+      "--extern",
+      "open_pipe_stress_nonlinear_integration=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_nonlinear_integration-7e1e9e8729ae8002.rmeta",
+      "--extern",
+      "open_pipe_stress_solver_diagnostics=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_solver_diagnostics-1a5e06f31519277f.rmeta",
+      "--extern",
+      "open_pipe_stress_sparse_direct=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_sparse_direct-91c5af8a950e448a.rmeta"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "piping_numerical_robustness",
+      "--edition=2021",
+      "src/lib.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "lib",
+      "--emit=dep-info,metadata,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"seeded-faults\"))",
+      "-C",
+      "metadata=f9cd3a9b9456768e",
+      "-C",
+      "extra-filename=-5c125499610f9fc3",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "open_pipe_stress_frame_kernel=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rmeta",
+      "--extern",
+      "open_pipe_stress_solver_performance_harness=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_solver_performance_harness-f655379ed7fd998d.rmeta",
+      "--extern",
+      "open_pipe_stress_sparse_direct=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_sparse_direct-91c5af8a950e448a.rmeta",
+      "--extern",
+      "serde_json=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libserde_json-44b4147a1e625485.rmeta"
+    ],
+    [
+      "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "--crate-name",
+      "vk_scale",
+      "--edition=2021",
+      "examples/vk_scale.rs",
+      "--error-format=json",
+      "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+      "--crate-type",
+      "bin",
+      "--emit=dep-info,link",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "embed-bitcode=no",
+      "--check-cfg",
+      "cfg(docsrs,test)",
+      "--check-cfg",
+      "cfg(feature, values(\"seeded-faults\"))",
+      "-C",
+      "metadata=a80d4119cf1a86da",
+      "-C",
+      "extra-filename=-72d243a83b4ebb3a",
+      "--out-dir",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples",
+      "--target",
+      "aarch64-apple-darwin",
+      "-C",
+      "strip=debuginfo",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps",
+      "-L",
+      "dependency=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/deps",
+      "--extern",
+      "open_pipe_stress_frame_kernel=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rlib",
+      "--extern",
+      "open_pipe_stress_solver_performance_harness=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_solver_performance_harness-f655379ed7fd998d.rlib",
+      "--extern",
+      "open_pipe_stress_sparse_direct=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_sparse_direct-91c5af8a950e448a.rlib",
+      "--extern",
+      "piping_numerical_robustness=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libpiping_numerical_robustness-5c125499610f9fc3.rlib",
+      "--extern",
+      "serde_json=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libserde_json-44b4147a1e625485.rlib"
+    ]
+  ],
+  "fingerprints": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/.fingerprint/serde_core-c518f8ca729e38f7/build-script-build-script-build.json",
+      "sha256": "c93cf31b5cdabadc6ab0d8ded30e965ede7abf24378288359175772735205d47",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[\"std\"]",
+        "declared_features": "[\"alloc\", \"default\", \"rc\", \"result\", \"std\", \"unstable\"]",
+        "target": 5408242616063297496,
+        "profile": 1369601567987815722,
+        "path": 8105440740774715014,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/serde_core-c518f8ca729e38f7/dep-build-script-build-script-build",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/.fingerprint/zmij-7308fab9626bb41d/build-script-build-script-build.json",
+      "sha256": "c68f5a5bc23f1c3900f72bbd2b73fc64b0a58cd74913cd594a877179e6c34a3e",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"no-panic\"]",
+        "target": 5408242616063297496,
+        "profile": 1369601567987815722,
+        "path": 12973297148750177662,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/zmij-7308fab9626bb41d/dep-build-script-build-script-build",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/release/.fingerprint/serde_json-b6da70f105635ee0/build-script-build-script-build.json",
+      "sha256": "46e2232acb1948036df9c6d4a82cbc76b7098f5655377b1edf87b8b29a1bef86",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[\"default\", \"float_roundtrip\", \"std\"]",
+        "declared_features": "[\"alloc\", \"arbitrary_precision\", \"default\", \"float_roundtrip\", \"indexmap\", \"preserve_order\", \"raw_value\", \"std\", \"unbounded_depth\"]",
+        "target": 5408242616063297496,
+        "profile": 1369601567987815722,
+        "path": 16208788230502667242,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/serde_json-b6da70f105635ee0/dep-build-script-build-script-build",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/zmij-24a307f2b2d68dce/run-build-script-build-script-build.json",
+      "sha256": "70557ab79b78536e46a943485954271fb0a1af6de7e37bd5284687e6c5880651",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "",
+        "declared_features": "",
+        "target": 0,
+        "profile": 0,
+        "path": 0,
+        "deps": [
+          [
+            16226529040278277557,
+            "build_script_build",
+            false,
+            15019542881310271670
+          ]
+        ],
+        "local": [
+          {
+            "RerunIfChanged": {
+              "output": "aarch64-apple-darwin/release/build/zmij-24a307f2b2d68dce/output",
+              "paths": [
+                "build.rs"
+              ]
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 0,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/itoa-d5cab72286e0b9fe/lib-itoa.json",
+      "sha256": "1e823b30ba7e81588e36a4ebaf54bb9be47e63aec0dc6c7d3c3a6986272ec299",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"no-panic\"]",
+        "target": 18426369533666673425,
+        "profile": 2040997289075261528,
+        "path": 17051458212891999876,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/itoa-d5cab72286e0b9fe/dep-lib-itoa",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_sparse_direct-91c5af8a950e448a/lib-open_pipe_stress_sparse_direct.json",
+      "sha256": "8b1037f207139d6cbf404d023999a3e1dad915b6e0daed48ea745d1993f10997",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 13433815854669847258,
+        "profile": 2040997289075261528,
+        "path": 7267499895358936413,
+        "deps": [
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            925331889301345478
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_sparse_direct-91c5af8a950e448a/dep-lib-open_pipe_stress_sparse_direct",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/serde_json-44b4147a1e625485/lib-serde_json.json",
+      "sha256": "9374454ec1babb04dacae7a11ffe098d9c1531ad5a576e37cb1d5d292f91a40e",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[\"default\", \"float_roundtrip\", \"std\"]",
+        "declared_features": "[\"alloc\", \"arbitrary_precision\", \"default\", \"float_roundtrip\", \"indexmap\", \"preserve_order\", \"raw_value\", \"std\", \"unbounded_depth\"]",
+        "target": 9592559880233824070,
+        "profile": 2040997289075261528,
+        "path": 6272216920502407540,
+        "deps": [
+          [
+            5330460842384404171,
+            "build_script_build",
+            false,
+            5981548242506386122
+          ],
+          [
+            5532778797167691009,
+            "itoa",
+            false,
+            14124427262314189166
+          ],
+          [
+            11029742160753049355,
+            "serde_core",
+            false,
+            1335238796727582742
+          ],
+          [
+            12613788554453945248,
+            "memchr",
+            false,
+            7168981012770423339
+          ],
+          [
+            16226529040278277557,
+            "zmij",
+            false,
+            9236485602552747381
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/serde_json-44b4147a1e625485/dep-lib-serde_json",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_solver_performance_harness-f655379ed7fd998d/lib-open_pipe_stress_solver_performance_harness.json",
+      "sha256": "a46a8fe32cb183b97cb371b5e37af2f71d44d69eff317ba4d638b376cb75a4c4",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 14761305269728809189,
+        "profile": 2040997289075261528,
+        "path": 13712520301705496600,
+        "deps": [
+          [
+            3404527046730136277,
+            "open_pipe_stress_solver_diagnostics",
+            false,
+            15180762117176467716
+          ],
+          [
+            6795877286214713119,
+            "open_pipe_stress_nonlinear_integration",
+            false,
+            11557068126299218500
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            925331889301345478
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            4511903207712499906
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_solver_performance_harness-f655379ed7fd998d/dep-lib-open_pipe_stress_solver_performance_harness",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/serde_json-ca7d4ab7dd873b34/run-build-script-build-script-build.json",
+      "sha256": "14477a42b2c1f5168c8d567b0ea4af9c97256d3e9a800e8e2c4ac0936d08d983",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "",
+        "declared_features": "",
+        "target": 0,
+        "profile": 0,
+        "path": 0,
+        "deps": [
+          [
+            5330460842384404171,
+            "build_script_build",
+            false,
+            17598765604094563600
+          ]
+        ],
+        "local": [
+          {
+            "RerunIfChanged": {
+              "output": "aarch64-apple-darwin/release/build/serde_json-ca7d4ab7dd873b34/output",
+              "paths": [
+                "build.rs"
+              ]
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 0,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_nonlinear_supports-64c9753c3b31100c/lib-open_pipe_stress_nonlinear_supports.json",
+      "sha256": "5100f31ffcc3bb49066f21599497b645efe4dd5c86dafc7b9502dcafac288618",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 13138107194830374303,
+        "profile": 2040997289075261528,
+        "path": 2009799902693274883,
+        "deps": [
+          [
+            3404527046730136277,
+            "open_pipe_stress_solver_diagnostics",
+            false,
+            15180762117176467716
+          ],
+          [
+            13667293960696473624,
+            "open_pipe_stress_linear_supports",
+            false,
+            12457257423173931814
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_nonlinear_supports-64c9753c3b31100c/dep-lib-open_pipe_stress_nonlinear_supports",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_linear_supports-6569a5fa96baca45/lib-open_pipe_stress_linear_supports.json",
+      "sha256": "cf2d2c6e6d4c990535db09a17fcdca41b0fa05145ad5af0bf383d9eeb34c72c7",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 859563357648076562,
+        "profile": 2040997289075261528,
+        "path": 17603541317149277303,
+        "deps": [
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            925331889301345478
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_linear_supports-6569a5fa96baca45/dep-lib-open_pipe_stress_linear_supports",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_primitive_loads-66fca0dcf80513b3/lib-open_pipe_stress_primitive_loads.json",
+      "sha256": "98a531c9a7d6f9a565bfe4181523ccdf70359a37562c5d6008c2fd9871124dac",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 221396678050091889,
+        "profile": 2040997289075261528,
+        "path": 12523616163058416910,
+        "deps": [
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            925331889301345478
+          ],
+          [
+            13667293960696473624,
+            "open_pipe_stress_linear_supports",
+            false,
+            12457257423173931814
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_primitive_loads-66fca0dcf80513b3/dep-lib-open_pipe_stress_primitive_loads",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/piping_numerical_robustness-72d243a83b4ebb3a/example-vk_scale.json",
+      "sha256": "60144591a08596a9662fbd48da506708d08b07f0253f8bf300457a3bb1e0ab31",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"seeded-faults\"]",
+        "target": 14045518946260316521,
+        "profile": 2040997289075261528,
+        "path": 1460585749537560150,
+        "deps": [
+          [
+            136847448496861035,
+            "open_pipe_stress_solver_performance_harness",
+            false,
+            2017648044826135471
+          ],
+          [
+            5330460842384404171,
+            "serde_json",
+            false,
+            12443635748753873788
+          ],
+          [
+            9292006953407508484,
+            "piping_numerical_robustness",
+            false,
+            16449138535808471173
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            925331889301345478
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            4511903207712499906
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/piping_numerical_robustness-72d243a83b4ebb3a/dep-example-vk_scale",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/zmij-22ff7f7fe42d4148/lib-zmij.json",
+      "sha256": "a5e122f554788002f6618716fb8cea43b69ef2fe56cc20904777e6d58b0796de",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"no-panic\"]",
+        "target": 16603507647234574737,
+        "profile": 2040997289075261528,
+        "path": 5398820820628501263,
+        "deps": [
+          [
+            16226529040278277557,
+            "build_script_build",
+            false,
+            1355556944723343991
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/zmij-22ff7f7fe42d4148/dep-lib-zmij",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/serde_core-51235c24c2bcd73e/lib-serde_core.json",
+      "sha256": "a740e249a8e5ef23a6462340f3d267385e6b20a94b602f3dc91836f542b00ac0",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[\"std\"]",
+        "declared_features": "[\"alloc\", \"default\", \"rc\", \"result\", \"std\", \"unstable\"]",
+        "target": 6810695588070812737,
+        "profile": 2040997289075261528,
+        "path": 17179988982436283941,
+        "deps": [
+          [
+            11029742160753049355,
+            "build_script_build",
+            false,
+            2195045296697449435
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/serde_core-51235c24c2bcd73e/dep-lib-serde_core",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_frame_kernel-a2a4dba02f18c59b/lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "fcafbe97c6b37be4b9969cdcbe1af251d4bfcf9040c095469170c8438638e045",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 2040997289075261528,
+        "path": 3873907169581103930,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_frame_kernel-a2a4dba02f18c59b/dep-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_solver_diagnostics-1a5e06f31519277f/lib-open_pipe_stress_solver_diagnostics.json",
+      "sha256": "4e4542087f2cce5c7625d07b618c7e15f3e6bf385821e84733eab09844bd7485",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 7348772189086761181,
+        "profile": 2040997289075261528,
+        "path": 13603254856965262027,
+        "deps": [
+          [
+            10299845785790871641,
+            "open_pipe_stress_primitive_loads",
+            false,
+            3981291224371875317
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            925331889301345478
+          ],
+          [
+            13667293960696473624,
+            "open_pipe_stress_linear_supports",
+            false,
+            12457257423173931814
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            4511903207712499906
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_solver_diagnostics-1a5e06f31519277f/dep-lib-open_pipe_stress_solver_diagnostics",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_nonlinear_integration-7e1e9e8729ae8002/lib-open_pipe_stress_nonlinear_integration.json",
+      "sha256": "680e6ca926ccc58730404e4db144a223b4b45d56055ee7719400049adc971e1c",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 18228955125420696845,
+        "profile": 2040997289075261528,
+        "path": 5112655937154291486,
+        "deps": [
+          [
+            1049544045118801698,
+            "open_pipe_stress_nonlinear_supports",
+            false,
+            1849777557489883004
+          ],
+          [
+            3404527046730136277,
+            "open_pipe_stress_solver_diagnostics",
+            false,
+            15180762117176467716
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            925331889301345478
+          ],
+          [
+            14712799479206595575,
+            "open_pipe_stress_curved_bend",
+            false,
+            15810042717994112381
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            4511903207712499906
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_nonlinear_integration-7e1e9e8729ae8002/dep-lib-open_pipe_stress_nonlinear_integration",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/memchr-28e45147a8c5cc2b/lib-memchr.json",
+      "sha256": "f581a1805782fc7bc0d1fa020f264c1ae1ae3197c294449d6fe391bab16bd994",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[\"alloc\", \"std\"]",
+        "declared_features": "[\"alloc\", \"core\", \"default\", \"libc\", \"logging\", \"rustc-dep-of-std\", \"std\", \"use_std\"]",
+        "target": 11745930252914242013,
+        "profile": 2040997289075261528,
+        "path": 6887064499299680760,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/memchr-28e45147a8c5cc2b/dep-lib-memchr",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/piping_numerical_robustness-5c125499610f9fc3/lib-piping_numerical_robustness.json",
+      "sha256": "4a478140babd9894a61eaf87eb0788cba6c172641b3820b5d715cc113adaa08f",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"seeded-faults\"]",
+        "target": 13744871454275223915,
+        "profile": 2040997289075261528,
+        "path": 10763286916239946207,
+        "deps": [
+          [
+            136847448496861035,
+            "open_pipe_stress_solver_performance_harness",
+            false,
+            2017648044826135471
+          ],
+          [
+            5330460842384404171,
+            "serde_json",
+            false,
+            12443635748753873788
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            925331889301345478
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            4511903207712499906
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/piping_numerical_robustness-5c125499610f9fc3/dep-lib-piping_numerical_robustness",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/serde_core-2ec60cd23bb9d438/run-build-script-build-script-build.json",
+      "sha256": "34237d7bcabd05a4307d721b0a0dae90530b8cd855c4d96c9952d54f4c5c9702",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "",
+        "declared_features": "",
+        "target": 0,
+        "profile": 0,
+        "path": 0,
+        "deps": [
+          [
+            11029742160753049355,
+            "build_script_build",
+            false,
+            15456058462003591087
+          ]
+        ],
+        "local": [
+          {
+            "RerunIfChanged": {
+              "output": "aarch64-apple-darwin/release/build/serde_core-2ec60cd23bb9d438/output",
+              "paths": [
+                "build.rs"
+              ]
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 0,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_curved_bend-3281d93fefe69d75/lib-open_pipe_stress_curved_bend.json",
+      "sha256": "6779ae3d72b59d74be940b18946874e66eae1d26553ca966f25306781a6d6cb6",
+      "value": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 4246495781182273026,
+        "profile": 2040997289075261528,
+        "path": 9505706807979348402,
+        "deps": [
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            925331889301345478
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_curved_bend-3281d93fefe69d75/dep-lib-open_pipe_stress_curved_bend",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 551198452465029181
+      }
+    }
+  ],
+  "final_externs": {
+    "open_pipe_stress_frame_kernel": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rlib",
+    "open_pipe_stress_solver_performance_harness": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_solver_performance_harness-f655379ed7fd998d.rlib",
+    "open_pipe_stress_sparse_direct": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_sparse_direct-91c5af8a950e448a.rlib",
+    "piping_numerical_robustness": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libpiping_numerical_robustness-5c125499610f9fc3.rlib",
+    "serde_json": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libserde_json-44b4147a1e625485.rlib"
+  }
+}

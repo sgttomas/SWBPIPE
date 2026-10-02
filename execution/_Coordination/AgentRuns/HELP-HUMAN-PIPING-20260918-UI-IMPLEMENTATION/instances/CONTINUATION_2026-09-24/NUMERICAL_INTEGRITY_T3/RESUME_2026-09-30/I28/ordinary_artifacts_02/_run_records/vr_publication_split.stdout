@@ -1,0 +1,617 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000100014b10 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>>:
+100014b10: d107c3ff    	sub	sp, sp, #0x1f0
+100014b14: a9196ffc    	stp	x28, x27, [sp, #0x190]
+100014b18: a91a67fa    	stp	x26, x25, [sp, #0x1a0]
+100014b1c: a91b5ff8    	stp	x24, x23, [sp, #0x1b0]
+100014b20: a91c57f6    	stp	x22, x21, [sp, #0x1c0]
+100014b24: a91d4ff4    	stp	x20, x19, [sp, #0x1d0]
+100014b28: a91e7bfd    	stp	x29, x30, [sp, #0x1e0]
+100014b2c: 910783fd    	add	x29, sp, #0x1e0
+100014b30: f90007e3    	str	x3, [sp, #0x8]
+100014b34: aa0203f5    	mov	x21, x2
+100014b38: aa0103f7    	mov	x23, x1
+100014b3c: f90013e8    	str	x8, [sp, #0x20]
+100014b40: f940001b    	ldr	x27, [x0]
+100014b44: 79469f73    	ldrh	w19, [x27, #0x34e]
+100014b48: 71002e7f    	cmp	w19, #0xb
+100014b4c: 540001c2    	b.hs	0x100014b84 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x74>
+100014b50: 910b2368    	add	x8, x27, #0x2c8
+100014b54: f940081c    	ldr	x28, [x0, #0x10]
+100014b58: 91000794    	add	x20, x28, #0x1
+100014b5c: 52800189    	mov	w9, #0xc                ; =12
+100014b60: 9b092398    	madd	x24, x28, x9, x8
+100014b64: 8b1c1b76    	add	x22, x27, x28, lsl #6
+100014b68: eb13029f    	cmp	x20, x19
+100014b6c: 54000c29    	b.ls	0x100014cf0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x1e0>
+100014b70: f94002e8    	ldr	x8, [x23]
+100014b74: f9000308    	str	x8, [x24]
+100014b78: b9400ae8    	ldr	w8, [x23, #0x8]
+100014b7c: b9000b08    	str	w8, [x24, #0x8]
+100014b80: 1400006e    	b	0x100014d38 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x228>
+100014b84: a940a013    	ldp	x19, x8, [x0, #0x8]
+100014b88: 52800089    	mov	w9, #0x4                ; =4
+100014b8c: 528000aa    	mov	w10, #0x5               ; =5
+100014b90: d1001d0b    	sub	x11, x8, #0x7
+100014b94: 5280002c    	mov	w12, #0x1               ; =1
+100014b98: 528000cd    	mov	w13, #0x6               ; =6
+100014b9c: f100191f    	cmp	x8, #0x6
+100014ba0: 9a8b03eb    	csel	x11, xzr, x11, eq
+100014ba4: 1a9f158c    	csinc	w12, w12, wzr, ne
+100014ba8: 9a8d014a    	csel	x10, x10, x13, eq
+100014bac: f100151f    	cmp	x8, #0x5
+100014bb0: 9a8b010b    	csel	x11, x8, x11, eq
+100014bb4: 1a8c03ec    	csel	w12, wzr, w12, eq
+100014bb8: 9a8a010a    	csel	x10, x8, x10, eq
+100014bbc: 1a8c33f4    	csel	w20, wzr, w12, lo
+100014bc0: 9a8b311c    	csel	x28, x8, x11, lo
+100014bc4: 9a8a3136    	csel	x22, x9, x10, lo
+100014bc8: 97fff950    	bl	0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+100014bcc: 52806a00    	mov	w0, #0x350              ; =848
+100014bd0: 52800101    	mov	w1, #0x8                ; =8
+100014bd4: 97ffdf10    	bl	0x10000c814 <__rustc::__rust_alloc>
+100014bd8: b4004100    	cbz	x0, 0x1000153f8 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x8e8>
+100014bdc: aa0003fa    	mov	x26, x0
+100014be0: f901601f    	str	xzr, [x0, #0x2c0]
+100014be4: 79469f68    	ldrh	w8, [x27, #0x34e]
+100014be8: aa3603e9    	mvn	x9, x22
+100014bec: 8b090118    	add	x24, x8, x9
+100014bf0: 79069c18    	strh	w24, [x0, #0x34e]
+100014bf4: f100331f    	cmp	x24, #0xc
+100014bf8: 54003f22    	b.hs	0x1000153dc <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x8cc>
+100014bfc: f9000bf7    	str	x23, [sp, #0x10]
+100014c00: 8b161b79    	add	x25, x27, x22, lsl #6
+100014c04: f9400328    	ldr	x8, [x25]
+100014c08: f90003e8    	str	x8, [sp]
+100014c0c: aa1403f7    	mov	x23, x20
+100014c10: aa1303f4    	mov	x20, x19
+100014c14: 52800188    	mov	w8, #0xc                ; =12
+100014c18: aa1c03f3    	mov	x19, x28
+100014c1c: 9b086edc    	madd	x28, x22, x8, x27
+100014c20: 8b180708    	add	x8, x24, x24, lsl #1
+100014c24: d37ef502    	lsl	x2, x8, #2
+100014c28: 910b2340    	add	x0, x26, #0x2c8
+100014c2c: 910b5381    	add	x1, x28, #0x2d4
+100014c30: 9407047c    	bl	0x1001d5e20 <dyld_stub_binder+0x1001d5e20>
+100014c34: d37ae702    	lsl	x2, x24, #6
+100014c38: 91010321    	add	x1, x25, #0x40
+100014c3c: aa1a03e0    	mov	x0, x26
+100014c40: 94070478    	bl	0x1001d5e20 <dyld_stub_binder+0x1001d5e20>
+100014c44: 79069f76    	strh	w22, [x27, #0x34e]
+100014c48: f9416788    	ldr	x8, [x28, #0x2c8]
+100014c4c: f90053e8    	str	x8, [sp, #0xa0]
+100014c50: b942d388    	ldr	w8, [x28, #0x2d0]
+100014c54: aa1303fc    	mov	x28, x19
+100014c58: b900abe8    	str	w8, [sp, #0xa8]
+100014c5c: 3cc08320    	ldur	q0, [x25, #0x8]
+100014c60: 3cc18321    	ldur	q1, [x25, #0x18]
+100014c64: ad3b87a0    	stp	q0, q1, [x29, #-0x90]
+100014c68: 3cc28320    	ldur	q0, [x25, #0x28]
+100014c6c: 3c9903a0    	stur	q0, [x29, #-0x70]
+100014c70: f9401f28    	ldr	x8, [x25, #0x38]
+100014c74: 710002ff    	cmp	w23, #0x0
+100014c78: a902ebfb    	stp	x27, x26, [sp, #0x28]
+100014c7c: 9a9b1353    	csel	x19, x26, x27, ne
+100014c80: f81a03a8    	stur	x8, [x29, #-0x60]
+100014c84: f9001ff4    	str	x20, [sp, #0x38]
+100014c88: 9a9413e8    	csel	x8, xzr, x20, ne
+100014c8c: f9000fe8    	str	x8, [sp, #0x18]
+100014c90: 79469e74    	ldrh	w20, [x19, #0x34e]
+100014c94: 910b2268    	add	x8, x19, #0x2c8
+100014c98: 52800189    	mov	w9, #0xc                ; =12
+100014c9c: 9b092399    	madd	x25, x28, x9, x8
+100014ca0: 8b1c1a78    	add	x24, x19, x28, lsl #6
+100014ca4: eb1c0296    	subs	x22, x20, x28
+100014ca8: 54002b29    	b.ls	0x10001520c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x6fc>
+100014cac: 9100079a    	add	x26, x28, #0x1
+100014cb0: 52800189    	mov	w9, #0xc                ; =12
+100014cb4: 9b092340    	madd	x0, x26, x9, x8
+100014cb8: 8b1606c8    	add	x8, x22, x22, lsl #1
+100014cbc: d37ef502    	lsl	x2, x8, #2
+100014cc0: aa1903e1    	mov	x1, x25
+100014cc4: 9407045a    	bl	0x1001d5e2c <dyld_stub_binder+0x1001d5e2c>
+100014cc8: f9400be9    	ldr	x9, [sp, #0x10]
+100014ccc: f9400128    	ldr	x8, [x9]
+100014cd0: f9000328    	str	x8, [x25]
+100014cd4: b9400928    	ldr	w8, [x9, #0x8]
+100014cd8: b9000b28    	str	w8, [x25, #0x8]
+100014cdc: 8b1a1a60    	add	x0, x19, x26, lsl #6
+100014ce0: d37ae6c2    	lsl	x2, x22, #6
+100014ce4: aa1803e1    	mov	x1, x24
+100014ce8: 94070451    	bl	0x1001d5e2c <dyld_stub_binder+0x1001d5e2c>
+100014cec: 1400014d    	b	0x100015220 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x710>
+100014cf0: 52800189    	mov	w9, #0xc                ; =12
+100014cf4: 9b092288    	madd	x8, x20, x9, x8
+100014cf8: cb1c027a    	sub	x26, x19, x28
+100014cfc: 8b1a0749    	add	x9, x26, x26, lsl #1
+100014d00: d37ef522    	lsl	x2, x9, #2
+100014d04: aa0003f9    	mov	x25, x0
+100014d08: aa0803e0    	mov	x0, x8
+100014d0c: aa1803e1    	mov	x1, x24
+100014d10: 94070447    	bl	0x1001d5e2c <dyld_stub_binder+0x1001d5e2c>
+100014d14: f94002e8    	ldr	x8, [x23]
+100014d18: f9000308    	str	x8, [x24]
+100014d1c: b9400ae8    	ldr	w8, [x23, #0x8]
+100014d20: b9000b08    	str	w8, [x24, #0x8]
+100014d24: 8b141b60    	add	x0, x27, x20, lsl #6
+100014d28: d37ae742    	lsl	x2, x26, #6
+100014d2c: aa1603e1    	mov	x1, x22
+100014d30: 9407043f    	bl	0x1001d5e2c <dyld_stub_binder+0x1001d5e2c>
+100014d34: aa1903e0    	mov	x0, x25
+100014d38: 11000668    	add	w8, w19, #0x1
+100014d3c: ad4006a0    	ldp	q0, q1, [x21]
+100014d40: ad0006c0    	stp	q0, q1, [x22]
+100014d44: ad4106a0    	ldp	q0, q1, [x21, #0x20]
+100014d48: ad0106c0    	stp	q0, q1, [x22, #0x20]
+100014d4c: 79069f68    	strh	w8, [x27, #0x34e]
+100014d50: f9400408    	ldr	x8, [x0, #0x8]
+100014d54: a90123fb    	stp	x27, x8, [sp, #0x10]
+100014d58: 92800008    	mov	x8, #-0x1               ; =-1
+100014d5c: 9103c3e9    	add	x9, sp, #0xf0
+100014d60: f9000128    	str	x8, [x9]
+100014d64: f9407bf3    	ldr	x19, [sp, #0xf0]
+100014d68: b100067f    	cmn	x19, #0x1
+100014d6c: 540028c0    	b.eq	0x100015284 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x774>
+100014d70: f90003fc    	str	x28, [sp]
+100014d74: 3cd603a0    	ldur	q0, [x29, #-0xa0]
+100014d78: 3d8023e0    	str	q0, [sp, #0x80]
+100014d7c: ad7907a0    	ldp	q0, q1, [x29, #-0xe0]
+100014d80: ad0207e0    	stp	q0, q1, [sp, #0x40]
+100014d84: 3cd403a0    	ldur	q0, [x29, #-0xc0]
+100014d88: 3d801be0    	str	q0, [sp, #0x60]
+100014d8c: f85503a8    	ldur	x8, [x29, #-0xb0]
+100014d90: f9003be8    	str	x8, [sp, #0x70]
+100014d94: f94073f7    	ldr	x23, [sp, #0xe0]
+100014d98: f941637c    	ldr	x28, [x27, #0x2c0]
+100014d9c: b40027fc    	cbz	x28, 0x100015298 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x788>
+100014da0: 5280019a    	mov	w26, #0xc               ; =12
+100014da4: eb0c02ff    	cmp	x23, x12
+100014da8: 54002e01    	b.ne	0x100015368 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x858>
+100014dac: 79469b79    	ldrh	w25, [x27, #0x34c]
+100014db0: 79469f98    	ldrh	w24, [x28, #0x34e]
+100014db4: 71002f1f    	cmp	w24, #0xb
+100014db8: 54000562    	b.hs	0x100014e64 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x354>
+100014dbc: 910b2388    	add	x8, x28, #0x2c8
+100014dc0: 91000734    	add	x20, x25, #0x1
+100014dc4: 9bba2337    	umaddl	x23, w25, w26, x8
+100014dc8: 6b18033f    	cmp	w25, w24
+100014dcc: 54001602    	b.hs	0x10001508c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x57c>
+100014dd0: 9bba2280    	umaddl	x0, w20, w26, x8
+100014dd4: f90017fb    	str	x27, [sp, #0x28]
+100014dd8: aa1603fb    	mov	x27, x22
+100014ddc: cb190316    	sub	x22, x24, x25
+100014de0: 8b1606c8    	add	x8, x22, x22, lsl #1
+100014de4: d37ef502    	lsl	x2, x8, #2
+100014de8: aa1703e1    	mov	x1, x23
+100014dec: aa0c03fa    	mov	x26, x12
+100014df0: 9407040f    	bl	0x1001d5e2c <dyld_stub_binder+0x1001d5e2c>
+100014df4: f94043e8    	ldr	x8, [sp, #0x80]
+100014df8: f90002e8    	str	x8, [x23]
+100014dfc: b9408be8    	ldr	w8, [sp, #0x88]
+100014e00: b9000ae8    	str	w8, [x23, #0x8]
+100014e04: 8b191b97    	add	x23, x28, x25, lsl #6
+100014e08: 8b141b80    	add	x0, x28, x20, lsl #6
+100014e0c: d37ae6c2    	lsl	x2, x22, #6
+100014e10: aa1703e1    	mov	x1, x23
+100014e14: 94070406    	bl	0x1001d5e2c <dyld_stub_binder+0x1001d5e2c>
+100014e18: f90002f3    	str	x19, [x23]
+100014e1c: ad4207e0    	ldp	q0, q1, [sp, #0x40]
+100014e20: 3c8082e0    	stur	q0, [x23, #0x8]
+100014e24: 3c8182e1    	stur	q1, [x23, #0x18]
+100014e28: 3dc01be0    	ldr	q0, [sp, #0x60]
+100014e2c: 3c8282e0    	stur	q0, [x23, #0x28]
+100014e30: f9403be8    	ldr	x8, [sp, #0x70]
+100014e34: f9001ee8    	str	x8, [x23, #0x38]
+100014e38: 910d4388    	add	x8, x28, #0x350
+100014e3c: 8b140d01    	add	x1, x8, x20, lsl #3
+100014e40: 8b190d08    	add	x8, x8, x25, lsl #3
+100014e44: d37df2c2    	lsl	x2, x22, #3
+100014e48: aa1b03f6    	mov	x22, x27
+100014e4c: f94017fb    	ldr	x27, [sp, #0x28]
+100014e50: 91004100    	add	x0, x8, #0x10
+100014e54: 940703f6    	bl	0x1001d5e2c <dyld_stub_binder+0x1001d5e2c>
+100014e58: aa1a03ec    	mov	x12, x26
+100014e5c: 5280019a    	mov	w26, #0xc               ; =12
+100014e60: 14000098    	b	0x1000150c0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x5b0>
+100014e64: 9100058c    	add	x12, x12, #0x1
+100014e68: f9001fec    	str	x12, [sp, #0x38]
+100014e6c: d1001f28    	sub	x8, x25, #0x7
+100014e70: 71001b3f    	cmp	w25, #0x6
+100014e74: 528000a9    	mov	w9, #0x5                ; =5
+100014e78: 528000ca    	mov	w10, #0x6               ; =6
+100014e7c: 9a8a0129    	csel	x9, x9, x10, eq
+100014e80: 9a8803e8    	csel	x8, xzr, x8, eq
+100014e84: 5280002a    	mov	w10, #0x1               ; =1
+100014e88: 1a9f154a    	csinc	w10, w10, wzr, ne
+100014e8c: 7100173f    	cmp	w25, #0x5
+100014e90: 1a8a03ea    	csel	w10, wzr, w10, eq
+100014e94: 9a890329    	csel	x9, x25, x9, eq
+100014e98: 9a880328    	csel	x8, x25, x8, eq
+100014e9c: 5280008b    	mov	w11, #0x4               ; =4
+100014ea0: 9a893174    	csel	x20, x11, x9, lo
+100014ea4: 9a88333b    	csel	x27, x25, x8, lo
+100014ea8: 1a8a33f9    	csel	w25, wzr, w10, lo
+100014eac: 97fff897    	bl	0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+100014eb0: 52807600    	mov	w0, #0x3b0              ; =944
+100014eb4: 52800101    	mov	w1, #0x8                ; =8
+100014eb8: 97ffde57    	bl	0x10000c814 <__rustc::__rust_alloc>
+100014ebc: b40027c0    	cbz	x0, 0x1000153b4 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x8a4>
+100014ec0: aa0003f5    	mov	x21, x0
+100014ec4: f901601f    	str	xzr, [x0, #0x2c0]
+100014ec8: 79069c1f    	strh	wzr, [x0, #0x34e]
+100014ecc: 79469f88    	ldrh	w8, [x28, #0x34e]
+100014ed0: aa3403e9    	mvn	x9, x20
+100014ed4: 8b090117    	add	x23, x8, x9
+100014ed8: 79069c17    	strh	w23, [x0, #0x34e]
+100014edc: 910b2388    	add	x8, x28, #0x2c8
+100014ee0: 9bba2289    	umaddl	x9, w20, w26, x8
+100014ee4: f940012a    	ldr	x10, [x9]
+100014ee8: f9007bea    	str	x10, [sp, #0xf0]
+100014eec: b9400929    	ldr	w9, [x9, #0x8]
+100014ef0: b900fbe9    	str	w9, [sp, #0xf8]
+100014ef4: 8b141b89    	add	x9, x28, x20, lsl #6
+100014ef8: f940012a    	ldr	x10, [x9]
+100014efc: 3cc08120    	ldur	q0, [x9, #0x8]
+100014f00: 3cc18121    	ldur	q1, [x9, #0x18]
+100014f04: ad3b87a0    	stp	q0, q1, [x29, #-0x90]
+100014f08: 3cc28120    	ldur	q0, [x9, #0x28]
+100014f0c: 3c9903a0    	stur	q0, [x29, #-0x70]
+100014f10: f9401d29    	ldr	x9, [x9, #0x38]
+100014f14: f81a03a9    	stur	x9, [x29, #-0x60]
+100014f18: f10032ff    	cmp	x23, #0xc
+100014f1c: 54002322    	b.hs	0x100015380 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x870>
+100014f20: a902dbea    	stp	x10, x22, [sp, #0x28]
+100014f24: 91000696    	add	x22, x20, #0x1
+100014f28: 9bba22c1    	umaddl	x1, w22, w26, x8
+100014f2c: 8b1706e8    	add	x8, x23, x23, lsl #1
+100014f30: d37ef502    	lsl	x2, x8, #2
+100014f34: 910b22a0    	add	x0, x21, #0x2c8
+100014f38: 940703ba    	bl	0x1001d5e20 <dyld_stub_binder+0x1001d5e20>
+100014f3c: d37ae6e2    	lsl	x2, x23, #6
+100014f40: 8b161b81    	add	x1, x28, x22, lsl #6
+100014f44: aa1503e0    	mov	x0, x21
+100014f48: 940703b6    	bl	0x1001d5e20 <dyld_stub_binder+0x1001d5e20>
+100014f4c: 79069f94    	strh	w20, [x28, #0x34e]
+100014f50: f9407be8    	ldr	x8, [sp, #0xf0]
+100014f54: f81603a8    	stur	x8, [x29, #-0xa0]
+100014f58: b940fbe8    	ldr	w8, [sp, #0xf8]
+100014f5c: b81683a8    	stur	w8, [x29, #-0x98]
+100014f60: ad7b87a0    	ldp	q0, q1, [x29, #-0x90]
+100014f64: ad3907a0    	stp	q0, q1, [x29, #-0xe0]
+100014f68: 3cd903a0    	ldur	q0, [x29, #-0x70]
+100014f6c: f85a03a8    	ldur	x8, [x29, #-0x60]
+100014f70: f81503a8    	stur	x8, [x29, #-0xb0]
+100014f74: 79469eb6    	ldrh	w22, [x21, #0x34e]
+100014f78: 910006c1    	add	x1, x22, #0x1
+100014f7c: 3c9403a0    	stur	q0, [x29, #-0xc0]
+100014f80: f1002edf    	cmp	x22, #0xb
+100014f84: 540020c8    	b.hi	0x10001539c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x88c>
+100014f88: cb140308    	sub	x8, x24, x20
+100014f8c: eb01011f    	cmp	x8, x1
+100014f90: 54002181    	b.ne	0x1000153c0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x8b0>
+100014f94: 910d42b7    	add	x23, x21, #0x350
+100014f98: d37df022    	lsl	x2, x1, #3
+100014f9c: 8b140f88    	add	x8, x28, x20, lsl #3
+100014fa0: 910d42a0    	add	x0, x21, #0x350
+100014fa4: 910d6101    	add	x1, x8, #0x358
+100014fa8: 9407039e    	bl	0x1001d5e20 <dyld_stub_binder+0x1001d5e20>
+100014fac: d2800008    	mov	x8, #0x0                ; =0
+100014fb0: f8687ae9    	ldr	x9, [x23, x8, lsl #3]
+100014fb4: f9016135    	str	x21, [x9, #0x2c0]
+100014fb8: 79069928    	strh	w8, [x9, #0x34c]
+100014fbc: eb16011f    	cmp	x8, x22
+100014fc0: 9a882509    	cinc	x9, x8, lo
+100014fc4: 54000082    	b.hs	0x100014fd4 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x4c4>
+100014fc8: aa0903e8    	mov	x8, x9
+100014fcc: eb16013f    	cmp	x9, x22
+100014fd0: 54ffff09    	b.ls	0x100014fb0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x4a0>
+100014fd4: 3cd603a0    	ldur	q0, [x29, #-0xa0]
+100014fd8: 3d803fe0    	str	q0, [sp, #0xf0]
+100014fdc: ad7907a0    	ldp	q0, q1, [x29, #-0xe0]
+100014fe0: ad3b87a0    	stp	q0, q1, [x29, #-0x90]
+100014fe4: 3cd403a0    	ldur	q0, [x29, #-0xc0]
+100014fe8: 3c9903a0    	stur	q0, [x29, #-0x70]
+100014fec: f85503a8    	ldur	x8, [x29, #-0xb0]
+100014ff0: f81a03a8    	stur	x8, [x29, #-0x60]
+100014ff4: 7100033f    	cmp	w25, #0x0
+100014ff8: 9a9c12b9    	csel	x25, x21, x28, ne
+100014ffc: 79469f34    	ldrh	w20, [x25, #0x34e]
+100015000: 910b2328    	add	x8, x25, #0x2c8
+100015004: 91000776    	add	x22, x27, #0x1
+100015008: 9b3a2378    	smaddl	x24, w27, w26, x8
+10001500c: 8b1b1b37    	add	x23, x25, x27, lsl #6
+100015010: 52800189    	mov	w9, #0xc                ; =12
+100015014: eb1b029a    	subs	x26, x20, x27
+100015018: 54000849    	b.ls	0x100015120 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x610>
+10001501c: 9b2922c0    	smaddl	x0, w22, w9, x8
+100015020: 8b1a0748    	add	x8, x26, x26, lsl #1
+100015024: d37ef502    	lsl	x2, x8, #2
+100015028: aa1803e1    	mov	x1, x24
+10001502c: 94070380    	bl	0x1001d5e2c <dyld_stub_binder+0x1001d5e2c>
+100015030: f94043e8    	ldr	x8, [sp, #0x80]
+100015034: f9000308    	str	x8, [x24]
+100015038: b9408be8    	ldr	w8, [sp, #0x88]
+10001503c: b9000b08    	str	w8, [x24, #0x8]
+100015040: 8b161b20    	add	x0, x25, x22, lsl #6
+100015044: d37ae742    	lsl	x2, x26, #6
+100015048: aa1703e1    	mov	x1, x23
+10001504c: 94070378    	bl	0x1001d5e2c <dyld_stub_binder+0x1001d5e2c>
+100015050: f90002f3    	str	x19, [x23]
+100015054: ad4207e0    	ldp	q0, q1, [sp, #0x40]
+100015058: 3c8082e0    	stur	q0, [x23, #0x8]
+10001505c: 3c8182e1    	stur	q1, [x23, #0x18]
+100015060: 3dc01be0    	ldr	q0, [sp, #0x60]
+100015064: 3c8282e0    	stur	q0, [x23, #0x28]
+100015068: f9403be8    	ldr	x8, [sp, #0x70]
+10001506c: f9001ee8    	str	x8, [x23, #0x38]
+100015070: 910d4328    	add	x8, x25, #0x350
+100015074: 8b160d01    	add	x1, x8, x22, lsl #3
+100015078: 8b1b0d08    	add	x8, x8, x27, lsl #3
+10001507c: d37df342    	lsl	x2, x26, #3
+100015080: 91004100    	add	x0, x8, #0x10
+100015084: 9407036a    	bl	0x1001d5e2c <dyld_stub_binder+0x1001d5e2c>
+100015088: 14000032    	b	0x100015150 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x640>
+10001508c: f94043e8    	ldr	x8, [sp, #0x80]
+100015090: f90002e8    	str	x8, [x23]
+100015094: b9408be8    	ldr	w8, [sp, #0x88]
+100015098: b9000ae8    	str	w8, [x23, #0x8]
+10001509c: 8b191b88    	add	x8, x28, x25, lsl #6
+1000150a0: f9000113    	str	x19, [x8]
+1000150a4: ad4207e0    	ldp	q0, q1, [sp, #0x40]
+1000150a8: 3c808100    	stur	q0, [x8, #0x8]
+1000150ac: 3c818101    	stur	q1, [x8, #0x18]
+1000150b0: 3dc01be0    	ldr	q0, [sp, #0x60]
+1000150b4: 3c828100    	stur	q0, [x8, #0x28]
+1000150b8: f9403be9    	ldr	x9, [sp, #0x70]
+1000150bc: f9001d09    	str	x9, [x8, #0x38]
+1000150c0: 11000708    	add	w8, w24, #0x1
+1000150c4: 8b140f89    	add	x9, x28, x20, lsl #3
+1000150c8: 91000b0a    	add	x10, x24, #0x2
+1000150cc: f901a936    	str	x22, [x9, #0x350]
+1000150d0: 79069f88    	strh	w8, [x28, #0x34e]
+1000150d4: eb0a029f    	cmp	x20, x10
+1000150d8: 54000162    	b.hs	0x100015104 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x5f4>
+1000150dc: 9101af28    	add	x8, x25, #0x6b
+1000150e0: cb1803e9    	neg	x9, x24
+1000150e4: f8687b8a    	ldr	x10, [x28, x8, lsl #3]
+1000150e8: 5101a90b    	sub	w11, w8, #0x6a
+1000150ec: f901615c    	str	x28, [x10, #0x2c0]
+1000150f0: 7906994b    	strh	w11, [x10, #0x34c]
+1000150f4: 91000508    	add	x8, x8, #0x1
+1000150f8: 8b08012a    	add	x10, x9, x8
+1000150fc: f101b15f    	cmp	x10, #0x6c
+100015100: 54ffff21    	b.ne	0x1000150e4 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x5d4>
+100015104: 92800009    	mov	x9, #-0x1               ; =-1
+100015108: 910363e8    	add	x8, sp, #0xd8
+10001510c: f9000109    	str	x9, [x8]
+100015110: f9406ff3    	ldr	x19, [sp, #0xd8]
+100015114: b100067f    	cmn	x19, #0x1
+100015118: 54000601    	b.ne	0x1000151d8 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x6c8>
+10001511c: 14000086    	b	0x100015334 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x824>
+100015120: f94043e8    	ldr	x8, [sp, #0x80]
+100015124: f9000308    	str	x8, [x24]
+100015128: b9408be8    	ldr	w8, [sp, #0x88]
+10001512c: b9000b08    	str	w8, [x24, #0x8]
+100015130: f90002f3    	str	x19, [x23]
+100015134: ad4207e0    	ldp	q0, q1, [sp, #0x40]
+100015138: 3c8082e0    	stur	q0, [x23, #0x8]
+10001513c: 3c8182e1    	stur	q1, [x23, #0x18]
+100015140: 3dc01be0    	ldr	q0, [sp, #0x60]
+100015144: 3c8282e0    	stur	q0, [x23, #0x28]
+100015148: f9403be8    	ldr	x8, [sp, #0x70]
+10001514c: f9001ee8    	str	x8, [x23, #0x38]
+100015150: a94333eb    	ldp	x11, x12, [sp, #0x30]
+100015154: 11000688    	add	w8, w20, #0x1
+100015158: 8b160f29    	add	x9, x25, x22, lsl #3
+10001515c: 91000a8a    	add	x10, x20, #0x2
+100015160: f901a92b    	str	x11, [x9, #0x350]
+100015164: 79069f28    	strh	w8, [x25, #0x34e]
+100015168: eb0a02df    	cmp	x22, x10
+10001516c: 54000162    	b.hs	0x100015198 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x688>
+100015170: 9101af68    	add	x8, x27, #0x6b
+100015174: cb1403e9    	neg	x9, x20
+100015178: f8687b2a    	ldr	x10, [x25, x8, lsl #3]
+10001517c: 5101a90b    	sub	w11, w8, #0x6a
+100015180: f9016159    	str	x25, [x10, #0x2c0]
+100015184: 7906994b    	strh	w11, [x10, #0x34c]
+100015188: 91000508    	add	x8, x8, #0x1
+10001518c: 8b08012a    	add	x10, x9, x8
+100015190: f101b15f    	cmp	x10, #0x6c
+100015194: 54ffff21    	b.ne	0x100015178 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x668>
+100015198: 3dc03fe0    	ldr	q0, [sp, #0xf0]
+10001519c: 3d803be0    	str	q0, [sp, #0xe0]
+1000151a0: f94017eb    	ldr	x11, [sp, #0x28]
+1000151a4: ad7b87a0    	ldp	q0, q1, [x29, #-0x90]
+1000151a8: ad0507e0    	stp	q0, q1, [sp, #0xa0]
+1000151ac: 3cd903a0    	ldur	q0, [x29, #-0x70]
+1000151b0: 3d8033e0    	str	q0, [sp, #0xc0]
+1000151b4: f85a03aa    	ldur	x10, [x29, #-0x60]
+1000151b8: 910263e8    	add	x8, sp, #0x98
+1000151bc: aa1c03fb    	mov	x27, x28
+1000151c0: a90d2fea    	stp	x10, x11, [sp, #0xd0]
+1000151c4: 5280019a    	mov	w26, #0xc               ; =12
+1000151c8: f900010c    	str	x12, [x8]
+1000151cc: f9406ff3    	ldr	x19, [sp, #0xd8]
+1000151d0: b100067f    	cmn	x19, #0x1
+1000151d4: 54000b00    	b.eq	0x100015334 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x824>
+1000151d8: 3dc03be0    	ldr	q0, [sp, #0xe0]
+1000151dc: 3d8023e0    	str	q0, [sp, #0x80]
+1000151e0: ad4507e0    	ldp	q0, q1, [sp, #0xa0]
+1000151e4: ad0207e0    	stp	q0, q1, [sp, #0x40]
+1000151e8: 3dc033e0    	ldr	q0, [sp, #0xc0]
+1000151ec: 3d801be0    	str	q0, [sp, #0x60]
+1000151f0: f9406be8    	ldr	x8, [sp, #0xd0]
+1000151f4: f9003be8    	str	x8, [sp, #0x70]
+1000151f8: f9404ff7    	ldr	x23, [sp, #0x98]
+1000151fc: aa1503f6    	mov	x22, x21
+100015200: f941637c    	ldr	x28, [x27, #0x2c0]
+100015204: b5ffdd1c    	cbnz	x28, 0x100014da4 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x294>
+100015208: 14000025    	b	0x10001529c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x78c>
+10001520c: f9400be9    	ldr	x9, [sp, #0x10]
+100015210: f9400128    	ldr	x8, [x9]
+100015214: f9000328    	str	x8, [x25]
+100015218: b9400928    	ldr	w8, [x9, #0x8]
+10001521c: b9000b28    	str	w8, [x25, #0x8]
+100015220: d2800008    	mov	x8, #0x0                ; =0
+100015224: ad4006a0    	ldp	q0, q1, [x21]
+100015228: ad000700    	stp	q0, q1, [x24]
+10001522c: ad4106a0    	ldp	q0, q1, [x21, #0x20]
+100015230: 11000689    	add	w9, w20, #0x1
+100015234: ad010700    	stp	q0, q1, [x24, #0x20]
+100015238: f9000bf3    	str	x19, [sp, #0x10]
+10001523c: 79069e69    	strh	w9, [x19, #0x34e]
+100015240: 3dc02be0    	ldr	q0, [sp, #0xa0]
+100015244: 3c9603a0    	stur	q0, [x29, #-0xa0]
+100015248: f94003e9    	ldr	x9, [sp]
+10001524c: f9007be9    	str	x9, [sp, #0xf0]
+100015250: f85a03a9    	ldur	x9, [x29, #-0x60]
+100015254: f81503a9    	stur	x9, [x29, #-0xb0]
+100015258: ad7c07a0    	ldp	q0, q1, [x29, #-0x80]
+10001525c: ad3987a0    	stp	q0, q1, [x29, #-0xd0]
+100015260: 3cd703a1    	ldur	q1, [x29, #-0x90]
+100015264: 910383e9    	add	x9, sp, #0xe0
+100015268: 3c9203a1    	stur	q1, [x29, #-0xe0]
+10001526c: a94333f6    	ldp	x22, x12, [sp, #0x30]
+100015270: f94017fb    	ldr	x27, [sp, #0x28]
+100015274: f9000128    	str	x8, [x9]
+100015278: f9407bf3    	ldr	x19, [sp, #0xf0]
+10001527c: b100067f    	cmn	x19, #0x1
+100015280: 54ffd781    	b.ne	0x100014d70 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x260>
+100015284: f94013e8    	ldr	x8, [sp, #0x20]
+100015288: a94127ea    	ldp	x10, x9, [sp, #0x10]
+10001528c: a900250a    	stp	x10, x9, [x8]
+100015290: f900091c    	str	x28, [x8, #0x10]
+100015294: 1400002d    	b	0x100015348 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x838>
+100015298: aa1603f5    	mov	x21, x22
+10001529c: f94007e8    	ldr	x8, [sp, #0x8]
+1000152a0: f9400116    	ldr	x22, [x8]
+1000152a4: f94002d8    	ldr	x24, [x22]
+1000152a8: b4000af8    	cbz	x24, 0x100015404 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x8f4>
+1000152ac: f94006d9    	ldr	x25, [x22, #0x8]
+1000152b0: 97fff796    	bl	0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+1000152b4: 52807600    	mov	w0, #0x3b0              ; =944
+1000152b8: 52800101    	mov	w1, #0x8                ; =8
+1000152bc: 97ffdd56    	bl	0x10000c814 <__rustc::__rust_alloc>
+1000152c0: b4000a80    	cbz	x0, 0x100015410 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x900>
+1000152c4: aa0003f4    	mov	x20, x0
+1000152c8: f901601f    	str	xzr, [x0, #0x2c0]
+1000152cc: 79069c1f    	strh	wzr, [x0, #0x34e]
+1000152d0: f901a818    	str	x24, [x0, #0x350]
+1000152d4: b1000728    	adds	x8, x25, #0x1
+1000152d8: 54000a42    	b.hs	0x100015420 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x910>
+1000152dc: f9016314    	str	x20, [x24, #0x2c0]
+1000152e0: 79069b1f    	strh	wzr, [x24, #0x34c]
+1000152e4: a90022d4    	stp	x20, x8, [x22]
+1000152e8: eb1902ff    	cmp	x23, x25
+1000152ec: 54000a21    	b.ne	0x100015430 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x920>
+1000152f0: ad4207e0    	ldp	q0, q1, [sp, #0x40]
+1000152f4: 3c808280    	stur	q0, [x20, #0x8]
+1000152f8: 52800028    	mov	w8, #0x1                ; =1
+1000152fc: 79069e88    	strh	w8, [x20, #0x34e]
+100015300: f94043e9    	ldr	x9, [sp, #0x80]
+100015304: f9016689    	str	x9, [x20, #0x2c8]
+100015308: b9408be9    	ldr	w9, [sp, #0x88]
+10001530c: b902d289    	str	w9, [x20, #0x2d0]
+100015310: f9000293    	str	x19, [x20]
+100015314: 3c818281    	stur	q1, [x20, #0x18]
+100015318: 3dc01be0    	ldr	q0, [sp, #0x60]
+10001531c: 3c828280    	stur	q0, [x20, #0x28]
+100015320: f9403be9    	ldr	x9, [sp, #0x70]
+100015324: f9001e89    	str	x9, [x20, #0x38]
+100015328: f901ae95    	str	x21, [x20, #0x358]
+10001532c: f90162b4    	str	x20, [x21, #0x2c0]
+100015330: 79069aa8    	strh	w8, [x21, #0x34c]
+100015334: f94013e8    	ldr	x8, [sp, #0x20]
+100015338: a94127ea    	ldp	x10, x9, [sp, #0x10]
+10001533c: a900250a    	stp	x10, x9, [x8]
+100015340: f94003e9    	ldr	x9, [sp]
+100015344: f9000909    	str	x9, [x8, #0x10]
+100015348: a95e7bfd    	ldp	x29, x30, [sp, #0x1e0]
+10001534c: a95d4ff4    	ldp	x20, x19, [sp, #0x1d0]
+100015350: a95c57f6    	ldp	x22, x21, [sp, #0x1c0]
+100015354: a95b5ff8    	ldp	x24, x23, [sp, #0x1b0]
+100015358: a95a67fa    	ldp	x26, x25, [sp, #0x1a0]
+10001535c: a9596ffc    	ldp	x28, x27, [sp, #0x190]
+100015360: 9107c3ff    	add	sp, sp, #0x1f0
+100015364: d65f03c0    	ret
+100015368: 90000e60    	adrp	x0, 0x1001e1000 <vk_scale::ALLOCATOR+0x148>
+10001536c: 910a9c00    	add	x0, x0, #0x2a7
+100015370: f0001042    	adrp	x2, 0x100220000 <dyld_stub_binder+0x100220000>
+100015374: 91106042    	add	x2, x2, #0x418
+100015378: 528006a1    	mov	w1, #0x35               ; =53
+10001537c: 940701dc    	bl	0x1001d5aec <core::panicking::panic>
+100015380: f0001043    	adrp	x3, 0x100220000 <dyld_stub_binder+0x100220000>
+100015384: 9112a063    	add	x3, x3, #0x4a8
+100015388: d2800000    	mov	x0, #0x0                ; =0
+10001538c: aa1703e1    	mov	x1, x23
+100015390: 52800162    	mov	w2, #0xb                ; =11
+100015394: 940701e5    	bl	0x1001d5b28 <core::slice::index::slice_index_fail>
+100015398: 14000025    	b	0x10001542c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x91c>
+10001539c: f0001043    	adrp	x3, 0x100220000 <dyld_stub_binder+0x100220000>
+1000153a0: 9110c063    	add	x3, x3, #0x430
+1000153a4: d2800000    	mov	x0, #0x0                ; =0
+1000153a8: 52800182    	mov	w2, #0xc                ; =12
+1000153ac: 940701df    	bl	0x1001d5b28 <core::slice::index::slice_index_fail>
+1000153b0: 1400001f    	b	0x10001542c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x91c>
+1000153b4: 52800100    	mov	w0, #0x8                ; =8
+1000153b8: 52807601    	mov	w1, #0x3b0              ; =944
+1000153bc: 94070101    	bl	0x1001d57c0 <alloc::alloc::handle_alloc_error>
+1000153c0: 90000e60    	adrp	x0, 0x1001e1000 <vk_scale::ALLOCATOR+0x148>
+1000153c4: 910b7000    	add	x0, x0, #0x2dc
+1000153c8: f0001042    	adrp	x2, 0x100220000 <dyld_stub_binder+0x100220000>
+1000153cc: 91112042    	add	x2, x2, #0x448
+1000153d0: 52800501    	mov	w1, #0x28               ; =40
+1000153d4: 940701c6    	bl	0x1001d5aec <core::panicking::panic>
+1000153d8: 14000015    	b	0x10001542c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x91c>
+1000153dc: f0001043    	adrp	x3, 0x100220000 <dyld_stub_binder+0x100220000>
+1000153e0: 9112a063    	add	x3, x3, #0x4a8
+1000153e4: d2800000    	mov	x0, #0x0                ; =0
+1000153e8: aa1803e1    	mov	x1, x24
+1000153ec: 52800162    	mov	w2, #0xb                ; =11
+1000153f0: 940701ce    	bl	0x1001d5b28 <core::slice::index::slice_index_fail>
+1000153f4: 1400000e    	b	0x10001542c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x91c>
+1000153f8: 52800100    	mov	w0, #0x8                ; =8
+1000153fc: 52806a01    	mov	w1, #0x350              ; =848
+100015400: 940700f0    	bl	0x1001d57c0 <alloc::alloc::handle_alloc_error>
+100015404: f0001040    	adrp	x0, 0x100220000 <dyld_stub_binder+0x100220000>
+100015408: 91118000    	add	x0, x0, #0x460
+10001540c: 9407013a    	bl	0x1001d58f4 <core::option::unwrap_failed>
+100015410: 52800100    	mov	w0, #0x8                ; =8
+100015414: 52807601    	mov	w1, #0x3b0              ; =944
+100015418: 940700ea    	bl	0x1001d57c0 <alloc::alloc::handle_alloc_error>
+10001541c: 14000004    	b	0x10001542c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x91c>
+100015420: f0001040    	adrp	x0, 0x100220000 <dyld_stub_binder+0x100220000>
+100015424: 91100000    	add	x0, x0, #0x400
+100015428: 94070133    	bl	0x1001d58f4 <core::option::unwrap_failed>
+10001542c: d4200020    	brk	#0x1
+100015430: 90000e60    	adrp	x0, 0x1001e1000 <vk_scale::ALLOCATOR+0x148>
+100015434: 910d9000    	add	x0, x0, #0x364
+100015438: f0001042    	adrp	x2, 0x100220000 <dyld_stub_binder+0x100220000>
+10001543c: 91136042    	add	x2, x2, #0x4d8
+100015440: 52800601    	mov	w1, #0x30               ; =48
+100015444: 940701aa    	bl	0x1001d5aec <core::panicking::panic>
+100015448: aa1403e0    	mov	x0, x20
+10001544c: 52807601    	mov	w1, #0x3b0              ; =944
+100015450: 52800102    	mov	w2, #0x8                ; =8
+100015454: 97ffdd32    	bl	0x10000c91c <__rustc::__rust_dealloc>
+100015458: d4200020    	brk	#0x1
+10001545c: d4200020    	brk	#0x1
+100015460: aa0003f3    	mov	x19, x0
+100015464: aa1a03e0    	mov	x0, x26
+100015468: 52806a01    	mov	w1, #0x350              ; =848
+10001546c: 52800102    	mov	w2, #0x8                ; =8
+100015470: 97ffdd2b    	bl	0x10000c91c <__rustc::__rust_dealloc>
+100015474: aa1303e0    	mov	x0, x19
+100015478: 94070210    	bl	0x1001d5cb8 <dyld_stub_binder+0x1001d5cb8>
+10001547c: 14000001    	b	0x100015480 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>+0x970>
+100015480: aa0003f3    	mov	x19, x0
+100015484: aa1503e0    	mov	x0, x21
+100015488: 52807601    	mov	w1, #0x3b0              ; =944
+10001548c: 52800102    	mov	w2, #0x8                ; =8
+100015490: 97ffdd23    	bl	0x10000c91c <__rustc::__rust_dealloc>
+100015494: aa1303e0    	mov	x0, x19
+100015498: 94070208    	bl	0x1001d5cb8 <dyld_stub_binder+0x1001d5cb8>

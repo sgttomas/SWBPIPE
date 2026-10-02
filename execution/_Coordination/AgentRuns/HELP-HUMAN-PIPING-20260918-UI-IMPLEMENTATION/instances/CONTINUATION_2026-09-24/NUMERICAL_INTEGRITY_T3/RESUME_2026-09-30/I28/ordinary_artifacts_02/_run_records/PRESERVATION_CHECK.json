@@ -1,0 +1,16 @@
+{
+  "time_utc": "2026-10-02T04:06:53.121276+00:00",
+  "source_files": 299,
+  "source_before_after_equal": true,
+  "compiler_and_target_sysroot_before_after_equal": true,
+  "ordinary_archive": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source.tar",
+    "bytes": 30986240,
+    "sha256": "26b48ec62ea3f21849c288369f2ae245130fecde4fc69e7c9fa643562592a725"
+  },
+  "H_manifest_dir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness",
+  "VR_manifest_dir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "no_production_binary_launch": true,
+  "layout_reporter_only": true,
+  "linkage_limit": "Verbose rustc --extern/dep-info/fingerprint plus contemporaneous standard-library inventory and final symbols are retained. No separate linker response/map or per-standard-object input list was emitted by the normal commands; otool reports only libSystem.B dynamically. No unavailable link-map fact is asserted."
+}

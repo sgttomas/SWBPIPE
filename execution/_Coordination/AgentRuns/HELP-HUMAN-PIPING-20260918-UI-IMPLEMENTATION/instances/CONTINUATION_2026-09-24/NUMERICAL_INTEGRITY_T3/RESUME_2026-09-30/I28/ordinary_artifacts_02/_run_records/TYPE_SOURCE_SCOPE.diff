@@ -1,0 +1,166 @@
+diff --git a/projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs b/projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs
+index b71f8ed1b6..165171ea99 100644
+--- a/projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs
++++ b/projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs
+@@ -168,27 +168,46 @@ pub fn extra_model_ids() -> Vec<String> {
+ 
+ /// Builds a model by id.
+ pub fn model(id: &str) -> Result<K6Model, String> {
++    model_described(id).map(|(model, _)| model)
++}
++
++/// Construction provenance from the branch that actually created the model.
++/// Kept separately so model/element representation and allocation remain unchanged.
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++pub struct ModelOrigin(pub(crate) ModelRecipe);
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++pub(crate) enum ModelRecipe {
++    Builder,
++    Fixture,
++    Canonical,
++}
++
++pub fn model_described(id: &str) -> Result<(K6Model, ModelOrigin), String> {
+     if let Some(rest) = id.strip_prefix("RF-LARGE-") {
+-        return rf_large(id, rest);
++        return rf_large(id, rest).map(|m| (m, ModelOrigin(ModelRecipe::Builder)));
+     }
+     if let Some(fixture_id) = id.strip_prefix("DEC053:") {
+         for spec in crate::sparse_default_promotion_fixture_specs() {
+             let fixture = spec.fixture().map_err(|e| format!("{e:?}"))?;
+             if fixture.fixture_id == fixture_id {
+-                return from_fixture(id, &format!("dec053:{fixture_id}"), Family::Dec053, fixture);
++                return from_fixture(id, &format!("dec053:{fixture_id}"), Family::Dec053, fixture)
++                    .map(|m| (m, ModelOrigin(ModelRecipe::Fixture)));
+             }
+         }
+         return Err(format!("unknown DEC-053 fixture: {fixture_id}"));
+     }
+     if id == format!("K6-CEIL-CHAIN-n{CEILING_CHAIN_MEMBERS:05}-AX") {
+         let (s, s2) = chain_exponents(CEILING_CHAIN_MEMBERS).ok_or("no chain exponents")?;
+-        return Ok(chain(
+-            id,
+-            "k6-invented:rf-large-chain-rule",
+-            CEILING_CHAIN_MEMBERS,
+-            false,
+-            s,
+-            s2,
++        return Ok((
++            chain(
++                id,
++                "k6-invented:rf-large-chain-rule",
++                CEILING_CHAIN_MEMBERS,
++                false,
++                s,
++                s2,
++            ),
++            ModelOrigin(ModelRecipe::Builder),
+         ));
+     }
+     if let Some(rest) = id.strip_prefix("K6-GRID-") {
+@@ -204,7 +223,8 @@ pub fn model(id: &str) -> Result<K6Model, String> {
+             "k6-invented:invented_grid_frame_fixture",
+             Family::Grid,
+             fixture,
+-        );
++        )
++        .map(|m| (m, ModelOrigin(ModelRecipe::Fixture)));
+     }
+     Err(format!("unknown model id: {id}"))
+ }
+diff --git a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
+index 5decbe99d5..015c434765 100644
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
+@@ -221,6 +221,10 @@ pub fn parse_model(m: &Value) -> Model {
+ }
+ 
+ pub fn parse_case(line: &str) -> Case {
++    parse_case_capture(line, None)
++}
++
++fn parse_case_capture(line: &str, facts: Option<&mut crate::envelope::FamilyInputFacts>) -> Case {
+     let v: Value = serde_json::from_str(line).expect("case JSON");
+     let rows = v["rows"]
+         .as_array()
+@@ -258,7 +262,7 @@ pub fn parse_case(line: &str) -> Case {
+             .map(|o| o.iter().map(|(k, v)| (k.clone(), text(v))).collect())
+             .unwrap_or_default()
+     };
+-    Case {
++    let case = Case {
+         id: text(&v["id"]),
+         family: text(&v["family"]),
+         basis: text(&v["basis"]),
+@@ -278,7 +282,11 @@ pub fn parse_case(line: &str) -> Case {
+             .map(text)
+             .collect(),
+         s_full: v.get("s_full").map(strings),
++    };
++    if let Some(facts) = facts {
++        facts.observe(&v, &case);
+     }
++    case
+ }
+ 
+ pub fn load_file(path: &Path) -> Vec<Case> {
+@@ -305,6 +313,41 @@ pub fn load_all() -> Vec<Case> {
+         .collect()
+ }
+ 
++/// Described loader: original Case iterator/collect, separate inline history.
++pub fn load_file_described(path: &Path) -> (Vec<Case>, crate::envelope::FamilyInputFacts) {
++    let text = std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
++    let mut facts =
++        crate::envelope::FamilyInputFacts::begin(&text, path.file_name().unwrap().len());
++    let cases = text
++        .lines()
++        .filter(|l| !l.is_empty())
++        .map(|line| parse_case_capture(line, Some(&mut facts)))
++        .collect();
++    (cases, facts)
++}
++
++pub fn load_family_described(family: &str) -> (Vec<Case>, crate::envelope::FamilyInputFacts) {
++    let (_, file) = FAMILY_FILES
++        .iter()
++        .find(|(f, _)| *f == family)
++        .unwrap_or_else(|| panic!("{family}"));
++    load_file_described(&cases_dir().join(file))
++}
++
++pub fn load_all_described() -> (Vec<Case>, [crate::envelope::FamilyInputFacts; 10]) {
++    let mut facts = [crate::envelope::FamilyInputFacts::default(); 10];
++    let cases = FAMILY_FILES
++        .iter()
++        .enumerate()
++        .flat_map(|(i, (_, file))| {
++            let (cases, description) = load_file_described(&cases_dir().join(file));
++            facts[i] = description;
++            cases
++        })
++        .collect();
++    (cases, facts)
++}
++
+ /// The committed expected-unresolved list (`cases/expected_unresolved.json`;
+ /// ROOT's ruling on I17's A1 stop): the cases W1a is expected to leave
+ /// honestly unresolved, with no rows.
+@@ -334,6 +377,17 @@ pub fn load_large_model(path: &Path) -> (Model, String) {
+     (parse_model(&v), crate::sha256::sha256_hex(text.as_bytes()))
+ }
+ 
++/// Same read/parse/model/hash evaluation and drops, with inline source facts.
++pub fn load_large_model_described(
++    path: &Path,
++) -> (Model, String, crate::envelope::ExternalModelFacts) {
++    let text = std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
++    let v: Value = serde_json::from_str(&text).expect("model JSON");
++    let model = parse_model(&v);
++    let facts = crate::envelope::ExternalModelFacts::capture(&text, &v, &model);
++    (model, crate::sha256::sha256_hex(text.as_bytes()), facts)
++}
++
+ /// The kernel quantity an R1 key is compared with (plan §4.2).
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ pub enum Target {

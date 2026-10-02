@@ -1,0 +1,60 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000100067bdc <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>:
+100067bdc: b4000682    	cbz	x2, 0x100067cac <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xd0>
+100067be0: a9bc5ff8    	stp	x24, x23, [sp, #-0x40]!
+100067be4: a90157f6    	stp	x22, x21, [sp, #0x10]
+100067be8: a9024ff4    	stp	x20, x19, [sp, #0x20]
+100067bec: a9037bfd    	stp	x29, x30, [sp, #0x30]
+100067bf0: 9100c3fd    	add	x29, sp, #0x30
+100067bf4: aa0203f3    	mov	x19, x2
+100067bf8: aa0103f4    	mov	x20, x1
+100067bfc: f9400015    	ldr	x21, [x0]
+100067c00: aa1503e0    	mov	x0, x21
+100067c04: 94057534    	bl	0x1001c50d4 <<core::fmt::Formatter as core::fmt::Write>::write_str>
+100067c08: 34000460    	cbz	w0, 0x100067c94 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xb8>
+100067c0c: 90000bf6    	adrp	x22, 0x1001e3000 <_anon.34812c021cb517e51a5401e0ebeb14bd.14+0xee>
+100067c10: 911b6ad6    	add	x22, x22, #0x6da
+100067c14: 52801ff7    	mov	w23, #0xff              ; =255
+100067c18: 1400000d    	b	0x100067c4c <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x70>
+100067c1c: d3609c08    	ubfx	x8, x0, #32, #8
+100067c20: d361fc09    	lsr	x9, x0, #33
+100067c24: f100553f    	cmp	x9, #0x15
+100067c28: 1a973108    	csel	w8, w8, w23, lo
+100067c2c: 71008d1f    	cmp	w8, #0x23
+100067c30: 54000341    	b.ne	0x100067c98 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xbc>
+100067c34: 97fffc45    	bl	0x100066d48 <core::ptr::drop_glue::<std::io::error::Error>>
+100067c38: aa1503e0    	mov	x0, x21
+100067c3c: aa1403e1    	mov	x1, x20
+100067c40: aa1303e2    	mov	x2, x19
+100067c44: 94057524    	bl	0x1001c50d4 <<core::fmt::Formatter as core::fmt::Write>::write_str>
+100067c48: 36000260    	tbz	w0, #0x0, 0x100067c94 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xb8>
+100067c4c: 52800500    	mov	w0, #0x28               ; =40
+100067c50: aa1603e1    	mov	x1, x22
+100067c54: 52800122    	mov	w2, #0x9                ; =9
+100067c58: 9404ba9b    	bl	0x1001966c4 <<std::io::error::Error>::new::<&str>>
+100067c5c: 92400408    	and	x8, x0, #0x3
+100067c60: f100051f    	cmp	x8, #0x1
+100067c64: 5400008c    	b.gt	0x100067c74 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x98>
+100067c68: b5000128    	cbnz	x8, 0x100067c8c <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xb0>
+100067c6c: 39404008    	ldrb	w8, [x0, #0x10]
+100067c70: 17ffffef    	b	0x100067c2c <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x50>
+100067c74: f100091f    	cmp	x8, #0x2
+100067c78: 54fffd21    	b.ne	0x100067c1c <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x40>
+100067c7c: d360fc08    	lsr	x8, x0, #32
+100067c80: f100111f    	cmp	x8, #0x4
+100067c84: 54fffd80    	b.eq	0x100067c34 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x58>
+100067c88: 14000004    	b	0x100067c98 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xbc>
+100067c8c: 39403c08    	ldrb	w8, [x0, #0xf]
+100067c90: 17ffffe7    	b	0x100067c2c <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x50>
+100067c94: d2800000    	mov	x0, #0x0                ; =0
+100067c98: a9437bfd    	ldp	x29, x30, [sp, #0x30]
+100067c9c: a9424ff4    	ldp	x20, x19, [sp, #0x20]
+100067ca0: a94157f6    	ldp	x22, x21, [sp, #0x10]
+100067ca4: a8c45ff8    	ldp	x24, x23, [sp], #0x40
+100067ca8: d65f03c0    	ret
+100067cac: d2800000    	mov	x0, #0x0                ; =0
+100067cb0: d65f03c0    	ret

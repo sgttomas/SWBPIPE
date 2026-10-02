@@ -1,0 +1,95 @@
+{
+  "tool_identity_matches": [
+    {
+      "tool": "cargo",
+      "current": {
+        "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+        "bytes": 31867672,
+        "sha256": "7672ead309d505577c018fff2cafb3433601f073e38cbe87359ac1f7b944bbf5"
+      },
+      "accepted_prior_sha256": "7672ead309d505577c018fff2cafb3433601f073e38cbe87359ac1f7b944bbf5",
+      "identity_basis": "same executable bytes; prior full compiler/version record retained"
+    },
+    {
+      "tool": "rustc",
+      "current": {
+        "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+        "bytes": 412504,
+        "sha256": "210df6794001b73ec3d453878707fa1e0bdcb63c427024a6e6574bbe5615a4da"
+      },
+      "accepted_prior_sha256": "210df6794001b73ec3d453878707fa1e0bdcb63c427024a6e6574bbe5615a4da",
+      "identity_basis": "same executable bytes; prior full compiler/version record retained"
+    }
+  ],
+  "compiler_version_identity": {
+    "rustc": "1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo": "0.98.0 (c980f4866 2026-06-30)",
+    "rust-std": "1.97.1 (8bab26f4f 2026-07-14)"
+  },
+  "full_rust_commit": "8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+  "llvm_version_identity": "22.1.6 from accepted same-compiler record",
+  "basis_record": "I21/layout08_run/PREFLIGHT.json and source_review_RV30/layout08_03/backcheck_run/RETURN.md",
+  "current_version_query_executed": false,
+  "cache_missing": "Neither fresh target emitted .rustc_info.json; optional cache absence retained, no rebuild/query performed.",
+  "observed_compile_fields": [
+    "absolute compiler path/hash",
+    "target aarch64-apple-darwin",
+    "-C opt-level=3 for target libraries/binaries",
+    "-C embed-bitcode=no",
+    "-C strip=debuginfo",
+    "effective --cfg features and rustflags in argv/fingerprints",
+    "normal crate type / no --test",
+    "release profile identity"
+  ],
+  "not_present_as_explicit_target_compile_options": [
+    "panic strategy",
+    "overflow-check setting",
+    "debug-assertions setting",
+    "LTO setting",
+    "codegen-units setting"
+  ],
+  "omitted_settings_note": "No invented observed flag values. Ordinary Cargo release default interpretation is derived from the bound compiler/build profile; host dependency-build-script debug-assertions=off is separately explicit and is not mislabeled a target-crate flag.",
+  "layout08_five_types": [
+    {
+      "label": "NotAssessed_u32_SpringKind",
+      "type": "(u32,retained_api::SpringKind)",
+      "current_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "basis": "whole original type/consumer source byte-identical; fixed primitive tuple expressions retained; no layout08 build/run"
+    },
+    {
+      "label": "Dof",
+      "type": "retained_api::Dof",
+      "current_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "basis": "whole original type/consumer source byte-identical; fixed primitive tuple expressions retained; no layout08 build/run"
+    },
+    {
+      "label": "Resolution_u32_u64_u64",
+      "type": "(u32,u64,u64)",
+      "current_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "basis": "whole original type/consumer source byte-identical; fixed primitive tuple expressions retained; no layout08 build/run"
+    },
+    {
+      "label": "Theta_u32_f64",
+      "type": "(u32,f64)",
+      "current_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "basis": "whole original type/consumer source byte-identical; fixed primitive tuple expressions retained; no layout08 build/run"
+    },
+    {
+      "label": "Certified_u32_u64",
+      "type": "(u32,u64)",
+      "current_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "basis": "whole original type/consumer source byte-identical; fixed primitive tuple expressions retained; no layout08 build/run"
+    }
+  ],
+  "arc_source_identity": {
+    "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/sync.rs.html",
+    "sha256": "54358a7bb6d99a9d61dbd1eb4da68efe9228a3d5f949a8c6cfbaeb7f85e22b49",
+    "basis_record": "I21/layout_04/ARC_SOURCE_BINDING.json",
+    "new_arc_derivation": false
+  }
+}

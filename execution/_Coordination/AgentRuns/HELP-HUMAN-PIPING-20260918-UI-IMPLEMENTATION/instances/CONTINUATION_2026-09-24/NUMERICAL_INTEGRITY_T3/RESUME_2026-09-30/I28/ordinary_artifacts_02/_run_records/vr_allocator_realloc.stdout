@@ -1,0 +1,13 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+000000010000c94c <__rustc::__rust_realloc>:
+10000c94c: aa0303e4    	mov	x4, x3
+10000c950: aa0103e3    	mov	x3, x1
+10000c954: 90000ea8    	adrp	x8, 0x1001e0000 <GCC_except_table493+0x98>
+10000c958: 913ae108    	add	x8, x8, #0xeb8
+10000c95c: aa0003e1    	mov	x1, x0
+10000c960: aa0803e0    	mov	x0, x8
+10000c964: 14001543    	b	0x100011e70 <<vk_scale::alloc::VkAlloc as core::alloc::global::GlobalAlloc>::realloc>

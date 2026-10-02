@@ -1,0 +1,385 @@
+{
+  "matches": [
+    {
+      "range": "h_mutex",
+      "size": 64,
+      "alignment": 8,
+      "calls": [
+        "1001d5e28"
+      ],
+      "exact_type": "00000001001d5de0 <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_mutex",
+      "size": 64,
+      "alignment": 8,
+      "calls": [
+        "1001d44e8"
+      ],
+      "exact_type": "00000001001d44a0 <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "h_registry",
+      "size": 544,
+      "alignment": 8,
+      "calls": [
+        "1001b6f44",
+        "1001b70dc"
+      ],
+      "exact_type": "00000001001b6c70 <std::sys::pal::unix::stack_overflow::thread_info::set_current_info>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_registry",
+      "size": 544,
+      "alignment": 8,
+      "calls": [
+        "1001b4250",
+        "1001b43e8"
+      ],
+      "exact_type": "00000001001b3f7c <std::sys::pal::unix::stack_overflow::thread_info::set_current_info>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "h_geometry_root",
+      "size": 144,
+      "alignment": 8,
+      "calls": [
+        "100154444"
+      ],
+      "exact_type": "00000001001543cc <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_geometry_root",
+      "size": 144,
+      "alignment": 8,
+      "calls": [
+        "100152720"
+      ],
+      "exact_type": "00000001001526a8 <<alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "h_geometry_split",
+      "size": 144,
+      "alignment": 8,
+      "calls": [
+        "100158144"
+      ],
+      "exact_type": "0000000100158090 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "h_geometry_split",
+      "size": 240,
+      "alignment": 8,
+      "calls": [
+        "100158330",
+        "100158504"
+      ],
+      "exact_type": "0000000100158090 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_geometry_split",
+      "size": 144,
+      "alignment": 8,
+      "calls": [
+        "100156420"
+      ],
+      "exact_type": "000000010015636c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_geometry_split",
+      "size": 240,
+      "alignment": 8,
+      "calls": [
+        "10015660c",
+        "1001567e0"
+      ],
+      "exact_type": "000000010015636c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, u32, usize, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<u32, usize>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "h_tracker_root",
+      "size": 1072,
+      "alignment": 8,
+      "calls": [
+        "100153508"
+      ],
+      "exact_type": "0000000100153440 <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_tracker_root",
+      "size": 1072,
+      "alignment": 8,
+      "calls": [
+        "100151ff4"
+      ],
+      "exact_type": "0000000100151f2c <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "h_tracker_split",
+      "size": 1072,
+      "alignment": 8,
+      "calls": [
+        "10015707c"
+      ],
+      "exact_type": "0000000100156fa0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "h_tracker_split",
+      "size": 1168,
+      "alignment": 8,
+      "calls": [
+        "100157504",
+        "100157818"
+      ],
+      "exact_type": "0000000100156fa0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_tracker_split",
+      "size": 1072,
+      "alignment": 8,
+      "calls": [
+        "100155358"
+      ],
+      "exact_type": "000000010015527c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_tracker_split",
+      "size": 1168,
+      "alignment": 8,
+      "calls": [
+        "1001557e0",
+        "100155af4"
+      ],
+      "exact_type": "000000010015527c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "h_holding_split",
+      "size": 104,
+      "alignment": 8,
+      "calls": [
+        "100157b4c"
+      ],
+      "exact_type": "0000000100157a70 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "h_holding_split",
+      "size": 200,
+      "alignment": 8,
+      "calls": [
+        "100157d30",
+        "100157ed8"
+      ],
+      "exact_type": "0000000100157a70 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_holding_split",
+      "size": 104,
+      "alignment": 8,
+      "calls": [
+        "100155e28"
+      ],
+      "exact_type": "0000000100155d4c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_holding_split",
+      "size": 200,
+      "alignment": 8,
+      "calls": [
+        "10015600c",
+        "1001561b4"
+      ],
+      "exact_type": "0000000100155d4c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_json_root",
+      "size": 632,
+      "alignment": 8,
+      "calls": [
+        "10006b0a0"
+      ],
+      "exact_type": "000000010006b018 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_publication_split",
+      "size": 848,
+      "alignment": 8,
+      "calls": [
+        "100014bd4"
+      ],
+      "exact_type": "0000000100014b10 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_publication_split",
+      "size": 944,
+      "alignment": 8,
+      "calls": [
+        "100014eb8",
+        "1000152bc"
+      ],
+      "exact_type": "0000000100014b10 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_allowance_split",
+      "size": 368,
+      "alignment": 8,
+      "calls": [
+        "1000155cc"
+      ],
+      "exact_type": "000000010001549c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (usize, usize), (f64, usize), alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(usize, usize), (f64, usize)>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_allowance_split",
+      "size": 464,
+      "alignment": 8,
+      "calls": [
+        "100015784",
+        "100015988"
+      ],
+      "exact_type": "000000010001549c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (usize, usize), (f64, usize), alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(usize, usize), (f64, usize)>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_pair_set_split",
+      "size": 104,
+      "alignment": 8,
+      "calls": [
+        "100016398"
+      ],
+      "exact_type": "00000001000162bc <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (u32, u32), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(u32, u32), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_pair_set_split",
+      "size": 200,
+      "alignment": 8,
+      "calls": [
+        "1000164e4",
+        "10001667c"
+      ],
+      "exact_type": "00000001000162bc <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (u32, u32), alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(u32, u32), alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_usize_set_split",
+      "size": 104,
+      "alignment": 8,
+      "calls": [
+        "1000169b4"
+      ],
+      "exact_type": "00000001000168e0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, usize, alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<usize, alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_usize_set_split",
+      "size": 200,
+      "alignment": 8,
+      "calls": [
+        "100016ae8",
+        "100016c7c"
+      ],
+      "exact_type": "00000001000168e0 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, usize, alloc::collections::btree::set_val::SetValZST, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<usize, alloc::collections::btree::set_val::SetValZST>>::insert_entry::{closure#0}>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_case_bulk",
+      "size": 544,
+      "alignment": 8,
+      "calls": [
+        "10002e35c"
+      ],
+      "exact_type": "000000010002e2f0 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case_capture::{closure#2}::{closure#0}::{closure#0}>>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_floor_bulk",
+      "size": 456,
+      "alignment": 8,
+      "calls": [
+        "10002e490"
+      ],
+      "exact_type": "000000010002e440 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_controls_bulk",
+      "size": 280,
+      "alignment": 8,
+      "calls": [
+        "10002e684"
+      ],
+      "exact_type": "000000010002e580 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_io_new_str",
+      "size": 24,
+      "alignment": 8,
+      "calls": [
+        "100196714",
+        "100196734",
+        "100196770"
+      ],
+      "exact_type": "00000001001966c4 <<std::io::error::Error>::new::<&str>>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    },
+    {
+      "range": "vr_json_error_io",
+      "size": 40,
+      "alignment": 8,
+      "calls": [
+        "1001ce428"
+      ],
+      "exact_type": "00000001001ce400 <<serde_json::error::Error>::io>:",
+      "note": "Numeric presence check is supplemental; typed constructor/caller/source attribution is in TRANSFER.md and raw ranges."
+    }
+  ],
+  "native_summary": {
+    "commands": 37,
+    "bounded_disassembly_ranges": 33,
+    "code_bytes": 31648,
+    "all_native_exit0": true,
+    "all_stderr_empty": true
+  },
+  "unknown_private_required_cells": [],
+  "source_composed_internal_pairs": {
+    "String_Value": [
+      728,
+      8
+    ],
+    "borrowed_controls": [
+      376,
+      8
+    ],
+    "floor_pair": [
+      552,
+      8
+    ],
+    "String_String": [
+      640,
+      8
+    ]
+  },
+  "not_claimed": "No constructor execution/population or global runtime peak inferred; tuple3 spring-set request remains outside these bindings."
+}

@@ -1,0 +1,92 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000100151f2c <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>>:
+100151f2c: d10383ff    	sub	sp, sp, #0xe0
+100151f30: a90c4ff4    	stp	x20, x19, [sp, #0xc0]
+100151f34: a90d7bfd    	stp	x29, x30, [sp, #0xd0]
+100151f38: 910343fd    	add	x29, sp, #0xd0
+100151f3c: 39409008    	ldrb	w8, [x0, #0x24]
+100151f40: 7103fd1f    	cmp	w8, #0xff
+100151f44: 54000460    	b.eq	0x100151fd0 <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>+0xa4>
+100151f48: ad400400    	ldp	q0, q1, [x0]
+100151f4c: ad0007e0    	stp	q0, q1, [sp]
+100151f50: f9401008    	ldr	x8, [x0, #0x20]
+100151f54: f90013e8    	str	x8, [sp, #0x20]
+100151f58: 39400028    	ldrb	w8, [x1]
+100151f5c: 390203e8    	strb	w8, [sp, #0x80]
+100151f60: f9003fff    	str	xzr, [sp, #0x78]
+100151f64: f9001bff    	str	xzr, [sp, #0x30]
+100151f68: 52800208    	mov	w8, #0x10               ; =16
+100151f6c: a90423ff    	stp	xzr, x8, [sp, #0x40]
+100151f70: a9057fff    	stp	xzr, xzr, [sp, #0x50]
+100151f74: 52800108    	mov	w8, #0x8                ; =8
+100151f78: f90033e8    	str	x8, [sp, #0x60]
+100151f7c: b00004c8    	adrp	x8, 0x1001ea000 <itoa::DECIMAL_PAIRS+0x2c0>
+100151f80: 3dc17900    	ldr	q0, [x8, #0x5e0]
+100151f84: 3c8683e0    	stur	q0, [sp, #0x68]
+100151f88: f94003e8    	ldr	x8, [sp]
+100151f8c: b40002c8    	cbz	x8, 0x100151fe4 <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>+0xb8>
+100151f90: 3dc00000    	ldr	q0, [x0]
+100151f94: 3c9d03a0    	stur	q0, [x29, #-0x30]
+100151f98: f9400808    	ldr	x8, [x0, #0x10]
+100151f9c: f81e03a8    	stur	x8, [x29, #-0x20]
+100151fa0: f94013e1    	ldr	x1, [sp, #0x20]
+100151fa4: 910003e9    	mov	x9, sp
+100151fa8: d10123a8    	sub	x8, x29, #0x48
+100151fac: d100c3a0    	sub	x0, x29, #0x30
+100151fb0: 9100c3e2    	add	x2, sp, #0x30
+100151fb4: 91006123    	add	x3, x9, #0x18
+100151fb8: 9100a124    	add	x4, x9, #0x28
+100151fbc: 94000cb0    	bl	0x10015527c <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::insert_entry::{closure#0}>>
+100151fc0: f9400ff3    	ldr	x19, [sp, #0x18]
+100151fc4: f85b83a0    	ldur	x0, [x29, #-0x48]
+100151fc8: f85c83a8    	ldur	x8, [x29, #-0x38]
+100151fcc: 1400001b    	b	0x100152038 <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>+0x10c>
+100151fd0: f9400008    	ldr	x8, [x0]
+100151fd4: f9400809    	ldr	x9, [x0, #0x10]
+100151fd8: 52800b0a    	mov	w10, #0x58              ; =88
+100151fdc: 9b0a2128    	madd	x8, x9, x10, x8
+100151fe0: 1400001b    	b	0x10015204c <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>+0x120>
+100151fe4: f9400ff3    	ldr	x19, [sp, #0x18]
+100151fe8: 97fb0448    	bl	0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+100151fec: 52808600    	mov	w0, #0x430              ; =1072
+100151ff0: 52800101    	mov	w1, #0x8                ; =8
+100151ff4: 97faea08    	bl	0x10000c814 <__rustc::__rust_alloc>
+100151ff8: b4000340    	cbz	x0, 0x100152060 <<alloc::collections::btree::map::entry::Entry<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind), open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>::or_insert_with::<<open_pipe_stress_frame_kernel::structural::retained::adaptive::TrackerSet<(open_pipe_stress_frame_kernel::structural::retained::adaptive::RuleTest, u32, open_pipe_stress_frame_kernel::structural::retained::recover::Kind)>>::offer::{closure#0}>+0x134>
+100151ffc: d2800008    	mov	x8, #0x0                ; =0
+100152000: f900001f    	str	xzr, [x0]
+100152004: a9007e60    	stp	x0, xzr, [x19]
+100152008: f94043e9    	ldr	x9, [sp, #0x80]
+10015200c: f9005809    	str	x9, [x0, #0xb0]
+100152010: 52800029    	mov	w9, #0x1                ; =1
+100152014: 79085409    	strh	w9, [x0, #0x42a]
+100152018: f94013e9    	ldr	x9, [sp, #0x20]
+10015201c: ad4287e0    	ldp	q0, q1, [sp, #0x50]
+100152020: ad040400    	stp	q0, q1, [x0, #0x80]
+100152024: 3dc01fe0    	ldr	q0, [sp, #0x70]
+100152028: 3d802800    	str	q0, [x0, #0xa0]
+10015202c: ad4187e0    	ldp	q0, q1, [sp, #0x30]
+100152030: ad030400    	stp	q0, q1, [x0, #0x60]
+100152034: f9000409    	str	x9, [x0, #0x8]
+100152038: f9400a69    	ldr	x9, [x19, #0x10]
+10015203c: 91000529    	add	x9, x9, #0x1
+100152040: f9000a69    	str	x9, [x19, #0x10]
+100152044: 52800b09    	mov	w9, #0x58               ; =88
+100152048: 9b090108    	madd	x8, x8, x9, x0
+10015204c: 91018100    	add	x0, x8, #0x60
+100152050: a94d7bfd    	ldp	x29, x30, [sp, #0xd0]
+100152054: a94c4ff4    	ldp	x20, x19, [sp, #0xc0]
+100152058: 910383ff    	add	sp, sp, #0xe0
+10015205c: d65f03c0    	ret
+100152060: 52800100    	mov	w0, #0x8                ; =8
+100152064: 52808601    	mov	w1, #0x430              ; =1072
+100152068: 94020dd6    	bl	0x1001d57c0 <alloc::alloc::handle_alloc_error>
+10015206c: d4200020    	brk	#0x1
+100152070: aa0003f3    	mov	x19, x0
+100152074: 9100c3e0    	add	x0, sp, #0x30
+100152078: 94000003    	bl	0x100152084 <core::ptr::drop_glue::<open_pipe_stress_frame_kernel::structural::retained::adaptive::BoundedExtremeTracker>>
+10015207c: aa1303e0    	mov	x0, x19
+100152080: 94020f0e    	bl	0x1001d5cb8 <dyld_stub_binder+0x1001d5cb8>

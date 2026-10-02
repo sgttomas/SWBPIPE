@@ -1,0 +1,11 @@
+
+running 1 test
+test permuting_every_list_changes_no_canonical_byte ... FAILED
+
+failures:
+
+failures:
+    permuting_every_list_changes_no_canonical_byte
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.08s
+

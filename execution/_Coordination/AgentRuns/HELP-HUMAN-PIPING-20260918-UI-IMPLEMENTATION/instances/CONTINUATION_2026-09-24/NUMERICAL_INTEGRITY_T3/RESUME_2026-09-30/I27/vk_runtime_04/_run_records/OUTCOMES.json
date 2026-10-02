@@ -1,0 +1,39 @@
+{
+  "F10": {
+    "compiled": true,
+    "NONE_before": 0,
+    "fault": 101,
+    "NONE_after": 0,
+    "test": "permuting_every_list_changes_no_canonical_byte",
+    "site": "tests/adapter.rs:73:9",
+    "case": "RF-CHAIN-T-n03-r1e-04",
+    "semantic_result": "registered canonical byte discriminator",
+    "array_lengths": [
+      535,
+      535
+    ],
+    "differing_positions": 14,
+    "remaining_fault_case_loop_executed": false
+  },
+  "UNKNOWN": {
+    "compiled": true,
+    "NONE_before": 0,
+    "fault": 101,
+    "NONE_after": 0,
+    "test": "permuting_every_list_changes_no_canonical_byte",
+    "site": "seeded.rs:81:17",
+    "panic_message": "FK_SEEDED_FAULT: unknown fault id \"VK-UNKNOWN\"",
+    "semantic_result": "registered unknown-ID sanity",
+    "whole201_case_loop_executed_under_unknown": false,
+    "inline_matcher_interruption": "preserved in CHECK_INTERRUPTION.txt; interpretation independently confirmed by source/historical P37 and later ROOT message"
+  },
+  "normal_controls": {
+    "fresh_process_count": 4,
+    "complete_selected_test_passes": 4,
+    "source_scope": "original CI permutation loop; no retained solve"
+  },
+  "other_runtime_groups_executed": false,
+  "runtime_end_utc": "2026-10-02T04:16:52.202202+00:00",
+  "unexecuted_authorized_processes": [],
+  "unrun_outside_scope": "All B/C/D groups and remaining14registered seeded IDs remain outside this grant."
+}

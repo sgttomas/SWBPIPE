@@ -1,0 +1,102 @@
+{
+  "source": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/public_layout_20/_run_records/public_layout.rs",
+    "sha256": "7f4e0aa8a7a05f50bd325f015a81c1f70c291355ec09193010877f386a601dc6",
+    "bytes": 836
+  },
+  "compiler": {
+    "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+    "sha256": "210df6794001b73ec3d453878707fa1e0bdcb63c427024a6e6574bbe5615a4da",
+    "bytes": 412504
+  },
+  "vr_rlib": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libpiping_numerical_robustness-5c125499610f9fc3.rlib",
+    "sha256": "cc3ac67390982b5d95554ee5d02d3cec6c4ea7f02382ee7a1b5de14b1add5404",
+    "bytes": 1453288
+  },
+  "fk_rlib": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-a2a4dba02f18c59b.rlib",
+    "sha256": "5b395dd1d269798281f2cb2dae291f983afec59cfee566d7efd2f05be36765ee",
+    "bytes": 6884560
+  },
+  "environment_set": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0"
+  },
+  "environment_unset": [
+    "FK_SEEDED_FAULT",
+    "RUSTFLAGS",
+    "CARGO_ENCODED_RUSTFLAGS",
+    "RUSTC_WRAPPER",
+    "RUSTC_WORKSPACE_WRAPPER",
+    "RUSTC_BOOTSTRAP"
+  ],
+  "binary": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/public_layout_20",
+    "sha256": "1a868ccbf05d706caa5dca9e4900b2d8e198a33ff86fd6406f1f7eff1783f091",
+    "bytes": 465760
+  },
+  "values": [
+    [
+      "H.coordinates_item",
+      "core::option::Option<[f64; 3]>",
+      "32",
+      "8"
+    ],
+    [
+      "VR.constraints_item",
+      "(u32, usize)",
+      "16",
+      "8"
+    ],
+    [
+      "VR.adjacency_header",
+      "alloc::collections::btree::set::BTreeSet<usize>",
+      "24",
+      "8"
+    ],
+    [
+      "VR.formed_item",
+      "(usize, usize, [[f64; 12]; 12])",
+      "1168",
+      "8"
+    ],
+    [
+      "VR.borrowed_control_pair",
+      "(&str, &piping_numerical_robustness::cases::Row)",
+      "24",
+      "8"
+    ],
+    [
+      "VR.floor_input_pair",
+      "(alloc::string::String, (f64, f64))",
+      "40",
+      "8"
+    ],
+    [
+      "VR.prescribed_coupling",
+      "(usize, f64, f64)",
+      "24",
+      "8"
+    ],
+    [
+      "VR.decimal_chunk_view",
+      "&[u8]",
+      "16",
+      "8"
+    ],
+    [
+      "VR.failure_head_pointer",
+      "&alloc::string::String",
+      "8",
+      "8"
+    ],
+    [
+      "VR.skyline_row_header",
+      "alloc::vec::Vec<f64>",
+      "24",
+      "8"
+    ]
+  ],
+  "expected_rows_match": true
+}

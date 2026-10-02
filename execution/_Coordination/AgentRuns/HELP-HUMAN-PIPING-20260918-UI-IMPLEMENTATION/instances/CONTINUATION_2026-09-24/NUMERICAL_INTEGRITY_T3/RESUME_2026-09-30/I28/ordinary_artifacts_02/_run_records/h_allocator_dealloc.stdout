@@ -1,0 +1,18 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000100003f90 <__rustc::__rust_dealloc>:
+100003f90: a9be4ff4    	stp	x20, x19, [sp, #-0x20]!
+100003f94: a9017bfd    	stp	x29, x30, [sp, #0x10]
+100003f98: 910043fd    	add	x29, sp, #0x10
+100003f9c: aa0103f3    	mov	x19, x1
+100003fa0: 94074de1    	bl	0x1001d7724 <dyld_stub_binder+0x1001d7724>
+100003fa4: cb1303e8    	neg	x8, x19
+100003fa8: b0001169    	adrp	x9, 0x100230000 <dyld_stub_binder+0x100230000>
+100003fac: 91354129    	add	x9, x9, #0xd50
+100003fb0: f8e80128    	ldaddal	x8, x8, [x9]
+100003fb4: a9417bfd    	ldp	x29, x30, [sp, #0x10]
+100003fb8: a8c24ff4    	ldp	x20, x19, [sp], #0x20
+100003fbc: d65f03c0    	ret

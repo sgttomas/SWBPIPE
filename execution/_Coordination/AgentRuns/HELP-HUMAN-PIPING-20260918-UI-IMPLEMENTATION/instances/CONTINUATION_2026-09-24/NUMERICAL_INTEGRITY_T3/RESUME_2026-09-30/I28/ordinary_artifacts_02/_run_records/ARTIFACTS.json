@@ -1,0 +1,17 @@
+{
+  "H": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+    "sha256": "48ae299e044240288486b82f15fd2a40c431803c21474ce5ad0372e6704c0561",
+    "bytes": 2861152
+  },
+  "VR": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale",
+    "sha256": "c3309cf68be2e6b5bd6ad14a873f4585f6bf664fccb89982b304152c8aac647a",
+    "bytes": 2772288
+  },
+  "reporter": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/public_layout_20",
+    "sha256": "1a868ccbf05d706caa5dca9e4900b2d8e198a33ff86fd6406f1f7eff1783f091",
+    "bytes": 465760
+  }
+}

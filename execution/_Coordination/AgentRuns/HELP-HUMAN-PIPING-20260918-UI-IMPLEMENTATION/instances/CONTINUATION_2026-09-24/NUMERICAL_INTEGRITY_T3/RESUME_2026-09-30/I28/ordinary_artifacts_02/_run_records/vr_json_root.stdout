@@ -1,0 +1,81 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+000000010006b018 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry>:
+10006b018: d10243ff    	sub	sp, sp, #0x90
+10006b01c: a90657f6    	stp	x22, x21, [sp, #0x60]
+10006b020: a9074ff4    	stp	x20, x19, [sp, #0x70]
+10006b024: a9087bfd    	stp	x29, x30, [sp, #0x80]
+10006b028: 910203fd    	add	x29, sp, #0x80
+10006b02c: aa0203f5    	mov	x21, x2
+10006b030: aa0103f3    	mov	x19, x1
+10006b034: aa0003f4    	mov	x20, x0
+10006b038: aa0103e8    	mov	x8, x1
+10006b03c: f8420d09    	ldr	x9, [x8, #0x20]!
+10006b040: b4000289    	cbz	x9, 0x10006b090 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry+0x78>
+10006b044: 3dc00100    	ldr	q0, [x8]
+10006b048: 3d800be0    	str	q0, [sp, #0x20]
+10006b04c: f9400908    	ldr	x8, [x8, #0x10]
+10006b050: f9001be8    	str	x8, [sp, #0x30]
+10006b054: 3dc00260    	ldr	q0, [x19]
+10006b058: 3d8013e0    	str	q0, [sp, #0x40]
+10006b05c: f9400a68    	ldr	x8, [x19, #0x10]
+10006b060: f9002be8    	str	x8, [sp, #0x50]
+10006b064: 910023e8    	add	x8, sp, #0x8
+10006b068: 910083e0    	add	x0, sp, #0x20
+10006b06c: 910103e1    	add	x1, sp, #0x40
+10006b070: 91006263    	add	x3, x19, #0x18
+10006b074: 9100e264    	add	x4, x19, #0x38
+10006b078: aa1503e2    	mov	x2, x21
+10006b07c: 97fffc3e    	bl	0x10006a174 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, alloc::string::String, serde_json::value::Value, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry::{closure#0}>>
+10006b080: f9400e76    	ldr	x22, [x19, #0x18]
+10006b084: f94007e0    	ldr	x0, [sp, #0x8]
+10006b088: 3cc103e0    	ldur	q0, [sp, #0x10]
+10006b08c: 14000013    	b	0x10006b0d8 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry+0xc0>
+10006b090: f9400e76    	ldr	x22, [x19, #0x18]
+10006b094: 97fea01d    	bl	0x100013108 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+10006b098: 52804f00    	mov	w0, #0x278              ; =632
+10006b09c: 52800101    	mov	w1, #0x8                ; =8
+10006b0a0: 97fe85dd    	bl	0x10000c814 <__rustc::__rust_alloc>
+10006b0a4: b4000320    	cbz	x0, 0x10006b108 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry+0xf0>
+10006b0a8: f900b01f    	str	xzr, [x0, #0x160]
+10006b0ac: a9007ec0    	stp	x0, xzr, [x22]
+10006b0b0: 3dc00260    	ldr	q0, [x19]
+10006b0b4: f9400a68    	ldr	x8, [x19, #0x10]
+10006b0b8: 52800029    	mov	w9, #0x1                ; =1
+10006b0bc: 7904e409    	strh	w9, [x0, #0x272]
+10006b0c0: 9105a009    	add	x9, x0, #0x168
+10006b0c4: 3d800120    	str	q0, [x9]
+10006b0c8: f900bc08    	str	x8, [x0, #0x178]
+10006b0cc: ad4006a0    	ldp	q0, q1, [x21]
+10006b0d0: ad000400    	stp	q0, q1, [x0]
+10006b0d4: 6f00e400    	movi.2d	v0, #0000000000000000
+10006b0d8: f9400ac8    	ldr	x8, [x22, #0x10]
+10006b0dc: 91000508    	add	x8, x8, #0x1
+10006b0e0: f9000ac8    	str	x8, [x22, #0x10]
+10006b0e4: f9400e68    	ldr	x8, [x19, #0x18]
+10006b0e8: f9000280    	str	x0, [x20]
+10006b0ec: 3c808280    	stur	q0, [x20, #0x8]
+10006b0f0: f9000e88    	str	x8, [x20, #0x18]
+10006b0f4: a9487bfd    	ldp	x29, x30, [sp, #0x80]
+10006b0f8: a9474ff4    	ldp	x20, x19, [sp, #0x70]
+10006b0fc: a94657f6    	ldp	x22, x21, [sp, #0x60]
+10006b100: 910243ff    	add	sp, sp, #0x90
+10006b104: d65f03c0    	ret
+10006b108: 52800100    	mov	w0, #0x8                ; =8
+10006b10c: 52804f01    	mov	w1, #0x278              ; =632
+10006b110: 9405a9ac    	bl	0x1001d57c0 <alloc::alloc::handle_alloc_error>
+10006b114: d4200020    	brk	#0x1
+10006b118: aa0003f4    	mov	x20, x0
+10006b11c: aa1503e0    	mov	x0, x21
+10006b120: 97ffff68    	bl	0x10006aec0 <core::ptr::drop_glue::<serde_json::value::Value>>
+10006b124: f9400261    	ldr	x1, [x19]
+10006b128: b4000081    	cbz	x1, 0x10006b138 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry+0x120>
+10006b12c: f9400660    	ldr	x0, [x19, #0x8]
+10006b130: 52800022    	mov	w2, #0x1                ; =1
+10006b134: 97fe85fa    	bl	0x10000c91c <__rustc::__rust_dealloc>
+10006b138: aa1403e0    	mov	x0, x20
+10006b13c: 9405aadf    	bl	0x1001d5cb8 <dyld_stub_binder+0x1001d5cb8>
+10006b140: 9405aa0e    	bl	0x1001d5978 <core::panicking::panic_in_cleanup>
