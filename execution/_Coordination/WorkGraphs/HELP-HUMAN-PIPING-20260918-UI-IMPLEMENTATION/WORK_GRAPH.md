@@ -124,6 +124,14 @@ qualification, admission replay and measurements. Then W1 limits, F2a/S-I/F2b/F3
 and the existing owner/T3-close decisions continue. No broader T3 completion or
 product release is claimed.
 
+**K6c review and repair (ROOT, 2026-10-02 UTC):** H/VR integration is committed
+and pushed at9086964a1fb656a76cda6d1002d8594efa636fdc. Independent RV32/RV33 reviews
+found automatic counts binding before nonnumeric holds; I24 owns a bounded
+four-file runner repair and both reviewers will backcheck its committed result.
+I21 executes archive-only required kernel/H mutants. Full E_max acceptance,
+artifact/input/launch qualification, chronological admission, measurements and
+final gates remain open. No new performance slot is granted.
+
 ## Predecessor and recovery
 
 The immutable predecessor is [WORK_GRAPH.json at 44a30112](https://github.com/sgttomas/chirality/blob/44a30112a2d4af21768a9eef822ad1974a3869ec/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json), branch `codex/swbpipe-continuation-20260919`. Its directory and historical graph files remain preserved. Its old pauses, worker assignments, provisional mappings and intermediate statuses are historical.

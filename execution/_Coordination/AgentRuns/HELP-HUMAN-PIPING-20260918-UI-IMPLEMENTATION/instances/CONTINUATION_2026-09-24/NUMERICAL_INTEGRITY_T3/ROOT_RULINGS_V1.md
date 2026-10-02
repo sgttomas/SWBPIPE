@@ -4171,3 +4171,31 @@ diff verification, independent actual-candidate review/helper backcheck, complet
 mutation obligations, final ordinary-artifact/input/launch qualification,
 chronological admission and required measurements remain before its acceptance.
 All other T3 successors and owner decisions stay as recorded in the work graph.
+
+
+## K6c runner holds precede automatic counts binding (ROOT, 2026-10-02 UTC)
+
+The independent RV32 VR and RV33 H reviews of exact
+9086964a1fb656a76cda6d1002d8594efa636fdc identified a blocking ordering defect:
+new model-specific counts binding can occur before the existing conditional
+approval or recorded-ascent hold is evaluated. ROOT read RV33's process-free
+RUNNER_HOLD_REPRO.json and confirmed the source ordering. No actual 10,000-member
+process was run by these reproductions. Final review returns remain pending.
+
+Keep those holds before automatic model-specific counts/normal launches in
+run_tier. Existing tier noop baselines and explicit standalone counts acquisition
+retain their semantics. After nonnumeric eligibility passes, bind the actual
+launch context before numeric admission/backstop and ratio use; no stale or fake
+counts substitute is permitted. Existing named refusal, conditional approval,
+recorded-ascent semantics, thresholds, normal caps, VR counts cap and process-free
+plan behavior remain. This is a correction within the accepted caller contract,
+not a new policy or owner-held limit.
+
+ROOT grants I24 a 20-minute four-file H/VR runner-and-test repair, with additive
+I24/runner_hold_repair_02 evidence and no other maintained edits. Same RV32/RV33
+reviewers must backcheck the committed repair. They continue exact-908 review
+against their own archives while I24 edits. I21 separately receives a 45-minute
+archive-only kernel/H mutation assignment against908, with actual patches and
+NONE control under I21/kernel_mutants_26. No performance slot or final-bound
+acceptance follows from either assignment. Native tasks retain no Git/index
+write authority; ROOT integrates. A1 remains merged and its audit closure stands.
