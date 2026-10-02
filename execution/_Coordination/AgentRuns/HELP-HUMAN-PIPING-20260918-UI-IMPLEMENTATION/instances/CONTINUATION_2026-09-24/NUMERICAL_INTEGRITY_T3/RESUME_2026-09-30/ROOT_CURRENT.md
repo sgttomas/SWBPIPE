@@ -40,12 +40,13 @@ REVIEW_RV37/vk_mechanical_03. Runtime and review are stopped. Fresh composite
 source review REVIEW_RV38/composite_source_01 is accepted at source scope with
 no actionable maintained-source finding; later measurements/gates need coverage.
 
-All commissioned workers and reviewers have returned; no automatic follow-on is
-assigned. The most recent block, W1-T3, is accepted through
+The previous bounded blocks returned. The latest accepted measurement, W1-T3,
+is documented through
 REVIEW_RV34/t3_measurements_05. Actual1000-member inputs, admissions, all matched
 H windows and the required prefixes are independently verified. Raw preservation:
 MEASUREMENTS/W1_T3/_run_records/delta_records.tar.gz, preserving earlier prefixes.
-No10000-member product input or T4 runtime has been granted.
+The owner subsequently approved the scoped comparison and directed continuation.
+I26 now has only T4 input/readiness scope, not normal T4 solve authority.
 
 W1-T1 finite observations are accepted through REVIEW_RV34/t1_measurements_02
 and t1_disposition_03. Required external live checks did not occur; complete
@@ -60,12 +61,24 @@ class counts. Process classificationok does not mean numerical Passed.
 Baseline/progress observations retain their actual limited timing. Immutable T2
 raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz.
 
+## Current bounded assignments
+
+I26 t4_readiness_09: receipt14:10:10 UTC, new-runtime cutoff14:30:10, hard
+return14:35:10. Exact twelve W1 T4 counts contexts plus one no-op; prospective
+numeric admission only, no normal solve/R1 or changed global hold. Sole quiet
+acquisition lane on the existing M5 guard.
+
+RV36 comparison_adoption_04: read-only, receipt14:14:42 UTC, return14:24:42.
+I28 closeout_index_03: draft/index only, receipt14:14:58, cutoff14:34:58,
+return14:39:58. These tasks introduce no host tooling or source changes.
+
 ## Remaining path and holds
 
-W1-T1/W1-T2/W1-T3 finite observations are accepted. W1-T4 contexts, measurements
-and the owner comparison disposition are pending. The overall numerical-integrity
-workstream T3 remains active at this owner-decision hold;
-this is neither completion nor a new owner-requested pause.
+W1-T1/W1-T2/W1-T3 finite observations are accepted. The owner comparison
+amendment is now approved under OWNER_CHECKPOINTS/K6C_PUBLISHED_ROWS_ADOPTION_2026-10-02.md.
+Its original proposal remains historical. This authorizes scoped comparison;
+actual data, independent review and all unchanged numerical/merge gates remain.
+The workstream is active. No new owner prompt is needed for that same decision.
 The original runner enumerates catalogue metadata before filtering a tier and
 does not itself reject a failed tier no-op or enforce full seed correspondence
 on each prepass. These inherited execution limits are disclosed in the latest
@@ -75,15 +88,16 @@ and truthful stops/monitoring limits. This index itself supplies no authority
 and grants no source repair or new host tool.
 
 Fresh W1-T1/T2/T3 chronology/calibration and required T3 prefixes are established.
-ROOT still needs the owner comparison decision and a separate bounded T4 grant.
+ROOT still needs completed T4 input/readiness evidence and a separate bounded
+normal-execution grant.
 Preserve all numeric admission holds and the VR largest-size backstop; do not force a deferred run. Required W1-T4, complete K6c return and
 independent final review, full-SHA hosted CI, exact-final-head Mac DEC-025 and
 GEN-8 remain outstanding. K6c is not complete and no PR is ready to merge.
 
-Owner question remains pending in OWNER_CHECKPOINTS/K6C_PUBLISHED_ROWS_01.md:
-full historical KF3 published-value dumps are unavailable in the retained
-records. The proposed scoped comparison amendment is not accepted. This is
-separate from the already approved scoped F17 amendment; do not ask for F17 again.
+The approved comparison preserves available KF3 fields, unchanged R1 and other
+numerical controls, full new output custody and independent review. Complete
+historic value equality remains unclaimed. The separate F17 amendment was already
+approved. Additional baseline work is driven by a concrete unresolved question.
 
 After K6c: ROOT W1 limits, F2a, S-I, F2b per domain and F3. Existing owner-held
 ceilings, PHYS-R4 availability, observation framing, KF3-B1 and KF2 dense-screen
