@@ -4670,3 +4670,39 @@ member input gates precede original W1-T3, with actual100-member calibration,
 unchanged numeric holds, complete field/window checks and exact prefix evidence.
 No T4/10000-member product construction, new tooling, source change or owner
 comparison amendment is granted. All final K6c/merge gates remain outstanding.
+
+
+## T3 measurements accepted; T4 held for owner comparison decision (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV34 t3_measurements_05 RETURN and verified its24 payloads
+under seal57d677defe4728c36be3bba2bdb3d0b5ecf0ae4366affe4dbf48003358d8b507.
+Accept the finite ordinary1000-member observations, input/context qualification,
+calibrated admissions and exact required prefix evidence within their reviewed
+profile/window scope. The review's actual-scope, Admission/calibration, Actual
+caller/H windows and Prefix-completeness sections establish the result. No
+unresolved actionable finding remains. No matched H heap field breached its
+corresponding bound; unclaimed global/pre-reset windows stay explicit.
+
+All six cases have their required executed prefix ends, not an assumed requested
+count. The numerical classes remain12 W1 Selected128/verification256 and sparse
+8 Sensitive/4 Passed across the two passes. Current100/1000-member observations
+supply eligible earlier data under the existing policy; no T4 admission has been
+evaluated or granted. The immutable T3 delta preserves the complete prior journal
+prefix and all original raw hashes. Snapshot cleanup evidence keeps the review's
+actual-scan limits and does not turn default survivor arrays into scans.
+
+All currently commissioned implementation, execution and review blocks have
+returned. No automatic follow-on is assigned; the existing M5 guard remains.
+T3 is active at an owner-decision hold, not complete or newly owner-paused.
+The outstanding decision is R/OWNER_CHECKPOINTS/K6C_PUBLISHED_ROWS_01.md. The
+owner has not approved that scoped amendment. Original complete historical
+published-value equality remains unestablished and its protected obligation
+remains held. No10000-member input acquisition or T4 runtime is released.
+
+After that decision: separately bind/qualify the six T4 inputs and actual launch
+contexts, review the fresh baseline/admission data, and grant the unchanged
+schedule only under its existing numeric policy; never override a numeric
+deferral. Then complete the K6c return, final independent exact-candidate review,
+full-SHA hosted CI, exact-final-head Mac DEC-025 and GEN-8 before any PR merge.
+K6c is still unmerged and complete E_max acceptance remains open. ROOT W1 limits,
+F2a, S-I, F2b per domain, F3 and the other owner-held choices still follow.
