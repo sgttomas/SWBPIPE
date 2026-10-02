@@ -1,0 +1,95 @@
+{
+  "scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/t2_measurements_04",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "sha256": "4ae2639d75a7886c02fc9daebda268087da3c33a9e23604b3b3446e7b62f727e",
+      "bytes": 6896
+    },
+    {
+      "path": "_run_records/ADMISSIONS.json",
+      "sha256": "f45084d0b1065d13bb30b23029207cdcb21465f602b392fbddcfd06e3c49ce6c",
+      "bytes": 17843
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "sha256": "3a074d2d89763bdb08bf5190746547d5ea15921dbd7e13f54cf1694e2661b75f",
+      "bytes": 5550
+    },
+    {
+      "path": "_run_records/COMMANDS.md",
+      "sha256": "e4f550563ea0ba3d42f2f03d1a5e23673f753cc6da89f59449a59f8d2282f0a5",
+      "bytes": 2333
+    },
+    {
+      "path": "_run_records/CONTEXT_BOUNDS.json",
+      "sha256": "39d825e26c821577dd284beb5c97670d1a479dcf383cb8957e8fb0697752632a",
+      "bytes": 2597
+    },
+    {
+      "path": "_run_records/MINIMUM_SLACK.json",
+      "sha256": "02ee7a8bd436484125661e4c50cd0fb6983db652adc4ad6d73c4e246c76e4b0a",
+      "bytes": 236
+    },
+    {
+      "path": "_run_records/OUTCOMES.json",
+      "sha256": "73a1bec464be0f03af0698f540582db057bab6a3eaedcc6aac45c24c725545c0",
+      "bytes": 8551
+    },
+    {
+      "path": "_run_records/PRESERVATION_TIMING_AND_READINESS.json",
+      "sha256": "40a8667e78a67718c0cf1139ea3041cf9e90761002656439bd1a41daba0e664c",
+      "bytes": 6071
+    },
+    {
+      "path": "_run_records/READS.jsonl",
+      "sha256": "9f0a063885748b8e1f6379bf81e91f019a8e2b6f028164737dfab34e58c78ed7",
+      "bytes": 154237
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "sha256": "f9f22cf7a45c16317e72fb007cbef1007455a2e4d71246290f7cbba75b47e949",
+      "bytes": 3977
+    },
+    {
+      "path": "_run_records/check.first.stderr.txt",
+      "sha256": "697a308de92402ec848f2555abafc9913cc9258438150b530aabde3c3af30f6e",
+      "bytes": 815
+    },
+    {
+      "path": "_run_records/check.py",
+      "sha256": "3d7761148ba3a75a68cce0108586f7a153460f40488ad6e86e1ebaf97a692ccd",
+      "bytes": 19935
+    },
+    {
+      "path": "_run_records/check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "_run_records/check.stdout.json",
+      "sha256": "3a074d2d89763bdb08bf5190746547d5ea15921dbd7e13f54cf1694e2661b75f",
+      "bytes": 5550
+    },
+    {
+      "path": "_run_records/preservation.py",
+      "sha256": "e34f4c94aeea5fae4408e8f2e15d2bde7a5055f84c592304cf54a709713b60f1",
+      "bytes": 6495
+    },
+    {
+      "path": "_run_records/preservation.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "_run_records/preservation.stdout.json",
+      "sha256": "1b2b25136bba04611ff142ae7b52ee9c09a564528dee9adc11cc0db61b0a300d",
+      "bytes": 1272
+    },
+    {
+      "path": "_run_records/review_io.py",
+      "sha256": "179be385565eeea5f30ea6b0a36d3efaa34113b56068def5198d12f11972844e",
+      "bytes": 1444
+    }
+  ]
+}
