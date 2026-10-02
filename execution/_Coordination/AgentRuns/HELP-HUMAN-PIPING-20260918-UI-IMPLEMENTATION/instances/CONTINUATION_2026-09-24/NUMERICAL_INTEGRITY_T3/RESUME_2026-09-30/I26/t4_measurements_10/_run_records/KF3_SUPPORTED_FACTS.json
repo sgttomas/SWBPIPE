@@ -1,0 +1,685 @@
+{
+  "models": {
+    "RF-LARGE-CHAIN-n10000-AX": {
+      "historical": {
+        "model": "RF-LARGE-CHAIN-n10000-AX",
+        "stdout_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/KF3/_run_records/b/runs/13_RF-LARGE-CHAIN-n10000-AX_w1a.jsonl",
+        "stdout_sha256": "264a0c4df479d735c4aaf9b7c5c3c7a3be8a32ca344ba122383ce5b8f5323b4b",
+        "source_commit": "e114b23c1",
+        "source_tree": "53f78023b7946d547cbba2e6a8813cee558b6d1b",
+        "outcome": "Selected at 128",
+        "selected_precision": 128,
+        "verification_precision": 256,
+        "published_rows": 250013,
+        "unpublishable_rows_if_recorded": 0,
+        "source_k4src_sha256": "d073d6660ff785616753842985d4a3316f5324119fe33c5db9333f960fc4767d",
+        "canonical_model_sha256": "239ccb63dfd1584d9056f3f2ce86d79056f9fef1c2589317797ded2e6c790d40",
+        "analytic_expected_subset_count": 103
+      },
+      "expected_H_supported_fields": {
+        "class": "Selected",
+        "reason": null,
+        "selected_precision": 128,
+        "verification_precision": 256,
+        "rows": 250013,
+        "rows_unpublishable": 0
+      },
+      "shared_primitive_count_correspondence": [
+        {
+          "KF3_field": "nodes",
+          "H_field": "w1_nodes",
+          "KF3_value": 10001,
+          "H_qualified_seed": 10001,
+          "equal": true
+        },
+        {
+          "KF3_field": "members",
+          "H_field": "w1_members",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "constraints",
+          "H_field": "w1_constraints",
+          "KF3_value": 6,
+          "H_qualified_seed": 6,
+          "equal": true
+        },
+        {
+          "KF3_field": "loads",
+          "H_field": "w1_loads",
+          "KF3_value": 6,
+          "H_qualified_seed": 6,
+          "equal": true
+        },
+        {
+          "KF3_field": "stations",
+          "H_field": "w1_stations",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "dofs",
+          "H_field": "w1_dofs",
+          "KF3_value": 60006,
+          "H_qualified_seed": 60006,
+          "equal": true
+        },
+        {
+          "KF3_field": "free_dofs",
+          "H_field": "w1_free_dofs",
+          "KF3_value": 60000,
+          "H_qualified_seed": 60000,
+          "equal": true
+        },
+        {
+          "KF3_field": "bodies",
+          "H_field": "w1_bodies",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "blocks",
+          "H_field": "w1_blocks",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "pattern_entries",
+          "H_field": "w1_pattern_entries",
+          "KF3_value": 1080036,
+          "H_qualified_seed": 1080036,
+          "equal": true
+        },
+        {
+          "KF3_field": "profile_entries",
+          "H_field": "w1_profile_entries",
+          "KF3_value": 569964,
+          "H_qualified_seed": 569964,
+          "equal": true
+        },
+        {
+          "KF3_field": "rows",
+          "H_field": "w1_rows",
+          "KF3_value": 250013,
+          "H_qualified_seed": 250013,
+          "equal": true
+        }
+      ],
+      "source_binding": "Same reviewed RF model/source definition and qualified current seed, with independent provenance fingerprints. H model-canonical/FNV and VK model-file/SHA/K4SRC-SHA encodings are distinct; no unlike-digest equality or conversion claimed.",
+      "TREE_geometry_limit": "[Restrained] in historical outcome is the separate geometry suffix (VK records.rs). H does not emit that geometry here; compare supported Unresolved/Ceiling fields and preserve unreported geometry explicitly.",
+      "publication_availability": "Selected must report matching available counts and dump. Unresolved has no published fields; never fabricate zero or passing R1."
+    },
+    "RF-LARGE-CHAIN-n10000-ROT": {
+      "historical": {
+        "model": "RF-LARGE-CHAIN-n10000-ROT",
+        "stdout_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/KF3/_run_records/b/runs/14_RF-LARGE-CHAIN-n10000-ROT_w1a.jsonl",
+        "stdout_sha256": "4a7f8414a81049c84a89af30244f911faa80c09ad642326969c80615267f1471",
+        "source_commit": "e114b23c1",
+        "source_tree": "53f78023b7946d547cbba2e6a8813cee558b6d1b",
+        "outcome": "Selected at 128",
+        "selected_precision": 128,
+        "verification_precision": 256,
+        "published_rows": 250013,
+        "unpublishable_rows_if_recorded": 0,
+        "source_k4src_sha256": "75c3e903b40b2e1dbb7f49099436df27ff00a0eab249e8a0248e719919c91112",
+        "canonical_model_sha256": "0c79de8dffe4044889be6b80a8bdbe430c88fd23800227568d900d61a580bf66",
+        "analytic_expected_subset_count": 103
+      },
+      "expected_H_supported_fields": {
+        "class": "Selected",
+        "reason": null,
+        "selected_precision": 128,
+        "verification_precision": 256,
+        "rows": 250013,
+        "rows_unpublishable": 0
+      },
+      "shared_primitive_count_correspondence": [
+        {
+          "KF3_field": "nodes",
+          "H_field": "w1_nodes",
+          "KF3_value": 10001,
+          "H_qualified_seed": 10001,
+          "equal": true
+        },
+        {
+          "KF3_field": "members",
+          "H_field": "w1_members",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "constraints",
+          "H_field": "w1_constraints",
+          "KF3_value": 6,
+          "H_qualified_seed": 6,
+          "equal": true
+        },
+        {
+          "KF3_field": "loads",
+          "H_field": "w1_loads",
+          "KF3_value": 6,
+          "H_qualified_seed": 6,
+          "equal": true
+        },
+        {
+          "KF3_field": "stations",
+          "H_field": "w1_stations",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "dofs",
+          "H_field": "w1_dofs",
+          "KF3_value": 60006,
+          "H_qualified_seed": 60006,
+          "equal": true
+        },
+        {
+          "KF3_field": "free_dofs",
+          "H_field": "w1_free_dofs",
+          "KF3_value": 60000,
+          "H_qualified_seed": 60000,
+          "equal": true
+        },
+        {
+          "KF3_field": "bodies",
+          "H_field": "w1_bodies",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "blocks",
+          "H_field": "w1_blocks",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "pattern_entries",
+          "H_field": "w1_pattern_entries",
+          "KF3_value": 1080036,
+          "H_qualified_seed": 1080036,
+          "equal": true
+        },
+        {
+          "KF3_field": "profile_entries",
+          "H_field": "w1_profile_entries",
+          "KF3_value": 569964,
+          "H_qualified_seed": 569964,
+          "equal": true
+        },
+        {
+          "KF3_field": "rows",
+          "H_field": "w1_rows",
+          "KF3_value": 250013,
+          "H_qualified_seed": 250013,
+          "equal": true
+        }
+      ],
+      "source_binding": "Same reviewed RF model/source definition and qualified current seed, with independent provenance fingerprints. H model-canonical/FNV and VK model-file/SHA/K4SRC-SHA encodings are distinct; no unlike-digest equality or conversion claimed.",
+      "TREE_geometry_limit": "[Restrained] in historical outcome is the separate geometry suffix (VK records.rs). H does not emit that geometry here; compare supported Unresolved/Ceiling fields and preserve unreported geometry explicitly.",
+      "publication_availability": "Selected must report matching available counts and dump. Unresolved has no published fields; never fabricate zero or passing R1."
+    },
+    "RF-LARGE-TREE-n10000-AX": {
+      "historical": {
+        "model": "RF-LARGE-TREE-n10000-AX",
+        "stdout_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/KF3/_run_records/b/runs/15_RF-LARGE-TREE-n10000-AX_w1a.jsonl",
+        "stdout_sha256": "cf24bebc3ac6c94e980f8cce320b14485c6fd272871d5685e0b2dc6f8d5d0658",
+        "source_commit": "e114b23c1",
+        "source_tree": "53f78023b7946d547cbba2e6a8813cee558b6d1b",
+        "outcome": "Unresolved Ceiling [Restrained]",
+        "selected_precision": null,
+        "verification_precision": null,
+        "published_rows": null,
+        "unpublishable_rows_if_recorded": null,
+        "source_k4src_sha256": "964dada652548b81e1e0347b09bb09c62c43c3776ff68e56102e10b5f0172056",
+        "canonical_model_sha256": "ff4cb28dd53b7a66b4c0364b2d9af7ab7abaa67f33f4ad2e8c8d8528c37a9319",
+        "analytic_expected_subset_count": 194
+      },
+      "expected_H_supported_fields": {
+        "class": "Unresolved",
+        "reason": "Ceiling",
+        "selected_precision": null,
+        "verification_precision": null
+      },
+      "shared_primitive_count_correspondence": [
+        {
+          "KF3_field": "nodes",
+          "H_field": "w1_nodes",
+          "KF3_value": 10001,
+          "H_qualified_seed": 10001,
+          "equal": true
+        },
+        {
+          "KF3_field": "members",
+          "H_field": "w1_members",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "constraints",
+          "H_field": "w1_constraints",
+          "KF3_value": 6,
+          "H_qualified_seed": 6,
+          "equal": true
+        },
+        {
+          "KF3_field": "loads",
+          "H_field": "w1_loads",
+          "KF3_value": 4286,
+          "H_qualified_seed": 4286,
+          "equal": true
+        },
+        {
+          "KF3_field": "stations",
+          "H_field": "w1_stations",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "dofs",
+          "H_field": "w1_dofs",
+          "KF3_value": 60006,
+          "H_qualified_seed": 60006,
+          "equal": true
+        },
+        {
+          "KF3_field": "free_dofs",
+          "H_field": "w1_free_dofs",
+          "KF3_value": 60000,
+          "H_qualified_seed": 60000,
+          "equal": true
+        },
+        {
+          "KF3_field": "bodies",
+          "H_field": "w1_bodies",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "blocks",
+          "H_field": "w1_blocks",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "pattern_entries",
+          "H_field": "w1_pattern_entries",
+          "KF3_value": 1080036,
+          "H_qualified_seed": 1080036,
+          "equal": true
+        },
+        {
+          "KF3_field": "profile_entries",
+          "H_field": "w1_profile_entries",
+          "KF3_value": 569964,
+          "H_qualified_seed": 569964,
+          "equal": true
+        },
+        {
+          "KF3_field": "rows",
+          "H_field": "w1_rows",
+          "KF3_value": 250013,
+          "H_qualified_seed": 250013,
+          "equal": true
+        }
+      ],
+      "source_binding": "Same reviewed RF model/source definition and qualified current seed, with independent provenance fingerprints. H model-canonical/FNV and VK model-file/SHA/K4SRC-SHA encodings are distinct; no unlike-digest equality or conversion claimed.",
+      "TREE_geometry_limit": "[Restrained] in historical outcome is the separate geometry suffix (VK records.rs). H does not emit that geometry here; compare supported Unresolved/Ceiling fields and preserve unreported geometry explicitly.",
+      "publication_availability": "Selected must report matching available counts and dump. Unresolved has no published fields; never fabricate zero or passing R1."
+    },
+    "RF-LARGE-TREE-n10000-ROT": {
+      "historical": {
+        "model": "RF-LARGE-TREE-n10000-ROT",
+        "stdout_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/KF3/_run_records/b/runs/16_RF-LARGE-TREE-n10000-ROT_w1a.jsonl",
+        "stdout_sha256": "8a7a5449ba26ad74a853d3fee0fe28ec0b93347d209f11f42042f6d31188ec07",
+        "source_commit": "e114b23c1",
+        "source_tree": "53f78023b7946d547cbba2e6a8813cee558b6d1b",
+        "outcome": "Unresolved Ceiling [Restrained]",
+        "selected_precision": null,
+        "verification_precision": null,
+        "published_rows": null,
+        "unpublishable_rows_if_recorded": null,
+        "source_k4src_sha256": "f6086c7f8483837955751851ef1abcbfa098d4c6a9b1fd2b7ef63995e5e6dd0c",
+        "canonical_model_sha256": "2179d5d397ec15668fba52528fdd8c888dc4b51cf2db972c9d8702c199c20818",
+        "analytic_expected_subset_count": 194
+      },
+      "expected_H_supported_fields": {
+        "class": "Unresolved",
+        "reason": "Ceiling",
+        "selected_precision": null,
+        "verification_precision": null
+      },
+      "shared_primitive_count_correspondence": [
+        {
+          "KF3_field": "nodes",
+          "H_field": "w1_nodes",
+          "KF3_value": 10001,
+          "H_qualified_seed": 10001,
+          "equal": true
+        },
+        {
+          "KF3_field": "members",
+          "H_field": "w1_members",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "constraints",
+          "H_field": "w1_constraints",
+          "KF3_value": 6,
+          "H_qualified_seed": 6,
+          "equal": true
+        },
+        {
+          "KF3_field": "loads",
+          "H_field": "w1_loads",
+          "KF3_value": 12858,
+          "H_qualified_seed": 12858,
+          "equal": true
+        },
+        {
+          "KF3_field": "stations",
+          "H_field": "w1_stations",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "dofs",
+          "H_field": "w1_dofs",
+          "KF3_value": 60006,
+          "H_qualified_seed": 60006,
+          "equal": true
+        },
+        {
+          "KF3_field": "free_dofs",
+          "H_field": "w1_free_dofs",
+          "KF3_value": 60000,
+          "H_qualified_seed": 60000,
+          "equal": true
+        },
+        {
+          "KF3_field": "bodies",
+          "H_field": "w1_bodies",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "blocks",
+          "H_field": "w1_blocks",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "pattern_entries",
+          "H_field": "w1_pattern_entries",
+          "KF3_value": 1080036,
+          "H_qualified_seed": 1080036,
+          "equal": true
+        },
+        {
+          "KF3_field": "profile_entries",
+          "H_field": "w1_profile_entries",
+          "KF3_value": 569964,
+          "H_qualified_seed": 569964,
+          "equal": true
+        },
+        {
+          "KF3_field": "rows",
+          "H_field": "w1_rows",
+          "KF3_value": 250013,
+          "H_qualified_seed": 250013,
+          "equal": true
+        }
+      ],
+      "source_binding": "Same reviewed RF model/source definition and qualified current seed, with independent provenance fingerprints. H model-canonical/FNV and VK model-file/SHA/K4SRC-SHA encodings are distinct; no unlike-digest equality or conversion claimed.",
+      "TREE_geometry_limit": "[Restrained] in historical outcome is the separate geometry suffix (VK records.rs). H does not emit that geometry here; compare supported Unresolved/Ceiling fields and preserve unreported geometry explicitly.",
+      "publication_availability": "Selected must report matching available counts and dump. Unresolved has no published fields; never fabricate zero or passing R1."
+    },
+    "RF-LARGE-CONT-n10000-AX": {
+      "historical": {
+        "model": "RF-LARGE-CONT-n10000-AX",
+        "stdout_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/KF3/_run_records/b/runs/17_RF-LARGE-CONT-n10000-AX_w1a.jsonl",
+        "stdout_sha256": "443da71ed6f23f1eeee3fc1768cdd18b594e0e7c9e8451e746ee38ca356cb3f0",
+        "source_commit": "e114b23c1",
+        "source_tree": "53f78023b7946d547cbba2e6a8813cee558b6d1b",
+        "outcome": "Selected at 128",
+        "selected_precision": 128,
+        "verification_precision": 256,
+        "published_rows": 265013,
+        "unpublishable_rows_if_recorded": 0,
+        "source_k4src_sha256": "8dae9039e0b5721ea00dfa7b6dd59aa513fc4b1e0ae81aadaa35a7c419cb6ca3",
+        "canonical_model_sha256": "1fc2b76151557f23404b95262fe461b067a19e8254eb25cd7a14974cb82df083",
+        "analytic_expected_subset_count": 215
+      },
+      "expected_H_supported_fields": {
+        "class": "Selected",
+        "reason": null,
+        "selected_precision": 128,
+        "verification_precision": 256,
+        "rows": 265013,
+        "rows_unpublishable": 0
+      },
+      "shared_primitive_count_correspondence": [
+        {
+          "KF3_field": "nodes",
+          "H_field": "w1_nodes",
+          "KF3_value": 10001,
+          "H_qualified_seed": 10001,
+          "equal": true
+        },
+        {
+          "KF3_field": "members",
+          "H_field": "w1_members",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "constraints",
+          "H_field": "w1_constraints",
+          "KF3_value": 15006,
+          "H_qualified_seed": 15006,
+          "equal": true
+        },
+        {
+          "KF3_field": "loads",
+          "H_field": "w1_loads",
+          "KF3_value": 7333,
+          "H_qualified_seed": 7333,
+          "equal": true
+        },
+        {
+          "KF3_field": "stations",
+          "H_field": "w1_stations",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "dofs",
+          "H_field": "w1_dofs",
+          "KF3_value": 60006,
+          "H_qualified_seed": 60006,
+          "equal": true
+        },
+        {
+          "KF3_field": "free_dofs",
+          "H_field": "w1_free_dofs",
+          "KF3_value": 45000,
+          "H_qualified_seed": 45000,
+          "equal": true
+        },
+        {
+          "KF3_field": "bodies",
+          "H_field": "w1_bodies",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "blocks",
+          "H_field": "w1_blocks",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "pattern_entries",
+          "H_field": "w1_pattern_entries",
+          "KF3_value": 1080036,
+          "H_qualified_seed": 1080036,
+          "equal": true
+        },
+        {
+          "KF3_field": "profile_entries",
+          "H_field": "w1_profile_entries",
+          "KF3_value": 314982,
+          "H_qualified_seed": 314982,
+          "equal": true
+        },
+        {
+          "KF3_field": "rows",
+          "H_field": "w1_rows",
+          "KF3_value": 265013,
+          "H_qualified_seed": 265013,
+          "equal": true
+        }
+      ],
+      "source_binding": "Same reviewed RF model/source definition and qualified current seed, with independent provenance fingerprints. H model-canonical/FNV and VK model-file/SHA/K4SRC-SHA encodings are distinct; no unlike-digest equality or conversion claimed.",
+      "TREE_geometry_limit": "[Restrained] in historical outcome is the separate geometry suffix (VK records.rs). H does not emit that geometry here; compare supported Unresolved/Ceiling fields and preserve unreported geometry explicitly.",
+      "publication_availability": "Selected must report matching available counts and dump. Unresolved has no published fields; never fabricate zero or passing R1."
+    },
+    "RF-LARGE-CONT-n10000-ROT": {
+      "historical": {
+        "model": "RF-LARGE-CONT-n10000-ROT",
+        "stdout_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/KF3/_run_records/b/runs/18_RF-LARGE-CONT-n10000-ROT_w1a.jsonl",
+        "stdout_sha256": "45d017144a93eb3b02e3bfbbbbb9018328087489e9fa4ec95721f6d9c6221296",
+        "source_commit": "e114b23c1",
+        "source_tree": "53f78023b7946d547cbba2e6a8813cee558b6d1b",
+        "outcome": "Selected at 128",
+        "selected_precision": 128,
+        "verification_precision": 256,
+        "published_rows": 265013,
+        "unpublishable_rows_if_recorded": 0,
+        "source_k4src_sha256": "355024e881a298db89229dd5d9c86ab977b3868b78541a4aa1fb5cb542798537",
+        "canonical_model_sha256": "c7d027f0fd5bdfb26f0a58a721e47c92dc4fb7185285e22359373a7ae4d78ff9",
+        "analytic_expected_subset_count": 215
+      },
+      "expected_H_supported_fields": {
+        "class": "Selected",
+        "reason": null,
+        "selected_precision": 128,
+        "verification_precision": 256,
+        "rows": 265013,
+        "rows_unpublishable": 0
+      },
+      "shared_primitive_count_correspondence": [
+        {
+          "KF3_field": "nodes",
+          "H_field": "w1_nodes",
+          "KF3_value": 10001,
+          "H_qualified_seed": 10001,
+          "equal": true
+        },
+        {
+          "KF3_field": "members",
+          "H_field": "w1_members",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "constraints",
+          "H_field": "w1_constraints",
+          "KF3_value": 15006,
+          "H_qualified_seed": 15006,
+          "equal": true
+        },
+        {
+          "KF3_field": "loads",
+          "H_field": "w1_loads",
+          "KF3_value": 12668,
+          "H_qualified_seed": 12668,
+          "equal": true
+        },
+        {
+          "KF3_field": "stations",
+          "H_field": "w1_stations",
+          "KF3_value": 10000,
+          "H_qualified_seed": 10000,
+          "equal": true
+        },
+        {
+          "KF3_field": "dofs",
+          "H_field": "w1_dofs",
+          "KF3_value": 60006,
+          "H_qualified_seed": 60006,
+          "equal": true
+        },
+        {
+          "KF3_field": "free_dofs",
+          "H_field": "w1_free_dofs",
+          "KF3_value": 45000,
+          "H_qualified_seed": 45000,
+          "equal": true
+        },
+        {
+          "KF3_field": "bodies",
+          "H_field": "w1_bodies",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "blocks",
+          "H_field": "w1_blocks",
+          "KF3_value": 1,
+          "H_qualified_seed": 1,
+          "equal": true
+        },
+        {
+          "KF3_field": "pattern_entries",
+          "H_field": "w1_pattern_entries",
+          "KF3_value": 1080036,
+          "H_qualified_seed": 1080036,
+          "equal": true
+        },
+        {
+          "KF3_field": "profile_entries",
+          "H_field": "w1_profile_entries",
+          "KF3_value": 314982,
+          "H_qualified_seed": 314982,
+          "equal": true
+        },
+        {
+          "KF3_field": "rows",
+          "H_field": "w1_rows",
+          "KF3_value": 265013,
+          "H_qualified_seed": 265013,
+          "equal": true
+        }
+      ],
+      "source_binding": "Same reviewed RF model/source definition and qualified current seed, with independent provenance fingerprints. H model-canonical/FNV and VK model-file/SHA/K4SRC-SHA encodings are distinct; no unlike-digest equality or conversion claimed.",
+      "TREE_geometry_limit": "[Restrained] in historical outcome is the separate geometry suffix (VK records.rs). H does not emit that geometry here; compare supported Unresolved/Ceiling fields and preserve unreported geometry explicitly.",
+      "publication_availability": "Selected must report matching available counts and dump. Unresolved has no published fields; never fabricate zero or passing R1."
+    }
+  },
+  "scope": "Owner-adopted supported fields; no full historical published values/digest available."
+}

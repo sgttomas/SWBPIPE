@@ -1,0 +1,446 @@
+{
+  "checked_utc": "2026-10-02T15:18:54.860933+00:00",
+  "seen": [
+    {
+      "order": 247,
+      "mode": "w1a",
+      "counts_checked": true,
+      "binding_checked": true,
+      "completed": true,
+      "stage_records": 13
+    },
+    {
+      "order": 248,
+      "mode": "sparse",
+      "counts_checked": true,
+      "binding_checked": false,
+      "completed": true,
+      "stage_records": 50
+    },
+    {
+      "order": 249,
+      "mode": "w1a",
+      "counts_checked": true,
+      "binding_checked": true,
+      "completed": true,
+      "stage_records": 10
+    },
+    {
+      "order": 250,
+      "mode": "sparse",
+      "counts_checked": true,
+      "binding_checked": false,
+      "completed": true,
+      "stage_records": 50
+    },
+    {
+      "order": 251,
+      "mode": "sparse",
+      "counts_checked": true,
+      "binding_checked": false,
+      "completed": true,
+      "stage_records": 50
+    },
+    {
+      "order": 252,
+      "mode": "w1a",
+      "counts_checked": true,
+      "binding_checked": true,
+      "completed": true,
+      "stage_records": 13
+    },
+    {
+      "order": 253,
+      "mode": "sparse",
+      "counts_checked": true,
+      "binding_checked": false,
+      "completed": true,
+      "stage_records": 50
+    },
+    {
+      "order": 254,
+      "mode": "w1a",
+      "counts_checked": true,
+      "binding_checked": true,
+      "completed": true,
+      "stage_records": 10
+    },
+    {
+      "order": 255,
+      "mode": "w1a",
+      "counts_checked": true,
+      "binding_checked": true,
+      "completed": true,
+      "stage_records": 19
+    },
+    {
+      "order": 256,
+      "mode": "sparse",
+      "counts_checked": true,
+      "binding_checked": false,
+      "completed": true,
+      "stage_records": 50
+    },
+    {
+      "order": 257,
+      "mode": "w1a",
+      "counts_checked": true,
+      "binding_checked": true,
+      "completed": true,
+      "stage_records": 10
+    },
+    {
+      "order": 258,
+      "mode": "sparse",
+      "counts_checked": true,
+      "binding_checked": false,
+      "completed": true,
+      "stage_records": 50
+    },
+    {
+      "order": 259,
+      "mode": "sparse",
+      "counts_checked": true,
+      "binding_checked": false,
+      "completed": true,
+      "stage_records": 50
+    },
+    {
+      "order": 260,
+      "mode": "w1a",
+      "counts_checked": true,
+      "binding_checked": true,
+      "completed": false,
+      "stage_records": 13
+    }
+  ],
+  "outcomes_available": [
+    {
+      "order": 247,
+      "repeat": 0,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 247,
+      "repeat": 1,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 247,
+      "repeat": 2,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 247,
+      "repeat": 3,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 247,
+      "repeat": 4,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 249,
+      "repeat": 0,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 249,
+      "repeat": 1,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 249,
+      "repeat": 2,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 249,
+      "repeat": 3,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 249,
+      "repeat": 4,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 252,
+      "repeat": 0,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 252,
+      "repeat": 1,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 252,
+      "repeat": 2,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 252,
+      "repeat": 3,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 252,
+      "repeat": 4,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 254,
+      "repeat": 0,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 254,
+      "repeat": 1,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 254,
+      "repeat": 2,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 254,
+      "repeat": 3,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 254,
+      "repeat": 4,
+      "class": "Selected",
+      "reason": null,
+      "selected": 128,
+      "verification": 256,
+      "rows": 250013
+    },
+    {
+      "order": 255,
+      "repeat": 0,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 255,
+      "repeat": 1,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 255,
+      "repeat": 2,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 255,
+      "repeat": 3,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 255,
+      "repeat": 4,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 257,
+      "repeat": 0,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 257,
+      "repeat": 1,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 257,
+      "repeat": 2,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 257,
+      "repeat": 3,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 257,
+      "repeat": 4,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 260,
+      "repeat": 0,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 260,
+      "repeat": 1,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 260,
+      "repeat": 2,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 260,
+      "repeat": 3,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    },
+    {
+      "order": 260,
+      "repeat": 4,
+      "class": "Unresolved",
+      "reason": "Ceiling",
+      "selected": null,
+      "verification": null,
+      "rows": null
+    }
+  ],
+  "matched_peak_fields": 176,
+  "faults": [],
+  "active_owned_commands": [
+    "12183 89168 12183 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/b3/run_w1t4.py.txt /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/runner /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records 81c03849033f3ce745668f581f446530789397b8 330540b6a64d5aa1bc1e5ffa26750492e76b8727",
+    "26403 12183 26403 /usr/bin/time -l -o /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/260_RF-LARGE-TREE-n10000-ROT_w1a.time.txt /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe --model RF-LARGE-TREE-n10000-ROT --mode w1a --heap-cap-bytes 8053063680 --repeats 5 --entry-repeats 5 --time-budget-s 1740 --first-repeat-limit-s 600 --counts-file /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl --dump-published /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/260_RF-LARGE-TREE-n10000-ROT_w1a.rows --w1-prefixes",
+    "26405 26403 26403 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe --model RF-LARGE-TREE-n10000-ROT --mode w1a --heap-cap-bytes 8053063680 --repeats 5 --entry-repeats 5 --time-budget-s 1740 --first-repeat-limit-s 600 --counts-file /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/inputs/counts.jsonl --dump-published /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/records/260_RF-LARGE-TREE-n10000-ROT_w1a.rows --w1-prefixes"
+  ],
+  "observed_group_ids": [
+    12183,
+    26403
+  ],
+  "driver_tail": "s rss=746291200\n249_RF-LARGE-CHAIN-n10000-AX_w1a RF-LARGE-CHAIN-n10000-AX w1a: ok 52.2s rss=1213644800\n250_RF-LARGE-CHAIN-n10000-AX_sparse RF-LARGE-CHAIN-n10000-AX sparse: ok 6.3s rss=746373120\n251_RF-LARGE-CHAIN-n10000-ROT_sparse RF-LARGE-CHAIN-n10000-ROT sparse: ok 7.5s rss=350945280\n252_RF-LARGE-CHAIN-n10000-ROT_w1a RF-LARGE-CHAIN-n10000-ROT w1a: ok 111.2s rss=1257979904\n253_RF-LARGE-CHAIN-n10000-ROT_sparse RF-LARGE-CHAIN-n10000-ROT sparse: ok 7.5s rss=350961664\n254_RF-LARGE-CHAIN-n10000-ROT_w1a RF-LARGE-CHAIN-n10000-ROT w1a: ok 87.2s rss=1249607680\n255_RF-LARGE-TREE-n10000-AX_w1a RF-LARGE-TREE-n10000-AX w1a: ok 313.3s rss=3891986432\n256_RF-LARGE-TREE-n10000-AX_sparse RF-LARGE-TREE-n10000-AX sparse: ok 6.4s rss=459194368\n257_RF-LARGE-TREE-n10000-AX_w1a RF-LARGE-TREE-n10000-AX w1a: ok 181.1s rss=3890855936\n258_RF-LARGE-TREE-n10000-AX_sparse RF-LARGE-TREE-n10000-AX sparse: ok 6.4s rss=459194368\n259_RF-LARGE-TREE-n10000-ROT_sparse RF-LARGE-TREE-n10000-ROT sparse: ok 7.9s rss=700366848\n"
+}

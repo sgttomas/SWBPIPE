@@ -1,0 +1,55 @@
+{
+  "checked_utc": "2026-10-02T15:37:43.534014+00:00",
+  "exact_predicate": "|obs-exp| <= 1e-9 * max(|exp|, R1 class scale); unchanged Fraction comparison and derived scalar recipe",
+  "cases": [
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "compared": 103,
+      "failures": 0,
+      "missing": 0,
+      "reported_worst_allowance_ratio": "1.746e-06",
+      "worst_label": "tw.M1"
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "compared": 103,
+      "failures": 0,
+      "missing": 0,
+      "reported_worst_allowance_ratio": "1.746e-06",
+      "worst_label": "tw.M1"
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "compared": 215,
+      "failures": 0,
+      "missing": 0,
+      "reported_worst_allowance_ratio": "1.573e-06",
+      "worst_label": "th.S5000.RZ"
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "compared": 215,
+      "failures": 0,
+      "missing": 0,
+      "reported_worst_allowance_ratio": "1.393e-06",
+      "worst_label": "th.S5000.RX"
+    }
+  ],
+  "total_comparisons": 636,
+  "total_failures_or_missing": 0,
+  "exit_code": 0,
+  "unpublished_cases": [
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "reference_subset_unavailable": 194,
+      "disposition": "not evaluated, not passed"
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "reference_subset_unavailable": 194,
+      "disposition": "not evaluated, not passed"
+    }
+  ],
+  "four_input_copy_hashes_unchanged": true,
+  "historical_full_published_value_equality_established": false
+}

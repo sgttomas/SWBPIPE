@@ -1,0 +1,14 @@
+{
+  "parent": "/root",
+  "task": "/root/i26_uc_witness",
+  "receipt_utc": "2026-10-02T14:50:52Z",
+  "normal_stop_reap_cutoff_utc": "2026-10-02T15:30:52Z",
+  "comparator_cutoff_utc": "2026-10-02T15:40:52Z",
+  "final_deadline_utc": "2026-10-02T15:50:52Z",
+  "brief_commit": "e28cae7437b5733bc2e938c645751c46d6de626b",
+  "ruling_commit": "53141a6e7fcbb78e1ad6c8e6343bd2a4928a40bf",
+  "accepted_readiness_commit": "608f1206423e894b17e318344ef53352597d0cb4",
+  "setup_utc": "2026-10-02T14:57:04.330040+00:00",
+  "no_retry": true,
+  "old_wrapper_ExactSumSpan_comment": "Historical only; current adopted KF3 supported facts govern checks."
+}

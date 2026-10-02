@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/b3/k6b_r1_compare.py.txt",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/runner",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES/references.json",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01/comparison_inputs/W1_T4_R1"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "launch_count": 1,
+  "dispatch_intent_utc": "2026-10-02T15:35:30.596163+00:00",
+  "normal_outer_exit": 0,
+  "input_view": "R1_INPUT_VIEW.json",
+  "model_building_scope": [
+    "RF-LARGE-CHAIN-n10000-AX",
+    "RF-LARGE-CHAIN-n10000-ROT",
+    "RF-LARGE-CONT-n10000-AX",
+    "RF-LARGE-CONT-n10000-ROT"
+  ],
+  "model_building_mechanism": "Existing comparator r.model calls for its four published input dumps; source-model metadata and derived scalars; no normal solver or dense matrix.",
+  "environment_note": "These two overrides were explicitly applied to the comparator; all other inherited environment was unchanged and not newly asserted."
+}

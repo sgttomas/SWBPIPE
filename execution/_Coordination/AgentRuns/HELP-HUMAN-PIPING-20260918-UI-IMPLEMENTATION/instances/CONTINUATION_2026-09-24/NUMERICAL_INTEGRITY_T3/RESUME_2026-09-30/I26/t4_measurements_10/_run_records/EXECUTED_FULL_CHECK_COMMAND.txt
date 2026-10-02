@@ -1,0 +1,113 @@
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python - <<'PY'
+from pathlib import Path
+import json,hashlib,datetime,sys,subprocess,collections,os
+raw=Path("/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/t4_measurements_10/_run_records")
+b=json.loads((raw/'INPUT_BINDING.json').read_text());rec=Path(b['records']);plans=json.loads((raw/'T4_LAUNCHES.json').read_text())
+def save(n,x):
+ (raw/n).write_text(json.dumps(x,indent=2)+'\n')
+def jl(p):
+ return [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
+def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+sys.dont_write_bytecode=True
+sys.path.insert(0,str(Path(b['source_root'])/'projects/chirality-piping/core/solver/performance_harness/runner'))
+import k6_runner as r
+def nodup(pairs):
+ out={}
+ for k,v in pairs:
+  if k in out:raise ValueError('duplicate key '+k)
+  out[k]=v
+ return out
+def jl(p):
+ data=p.read_bytes();assert data.endswith(b'\n'), str(p)
+ return [json.loads(l,object_pairs_hook=nodup) for l in data.splitlines() if l.strip()]
+def chk(ok,*label):
+ if not ok:faults.append(list(label))
+f=json.loads((raw/'FIELD_MAP.json').read_text());win=json.loads((raw/'WINDOW_BASIS.json').read_text())['contexts'];kf=json.loads((raw/'KF3_SUPPORTED_FACTS.json').read_text())['models'];seed={x['model']:x for x in jl(Path(b['seed']['path']))}
+base=json.loads((rec/'baseline_W1-T4.record.json').read_text());baseline=jl(rec/'baseline_W1-T4.jsonl')
+journal=jl(rec/'records.jsonl');before=journal[:108];current=journal[108:]
+faults=[];runs=[];windows=[];outcomes=[];pids=[];allprefix=[];allattempts=[];admissions=[];fields_checked=0
+chk(len(current)==24 and [x['order'] for x in current]==list(range(247,271)),'chronology')
+chk(hashlib.sha256((rec/'records.jsonl').read_bytes()[:b['journal_prefix']['bytes']]).hexdigest()==b['journal_prefix']['sha256'],'prior journal prefix')
+chk(base['classification']=='ok' and base['exit_code']==0 and base['peak_rss_bytes']>0 and base['rss']['time_peak_footprint_bytes']>0,'baseline')
+pids += [o['pid'] for o in baseline if o['kind']=='start']
+stagenames=['formation','assembly','residual_formation','factor','condition','rhs','solve','refinement','recovery','stop_rule','bounded_gate','scale','estimate','charge','bound','shift','bounded_formation','wide_formation','uc']
+for row,e in zip(plans,current):
+ rid=row['run_id'];obs=jl(rec/(rid+'.jsonl'));counts=next(o for o in obs if o['kind']=='counts');summ=next(o for o in obs if o['kind']=='summary');proc=json.loads((rec/(rid+'.record.json')).read_text());isw=row['mode']=='w1a';bindings=jl(rec/(rid+'.counts-binding.jsonl')) if isw else []
+ expected=seed[row['model']];fresh=None
+ ctx={}
+ for label,oo in [('normal',obs)]+([('binding',bindings)] if isw else []):
+  cc=[o for o in oo if o['kind']=='counts'];starts=[o for o in oo if o['kind']=='start'];chk(len(cc)==len(starts)==1,rid,label,'multiplicity');c=cc[0];start=starts[0];pids.append(start['pid'])
+  bad=[k for k in f['consumed']+f['invariants'] if c.get(k)!=expected[k] or type(c.get(k)) is not type(expected[k])];chk(not bad,rid,label,'fields',bad);fields_checked+=57
+  ex={'model':row['model'],'model_from_file':False,'mode':row['mode'],'counts_only':label=='binding','repeats':5,'entry_repeats':5,'heap_cap_bytes':8053063680,'time_budget_s':1740,'first_repeat_limit_s':600,'allow_over_estimate':False}
+  if isw:ex.update(w1_prefixes=row['prefixes'],dump_published=row['prefixes'],case_limit=18446744073709551615,invocation_limit=18446744073709551615)
+  badctx=[k for k,v in ex.items() if start.get(k)!=v or type(start.get(k)) is not type(v)];chk(not badctx,rid,label,'start',badctx)
+  chk(c['counts_source']==('file' if label=='normal' else 'computed') and c['mode']==row['mode'],rid,label,'counts context')
+  ctx[label]={'path':str(rec/(rid+('.jsonl' if label=='normal' else '.counts-binding.jsonl'))),'fields_checked':57,'mismatches':bad,'start_expected':ex,'start_mismatches':badctx}
+  if label=='binding':
+   fresh=c;bp=json.loads((rec/(rid+'.counts-binding.record.json')).read_text());chk(bp['classification']=='ok' and bp['exit_code']==0 and bp['stdout_sha256']==sha(rec/(rid+'.counts-binding.jsonl')),rid,'binding process/hash')
+   chk(not any(o['kind'] in ('stage','outcome','attempt','prefix') for o in oo),rid,'counts-only has work')
+ chk(proc['classification']=='ok' and proc['exit_code']==0 and not proc['timed_out'] and not proc['killed_by_rss_watchdog'],rid,'process')
+ chk(proc['stdout_sha256']==sha(rec/(rid+'.jsonl')) and proc['summary']==summ and e['summary']==summ,rid,'record binding')
+ chk(e['source_commit']==b['candidate'] and e['source_tree']==b['source_tree'],rid,'source')
+ chk(e['baseline_rss_bytes']==base['peak_rss_bytes'] and e['baseline_footprint_bytes']==base['rss']['time_peak_footprint_bytes'],rid,'baseline binding')
+ chk(e['timeout_s']==1800 and e['rss_cap_bytes']==8589934592 and e['heap_cap_bytes']==8053063680 and e['time_budget_s']==1740 and e['first_repeat_limit_s']==600 and e['repeats']==e['entry_repeats']==5,rid,'caps')
+ chk(e['stages']==r.aggregate_stages(obs) and e['parity_failures']==r.parity_failures(obs)==[],rid,'stages/parity')
+ oo=[o for o in obs if o['kind']=='outcome'];aa=[o for o in obs if o['kind']=='attempt'];prefix=[o for o in obs if o['kind']=='prefix'];chk(summ['repeats_completed']==5 and summ['stop_reason'] is None and [o['repeat'] for o in oo]==list(range(5)),rid,'five repeats')
+ chk(all({k:v for k,v in o.items() if k!='repeat'}=={k:v for k,v in oo[0].items() if k!='repeat'} for o in oo),rid,'repeat exact outcome determinism')
+ chk(len([o for o in obs if o['kind']=='parity' and o['item']=='repeat_determinism' and o['equal']])==1,rid,'repeat parity')
+ if isw:
+  bad=[k for k in f['estimates'] if type(counts.get(k)) is not int or counts[k]<0 or counts[k]!=fresh.get(k)];chk(not bad,rid,'22 context estimates',bad);ctx['estimates']={k:counts[k] for k in f['estimates']}
+  v=win[rid];bounds={k:n+v['independent_delta'] if n else 0 for k,n in v['totals']['all'].items()};chk(counts['estimate_w1_fixed_bytes']==v['expected_fixed'] and counts['estimate_adm_bytes_w1a']==bounds['moving_bytes'],rid,'independent caller max')
+  ctx['caller_bounds']=bounds
+  for o in obs:
+   if o['kind']=='stage':
+    stem='source' if o['stage']=='w1_source' else 'solve' if o['stage']=='w1_solve' else 'prefix' if o['stage'].startswith('w1_prefix_') else None
+    if stem:
+     for key in ('heap_current_begin','heap_current_end','heap_peak','heap_peak_move'):
+      moving=key.endswith('_move');bound=bounds[stem+('_moving' if moving else '_requested')];value=o[key];chk(value<=bound,rid,o['stage'],key,value,bound);windows.append({'run_id':rid,'stage':o['stage'],'repeat':o['repeat'],'field':key,'observed':value,'bound':bound,'slack':bound-value})
+  for key in ('repeats_heap_peak','repeats_heap_peak_move','prefix_phase_heap_peak','prefix_phase_heap_peak_move'):
+   value=summ.get(key)
+   if value is None:continue
+   moving=key.endswith('_move');bound=bounds['prefix'+('_moving' if moving else '_requested')] if key.startswith('prefix') else max(bounds['source'+('_moving' if moving else '_requested')],bounds['solve'+('_moving' if moving else '_requested')])
+   chk(value<=bound,rid,key,value,bound);windows.append({'run_id':rid,'stage':'summary window','field':key,'observed':value,'bound':bound,'slack':bound-value})
+  for o in oo:
+   expectedfacts=kf[row['model']]['expected_H_supported_fields'];chk(all(k in o and type(o[k]) is type(want) and o[k]==want for k,want in expectedfacts.items()),rid,'KF3',o['repeat'])
+   attempts=[a for a in aa if a['repeat']==o['repeat']];chk(len(attempts)==o['attempts'] and sum(a['charged_by'] for a in attempts)==o['meter_charged'] and not o['budget_reached'],rid,'work closes',o['repeat'])
+   for a in attempts:
+    p=a['precision'];chk(a['storage_profile_entries']==counts['w1_profile_entries'] and a['storage_pattern_entries']==counts['w1_pattern_entries'] and a['storage_limbs_per_entry']==counts['w1_limbs_per_entry_'+str(p)],rid,'storage',p)
+    chk(a['stages_complete'] and a['own_unstaged']==a['shared_unstaged']==0 and sum(a['own_'+k] for k in stagenames)==a['own_total'] and sum(a['shared_'+k] for k in stagenames)==a['shared_work']+a['verification_shared_work'],rid,'work stages',p)
+    chk(a['charged_by']==a['own_total']+(a['shared_work'] if a['shared_built_here'] else 0)+(a['verification_shared_work'] if a['verification_shared_built_here'] else 0),rid,'charge',p)
+   for p in {a['precision'] for a in attempts}:
+    sub=[a for a in attempts if a['precision']==p];chk(o['work_'+str(p)+'_attempts']==len(sub) and o['work_'+str(p)+'_own']==sum(a['own_total'] for a in sub) and o['work_'+str(p)+'_shared']==sum(a['shared_work']+a['verification_shared_work'] for a in sub),rid,'precision work',p)
+  # Exact scalar reconstruction of the source segment order from the last full call.
+  last=[a for a in aa if a['repeat']==4];segments=[];total=0
+  for i,a in enumerate(last):
+   total+=a['shared_work']+max(0,a['own_total']-a['verification_work']-a['stop_rule_work']);segments.append(('solve_'+str(a['precision']),total))
+   if a['verification_data_blocks'] is not None or a['verification_work']>0 or a['verification_shared_work']>0:
+    total+=a['verification_shared_work']+a['verification_work'];segments.append(('verify_'+str(a['precision']),total))
+    if i>0 and last[i-1]['stop_rule_work']>0:
+     total+=last[i-1]['stop_rule_work'];segments.append(('decide_'+str(last[i-1]['precision']),total))
+  want=segments[:-1] if row['prefixes'] else []
+  chk([(p['through_segment'],p['case_limit']) for p in prefix]==want,rid,'prefix exact endpoints')
+  chk(all(p['prefix']==i+1 and p['class']=='Unresolved' and p['reason']=='Budget(Case)' for i,p in enumerate(prefix)),rid,'prefix class')
+  chk(len([o for o in obs if o['kind']=='parity' and o['item']=='w1_prefix_segments' and o['equal']])==len(prefix),rid,'prefix parity')
+  allattempts += [dict(run_id=rid,**a) for a in aa if a['repeat']==0]
+  allprefix += [dict(run_id=rid,**p) for p in prefix]
+ countsmap=dict(seed);countsmap[row['model']]=fresh if isw else expected
+ decision=r.admission(e,countsmap,before,base['peak_rss_bytes'],baseline_footprint_bytes=base['rss']['time_peak_footprint_bytes'])
+ population=[x for x in before if x.get('family')==row['family'] and x['mode']==row['mode'] and 100<=x['members']<10000 and x.get('classification')=='ok']
+ chk(decision==e['admission'] and decision['decision']=='admitted',rid,'admission replay')
+ chk(len(population)==8 and {p['tier'] for p in population}=={'W1-T2','W1-T3'},rid,'calibration population')
+ admissions.append({'run_id':rid,'decision':decision,'matches':decision==e['admission'],'calibration_ids':[p['run_id'] for p in population],'previous_size':r.previous_size(row['model']),'prior_rows':len(before),'actual_RSS':e['peak_rss_bytes'],'projected_RSS':decision['projected_rss_bytes'],'actual_over_projected':e['peak_rss_bytes']>decision['projected_rss_bytes'],'ratio':e['peak_rss_bytes']/decision['projected_rss_bytes']})
+ before.append(e)
+ outcomes.append({'order':row['order'],'run_id':rid,'model':row['model'],'mode':row['mode'],'pass':row['pass'],**oo[0],'normal_repeats':summ['repeats_completed'],'prefix_calls':len(prefix),'precision_set':sorted({a['precision'] for a in aa}),'wall_s':e['wall_s'],'peak_rss_bytes':e['peak_rss_bytes'],'peak_footprint_bytes':e['peak_footprint_bytes'],'load_before':e['load_before'],'load_after':e['load_after'],'memorystatus_before':e['memorystatus_before'],'memorystatus_after':e['memorystatus_after'],'summary':summ})
+ runs.append({'run_id':rid,'contexts':ctx,'parities':len([o for o in obs if o['kind']=='parity']),'attempt_records':len(aa),'process':'ok','repeat_count':summ['repeats_completed']})
+summary={'checked_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'normal_rows':len(current),'bindings':sum(p['mode']=='w1a' for p in plans),'tier_baselines':1,'distinct_product_PIDs':len(set(pids)),'fields_checked':fields_checked,'context_estimates_checked':12*22,'normal_repeats':sum(o['normal_repeats'] for o in outcomes),'W1_classes':dict(collections.Counter(o['class'] for o in outcomes if o['mode']=='w1a')),'sparse_classes':dict(collections.Counter(o['class'] for o in outcomes if o['mode']=='sparse')),'prefix_calls':len(allprefix),'matched_H_fields':len(windows),'minimum_H_slack':min(x['slack'] for x in windows),'all_admissions_equal':all(x['matches'] for x in admissions),'all_pass':not faults,'faults':faults}
+save('FULL_CHECKS.json',{'summary':summary,'runs':runs,'outcomes':outcomes,'product_PIDs':pids})
+save('METRIC_WINDOW_CHECKS.json',{'windows':windows,'exclusions':'Global/pre-reset/parser/count/serialization fields excluded; sparse has no H bound. Whole-call heap is not per-internal-precision heap.'})
+save('ADMISSION_AND_RSS.json',admissions)
+save('PRECISION_WORK_AND_PREFIXES.json',{'first_repeat_attempts':allattempts,'prefixes':allprefix})
+print(json.dumps(summary,indent=2))
+
+PY
