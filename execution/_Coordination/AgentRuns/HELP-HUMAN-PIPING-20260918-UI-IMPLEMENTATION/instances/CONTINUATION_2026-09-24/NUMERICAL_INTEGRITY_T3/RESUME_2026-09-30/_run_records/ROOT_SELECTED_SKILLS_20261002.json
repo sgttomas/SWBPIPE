@@ -1,0 +1,13 @@
+{
+  "selected_catalog_origins": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/chirality-change/SKILL.md",
+      "sha256": "1a2b056263ec77e4104efdf99afe3fe76dda792334a243fb2f21c60bc9c81450"
+    }
+  ],
+  "checkout_copies": "K6C copies also consulted and byte-identical; catalog origins remain the selected identities"
+}

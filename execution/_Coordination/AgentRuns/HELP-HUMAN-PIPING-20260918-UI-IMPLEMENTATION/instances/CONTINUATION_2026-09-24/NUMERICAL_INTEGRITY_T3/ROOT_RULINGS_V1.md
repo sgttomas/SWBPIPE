@@ -4237,3 +4237,237 @@ recorded merge and this pause; historical progression remains preserved. Resume
 only after owner direction, starting with the narrow M05 witness/test gap and
 then the existing K6c sequence. Standing TASK/Git/gate rules and all owner-held
 T3 choices remain in force.
+
+
+## Owner resumes after graceful halt (ROOT, 2026-10-02 UTC)
+
+The owner explicitly resumed T3 and asked ROOT to retain and improve its management
+lessons. The preceding pause is historical and revoked by that direction. No A1
+gate is reopened: GitHub confirms PR1070 merged and main remains3a0251874.
+K6C40179f1da5961cfef7edeaf7be4eb675379f79b5 is clean and pushed; its maintained
+source is10315. The M5guard is running and no Cargo/rustc/solver process was left.
+
+Previous native child sessions are absent, so fresh I26 and RV34 identities are
+dispatched directly by ROOT. I26 owns only a narrow source-valid Uc regression
+witness/test and exact NONE/M05 check; RV34 independently reviews I25's saved
+historical replay. Their scopes are disjoint; no large measurement slot or wider
+implementation/host-tool grant follows. Briefs are R/BRIEFS/I26_UC_WITNESS_01.md
+and RV34_HISTORICAL_REPLAY_01.md.
+
+Operational lessons for this run: name the claim and a decisive falsification
+check before delegation; expose individual lifetime terms that outer maxima can
+mask; keep implementation, review, artifact qualification, admission and measured
+acceptance distinct; give shared edits one owner and frozen review bases; report
+supporting work against the numerical question and its time bound; retain one
+compact recovery entrypoint with selected evidence. These are this run's execution
+practice, not an amendment to standing agent instructions or a reusable workflow.
+
+
+## Narrow VR lifetime-phase regression grant (ROOT, 2026-10-02 UTC)
+
+The saved VR preparation names two unexecuted witness gaps. ROOT commissions
+fresh I27 to distinguish phase-identity coverage from domination by later global
+maxima, and to add only source-backed local phase regressions. A narrowly
+mechanical private helper extraction in VR/src/envelope.rs is permitted if the
+existing estimator consumes it and algebra/lifetimes remain unchanged. No public
+contract, bound policy, supported input domain or protected criterion changes.
+The detailed fence and25-minute bound are R/BRIEFS/I27_VR_PHASE_WITNESSES_01.md.
+I26 retains the Cargo lane until explicit ROOT release. H/VR writes are disjoint.
+Independent review follows ROOT verification/commit before any claimed closure.
+
+
+## Historical replay verified at its declared scope (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV34 historical_replay_01 return and verified its31
+payloads under sealec4c1328d05fc66eb16225040f3f9b2ef52df0b0186dde49e9353592633a1dba.
+Accept the independently recomposed conditional source/records replay in I25's
+packet. RV34's result table establishes all102 old dictionaries reproduced,
+all66 H decisions still admitted with actual historical H path deltas, and six
+largest-size backstop deferrals in each VR history under its reference profile.
+Its Chronology, H launch/metric and Floating-point sections establish the checked
+denominators, windows and boundary semantics. None is a new run authorization.
+
+Preserve the exact historical VR argv0/model-path/compiled-manifest and artifact
+transfer limitation. The large sparse subtotal independently establishes the
+largest-size deferrals under that bound policy; lower-size admission and VR peak
+comparisons remain reference-launch conditional. No measured excess or universal
+historic executable bound is inferred. Further broad missing-path archaeology is
+not commissioned. Final prospective ordinary-artifact/input/launch qualification
+and measurements remain mandatory before full K6c acceptance.
+
+I26's source-valid Uc witness is committed2ae028eb275684ac0aa8082e034128ff251027a4.
+I27's algebra-preserving private VR phase helpers/tests are committed in the
+combined81c03849033f3ce745668f581f446530789397b8. ROOT read their full maintained
+diffs and sealed returns and verified write sets/postimages. Both authored mutant
+results await fresh RV35 review; M05 history and I24's unexecuted preparation are
+not rewritten. No wider mutant programme or scale slot is released yet.
+
+
+## Lifetime witness gaps closed; remaining mutants released (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete fresh RV35 phase_witnesses_01 return and verified its58
+payloads under seal29b74e5e480de5e3485df2111d411fb2449d94eb0d39350cda5aafd54cadb4b9.
+Accept both maintained changes on81c03849033f3ce745668f581f446530789397b8 within
+that exact conditional source-arithmetic scope. Close the Uc overlap witness gap
+and VR-SPARSE-16F-WITNESS / VR-REFUSED-FORMAT-ARGUMENT-WITNESS. The independent
+source/owner checks and execution table establish the intended local identities,
+actual normal controls and exact mutant discrimination. No source expression,
+public contract, numerical bound policy or supported input domain was weakened.
+
+H/Uc M05's original survivor remains history. VR-M02's global masking and the
+separate VR-M05 existing-phase detection remain explicit; neither is called a
+measured global undercount. These closures do not complete the wider mutation
+programme or qualify an executable/measurement.
+
+ROOT now dispatches I26 directly for the prepared30-minute remaining-kernel
+mutation brief, R/BRIEFS/I26_KERNEL_REMAINDER_02.md, on the same maintained81c038
+basis. The Cargo lane is free and reserved to that TASK; no other runtime grant
+is implied. Stop on the first survivor/normal failure or compile-only failure.
+No production/test repair is included in that archive-only assignment.
+
+
+## Remaining VR mutation execution grant (ROOT, 2026-10-02 UTC)
+
+I26 reports completed M06–M12 executions without a survivor or compile-only
+failure and has released the Cargo lane; its full sealed return still awaits
+ROOT verification and independent review. ROOT confirms no cargo/rustc process.
+Dispatch I27 for the prepared25-minute remaining VR estimate mutation block,
+R/BRIEFS/I27_VR_MUTANTS_REMAINDER_02.md, on maintained81c038. Only archive/evidence
+writes are authorized; stop rules and no criterion/source weakening remain.
+This grant is execution of required validation, not acceptance of I26's unreviewed
+return or any artifact/measurement qualification. No scale or V-K matrix slot
+is implied.
+
+
+## Estimate mutation programme closed; ordinary artifact freeze (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV35 mutant_programme_02 return and verified its65 payloads
+under seal28cdda3eae3bb9f0bb14ed5f8d1f284afbbe05c306c48d652a3688f798bf29d4.
+Accept the complete estimate-mutation obligation at maintained81c03849033f3ce745668f581f446530789397b8:
+its disposition table accounts for12 kernel and6 VR variants with actual compiled
+intended failures, valid normal controls, source carry and separate historical
+outcomes. This is conditional identity/named-phase coverage, not a measured heap
+claim or complete E_max/current-artifact acceptance. The V-K seeded matrix is
+a separate outstanding obligation.
+
+ROOT also read I28's complete preflight plan/commands/source-binding table and
+verified its17 payloads under seal3dec8828da450103fba7ede7ab46826d186a901fd00fec9290aa27a87e8483f3.
+Select maintained81c038 as the production source freeze for the next bounded
+ordinary artifact preparation/correspondence block. Required V-K/final gates
+remain; later maintained changes reopen affected bindings.
+
+Dispatch I28 under R/BRIEFS/I28_ORDINARY_ARTIFACTS_02.md for45 minutes on the existing
+M5 guard/sole Cargo lane. Only ordinary H/VR builds, finite existing native request
+inspection and one unchanged accepted ten-type reporter are authorized. No new
+tool/reader/guard/probe, arbitrary private-layout inference, counts/model/solver
+or measurement run. Missing attribution remains a named unqualified cell. ROOT
+will independently review returned evidence before relying on a bound.
+
+
+## V-K first adapter block released (ROOT, 2026-10-02 UTC)
+
+ROOT read I27 vk_execution_plan_03 RETURN/PLAN and the exact B1/first-route
+command and criterion metadata; its seal41fe834ae3ef144754a9396a002aca17bd8defbc772002963c0a1ad5c107035c
+verifies. The unchanged original seeded sites, criterion-bearing sources and
+empty overlay list support this current-candidate execution selection.
+
+Release only block A_FIRST: fresh debug seeded adapter build on maintained81c038,
+then separate NONE/F10/NONE and NONE/UNKNOWN/NONE processes using the exact
+canonical-permutation filter. Twelve-minute total from native receipt, cutoff9.
+Expected F10 is the original canonical-array comparison; UNKNOWN must reach the
+named unknown-fault panic. Compilation, zero-test or unrelated failure is not a
+witness. Normal controls must execute and pass the complete original test.
+No retained solve,10000 construction, other group, overlay or source/criterion
+change is granted. I28 completed all compiler/reporter work and continues only
+native evidence inspection; the sole Cargo lane transfers to I27. Later B/C/D
+blocks and independent acceptance remain separate.
+
+
+## V-K debug semantic block B released (ROOT, 2026-10-02 UTC)
+
+ROOT read I27 vk_runtime_04 RETURN, verified81 payloads under seal91c7602386af0ee890296cc8634762b864f81f66b027e1602c0a4ba85e4e4132,
+and preserved its actual first-block controls. The UNKNOWN quoting discrepancy
+was an evidence-matcher transcription error: ROOT independently checked the
+unchanged seeded.rs Debug-format panic and historical P37 raw message. The fault
+was not rerun and no criterion changed; the original restoring NONE completed.
+Independent full V-K result review is still outstanding.
+
+Release I27 B2/B_DEBUG under R/BRIEFS/I27_VK_DEBUG_05.md for30 minutes, preserving
+all eight exact routes and fresh controls. ROOT has read the plan's original
+filters/criteria and historical timing fields; these are no fresh duration promise.
+Only original small-case retained solves/parity in those tests are permitted.
+No release records group, mechanical full matrix, scale job or measurement follows
+automatically. Ordinary-artifact review RV36 runs read-only on a disjoint fence.
+
+
+## Ordinary artifact correspondence accepted; V-K release block C (ROOT, 2026-10-02 UTC)
+
+ROOT read the full RV36 RETURN and additive TIME_CORRECTION, verified final95
+payloads under sealccfce99f7a5099bc6910fea41f3fa9b4e56b9763f95882d7c2bd4a65ed293fb2
+and the unchanged original92-payload seal42b7d36683f1157e8ba56473fe2f90142cb855b3ccd2d34924e22dae8b01f1e8.
+Accept I28's ordinary H/VR source/build/type/request correspondence within those
+stated premises. Direct current-image requests, carried nominal facts, four
+source-composed internal pairs, unavailable complete link map and inferred omitted
+defaults remain distinguished. The ten-type current reporter is independently
+confirmed. The timestamp correction withdraws unsampled precision; it changes no
+technical result. No complete run, input/launch, admission or measurement grant
+is implied. Those separate bindings remain required.
+
+ROOT also read I27 B_DEBUG RETURN and verified206 payloads under
+seal01ae9fd2f71ff16a96ea35979b98978b93a7cf0821cb3e19847336f8bd8c9909.
+All assigned author routes have actual restoring controls and qualified named
+witnesses; full independent V-K programme review remains outstanding. Preserve
+zero-credit extras and unexecuted later assertions.
+
+Release only B3/C_RELEASE under R/BRIEFS/I27_VK_RELEASE_06.md for30 minutes.
+The full existing family/show/parity scope, original criteria and separately
+owner-approved F17 cases remain unchanged. Historical seconds are not a current
+duration guarantee. No full mechanical matrix, scale run or maintained edit
+is included. The Cargo lane is idle and assigned only to that TASK.
+
+
+## Row139 input acquisition released; later comparison held (ROOT, 2026-10-02 UTC)
+
+ROOT read RV36 measurement_plan_02 and verified its13-payload seal9c71189cd1d3f4c341a128bc69e016bf1d03a0d3ac10e7843ff14a943769bb04.
+Accept first-step readiness only. The complete37 parsed seed fields and additional
+invariants are mandatory before any row-specific seed reliance; other models and
+automatic tiers remain unqualified. No15-field summary or runner positive-estimate
+check substitutes for full correspondence.
+
+Release I26 under R/BRIEFS/I26_INPUT_QUALIFICATION_04.md for20 minutes: existing
+quiet/guard check, exactly the same ordinary H no-op and exact row139 counts-only
+prepass, then stop before admission/solve. This is evidence acquisition on the
+reviewed artifact, not timing/calibration or a scale grant. No matrix compiler/run
+shares this quiet acquisition slot; other active work is read-only review.
+The historical full-publication comparison stays held; the owner has a concrete
+scoped proposal and has not yet answered. No dependent acceptance is assumed.
+
+
+## Current V-K semantic review and D mechanical grant (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV37 vk_semantics_01 RETURN and verified718 payloads
+under seal4d195d574d100a98ebc06f10b97154480f28cbdf8aa80c81bdef48236354cc65.
+Accept its current fifteen-ID plus UNKNOWN semantic coverage within its stated
+source, feature, profile, controls and observed/unreached-result limits. D's
+mechanical matrix remains outstanding and supplies no substitute semantic credit.
+
+[Correction to I27/vk_runtime_05 RETURN's RF-WEAK summary: RV37 independently
+verified thirteen quantity-level CLASS mismatch lines across ten distinct
+protected case/row comparisons. Three bending-magnitude comparisons each yield
+Ry and Rz lines. The original51-comparison roster and three InputDerived
+exceptions remain unchanged. This corrects summary wording only; preserve the
+original sealed evidence.] Same-reviewer wording confirmation follows.
+
+I26 input_qualification_04 has completed its two authorized processes and
+released the quiet slot. ROOT read RETURN and COMMAND_SCOPE_ADDENDUM, verified
+the20-payload base and separate addendum seals, and committed both. The return
+reports full row139 seed/context correspondence; independent RV36 backcheck is
+commissioned before final disposition. No ordinary solve, admission, rho or
+measurement result is claimed. Other models remain unqualified.
+
+Release only I27 D under R/BRIEFS/I27_VK_MECHANICAL_07.md for45 minutes. The
+archive must include the original feature guard's complete manifest-discovery
+scope and release checker. The unchanged full runner, normal control, all
+registered IDs and UNKNOWN are required; any timeout or bad result stops the
+owned process group. No new tool, source change or scale run is granted.
+The owner historical-publication comparison question remains pending.
