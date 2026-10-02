@@ -1,0 +1,242 @@
+[
+  {
+    "packet": "R/I21/kernel_reference_22",
+    "manifest": "SHA256SUMS",
+    "sha256": "e60c372904e1246338b97166efdb86c389b2ac3669ea3cbdfc851123d792dcd5",
+    "prior_seal_equal": true,
+    "payloads": 17,
+    "errors": []
+  },
+  {
+    "packet": "R/I21/h_integration_25",
+    "manifest": "SHA256SUMS",
+    "sha256": "d7507f556bc21fbd8a35e20aca73c9e9209521092bac1efe83da47706afa3135",
+    "prior_seal_equal": true,
+    "payloads": 36,
+    "errors": []
+  },
+  {
+    "packet": "R/I24/vr_integration_01",
+    "manifest": "SHA256SUMS",
+    "sha256": "f9345b501af5afc29e077016ba8e3f741fd78859f9335b779fc00a9d00908413",
+    "prior_seal_equal": true,
+    "payloads": 49,
+    "errors": []
+  },
+  {
+    "packet": "R/source_review_RV33/kernel_01",
+    "manifest": "_run_records/SHA256SUMS",
+    "sha256": "f50f48bfdaa4874a556b7660285ed0328bba57ee0f7bf099892ad2bdf4e7d919",
+    "prior_seal_equal": true,
+    "payloads": 25,
+    "errors": []
+  },
+  {
+    "packet": "R/source_review_RV33/h_integration_02",
+    "manifest": "_run_records/SHA256SUMS",
+    "sha256": "9e9d49f1d6f9ed8485b45f96c9cedda72e313d90dff5782f8416ebceb26e12ce",
+    "prior_seal_equal": true,
+    "payloads": 24,
+    "errors": []
+  },
+  {
+    "packet": "R/source_review_RV33/runner_backcheck_03",
+    "manifest": "_run_records/SHA256SUMS",
+    "sha256": "a7816799b2c3eac2b6c046806fa5cdadbfbe4f73ca8886a19537611d35809461",
+    "prior_seal_equal": true,
+    "payloads": 62,
+    "errors": []
+  },
+  {
+    "packet": "R/design_review_RV32/vr_implementation_02",
+    "manifest": "SHA256SUMS",
+    "sha256": "1dbd6e97a3478b631b1db6c0f4f5844f4b9cdd71d0d17f7ae893a1ebbb08a970",
+    "prior_seal_equal": true,
+    "payloads": 35,
+    "errors": []
+  },
+  {
+    "packet": "R/design_review_RV32/_run_records/runner_backcheck_03",
+    "manifest": "SHA256SUMS",
+    "sha256": "4ef529ed555e9f0ad31370a01ca7fff27e6c12960bb3e3564b01ffee99d6ab87",
+    "prior_seal_equal": true,
+    "payloads": 19,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV35/phase_witnesses_01",
+    "manifest": "SHA256SUMS",
+    "sha256": "29b74e5e480de5e3485df2111d411fb2449d94eb0d39350cda5aafd54cadb4b9",
+    "prior_seal_equal": true,
+    "payloads": 58,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV35/mutant_programme_02",
+    "manifest": "SHA256SUMS",
+    "sha256": "28cdda3eae3bb9f0bb14ed5f8d1f284afbbe05c306c48d652a3688f798bf29d4",
+    "prior_seal_equal": true,
+    "payloads": 65,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV34/historical_replay_01",
+    "manifest": "SHA256SUMS",
+    "sha256": "ec4c1328d05fc66eb16225040f3f9b2ef52df0b0186dde49e9353592633a1dba",
+    "prior_seal_equal": true,
+    "payloads": 31,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV36/ordinary_artifacts_01",
+    "manifest": "SHA256SUMS",
+    "sha256": "42b7d36683f1157e8ba56473fe2f90142cb855b3ccd2d34924e22dae8b01f1e8",
+    "prior_seal_equal": true,
+    "payloads": 92,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV36/measurement_plan_02",
+    "manifest": "SHA256SUMS",
+    "sha256": "9c71189cd1d3f4c341a128bc69e016bf1d03a0d3ac10e7843ff14a943769bb04",
+    "prior_seal_equal": true,
+    "payloads": 13,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV37/vk_semantics_01",
+    "manifest": "SHA256SUMS",
+    "sha256": "4d195d574d100a98ebc06f10b97154480f28cbdf8aa80c81bdef48236354cc65",
+    "prior_seal_equal": true,
+    "payloads": 718,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV37/vk_semantics_02",
+    "manifest": "SHA256SUMS",
+    "sha256": "9cda91957521bb68f8aee48401a48084cbaa144e9c512fa07171c7c46adc554c",
+    "prior_seal_equal": true,
+    "payloads": 4,
+    "errors": []
+  },
+  {
+    "packet": "R/metric_design_14_reference_callers",
+    "manifest": "SHA256SUMS",
+    "sha256": "235c4a77a29789952587c9173bcf42e291540d87ccdde7719bc3dc5d56c2cbb2",
+    "prior_seal_equal": true,
+    "payloads": 29,
+    "errors": []
+  },
+  {
+    "packet": "R/metric_design_15_result5_join",
+    "manifest": "SHA256SUMS",
+    "sha256": "94567b04d0b573745abf8417af126b679c7f8a1e0f94cd307e437ae179fbcf86",
+    "prior_seal_equal": true,
+    "payloads": 123,
+    "errors": []
+  },
+  {
+    "packet": "R/I21/h_numeric_19",
+    "manifest": "SHA256SUMS",
+    "sha256": "c31d1513c1fac6e73b3ea8672733de10f677b809cd852c58058f77931e017888",
+    "prior_seal_equal": true,
+    "payloads": 15,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV38/composite_source_01",
+    "manifest": "SHA256SUMS",
+    "sha256": "924bacd98904d647db9080716bf2e32fec9b3e5c9d578bf8c384d28bee46dfab",
+    "prior_seal_equal": true,
+    "payloads": 10,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV38/placement_plan_02",
+    "manifest": "SHA256SUMS",
+    "sha256": "27892a724d5bce059c938c6ba6d377f84c60eb7dba9aefc8892074b113a37edd",
+    "prior_seal_equal": true,
+    "payloads": 8,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV37/vk_mechanical_03",
+    "manifest": "SHA256SUMS",
+    "sha256": "1d98a8a25ac596458b84e998a46cb512194243c6184df723e7e8f1f7f93d78ed",
+    "prior_seal_equal": true,
+    "payloads": 12,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV34/t1_measurements_02",
+    "manifest": "SHA256SUMS",
+    "sha256": "b75ff372045ddcc057637ae006c4a54f279aeb683a52ec75a34015301cbf65b5",
+    "prior_seal_equal": true,
+    "payloads": 19,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV34/t1_disposition_03",
+    "manifest": "SHA256SUMS",
+    "sha256": "b3b562a58f2f69203256443a61ed4eb122f97c97b0d07976f98d529881623391",
+    "prior_seal_equal": true,
+    "payloads": 3,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV34/t2_measurements_04",
+    "manifest": "SHA256SUMS",
+    "sha256": "470ccf012178bc14fa02340203632bf3e6faaca6594d880146f487536fc6d32a",
+    "prior_seal_equal": true,
+    "payloads": 19,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV34/t3_measurements_05",
+    "manifest": "SHA256SUMS",
+    "sha256": "57d677defe4728c36be3bba2bdb3d0b5ecf0ae4366affe4dbf48003358d8b507",
+    "prior_seal_equal": true,
+    "payloads": 24,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV34/t4_readiness_06",
+    "manifest": "SHA256SUMS",
+    "sha256": "22f339b27f2973e80f08aa5456053400daba0e71d5fcfbfb062a7c7a49f5e423",
+    "prior_seal_equal": true,
+    "payloads": 17,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV36/comparison_adoption_04",
+    "manifest": "SHA256SUMS",
+    "sha256": "1f55f2b355db885a4985d5adbfe701e6a54512f61f45399859ba4c12ab8cbd64",
+    "prior_seal_equal": true,
+    "payloads": 3,
+    "errors": []
+  },
+  {
+    "packet": "R/I26/t4_measurements_10",
+    "manifest": "_run_records/SHA256SUMS",
+    "sha256": "9d331a4f6cc9ea637fe24d42a07cf62c69cd4859d0a01f2367ab46ec44d10f84",
+    "prior_seal_equal": true,
+    "payloads": 54,
+    "errors": []
+  },
+  {
+    "packet": "R/MEASUREMENTS/W1_T4",
+    "manifest": "SHA256SUMS",
+    "sha256": "989a922c65d5aa7a74a40efa5d9f58c2eeb5b16d8cdb2564bbac1f47eaea943e",
+    "prior_seal_equal": true,
+    "payloads": 3,
+    "errors": []
+  },
+  {
+    "packet": "R/REVIEW_RV36/ordinary_artifacts_01",
+    "manifest": "FINAL_SHA256SUMS",
+    "sha256": "ccfce99f7a5099bc6910fea41f3fa9b4e56b9763f95882d7c2bd4a65ed293fb2",
+    "prior_seal_equal": true,
+    "payloads": 95,
+    "errors": []
+  }
+]

@@ -1,0 +1,365 @@
+{
+  "method": "Independent cumulative additions from last full-repeat attempt records under unchanged staged.rs segments contract; no retained solver or original checker executed.",
+  "checks": [
+    {
+      "run": "records/247_RF-LARGE-CHAIN-n10000-AX_w1a.jsonl",
+      "enabled": true,
+      "required": [
+        [
+          "solve_128",
+          2407264229
+        ],
+        [
+          "solve_256",
+          5520962164
+        ],
+        [
+          "verify_256",
+          7994646695
+        ]
+      ],
+      "observed": [
+        [
+          "solve_128",
+          2407264229
+        ],
+        [
+          "solve_256",
+          5520962164
+        ],
+        [
+          "verify_256",
+          7994646695
+        ]
+      ],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 14751371503
+    },
+    {
+      "run": "records/249_RF-LARGE-CHAIN-n10000-AX_w1a.jsonl",
+      "enabled": false,
+      "required": [],
+      "observed": [],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 14751371503
+    },
+    {
+      "run": "records/252_RF-LARGE-CHAIN-n10000-ROT_w1a.jsonl",
+      "enabled": true,
+      "required": [
+        [
+          "solve_128",
+          2825256681
+        ],
+        [
+          "solve_256",
+          6677767485
+        ],
+        [
+          "verify_256",
+          9948381516
+        ]
+      ],
+      "observed": [
+        [
+          "solve_128",
+          2825256681
+        ],
+        [
+          "solve_256",
+          6677767485
+        ],
+        [
+          "verify_256",
+          9948381516
+        ]
+      ],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 16695322954
+    },
+    {
+      "run": "records/254_RF-LARGE-CHAIN-n10000-ROT_w1a.jsonl",
+      "enabled": false,
+      "required": [],
+      "observed": [],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 16695322954
+    },
+    {
+      "run": "records/255_RF-LARGE-TREE-n10000-AX_w1a.jsonl",
+      "enabled": true,
+      "required": [
+        [
+          "solve_128",
+          2313466291
+        ],
+        [
+          "solve_256",
+          5343287427
+        ],
+        [
+          "verify_256",
+          7876924359
+        ],
+        [
+          "decide_128",
+          8215407872
+        ],
+        [
+          "solve_512",
+          18162100062
+        ],
+        [
+          "verify_512",
+          26442815484
+        ],
+        [
+          "decide_256",
+          26791622960
+        ],
+        [
+          "solve_1024",
+          49752493198
+        ],
+        [
+          "verify_1024",
+          65228585698
+        ]
+      ],
+      "observed": [
+        [
+          "solve_128",
+          2313466291
+        ],
+        [
+          "solve_256",
+          5343287427
+        ],
+        [
+          "verify_256",
+          7876924359
+        ],
+        [
+          "decide_128",
+          8215407872
+        ],
+        [
+          "solve_512",
+          18162100062
+        ],
+        [
+          "verify_512",
+          26442815484
+        ],
+        [
+          "decide_256",
+          26791622960
+        ],
+        [
+          "solve_1024",
+          49752493198
+        ],
+        [
+          "verify_1024",
+          65228585698
+        ]
+      ],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 65593818970
+    },
+    {
+      "run": "records/257_RF-LARGE-TREE-n10000-AX_w1a.jsonl",
+      "enabled": false,
+      "required": [],
+      "observed": [],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 65593818970
+    },
+    {
+      "run": "records/260_RF-LARGE-TREE-n10000-ROT_w1a.jsonl",
+      "enabled": true,
+      "required": [
+        [
+          "solve_128",
+          2697410927
+        ],
+        [
+          "solve_256",
+          6440662215
+        ],
+        [
+          "verify_256",
+          9758737967
+        ],
+        [
+          "decide_128",
+          10097233716
+        ],
+        [
+          "solve_512",
+          21957979697
+        ],
+        [
+          "verify_512",
+          32346140583
+        ],
+        [
+          "decide_256",
+          32694412993
+        ],
+        [
+          "solve_1024",
+          57393785772
+        ],
+        [
+          "verify_1024",
+          74204585019
+        ]
+      ],
+      "observed": [
+        [
+          "solve_128",
+          2697410927
+        ],
+        [
+          "solve_256",
+          6440662215
+        ],
+        [
+          "verify_256",
+          9758737967
+        ],
+        [
+          "decide_128",
+          10097233716
+        ],
+        [
+          "solve_512",
+          21957979697
+        ],
+        [
+          "verify_512",
+          32346140583
+        ],
+        [
+          "decide_256",
+          32694412993
+        ],
+        [
+          "solve_1024",
+          57393785772
+        ],
+        [
+          "verify_1024",
+          74204585019
+        ]
+      ],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 74572170690
+    },
+    {
+      "run": "records/262_RF-LARGE-TREE-n10000-ROT_w1a.jsonl",
+      "enabled": false,
+      "required": [],
+      "observed": [],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 74572170690
+    },
+    {
+      "run": "records/263_RF-LARGE-CONT-n10000-AX_w1a.jsonl",
+      "enabled": true,
+      "required": [
+        [
+          "solve_128",
+          1607660954
+        ],
+        [
+          "solve_256",
+          3937380977
+        ],
+        [
+          "verify_256",
+          5637988524
+        ]
+      ],
+      "observed": [
+        [
+          "solve_128",
+          1607660954
+        ],
+        [
+          "solve_256",
+          3937380977
+        ],
+        [
+          "verify_256",
+          5637988524
+        ]
+      ],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 12653125464
+    },
+    {
+      "run": "records/265_RF-LARGE-CONT-n10000-AX_w1a.jsonl",
+      "enabled": false,
+      "required": [],
+      "observed": [],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 12653125464
+    },
+    {
+      "run": "records/268_RF-LARGE-CONT-n10000-ROT_w1a.jsonl",
+      "enabled": true,
+      "required": [
+        [
+          "solve_128",
+          2088312947
+        ],
+        [
+          "solve_256",
+          5151289956
+        ],
+        [
+          "verify_256",
+          7829247844
+        ]
+      ],
+      "observed": [
+        [
+          "solve_128",
+          2088312947
+        ],
+        [
+          "solve_256",
+          5151289956
+        ],
+        [
+          "verify_256",
+          7829247844
+        ]
+      ],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 14954819472
+    },
+    {
+      "run": "records/270_RF-LARGE-CONT-n10000-ROT_w1a.jsonl",
+      "enabled": false,
+      "required": [],
+      "observed": [],
+      "all_equal": true,
+      "all_budget_stops": true,
+      "final_work": 14954819472
+    }
+  ]
+}

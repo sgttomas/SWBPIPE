@@ -1,0 +1,72 @@
+{
+  "method": "Parse maintained literal data with ast.literal_eval and compare against retained independently reviewed reference components; no estimator or earlier calculator executed. H literals compared against all migrated stored fields.",
+  "vr_reference_rows": 193,
+  "vr_cli_rows": 12,
+  "vr_numeric_cells": 10250,
+  "vr_mismatches": [],
+  "h_rows": 33,
+  "h_numeric_cells": 726,
+  "h_mismatches": [],
+  "cli_path_lengths": [
+    [
+      "RF-LARGE-CHAIN-n00010-AX",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-CHAIN-n00010-ROT",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-TREE-n00010-AX",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-TREE-n00010-ROT",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-CONT-n00010-AX",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-CONT-n00010-ROT",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-CHAIN-n00100-AX",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-CHAIN-n00100-ROT",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-TREE-n00100-AX",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-TREE-n00100-ROT",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-CONT-n00100-AX",
+      170,
+      126
+    ],
+    [
+      "RF-LARGE-CONT-n00100-ROT",
+      170,
+      126
+    ]
+  ]
+}
