@@ -1,0 +1,183 @@
+{
+  "T4_actor": "I26 author; independent numerical/comparison review pending",
+  "basis": "source81c038 / ordinary H48ae299e\u2026 / author packet seal9d331a4f\u2026",
+  "normal_classes_prefix_heap_R1_totals": "I26/t4_measurements_10/RETURN.md class/measurement/comparison paragraphs and RESULTS_SUMMARY.json",
+  "high_precision_work_rows": [
+    [
+      "AX",
+      "512",
+      "5,102,362,329",
+      "13,490,278,555",
+      "8"
+    ],
+    [
+      "AX",
+      "1024",
+      "14,904,124,902",
+      "23,532,837,836",
+      "16"
+    ],
+    [
+      "ROT",
+      "512",
+      "6,709,181,547",
+      "15,907,310,991",
+      "8"
+    ],
+    [
+      "ROT",
+      "1024",
+      "16,765,091,835",
+      "24,745,080,191",
+      "16"
+    ]
+  ],
+  "high_precision_source": "author RETURN first-pass first-repeat LME table, with TREE_HIGH_PRECISION.json detail; no I28 summation",
+  "resource_rows": [
+    {
+      "run_id": "247_RF-LARGE-CHAIN-n10000-AX_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "249_RF-LARGE-CHAIN-n10000-AX_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "252_RF-LARGE-CHAIN-n10000-ROT_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "254_RF-LARGE-CHAIN-n10000-ROT_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "255_RF-LARGE-TREE-n10000-AX_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "257_RF-LARGE-TREE-n10000-AX_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "260_RF-LARGE-TREE-n10000-ROT_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "262_RF-LARGE-TREE-n10000-ROT_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "263_RF-LARGE-CONT-n10000-AX_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "265_RF-LARGE-CONT-n10000-AX_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "268_RF-LARGE-CONT-n10000-ROT_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    },
+    {
+      "run_id": "270_RF-LARGE-CONT-n10000-ROT_w1a",
+      "source": "FULL_CHECKS.json/outcomes",
+      "fields": [
+        "wall_s",
+        "peak_rss_bytes",
+        "peak_footprint_bytes",
+        "load_before[0]"
+      ],
+      "copied_without_recalculation": true
+    }
+  ],
+  "projection_miss_rows": [
+    "248_RF-LARGE-CHAIN-n10000-AX_sparse",
+    "250_RF-LARGE-CHAIN-n10000-AX_sparse",
+    "255_RF-LARGE-TREE-n10000-AX_w1a",
+    "257_RF-LARGE-TREE-n10000-AX_w1a",
+    "259_RF-LARGE-TREE-n10000-ROT_sparse",
+    "260_RF-LARGE-TREE-n10000-ROT_w1a",
+    "261_RF-LARGE-TREE-n10000-ROT_sparse",
+    "262_RF-LARGE-TREE-n10000-ROT_w1a"
+  ],
+  "projection_source": "ADMISSION_AND_RSS.json actual_over_projected rows, not recomputed",
+  "memory_granularity": "per-attempt storage/limbs and whole-call H windows; no per-internal-precision peaks",
+  "R1_source": "R1_RESULTS.json with PUBLICATION_ROSTER and R1_INPUT_VIEW; no I28 comparator execution"
+}

@@ -1,0 +1,337 @@
+{
+  "checked_utc": "2026-10-02T16:09:24.406460+00:00",
+  "link_checks": [
+    {
+      "document": "RETURN.md",
+      "link": "../../TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "CHANGE_RECORD.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "EVIDENCE_INDEX.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV38/composite_source_01/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV38/composite_source_01/COVERAGE.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV36/ordinary_artifacts_01/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV36/ordinary_artifacts_01/TIME_CORRECTION.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV34/historical_replay_01/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t2_measurements_07/OUTCOME_CORRECTION.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "EVIDENCE_INDEX.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/RESULTS_SUMMARY.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/PRECISION_WORK_AND_PREFIXES.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/FULL_CHECKS.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/ADMISSION_AND_RSS.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/METRIC_WINDOW_CHECKS.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/WINDOW_BASIS.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/TREE_HIGH_PRECISION.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/CONTINUATION_AUTHORITY.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/SESSION.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/TIMELINE.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/FINAL_PRESERVATION_AND_CLEANUP.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/KF3_SUPPORTED_FACTS.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/PUBLICATION_ROSTER.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/R1_INPUT_VIEW.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/R1_RESULTS.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/MEASUREMENTS/W1_T4/README.md",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "../../RESUME_2026-09-30/MEASUREMENTS/W1_T4/_run_records/CAPTURE.json",
+      "exists": true
+    },
+    {
+      "document": "RETURN.md",
+      "link": "EVIDENCE_INDEX.md",
+      "exists": true
+    },
+    {
+      "document": "CHANGE_RECORD.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV38/composite_source_01/COVERAGE.md",
+      "exists": true
+    },
+    {
+      "document": "CHANGE_RECORD.md",
+      "link": "EVIDENCE_INDEX.md",
+      "exists": true
+    },
+    {
+      "document": "CHANGE_RECORD.md",
+      "link": "RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/source_review_RV33/kernel_01/REVIEW.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV38/composite_source_01/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/source_review_RV33/h_integration_02/REVIEW.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV38/composite_source_01/COVERAGE.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/design_review_RV32/vr_implementation_02/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/source_review_RV33/runner_backcheck_03/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/design_review_RV32/_run_records/runner_backcheck_03/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/I21/h_integration_25/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV35/phase_witnesses_01/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV35/mutant_programme_02/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV37/vk_semantics_01/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV37/vk_semantics_02/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV37/vk_mechanical_03/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV34/historical_replay_01/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV36/ordinary_artifacts_01/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV36/ordinary_artifacts_01/TIME_CORRECTION.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV34/t1_measurements_02/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV34/t1_disposition_03/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV34/t2_measurements_04/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/I26/t2_measurements_07/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/I26/t2_measurements_07/OUTCOME_CORRECTION.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV34/t3_measurements_05/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV34/t4_readiness_06/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/I26/t4_measurements_10/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/REVIEW_RV36/comparison_adoption_04/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/MEASUREMENTS/W1_T4/README.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/MEASUREMENTS/W1_T4/_run_records/CAPTURE.json",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/verification/k6c_record_placement_01/_run_records/RELOCATION.json",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/I21/_run_records/layout_04/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/source_review_RV30/_run_records/h_request_bindings_10/RETURN.md",
+      "exists": true
+    },
+    {
+      "document": "EVIDENCE_INDEX.md",
+      "link": "../../RESUME_2026-09-30/source_review_RV30/_run_records/wrapped_errors_19/RETURN.md",
+      "exists": true
+    }
+  ],
+  "resource_transcriptions": 12,
+  "projection_miss_transcriptions": 8,
+  "LME_table_rows": 4,
+  "T4_author_manifest_identity_matches_dispatch": true,
+  "no_numeric_derivation_or_runtime_check": true,
+  "drafts_revisable": true,
+  "no_acceptance_seal": true
+}
