@@ -1,0 +1,8 @@
+{
+  "actor": "ROOT",
+  "checked_utc": "2026-10-02T15:48:12.763358+00:00",
+  "head": "8cf5271b13af9cb4ddb383491b11ea15bc5e6ea0",
+  "scope": "Changed-file existing-classifier preflight after custody placement; not final GEN-8",
+  "policy_issues": [],
+  "findings": []
+}
