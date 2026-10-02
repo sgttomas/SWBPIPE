@@ -1,0 +1,12 @@
+{
+  "actor": "ROOT",
+  "captured_utc": "2026-10-02T05:53:10.958184+00:00",
+  "author_seal": "ae41f9d742aa34f9d228bfe335da910ea66fc536ec904cbce760340e75d1d59d",
+  "raw_manifest_sha256": "3e8993c18106c051e7b53091fe1e72368888c19773cf8d6c3b9f9bca91096b34",
+  "files": 412,
+  "payload_bytes": 2777181,
+  "archive_sha256": "e6581461260d146158904412f58c6990af176be988e7062110c51c665cf31f42",
+  "archive_bytes": 279967,
+  "all_archive_payloads_match_original_hashes": true,
+  "acceptance": "none; preservation only"
+}

@@ -1,0 +1,21 @@
+{
+  "checked_utc": "2026-10-02T05:41:26.320092+00:00",
+  "pass": true,
+  "checks": {
+    "classification": true,
+    "exit0": true,
+    "noop": true,
+    "raw_kinds": true,
+    "zero_repeats": true,
+    "rss_usable_matching": true,
+    "footprint_usable_matching": true,
+    "binary": true,
+    "source_commit": true,
+    "source_tree": true,
+    "survivors_empty": true
+  },
+  "rss_bytes": 1884160,
+  "footprint_bytes": 1196344,
+  "baseline_product_pid": 2417,
+  "driver_tail": "053:invented-grid-frame-6x8 w1a: ok 0.7s rss=15286272\n180_DEC053_invented-grid-frame-6x8_sparse DEC053:invented-grid-frame-6x8 sparse: ok 0.1s rss=5718016\n181_DEC053_invented-grid-frame-6x8_w1a DEC053:invented-grid-frame-6x8 w1a: ok 0.6s rss=14827520\n182_DEC053_invented-grid-frame-6x8_sparse DEC053:invented-grid-frame-6x8 sparse: ok 0.1s rss=5718016\n183_DEC053_invented-grid-frame-7x8_sparse DEC053:invented-grid-frame-7x8 sparse: ok 0.2s rss=6242304\n184_DEC053_invented-grid-frame-7x8_w1a DEC053:invented-grid-frame-7x8 w1a: ok 0.9s rss=16678912\n185_DEC053_invented-grid-frame-7x8_sparse DEC053:invented-grid-frame-7x8 sparse: ok 0.2s rss=6569984\n186_DEC053_invented-grid-frame-7x8_w1a DEC053:invented-grid-frame-7x8 w1a: ok 0.7s rss=17055744\n187_DEC053_invented-grid-frame-5x5_w1a DEC053:invented-grid-frame-5x5 w1a: ok 0.3s rss=8404992\n188_DEC053_invented-grid-frame-5x5_sparse DEC053:invented-grid-frame-5x5 sparse: ok 0.1s rss=5013504\n189_DEC053_invented-grid-frame-5x5_w1a DEC053:invented-grid-frame-5x5 w1a: ok 0.2s rss=8830976\n190_DEC053_invented-grid-frame-5x5_sparse DEC053:invented-grid-frame-5x5 sparse: ok 0.1s rss=5029888\n191_DEC053_invented-cantilever-chain-32_sparse DEC053:invented-cantilever-chain-32 sparse: ok 0.1s rss=4571136\n192_DEC053_invented-cantilever-chain-32_w1a DEC053:invented-cantilever-chain-32 w1a: ok 0.2s rss=8568832\n193_DEC053_invented-cantilever-chain-32_sparse DEC053:invented-cantilever-chain-32 sparse: ok 0.1s rss=4784128\n194_DEC053_invented-cantilever-chain-32_w1a DEC053:invented-cantilever-chain-32 w1a: ok 0.2s rss=8896512\n195_DEC053_invented-grid-frame-5x6_w1a DEC053:invented-grid-frame-5x6 w1a: ok 0.4s rss=10076160\n196_DEC053_invented-grid-frame-5x6_sparse DEC053:invented-grid-frame-5x6 sparse: ok 0.1s rss=5341184\n197_DEC053_invented-grid-frame-5x6_w1a DEC053:invented-grid-frame-5x6 w1a: ok 0.4s rss=10010624\n198_DEC053_invented-grid-frame-5x6_sparse DEC053:invented-grid-frame-5x6 sparse: ok 0.1s rss=5046272\n{\"stop\": [], \"stop_after_tier\": []}\n"
+}

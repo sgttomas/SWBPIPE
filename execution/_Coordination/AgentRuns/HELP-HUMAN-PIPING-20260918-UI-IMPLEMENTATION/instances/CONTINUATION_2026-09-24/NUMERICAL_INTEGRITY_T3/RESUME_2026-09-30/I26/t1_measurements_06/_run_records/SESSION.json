@@ -1,0 +1,11 @@
+{
+  "parent": "/root",
+  "task": "/root/i26_uc_witness",
+  "receipt_utc": "2026-10-02T05:36:25Z",
+  "runtime_cutoff_utc": "2026-10-02T06:01:25Z",
+  "hard_deadline_utc": "2026-10-02T06:06:25Z",
+  "brief_commit": "5b050d8adba0b8b7e509f1a7f43e7dfc8423546e",
+  "accepted_T1_inputs_commit": "8e492e883fd23ad429cce36ad443618c1db0fa0b",
+  "exclusive_slot": "Explicit ROOT release, only guard5387 active; mechanical RV37 review read-only.",
+  "no_retry": true
+}

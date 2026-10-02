@@ -1,0 +1,906 @@
+{
+  "basis": "Accepted H19 and RV34 metric mapping; actual common caller offset from fresh fixed field, not observed heap. No kernel re-derivation.",
+  "windows": {
+    "139_RF-LARGE-CHAIN-n00010-AX_w1a": {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 87693,
+      "reference_argument_bytes": 345,
+      "totals": {
+        "all": {
+          "requested_bytes": 21662956,
+          "moving_bytes": 22744300,
+          "source_requested": 18878,
+          "source_moving": 18878,
+          "solve_requested": 21662569,
+          "solve_moving": 22743913,
+          "prefix_requested": 21662956,
+          "prefix_moving": 22744300
+        },
+        "selected128": {
+          "requested_bytes": 19658284,
+          "moving_bytes": 20739628,
+          "source_requested": 18878,
+          "source_moving": 18878,
+          "solve_requested": 19657897,
+          "solve_moving": 20739241,
+          "prefix_requested": 19658284,
+          "prefix_moving": 20739628
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "141_RF-LARGE-CHAIN-n00010-AX_w1a": {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 87072,
+      "reference_argument_bytes": 111,
+      "totals": {
+        "all": {
+          "requested_bytes": 21662335,
+          "moving_bytes": 22743679,
+          "source_requested": 18644,
+          "source_moving": 18644,
+          "solve_requested": 21662335,
+          "solve_moving": 22743679,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 19657663,
+          "moving_bytes": 20739007,
+          "source_requested": 18644,
+          "source_moving": 18644,
+          "solve_requested": 19657663,
+          "solve_moving": 20739007,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "144_RF-LARGE-CHAIN-n00010-ROT_w1a": {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 87696,
+      "reference_argument_bytes": 347,
+      "totals": {
+        "all": {
+          "requested_bytes": 21662959,
+          "moving_bytes": 22744303,
+          "source_requested": 18881,
+          "source_moving": 18881,
+          "solve_requested": 21662572,
+          "solve_moving": 22743916,
+          "prefix_requested": 21662959,
+          "prefix_moving": 22744303
+        },
+        "selected128": {
+          "requested_bytes": 19658287,
+          "moving_bytes": 20739631,
+          "source_requested": 18881,
+          "source_moving": 18881,
+          "solve_requested": 19657900,
+          "solve_moving": 20739244,
+          "prefix_requested": 19658287,
+          "prefix_moving": 20739631
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "146_RF-LARGE-CHAIN-n00010-ROT_w1a": {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 87074,
+      "reference_argument_bytes": 112,
+      "totals": {
+        "all": {
+          "requested_bytes": 21662337,
+          "moving_bytes": 22743681,
+          "source_requested": 18646,
+          "source_moving": 18646,
+          "solve_requested": 21662337,
+          "solve_moving": 22743681,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 19657665,
+          "moving_bytes": 20739009,
+          "source_requested": 18646,
+          "source_moving": 18646,
+          "solve_requested": 19657665,
+          "solve_moving": 20739009,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "147_RF-LARGE-TREE-n00010-AX_w1a": {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 86162,
+      "reference_argument_bytes": 343,
+      "totals": {
+        "all": {
+          "requested_bytes": 21661425,
+          "moving_bytes": 22742769,
+          "source_requested": 18711,
+          "source_moving": 18711,
+          "solve_requested": 21661038,
+          "solve_moving": 22742382,
+          "prefix_requested": 21661425,
+          "prefix_moving": 22742769
+        },
+        "selected128": {
+          "requested_bytes": 19656753,
+          "moving_bytes": 20738097,
+          "source_requested": 18711,
+          "source_moving": 18711,
+          "solve_requested": 19656366,
+          "solve_moving": 20737710,
+          "prefix_requested": 19656753,
+          "prefix_moving": 20738097
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "149_RF-LARGE-TREE-n00010-AX_w1a": {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 85542,
+      "reference_argument_bytes": 110,
+      "totals": {
+        "all": {
+          "requested_bytes": 21660805,
+          "moving_bytes": 22742149,
+          "source_requested": 18478,
+          "source_moving": 18478,
+          "solve_requested": 21660805,
+          "solve_moving": 22742149,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 19656133,
+          "moving_bytes": 20737477,
+          "source_requested": 18478,
+          "source_moving": 18478,
+          "solve_requested": 19656133,
+          "solve_moving": 20737477,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "152_RF-LARGE-TREE-n00010-ROT_w1a": {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 92213,
+      "reference_argument_bytes": 345,
+      "totals": {
+        "all": {
+          "requested_bytes": 21667476,
+          "moving_bytes": 22748820,
+          "source_requested": 19306,
+          "source_moving": 19306,
+          "solve_requested": 21667089,
+          "solve_moving": 22748433,
+          "prefix_requested": 21667476,
+          "prefix_moving": 22748820
+        },
+        "selected128": {
+          "requested_bytes": 19662804,
+          "moving_bytes": 20744148,
+          "source_requested": 19306,
+          "source_moving": 19306,
+          "solve_requested": 19662417,
+          "solve_moving": 20743761,
+          "prefix_requested": 19662804,
+          "prefix_moving": 20744148
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "154_RF-LARGE-TREE-n00010-ROT_w1a": {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 91592,
+      "reference_argument_bytes": 111,
+      "totals": {
+        "all": {
+          "requested_bytes": 21666855,
+          "moving_bytes": 22748199,
+          "source_requested": 19072,
+          "source_moving": 19072,
+          "solve_requested": 21666855,
+          "solve_moving": 22748199,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 19662183,
+          "moving_bytes": 20743527,
+          "source_requested": 19072,
+          "source_moving": 19072,
+          "solve_requested": 19662183,
+          "solve_moving": 20743527,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "155_RF-LARGE-CONT-n00010-AX_w1a": {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 89630,
+      "reference_argument_bytes": 343,
+      "totals": {
+        "all": {
+          "requested_bytes": 21593148,
+          "moving_bytes": 22674492,
+          "source_requested": 19293,
+          "source_moving": 19293,
+          "solve_requested": 21592761,
+          "solve_moving": 22674105,
+          "prefix_requested": 21593148,
+          "prefix_moving": 22674492
+        },
+        "selected128": {
+          "requested_bytes": 19640844,
+          "moving_bytes": 20722188,
+          "source_requested": 19293,
+          "source_moving": 19293,
+          "solve_requested": 19640457,
+          "solve_moving": 20721801,
+          "prefix_requested": 19640844,
+          "prefix_moving": 20722188
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "157_RF-LARGE-CONT-n00010-AX_w1a": {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 89010,
+      "reference_argument_bytes": 110,
+      "totals": {
+        "all": {
+          "requested_bytes": 21592528,
+          "moving_bytes": 22673872,
+          "source_requested": 19060,
+          "source_moving": 19060,
+          "solve_requested": 21592528,
+          "solve_moving": 22673872,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 19640224,
+          "moving_bytes": 20721568,
+          "source_requested": 19060,
+          "source_moving": 19060,
+          "solve_requested": 19640224,
+          "solve_moving": 20721568,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "160_RF-LARGE-CONT-n00010-ROT_w1a": {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 94885,
+      "reference_argument_bytes": 345,
+      "totals": {
+        "all": {
+          "requested_bytes": 21598403,
+          "moving_bytes": 22679747,
+          "source_requested": 19774,
+          "source_moving": 19774,
+          "solve_requested": 21598016,
+          "solve_moving": 22679360,
+          "prefix_requested": 21598403,
+          "prefix_moving": 22679747
+        },
+        "selected128": {
+          "requested_bytes": 19646099,
+          "moving_bytes": 20727443,
+          "source_requested": 19774,
+          "source_moving": 19774,
+          "solve_requested": 19645712,
+          "solve_moving": 20727056,
+          "prefix_requested": 19646099,
+          "prefix_moving": 20727443
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "162_RF-LARGE-CONT-n00010-ROT_w1a": {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 94264,
+      "reference_argument_bytes": 111,
+      "totals": {
+        "all": {
+          "requested_bytes": 21597782,
+          "moving_bytes": 22679126,
+          "source_requested": 19540,
+          "source_moving": 19540,
+          "solve_requested": 21597782,
+          "solve_moving": 22679126,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 19645478,
+          "moving_bytes": 20726822,
+          "source_requested": 19540,
+          "source_moving": 19540,
+          "solve_requested": 19645478,
+          "solve_moving": 20726822,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "163_DEC053_invented-cantilever-chain-8_w1a": {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 66872,
+      "reference_argument_bytes": 365,
+      "totals": {
+        "all": {
+          "requested_bytes": 21080805,
+          "moving_bytes": 22172389,
+          "source_requested": 16947,
+          "source_moving": 16947,
+          "solve_requested": 21080418,
+          "solve_moving": 22172002,
+          "prefix_requested": 21080805,
+          "prefix_moving": 22172389
+        },
+        "selected128": {
+          "requested_bytes": 19468485,
+          "moving_bytes": 20560069,
+          "source_requested": 16947,
+          "source_moving": 16947,
+          "solve_requested": 19468098,
+          "solve_moving": 20559682,
+          "prefix_requested": 19468485,
+          "prefix_moving": 20560069
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "165_DEC053_invented-cantilever-chain-8_w1a": {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 66241,
+      "reference_argument_bytes": 121,
+      "totals": {
+        "all": {
+          "requested_bytes": 21080174,
+          "moving_bytes": 22171758,
+          "source_requested": 16703,
+          "source_moving": 16703,
+          "solve_requested": 21080174,
+          "solve_moving": 22171758,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 19467854,
+          "moving_bytes": 20559438,
+          "source_requested": 16703,
+          "source_moving": 16703,
+          "solve_requested": 19467854,
+          "solve_moving": 20559438,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "168_DEC053_invented-cantilever-chain-24_w1a": {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 175617,
+      "reference_argument_bytes": 367,
+      "totals": {
+        "all": {
+          "requested_bytes": 25656638,
+          "moving_bytes": 26717502,
+          "source_requested": 25913,
+          "source_moving": 25913,
+          "solve_requested": 25656251,
+          "solve_moving": 26717115,
+          "prefix_requested": 25656638,
+          "prefix_moving": 26717502
+        },
+        "selected128": {
+          "requested_bytes": 20887070,
+          "moving_bytes": 21947934,
+          "source_requested": 25913,
+          "source_moving": 25913,
+          "solve_requested": 20886683,
+          "solve_moving": 21947547,
+          "prefix_requested": 20887070,
+          "prefix_moving": 21947934
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "170_DEC053_invented-cantilever-chain-24_w1a": {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 174985,
+      "reference_argument_bytes": 122,
+      "totals": {
+        "all": {
+          "requested_bytes": 25656006,
+          "moving_bytes": 26716870,
+          "source_requested": 25668,
+          "source_moving": 25668,
+          "solve_requested": 25656006,
+          "solve_moving": 26716870,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 20886438,
+          "moving_bytes": 21947302,
+          "source_requested": 25668,
+          "source_moving": 25668,
+          "solve_requested": 20886438,
+          "solve_moving": 21947302,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "171_DEC053_invented-cantilever-chain-48_w1a": {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 335745,
+      "reference_argument_bytes": 367,
+      "totals": {
+        "all": {
+          "requested_bytes": 32507670,
+          "moving_bytes": 33527574,
+          "source_requested": 39193,
+          "source_moving": 39193,
+          "solve_requested": 32507283,
+          "solve_moving": 33527187,
+          "prefix_requested": 32507670,
+          "prefix_moving": 33527574
+        },
+        "selected128": {
+          "requested_bytes": 23005302,
+          "moving_bytes": 24025206,
+          "source_requested": 39193,
+          "source_moving": 39193,
+          "solve_requested": 23004915,
+          "solve_moving": 24024819,
+          "prefix_requested": 23005302,
+          "prefix_moving": 24025206
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "173_DEC053_invented-cantilever-chain-48_w1a": {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 335113,
+      "reference_argument_bytes": 122,
+      "totals": {
+        "all": {
+          "requested_bytes": 32507038,
+          "moving_bytes": 33526942,
+          "source_requested": 38948,
+          "source_moving": 38948,
+          "solve_requested": 32507038,
+          "solve_moving": 33526942,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 23004670,
+          "moving_bytes": 24024574,
+          "source_requested": 38948,
+          "source_moving": 38948,
+          "solve_requested": 23004670,
+          "solve_moving": 24024574,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "176_DEC053_invented-grid-frame-4x3_w1a": {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 114584,
+      "reference_argument_bytes": 357,
+      "totals": {
+        "all": {
+          "requested_bytes": 23215918,
+          "moving_bytes": 24297262,
+          "source_requested": 22591,
+          "source_moving": 22591,
+          "solve_requested": 23215531,
+          "solve_moving": 24296875,
+          "prefix_requested": 23215918,
+          "prefix_moving": 24297262
+        },
+        "selected128": {
+          "requested_bytes": 20123902,
+          "moving_bytes": 21205246,
+          "source_requested": 22591,
+          "source_moving": 22591,
+          "solve_requested": 20123515,
+          "solve_moving": 21204859,
+          "prefix_requested": 20123902,
+          "prefix_moving": 21205246
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "178_DEC053_invented-grid-frame-4x3_w1a": {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 113957,
+      "reference_argument_bytes": 117,
+      "totals": {
+        "all": {
+          "requested_bytes": 23215291,
+          "moving_bytes": 24296635,
+          "source_requested": 22351,
+          "source_moving": 22351,
+          "solve_requested": 23215291,
+          "solve_moving": 24296635,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 20123275,
+          "moving_bytes": 21204619,
+          "source_requested": 22351,
+          "source_moving": 22351,
+          "solve_requested": 20123275,
+          "solve_moving": 21204619,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "179_DEC053_invented-grid-frame-6x8_w1a": {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 465109,
+      "reference_argument_bytes": 357,
+      "totals": {
+        "all": {
+          "requested_bytes": 41151685,
+          "moving_bytes": 42171589,
+          "source_requested": 55889,
+          "source_moving": 55889,
+          "solve_requested": 41151298,
+          "solve_moving": 42171202,
+          "prefix_requested": 41151685,
+          "prefix_moving": 42171589
+        },
+        "selected128": {
+          "requested_bytes": 25588229,
+          "moving_bytes": 26608133,
+          "source_requested": 55889,
+          "source_moving": 55889,
+          "solve_requested": 25587842,
+          "solve_moving": 26607746,
+          "prefix_requested": 25588229,
+          "prefix_moving": 26608133
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "181_DEC053_invented-grid-frame-6x8_w1a": {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 464482,
+      "reference_argument_bytes": 117,
+      "totals": {
+        "all": {
+          "requested_bytes": 41151058,
+          "moving_bytes": 42170962,
+          "source_requested": 55649,
+          "source_moving": 55649,
+          "solve_requested": 41151058,
+          "solve_moving": 42170962,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 25587602,
+          "moving_bytes": 26607506,
+          "source_requested": 55649,
+          "source_moving": 55649,
+          "solve_requested": 25587602,
+          "solve_moving": 26607506,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "184_DEC053_invented-grid-frame-7x8_w1a": {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 577485,
+      "reference_argument_bytes": 357,
+      "totals": {
+        "all": {
+          "requested_bytes": 45548457,
+          "moving_bytes": 46486441,
+          "source_requested": 61001,
+          "source_moving": 61001,
+          "solve_requested": 45548070,
+          "solve_moving": 46486054,
+          "prefix_requested": 45548457,
+          "prefix_moving": 46486441
+        },
+        "selected128": {
+          "requested_bytes": 26997561,
+          "moving_bytes": 27935545,
+          "source_requested": 61001,
+          "source_moving": 61001,
+          "solve_requested": 26997174,
+          "solve_moving": 27935158,
+          "prefix_requested": 26997561,
+          "prefix_moving": 27935545
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "186_DEC053_invented-grid-frame-7x8_w1a": {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 576858,
+      "reference_argument_bytes": 117,
+      "totals": {
+        "all": {
+          "requested_bytes": 45547830,
+          "moving_bytes": 46485814,
+          "source_requested": 60761,
+          "source_moving": 60761,
+          "solve_requested": 45547830,
+          "solve_moving": 46485814,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 26996934,
+          "moving_bytes": 27934918,
+          "source_requested": 60761,
+          "source_moving": 60761,
+          "solve_requested": 26996934,
+          "solve_moving": 27934918,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "187_DEC053_invented-grid-frame-5x5_w1a": {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 238253,
+      "reference_argument_bytes": 357,
+      "totals": {
+        "all": {
+          "requested_bytes": 29447586,
+          "moving_bytes": 30508450,
+          "source_requested": 33829,
+          "source_moving": 33829,
+          "solve_requested": 29447199,
+          "solve_moving": 30508063,
+          "prefix_requested": 29447586,
+          "prefix_moving": 30508450
+        },
+        "selected128": {
+          "requested_bytes": 22022018,
+          "moving_bytes": 23082882,
+          "source_requested": 33829,
+          "source_moving": 33829,
+          "solve_requested": 22021631,
+          "solve_moving": 23082495,
+          "prefix_requested": 22022018,
+          "prefix_moving": 23082882
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "189_DEC053_invented-grid-frame-5x5_w1a": {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 237626,
+      "reference_argument_bytes": 117,
+      "totals": {
+        "all": {
+          "requested_bytes": 29446959,
+          "moving_bytes": 30507823,
+          "source_requested": 33589,
+          "source_moving": 33589,
+          "solve_requested": 29446959,
+          "solve_moving": 30507823,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 22021391,
+          "moving_bytes": 23082255,
+          "source_requested": 33589,
+          "source_moving": 33589,
+          "solve_requested": 22021391,
+          "solve_moving": 23082255,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "192_DEC053_invented-cantilever-chain-32_w1a": {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 221057,
+      "reference_argument_bytes": 367,
+      "totals": {
+        "all": {
+          "requested_bytes": 27906438,
+          "moving_bytes": 28967302,
+          "source_requested": 29913,
+          "source_moving": 29913,
+          "solve_requested": 27906051,
+          "solve_moving": 28966915,
+          "prefix_requested": 27906438,
+          "prefix_moving": 28967302
+        },
+        "selected128": {
+          "requested_bytes": 21567462,
+          "moving_bytes": 22628326,
+          "source_requested": 29913,
+          "source_moving": 29913,
+          "solve_requested": 21567075,
+          "solve_moving": 22627939,
+          "prefix_requested": 21567462,
+          "prefix_moving": 22628326
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "194_DEC053_invented-cantilever-chain-32_w1a": {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 220425,
+      "reference_argument_bytes": 122,
+      "totals": {
+        "all": {
+          "requested_bytes": 27905806,
+          "moving_bytes": 28966670,
+          "source_requested": 29668,
+          "source_moving": 29668,
+          "solve_requested": 27905806,
+          "solve_moving": 28966670,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 21566830,
+          "moving_bytes": 22627694,
+          "source_requested": 29668,
+          "source_moving": 29668,
+          "solve_requested": 21566830,
+          "solve_moving": 22627694,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "195_DEC053_invented-grid-frame-5x6_w1a": {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "pass": 1,
+      "prefix": true,
+      "reference_Hfixed": 301501,
+      "reference_argument_bytes": 357,
+      "totals": {
+        "all": {
+          "requested_bytes": 31999159,
+          "moving_bytes": 33019063,
+          "source_requested": 36073,
+          "source_moving": 36073,
+          "solve_requested": 31998772,
+          "solve_moving": 33018676,
+          "prefix_requested": 31999159,
+          "prefix_moving": 33019063
+        },
+        "selected128": {
+          "requested_bytes": 22832327,
+          "moving_bytes": 23852231,
+          "source_requested": 36073,
+          "source_moving": 36073,
+          "solve_requested": 22831940,
+          "solve_moving": 23851844,
+          "prefix_requested": 22832327,
+          "prefix_moving": 23852231
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    },
+    "197_DEC053_invented-grid-frame-5x6_w1a": {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "pass": 2,
+      "prefix": false,
+      "reference_Hfixed": 300874,
+      "reference_argument_bytes": 117,
+      "totals": {
+        "all": {
+          "requested_bytes": 31998532,
+          "moving_bytes": 33018436,
+          "source_requested": 35833,
+          "source_moving": 35833,
+          "solve_requested": 31998532,
+          "solve_moving": 33018436,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        },
+        "selected128": {
+          "requested_bytes": 22831700,
+          "moving_bytes": 23851604,
+          "source_requested": 35833,
+          "source_moving": 35833,
+          "solve_requested": 22831700,
+          "solve_moving": 23851604,
+          "prefix_requested": 0,
+          "prefix_moving": 0
+        }
+      },
+      "rebind_rule": "delta=fresh estimate_w1_fixed_bytes - reference_Hfixed. Add delta to every nonzero window total, preserving unavailable zero prefix. compose() adds actual model/Args caller once to source/solve/prefix/full. Verify rebound full/selected moving match fresh estimates and kernel diagnostics equal qualified seed."
+    }
+  },
+  "excluded": "Global summary heap_peak/heap_peak_move and pre-reset stage_begin; counts/parser/serialization metrics have no source/solve-stage claim. Sparse runs have their existing sparse controls, not H-window substitution."
+}

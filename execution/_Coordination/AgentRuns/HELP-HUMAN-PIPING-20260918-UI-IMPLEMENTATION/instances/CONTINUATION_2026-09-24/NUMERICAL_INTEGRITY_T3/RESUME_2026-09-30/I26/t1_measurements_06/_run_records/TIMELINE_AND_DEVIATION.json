@@ -1,0 +1,14 @@
+{
+  "prelaunch_intent_utc": "2026-10-02T05:40:23.057284+00:00",
+  "prelaunch_host_check": "2026-10-02T05:40:23.121790+00:00",
+  "driver_log_birth_utc": "2026-10-02T05:41:08.489808+00:00",
+  "driver_log_last_write_utc": "2026-10-02T05:41:25.387786+00:00",
+  "baseline_record_birth_utc": "2026-10-02T05:41:08.754068+00:00",
+  "baseline_record_last_write_utc": "2026-10-02T05:41:08.754256+00:00",
+  "first_model_observation_utc": "2026-10-02T05:41:26.320092+00:00",
+  "exec_session_exit0_observed_by_utc": "2026-10-02T05:41:41Z",
+  "runtime_slot_released_at_boundary": "2026-10-02T05:41:41Z",
+  "scope": "Driver birth/last-write and baseline record times are filesystem metadata, not independently sampled process start/exit timestamps. Tool session exit0 and absence of owned processes were observed; no exact unrecorded process UTC is invented.",
+  "monitoring_deviation": "The complete tier had already printed stop=[]/stop_after_tier=[] before the first post-launch baseline check. Immediate/live baseline, per-prepass, normal-field and window inspections did not occur while active. All inspections are post-run. ROOT explicitly acknowledged this and requested complete post-run checks; acceptance remains open.",
+  "no_retry": true
+}
