@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "/Users/ryan/.cargo/bin/rustup",
+    "run",
+    "1.97.1",
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+    "--release",
+    "--locked",
+    "--offline",
+    "-j",
+    "4",
+    "--test",
+    "rv33_private_boundary",
+    "--",
+    "--test-threads=2"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-scratch-20261002T0057",
+  "environment_overrides": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target"
+  },
+  "start_utc": "2026-10-02T01:02:58.833383+00:00",
+  "guard": " 5387 03-23:26:39 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+  "exit_code": 0,
+  "end_utc": "2026-10-02T01:03:00.775230+00:00",
+  "binaries": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/deps/rv33_private_boundary-ebf0556ab8108db7",
+      "sha256": "e80e5260b52db9fab13e538896b1c9bb3e3476f121aa53f2b50e0ae09fedfc3b"
+    }
+  ]
+}

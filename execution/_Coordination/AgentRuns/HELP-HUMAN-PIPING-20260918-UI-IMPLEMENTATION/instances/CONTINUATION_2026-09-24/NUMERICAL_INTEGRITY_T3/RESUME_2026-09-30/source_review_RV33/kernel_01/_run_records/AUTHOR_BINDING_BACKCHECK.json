@@ -1,0 +1,34 @@
+{
+  "checks": [
+    {
+      "id": "RF-CHAIN-T-n03-r1e-04",
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22/KERNEL_193.json",
+      "errors": []
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22/KERNEL_193.json",
+      "errors": []
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-GnG",
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22/KERNEL_193.json",
+      "errors": []
+    },
+    {
+      "id": "RF-ZERO-SYM",
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22/KERNEL_193.json",
+      "errors": []
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22/CLI24_EXACT_KERNEL.json",
+      "errors": []
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/PHASES.json",
+      "errors": []
+    }
+  ]
+}

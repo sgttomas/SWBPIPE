@@ -1,0 +1,97 @@
+{
+  "completion_utc": "2026-10-02T01:10:05.229756+00:00",
+  "candidate": "4a6cb3402f95d98c6f46f702055fe4b0c5245c56",
+  "findings": [],
+  "fan_in": "suitable within bounded conditional kernel scope",
+  "maintained_tests": 9,
+  "reference_tests": 250,
+  "reference_phase_pairs": 31500,
+  "additional_reference_assertions": 7250,
+  "boundary_tests": 5,
+  "build_exit": 0,
+  "boundary_exit": 0,
+  "seals": 8,
+  "sealed_payloads": 89,
+  "all_seals_match": true,
+  "author_binding_checks": {
+    "checks": [
+      {
+        "id": "RF-CHAIN-T-n03-r1e-04",
+        "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22/KERNEL_193.json",
+        "errors": []
+      },
+      {
+        "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+        "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22/KERNEL_193.json",
+        "errors": []
+      },
+      {
+        "id": "RF-CANCEL-F-G1e5-GnG",
+        "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22/KERNEL_193.json",
+        "errors": []
+      },
+      {
+        "id": "RF-ZERO-SYM",
+        "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22/KERNEL_193.json",
+        "errors": []
+      },
+      {
+        "id": "RF-LARGE-CHAIN-n00010-AX",
+        "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_reference_22/CLI24_EXACT_KERNEL.json",
+        "errors": []
+      },
+      {
+        "id": "RF-LARGE-CHAIN-n00010-AX",
+        "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/PHASES.json",
+        "errors": []
+      }
+    ]
+  },
+  "core_archive_files_unchanged": true,
+  "candidate_files_unchanged": false,
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "60a52da",
+      "4a6cb3402f95d98c6f46f702055fe4b0c5245c56",
+      "--",
+      "projects/chirality-piping/core/solver/performance_harness"
+    ],
+    "env_override": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "broad_CI_DEC025": "not run by this child; separate parent-owned activity; no pass claimed",
+  "prohibited_actions_performed": [],
+  "no_automatic_follow_on": true,
+  "working_change_disposition": "Later concurrent H adapter delta, not a change to the frozen candidate or archived tested source; outside review. Parent notified.",
+  "archived_candidate_source_bytes_match": true,
+  "later_working_delta": [
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs",
+      "candidate_sha256": "ed06504e3f949240a37fb06c8ed9aff780b0d922f492360b4b67d167c042df2d",
+      "archive_sha256": "ed06504e3f949240a37fb06c8ed9aff780b0d922f492360b4b67d167c042df2d",
+      "working_sha256_at_seal": "1ada810c7fbebabaa6db4a8762ba377826567365af169b7b6d1335388eff52f0",
+      "working_changed_after_initial_binding": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/mod.rs",
+      "candidate_sha256": "29deff89d89b35bc32bd266ebeff574a03e15e8513b6294074d6cba017e1f792",
+      "archive_sha256": "29deff89d89b35bc32bd266ebeff574a03e15e8513b6294074d6cba017e1f792",
+      "working_sha256_at_seal": "bb8ef18e3bf2fd78d9f483e3f99197a5b1335e751e0d46c8f376025bd7a04498",
+      "working_changed_after_initial_binding": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/tests/k6c_envelope.rs",
+      "candidate_sha256": "5c7232e18f4e96fe26cc3711024b9275909d1f9f4bbf875afd6c7edbaf6cf883",
+      "archive_sha256": "5c7232e18f4e96fe26cc3711024b9275909d1f9f4bbf875afd6c7edbaf6cf883",
+      "working_sha256_at_seal": "5c7232e18f4e96fe26cc3711024b9275909d1f9f4bbf875afd6c7edbaf6cf883",
+      "working_changed_after_initial_binding": false
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "role": "TASK Type 2",
+  "parent": "ROOT HELP_HUMAN Agent0",
+  "mechanism": "Codex collaboration.spawn_agent, fresh independent context",
+  "task": "rv33_kernel_code",
+  "started_utc": "2026-10-02T00:53:39Z",
+  "deadline_utc": "2026-10-02T01:23:39Z",
+  "seal_reserve_start": "2026-10-02T01:19:39Z",
+  "candidate": "4a6cb3402f95d98c6f46f702055fe4b0c5245c56",
+  "base": "60a52da",
+  "scope": "shared kernel arithmetic only; no adapters/fullEmax qualification, no production graph/model/solver execution, no performance inference",
+  "write_boundary": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV33/kernel_01",
+  "actual_host": "danger-full-access, approval never; scope governed by brief; no delegation, index changes, or maintained edits",
+  "instruction_origins": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "candidate_copy_sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "candidate_copy_sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "candidate_copy_sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+      "candidate_copy_sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca"
+    }
+  ],
+  "timing_clarification": "started_utc is first observed tool time, not a separately measured dispatch timestamp; completed well inside the thirty-minute receipt grant; no extension.",
+  "git_lock_clarification": "Initial read-only rev-parse and diff commands preceded the parent GIT_OPTIONAL_LOCKS clarification. All subsequent Git commands set GIT_OPTIONAL_LOCKS=0. No status/add/update-index/write-tree/commit/checkout was run. Earlier trace unchanged.",
+  "supplied_brief": "Direct bounded parent task message in native collaboration; exact candidate/base, accepted source05/06/09 and kernel22/27 math, thirty-minute grant with four-minute sealing reserve, no maintained/index edits, only this packet plus own scratch/target, no delegation/model/solver execution/adapters/fullEmax qualification.",
+  "completed_utc": "2026-10-02T01:10:05.229756+00:00",
+  "concurrent_working_change": "Observed later adapter delta while sealing; no child edits and no extension/review of new delta."
+}

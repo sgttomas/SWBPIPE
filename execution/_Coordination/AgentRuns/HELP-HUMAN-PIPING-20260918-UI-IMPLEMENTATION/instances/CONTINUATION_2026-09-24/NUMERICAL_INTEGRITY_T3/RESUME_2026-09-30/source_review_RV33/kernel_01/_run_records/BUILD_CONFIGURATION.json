@@ -1,0 +1,579 @@
+{
+  "observation_utc": "2026-10-02T01:05:00.508475+00:00",
+  "relevant_inherited_environment_observed_after_build": {
+    "RUSTFLAGS": null,
+    "CARGO_ENCODED_RUSTFLAGS": null,
+    "RUSTC_WRAPPER": null,
+    "RUSTC_WORKSPACE_WRAPPER": null,
+    "RUSTC": null,
+    "CARGO_BUILD_TARGET": null,
+    "CARGO_HOME": "/Users/ryan/.cargo",
+    "RUSTUP_TOOLCHAIN": "stable"
+  },
+  "cargo_fingerprints": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_curved_bend-915615013e0aa19e/lib-open_pipe_stress_curved_bend.json",
+      "sha256": "51df5cfb3c9f854086015808d9d8a6d60c11d4254e397818690fc5d229fbf5c6",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 4246495781182273026,
+        "profile": 2040997289075261528,
+        "path": 12517173887956171355,
+        "deps": [
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_curved_bend-915615013e0aa19e/dep-lib-open_pipe_stress_curved_bend",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_frame_kernel-a2edfad9a9c1eaa1/lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "ac19f41652c222c5b0b241f4caeefc3572610e5ef434f250e3a9a70835488a11",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 2040997289075261528,
+        "path": 15176465416800494660,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_frame_kernel-a2edfad9a9c1eaa1/dep-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_linear_supports-f7df08ac866df6b3/lib-open_pipe_stress_linear_supports.json",
+      "sha256": "18c2cdc08443fbc159752f85a016b1d489b729f59131b239d1bbe9d947926cd4",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 859563357648076562,
+        "profile": 2040997289075261528,
+        "path": 9001664038793997814,
+        "deps": [
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_linear_supports-f7df08ac866df6b3/dep-lib-open_pipe_stress_linear_supports",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_nonlinear_integration-31160697ea0e2a17/lib-open_pipe_stress_nonlinear_integration.json",
+      "sha256": "c4ac32b8dc9fec2a8c8e35409a248abe33f64070dc72170da4b4a6c0b2017080",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 18228955125420696845,
+        "profile": 2040997289075261528,
+        "path": 12245063398653036144,
+        "deps": [
+          [
+            1049544045118801698,
+            "open_pipe_stress_nonlinear_supports",
+            false,
+            1258207261943371221
+          ],
+          [
+            3404527046730136277,
+            "open_pipe_stress_solver_diagnostics",
+            false,
+            2852241189469277434
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ],
+          [
+            14712799479206595575,
+            "open_pipe_stress_curved_bend",
+            false,
+            9428163003805920567
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            13332888168246222645
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_nonlinear_integration-31160697ea0e2a17/dep-lib-open_pipe_stress_nonlinear_integration",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_nonlinear_supports-ca7bf083c243a774/lib-open_pipe_stress_nonlinear_supports.json",
+      "sha256": "66501b95af65dad41b6d71ba2758319a8a547dabf2cd6102d3bc6b18837303fd",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 13138107194830374303,
+        "profile": 2040997289075261528,
+        "path": 9455112006006948446,
+        "deps": [
+          [
+            3404527046730136277,
+            "open_pipe_stress_solver_diagnostics",
+            false,
+            2852241189469277434
+          ],
+          [
+            13667293960696473624,
+            "open_pipe_stress_linear_supports",
+            false,
+            17806038427318796313
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_nonlinear_supports-ca7bf083c243a774/dep-lib-open_pipe_stress_nonlinear_supports",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_primitive_loads-8a52686047320c8a/lib-open_pipe_stress_primitive_loads.json",
+      "sha256": "0a4a6fe42a4274baa6cd857a96bd81044d9d4ef701222583022b1c3dfaee04e1",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 221396678050091889,
+        "profile": 2040997289075261528,
+        "path": 1685662281478806568,
+        "deps": [
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ],
+          [
+            13667293960696473624,
+            "open_pipe_stress_linear_supports",
+            false,
+            17806038427318796313
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_primitive_loads-8a52686047320c8a/dep-lib-open_pipe_stress_primitive_loads",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_solver_diagnostics-bfb99389711a7224/lib-open_pipe_stress_solver_diagnostics.json",
+      "sha256": "bf67330f2316e60956f6ccfaea81d42ef81f961e2c5b1423928e1618ab0a64c9",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 7348772189086761181,
+        "profile": 2040997289075261528,
+        "path": 1157184612396263427,
+        "deps": [
+          [
+            10299845785790871641,
+            "open_pipe_stress_primitive_loads",
+            false,
+            7348305294786828816
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ],
+          [
+            13667293960696473624,
+            "open_pipe_stress_linear_supports",
+            false,
+            17806038427318796313
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            13332888168246222645
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_solver_diagnostics-bfb99389711a7224/dep-lib-open_pipe_stress_solver_diagnostics",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_solver_performance_harness-62e3c6fc94c8da62/bin-k6_observe.json",
+      "sha256": "c5ed7e354c879fc8deacbec355c1ba6f44a549793b112057625a30f1c7b24476",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 1551494189518364887,
+        "profile": 2040997289075261528,
+        "path": 9827633998389956084,
+        "deps": [
+          [
+            136847448496861035,
+            "open_pipe_stress_solver_performance_harness",
+            false,
+            8863929285454939327
+          ],
+          [
+            3404527046730136277,
+            "open_pipe_stress_solver_diagnostics",
+            false,
+            2852241189469277434
+          ],
+          [
+            6795877286214713119,
+            "open_pipe_stress_nonlinear_integration",
+            false,
+            3530763547156939185
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            13332888168246222645
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_solver_performance_harness-62e3c6fc94c8da62/dep-bin-k6_observe",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_solver_performance_harness-6e81752aee813555/lib-open_pipe_stress_solver_performance_harness.json",
+      "sha256": "45b90981094ec803d8c7b64cf93dd503452fc5e5bf2c0333479f868b8da21670",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 14761305269728809189,
+        "profile": 2040997289075261528,
+        "path": 10763286916239946207,
+        "deps": [
+          [
+            3404527046730136277,
+            "open_pipe_stress_solver_diagnostics",
+            false,
+            2852241189469277434
+          ],
+          [
+            6795877286214713119,
+            "open_pipe_stress_nonlinear_integration",
+            false,
+            3530763547156939185
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            13332888168246222645
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_solver_performance_harness-6e81752aee813555/dep-lib-open_pipe_stress_solver_performance_harness",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_solver_performance_harness-74a965020f3d0ecc/test-integration-test-k6c_envelope.json",
+      "sha256": "f4192cc1753976dcc6d7196a9e443ff89dbbdcf5fcfd24fb79969b96e34e9510",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 7101347088119075367,
+        "profile": 10220379689200424945,
+        "path": 9864541292029132165,
+        "deps": [
+          [
+            136847448496861035,
+            "open_pipe_stress_solver_performance_harness",
+            false,
+            8863929285454939327
+          ],
+          [
+            3404527046730136277,
+            "open_pipe_stress_solver_diagnostics",
+            false,
+            2852241189469277434
+          ],
+          [
+            6795877286214713119,
+            "open_pipe_stress_nonlinear_integration",
+            false,
+            3530763547156939185
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            13332888168246222645
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_solver_performance_harness-74a965020f3d0ecc/dep-test-integration-test-k6c_envelope",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_solver_performance_harness-ebf0556ab8108db7/test-integration-test-rv33_private_boundary.json",
+      "sha256": "fdbb8b99f727e979a82c99e7f217fd39d1b0ae6c2dc22832adf14240e095b016",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 14747762935269916750,
+        "profile": 10220379689200424945,
+        "path": 8318716497903602103,
+        "deps": [
+          [
+            136847448496861035,
+            "open_pipe_stress_solver_performance_harness",
+            false,
+            8863929285454939327
+          ],
+          [
+            3404527046730136277,
+            "open_pipe_stress_solver_diagnostics",
+            false,
+            2852241189469277434
+          ],
+          [
+            6795877286214713119,
+            "open_pipe_stress_nonlinear_integration",
+            false,
+            3530763547156939185
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            13332888168246222645
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_solver_performance_harness-ebf0556ab8108db7/dep-test-integration-test-rv33_private_boundary",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_solver_performance_harness-f739aee66e848b36/test-integration-test-rv33_reference.json",
+      "sha256": "2ca56abc4fc03e73da13190c1f95cb12bebe1bc99bebc894b7124fb821d7c746",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 14092645387799648503,
+        "profile": 10220379689200424945,
+        "path": 8090640989049770737,
+        "deps": [
+          [
+            136847448496861035,
+            "open_pipe_stress_solver_performance_harness",
+            false,
+            8863929285454939327
+          ],
+          [
+            3404527046730136277,
+            "open_pipe_stress_solver_diagnostics",
+            false,
+            2852241189469277434
+          ],
+          [
+            6795877286214713119,
+            "open_pipe_stress_nonlinear_integration",
+            false,
+            3530763547156939185
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            13332888168246222645
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_solver_performance_harness-f739aee66e848b36/dep-test-integration-test-rv33_reference",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-rv33-target/release/.fingerprint/open_pipe_stress_sparse_direct-900b4a6dbe9ca704/lib-open_pipe_stress_sparse_direct.json",
+      "sha256": "ef372e8a9ccca1517c396704c3bd5697553ff708451520aca24612ef8e7597de",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 13433815854669847258,
+        "profile": 2040997289075261528,
+        "path": 8226483001541818605,
+        "deps": [
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            12394435582537973419
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_sparse_direct-900b4a6dbe9ca704/dep-lib-open_pipe_stress_sparse_direct",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ]
+}
