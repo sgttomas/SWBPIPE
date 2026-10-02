@@ -1,0 +1,19 @@
+{
+  "identity": "I27 /root/i27_vr_phase_witness",
+  "role": "TASK Type2",
+  "parent": "ROOT HELP_HUMAN Agent0 /root",
+  "mechanism": "delegated-harness-native direct followup",
+  "receipt_utc": "2026-10-02T05:09:10Z",
+  "runtime_cutoff_utc": "2026-10-02T05:49:10Z",
+  "hard_return_seal_deadline_utc": "2026-10-02T05:54:10Z",
+  "grant_NUM_commit": "7f0fc5263a29a416818d01543bfb25e11d5dadc4",
+  "frozen_maintained": "81c03849033f3ce745668f581f446530789397b8",
+  "authorized": "D existing full mechanical runner exactly once, all15+NONE/UNKNOWN",
+  "no_retry_or_repair": true,
+  "semantic_credit_from_mechanical_run": false,
+  "no_prior_packet_copying": true,
+  "maintained_edits": false,
+  "delegation": false,
+  "git_index_mutations": false,
+  "enforcement": "prompt-scoped shared host; no OS sandbox asserted"
+}

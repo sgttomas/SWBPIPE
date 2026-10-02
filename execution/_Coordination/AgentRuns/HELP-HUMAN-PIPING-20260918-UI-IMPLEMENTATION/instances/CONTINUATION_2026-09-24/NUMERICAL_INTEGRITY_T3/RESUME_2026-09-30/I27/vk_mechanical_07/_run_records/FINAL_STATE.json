@@ -1,0 +1,18 @@
+{
+  "sealed_utc": "2026-10-02T05:31:32.993188+00:00",
+  "runtime_end_utc": "2026-10-02T05:28:19.576119+00:00",
+  "status": "D_MECHANICAL_COMPLETE",
+  "runner_invocations": 1,
+  "rows": 17,
+  "NONE_passed_tests": 60,
+  "registered_mechanical_kills": 15,
+  "UNKNOWN_exact_panic": true,
+  "all_timed_out_false": true,
+  "runtime_seconds": 880.499069,
+  "owned_group_reaped": true,
+  "unrun_rows": [],
+  "semantic_credit_added": false,
+  "independent_review": "pending",
+  "compiler_lane_returned": true,
+  "automatic_follow_on": false
+}

@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+    "runner/run_seeded_faults.py",
+    "--out",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I27/vk_mechanical_07/_run_records/runner",
+    "--timeout",
+    "1800"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/source/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "environment": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "NONE",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target"
+  },
+  "unset_environment": [
+    "RUSTFLAGS",
+    "CARGO_ENCODED_RUSTFLAGS",
+    "RUSTC_WRAPPER",
+    "RUSTC_WORKSPACE_WRAPPER"
+  ],
+  "exactly_once": true,
+  "no_only_or_from_logs": true,
+  "new_session_process_group": true,
+  "cleanup": "SIGTERM owned process group; bounded wait; SIGKILL remaining group; wait/reap leader; report any remaining group members",
+  "runtime_cutoff_utc": "2026-10-02T05:49:10Z",
+  "pid": 88835,
+  "process_group": 88835,
+  "start_utc": "2026-10-02T05:13:39.077050+00:00"
+}

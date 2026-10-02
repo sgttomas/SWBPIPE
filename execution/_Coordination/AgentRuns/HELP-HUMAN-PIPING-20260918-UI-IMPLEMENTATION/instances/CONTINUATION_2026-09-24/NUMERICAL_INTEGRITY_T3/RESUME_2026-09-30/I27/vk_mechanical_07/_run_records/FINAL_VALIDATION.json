@@ -1,0 +1,48 @@
+{
+  "registry_rows": 17,
+  "complete_order": true,
+  "NONE_tests_passed": 60,
+  "all_rows_tests_run": 60,
+  "all_rows_completed_summaries": 12,
+  "all_timed_out_false": true,
+  "all_actual_exit_codes_completed": true,
+  "registered_fault_rows_killed": 15,
+  "UNKNOWN_exact_panic": true,
+  "source_files_unchanged": 639,
+  "source_inventory_exact": true,
+  "executed_binaries_unchanged": 11,
+  "raw_fingerprints_unchanged": 34,
+  "features": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/.fingerprint/open_pipe_stress_frame_kernel-e3865a6d64e32297/lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "e8b0acfb1cce14aa3e7e26f4a4e61d7dc62d7f16dcaf68f77c9137ff01802bd5",
+      "features": "[\"mutation-controls\"]",
+      "profile_id_exact_decimal": "5347358027863023418",
+      "rustflags": []
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/.fingerprint/piping_numerical_robustness-fcbc2f53eafa2595/lib-piping_numerical_robustness.json",
+      "sha256": "fc045e4dd8eef5a3bef56152c20b8c4c358a9a219ea74dda635e64872245e7a2",
+      "features": "[\"seeded-faults\"]",
+      "profile_id_exact_decimal": "5347358027863023418",
+      "rustflags": []
+    }
+  ],
+  "maintained_scope_command": [
+    "git",
+    "diff",
+    "--quiet",
+    "81c03849033f3ce745668f581f446530789397b8",
+    "--",
+    "projects/chirality-piping/core",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness"
+  ],
+  "maintained_scope_exit_code": 0,
+  "runtime_seconds": 880.499069,
+  "runtime_end_utc": "2026-10-02T05:28:19.576119+00:00",
+  "owned_group_reaped": true,
+  "remaining_members": [],
+  "runner_invocations": 1,
+  "retry_or_repair": false,
+  "semantic_credit_added": false
+}

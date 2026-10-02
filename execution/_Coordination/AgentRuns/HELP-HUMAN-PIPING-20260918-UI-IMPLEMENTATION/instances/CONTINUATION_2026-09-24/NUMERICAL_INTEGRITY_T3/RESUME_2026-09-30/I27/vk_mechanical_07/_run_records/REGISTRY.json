@@ -1,0 +1,116 @@
+{
+  "runner_sha256": "e800ccb6a90e7584513594ae2f42b305dabdbc295a7df19a1b3082ab429ab6bd",
+  "registry": [
+    [
+      "VK-F01",
+      "\u00a77.3-1",
+      "value or outcome",
+      "RF-CHAIN, RF-SKEW, RF-WEAK soft rows (NC-STORED-ASSEMBLY)"
+    ],
+    [
+      "VK-F02",
+      "\u00a77.3-2",
+      "value or outcome",
+      "RF-CHAIN-T/A r1e-10/12 T, N, tw, ext (NC-SUBTRACT-ROUNDED)"
+    ],
+    [
+      "VK-F03",
+      "\u00a77.3-4",
+      "value or outcome",
+      "soft roots of RF-CHAIN and RF-SKEW (NC-LOST-SOFT)"
+    ],
+    [
+      "VK-F04",
+      "\u00a77.3-4",
+      "value",
+      "RF-SKEW, RF-INVARIANCE-ROT, RF-LARGE-ROT, RF-WEAK-W-L (NC-WRONG-TRANSFORM)"
+    ],
+    [
+      "VK-F05",
+      "\u00a77.3-5",
+      "evidence",
+      "THIN-A and THIN-B's attempts against the records"
+    ],
+    [
+      "VK-F06",
+      "\u00a77.3-6",
+      "evidence or outcome",
+      "THIN-A and THIN-B selected at 128 (leave the expected-unresolved list)"
+    ],
+    [
+      "VK-F07",
+      "\u00a77.3-7",
+      "evidence",
+      "RF-MECH's refusals against the records"
+    ],
+    [
+      "VK-F08",
+      "\u00a77.3-8",
+      "parity",
+      "bitwise K, sparse against dense"
+    ],
+    [
+      "VK-F10",
+      "\u00a77.3-10",
+      "bit",
+      "the canonical bytes and the list-permutation checks"
+    ],
+    [
+      "VK-F13",
+      "\u00a77.3-13",
+      "value",
+      "RF-CANCEL G1e80 net-governed rows (NC-FLOAT-SUM)"
+    ],
+    [
+      "VK-F17",
+      "\u00a77.3-17",
+      "class",
+      "the 51 not-covered rows' class"
+    ],
+    [
+      "VK-R02",
+      "R7-M2",
+      "outcome or evidence",
+      "RF-LARGE-TREE-n00100-AX"
+    ],
+    [
+      "VK-R28",
+      "R7-M28",
+      "evidence",
+      "RF-LARGE-CHAIN-n00100-AX and TREE-n00100-AX selected higher"
+    ],
+    [
+      "VK-S1",
+      "directional",
+      "value",
+      "the directional-spring cases"
+    ],
+    [
+      "VK-S2",
+      "NC-SIGN",
+      "value",
+      "every nonzero reaction"
+    ]
+  ],
+  "ordered_rows": [
+    "NONE",
+    "VK-F01",
+    "VK-F02",
+    "VK-F03",
+    "VK-F04",
+    "VK-F05",
+    "VK-F06",
+    "VK-F07",
+    "VK-F08",
+    "VK-F10",
+    "VK-F13",
+    "VK-F17",
+    "VK-R02",
+    "VK-R28",
+    "VK-S1",
+    "VK-S2",
+    "VK-UNKNOWN"
+  ],
+  "no_import_or_execution_during_read": true,
+  "original_runner_unchanged": true
+}
