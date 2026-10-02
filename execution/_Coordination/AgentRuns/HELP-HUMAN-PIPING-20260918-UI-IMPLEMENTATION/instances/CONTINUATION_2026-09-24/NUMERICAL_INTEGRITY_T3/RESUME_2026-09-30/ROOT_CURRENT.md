@@ -46,7 +46,8 @@ REVIEW_RV34/t3_measurements_05. Actual1000-member inputs, admissions, all matche
 H windows and the required prefixes are independently verified. Raw preservation:
 MEASUREMENTS/W1_T3/_run_records/delta_records.tar.gz, preserving earlier prefixes.
 The owner subsequently approved the scoped comparison and directed continuation.
-I26 now has only T4 input/readiness scope, not normal T4 solve authority.
+The separately granted T4 normal/comparison block has now returned its runtime
+slot; sealed evidence and independent review are the next acceptance boundary.
 
 W1-T1 finite observations are accepted through REVIEW_RV34/t1_measurements_02
 and t1_disposition_03. Required external live checks did not occur; complete
@@ -63,21 +64,25 @@ raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz.
 
 ## Current bounded assignment
 
-I26 t4_measurements_10 is released: receipt14:50:52 UTC, hard normal solver
-original stop/reap15:30:52, comparator15:40:52 and return15:50:52. ROOT later
-issued explicit final-family continuation bf234cf6 before that cutoff. Its
-condition was met by I26 snapshot15:29:36: all rows through262 completed validly.
-Only remaining original CONT rows may continue in the same wrapper, with hard
-normal stop/reap15:40:52, comparator cutoff15:50:52 and final return16:00:52. Original
-wrapper once, named T4 hold lift only, unchanged actual numeric gates. Existing
-M5 guard and sole quiet/timed lane; no builds. A valid completed normal tier may
-proceed to the exact unchanged R1 comparison under the approved scope. Partial
-or invalid normal work returns without retry or comparator execution.
+I26 reports the original T4 normal tier complete and reaped, first observed at
+15:33:50.997 UTC, and the unchanged comparator complete by15:35:41.750 UTC.
+These author results remain provisional pending a sealed return and independent
+review. No further runtime is granted. The original normal cutoff was extended
+explicitly by ROOT bf234cf6 for only the remaining original CONT family; the
+condition was met before the old cutoff. Its final return deadline is16:00:52.
+The extension is not compliance with the original deadline.
+
+ROOT preserves the raw delta before any subsequent journal append. RV34's prepared
+t4_measurements_07 review will inspect committed immutable evidence. I28's prepared
+final D assignment will assemble the complete return after ROOT dispatch. The
+historical evidence placement plan is prepared under REVIEW_RV38/placement_plan_02;
+actual movement waits for the author to seal and release the current assignment.
+This support work changes custody/navigation only, not numerical evidence bytes.
 
 Readiness is independently accepted under REVIEW_RV34/t4_readiness_06; raw
 qualification archive is MEASUREMENTS/W1_T4_READINESS. Owner adoption is confirmed
-by REVIEW_RV36/comparison_adoption_04. I28/closeout_index_03 has a revisable draft
-and obligation map; it is not final acceptance. Those bounded tasks returned.
+by REVIEW_RV36/comparison_adoption_04. I28/closeout_index_03 remains a revisable
+draft/index, not final acceptance.
 
 ## Remaining path and holds
 
@@ -95,8 +100,8 @@ and truthful stops/monitoring limits. This index itself supplies no authority
 and grants no source repair or new host tool.
 
 Fresh W1-T1/T2/T3 chronology/calibration and required T3 prefixes are established.
-T4 input/readiness evidence is accepted and the separate bounded normal-execution
-grant is active. Actual results/comparisons and independent review remain.
+T4 input/readiness evidence is accepted; the normal/comparison runtime has stopped.
+Author custody, actual result/comparison review and final closure remain.
 Preserve all numeric admission holds and the VR largest-size backstop; do not force a deferred run. Required W1-T4, complete K6c return and
 independent final review, full-SHA hosted CI, exact-final-head Mac DEC-025 and
 GEN-8 remain outstanding. K6c is not complete and no PR is ready to merge.
