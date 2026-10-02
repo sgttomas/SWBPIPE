@@ -4529,3 +4529,32 @@ explicit index operation or maintained delta is reported, and all maintained
 postimages match the frozen candidate. Preserve that distinction alongside the
 actual native parentage/write-fence record; do not rewrite it into a blanket
 no-Git-writes history.
+
+
+## Small-tier inputs qualified; first measurements bounded (ROOT, 2026-10-02 UTC)
+
+ROOT read I26 t1_inputs_05 RETURN and verified all93 payloads under
+seal86a3c7c98c17e68d7d65f3c3a674779674735fc6ab198440eebb321e8a801c4c.
+ROOT also independently parsed every raw acquisition with duplicate-key rejection,
+checked all37 consumed fields and20 invariants against each model's own immutable
+seed, fresh estimate fields, actual planned argv/start metadata, zero repeats,
+no dump and empty normal records. The preserved ROOT_T1_INPUT_CHECK_20261002.json
+reports these new checks. Together with independently reviewed row139, accept
+finite input correspondence for all fifteen T1 models and their bound contexts.
+No normal solve or measurement was performed by those acquisitions.
+
+Prepare original W1-T1 under R/BRIEFS/I26_T1_MEASUREMENTS_06.md. ROOT's separate
+explicit lane-release message starts its30-minute grant. This knowingly includes
+the unchanged runner's complete Python catalogue metadata enumeration; no larger
+product solve/count or tier is granted by that bookkeeping. Actual baseline
+success is externally checked before relying on its measurements; invalid
+baseline means stop and no accepted results, including any provisional process
+started before detection. Complete seed qualification precedes tier reliance,
+and every new normal/binding record is checked again. No runner patch, host
+tool, policy/tolerance change or protected-comparison waiver is commissioned.
+
+I27's mechanical matrix has returned, ROOT read its full RETURN and verified
+all80 payloads under seale032d1a49db4f92458b12e18c9644cf388f891c9007e152d92211f720a4ed8dc.
+Its runtime is stopped/reaped. RV37 independently reviews it; no full mechanical
+acceptance is inferred until that review returns. Composite source review stands.
+The owner KF3 historical-publication comparison question remains pending.
