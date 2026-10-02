@@ -1,0 +1,184 @@
+{
+  "sources": [
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/counts.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "baafa84572229fa7fbf3bab5e2e8b5c8b879354928116e79e5ef70b62cc6bf53",
+      "actual": "baafa84572229fa7fbf3bab5e2e8b5c8b879354928116e79e5ef70b62cc6bf53",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "753d20c6a99151ff91e19d4c52d0cfebb815d52c28e297a79cdb5f7495955a3b",
+      "actual": "753d20c6a99151ff91e19d4c52d0cfebb815d52c28e297a79cdb5f7495955a3b",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f",
+      "actual": "85715e1f290946805b23b63c12907630b5abcf3b051a8305a9cf6a473ba0997f",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/canonical.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "1988556d81b643c970a0a29238e847e68cd62cdf3cff741990c53aaf89c1a9c8",
+      "actual": "1988556d81b643c970a0a29238e847e68cd62cdf3cff741990c53aaf89c1a9c8",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "42d82fbfb3e21c11c647f6b2f83aaa21ee6ded6617601f14790e1c282f60b77d",
+      "actual": "42d82fbfb3e21c11c647f6b2f83aaa21ee6ded6617601f14790e1c282f60b77d",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "09faf31674c432c189ac02361f5bbf01214419f0f490ac78440eed973529c100",
+      "actual": "09faf31674c432c189ac02361f5bbf01214419f0f490ac78440eed973529c100",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/tests/k6b_bin.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "1747048b81031622a8ab70f4af00c2170f96962ff68590b9a1d3b96921df6f64",
+      "actual": "1747048b81031622a8ab70f4af00c2170f96962ff68590b9a1d3b96921df6f64",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+      "actual": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "bd6242ff6a7ab8b7528bd483bc60e6a5ccb51b5476b08bcceaae45f725f0a40b",
+      "actual": "bd6242ff6a7ab8b7528bd483bc60e6a5ccb51b5476b08bcceaae45f725f0a40b",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511",
+      "actual": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs",
+      "origin_revision": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+      "expected": "8df1d6de492de1ec8c16c47f2dc9aae22ca213757f98e89071e852f339fd1edb",
+      "actual": "8df1d6de492de1ec8c16c47f2dc9aae22ca213757f98e89071e852f339fd1edb",
+      "match": true,
+      "basis": "direct current bytes checked against sealed context16 origin; no Git"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/adapter.rs",
+      "actual": "ab07b2513db32260960cac0c09e19dfe363c09e51b1af878ce97ced7ffad6da0",
+      "basis": "direct current source bytes; no independently established Git revision"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs",
+      "actual": "fd3e00c06aff970c44cd147f255fe371b16729fe0a80b62b32a09bc0afddc337",
+      "basis": "direct current source bytes; no independently established Git revision"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/lib.rs",
+      "actual": "d652a0fcea9826456bc39735fb6aa3f32fddd480429d5fff20a5883a57ce792c",
+      "basis": "direct current source bytes; no independently established Git revision"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+      "actual": "94f20955a6176c1859531bc2b7e1ecc5545eab4fcbc1051f95079540d01ecab1",
+      "basis": "direct current source bytes; no independently established Git revision"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/k6b_analysis.py",
+      "actual": "9b2be1fde14d17da8081779fe550c189e7c838de6ad04de5c3eac2eaba847eac",
+      "basis": "direct current source bytes; no independently established Git revision"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py",
+      "actual": "2f0d0caaf0dfb1a86e5084e288eb555548d0d6c6b8b746b71befea7ba4266099",
+      "basis": "direct current source bytes; no independently established Git revision"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "actual": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "basis": "direct current source bytes; no independently established Git revision"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/observations/k6b/counts.jsonl",
+      "actual": "fab0466a846ef26b1c530a261a6f1d134fc32ba1d70f57682010877a52373c05",
+      "basis": "direct current source bytes; no independently established Git revision"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_16_context_translation/PLAN.md",
+      "actual": "5255c3fc060f063edbd7e69d91f0f7129efc205366ca27ffc3dceac32d59c50a",
+      "basis": "reviewed document or targeted excerpt; not active envelope implementation"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_16_context_translation/RETURN.md",
+      "actual": "955a2fc9509612ab69a7bbef6fa7ad9b707428b3d2623839fc75c4093ca5919f",
+      "basis": "reviewed document or targeted excerpt; not active envelope implementation"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_16_context_translation/EDIT_INDEX.json",
+      "actual": "9595019d2e4175c834e45534b8722666c932ffd5cc2a9346ffc2b9df2156e88b",
+      "basis": "reviewed document or targeted excerpt; not active envelope implementation"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_13_api_contract/CONTRACT.md",
+      "actual": "e314e8b259da7e08c448b643b8c9d6777a13072bd693a30e7eba10b87c5db3b9",
+      "basis": "reviewed document or targeted excerpt; not active envelope implementation"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/DESCRIPTOR_MAP.md",
+      "actual": "e56fb9767188f161c96aaeac0c221b004a8ad065719248669bbb9907716d4c33",
+      "basis": "reviewed document or targeted excerpt; not active envelope implementation"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_10/H_ENVELOPE.md",
+      "actual": "df2bbc47b46c188ab74bd475888df873f6f859b28fcc038c3be430d5bb78ac8a",
+      "basis": "reviewed document or targeted excerpt; not active envelope implementation"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_caller_05/RETURN.md",
+      "actual": "33eb91967ed22ea3c0afa65dd262fbb8dcac8ff669b77ebc8b262d7867db824e",
+      "basis": "reviewed document or targeted excerpt; not active envelope implementation"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/FORMULAS.md",
+      "actual": "51fc5a84991d1e31eeed4ab67e4680b218b37db5b1ce6b3b90225dccb865410d",
+      "basis": "reviewed document or targeted excerpt; not active envelope implementation"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/LAUNCH_BINDING.json",
+      "actual": "8884c00228894b8c1539018ab0c9a8a71f2568c55adb27d47970391df752d364",
+      "basis": "reviewed document or targeted excerpt; not active envelope implementation"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV28/api_contract_09/REVIEW.md",
+      "actual": "804c82b2a97499b6047cbfe52c94da82d7479f1ae39ef1c7c3e800dfc93a2e19",
+      "basis": "reviewed document or targeted excerpt; not active envelope implementation"
+    }
+  ],
+  "all_context16_product_origins_match": true,
+  "forbidden_active_file": "H/src/k6/w1/envelope.rs was not opened, output, hashed or relied upon; one earlier broad symbol rg over H/src may have traversed unmatched files, later search explicitly excluded it"
+}

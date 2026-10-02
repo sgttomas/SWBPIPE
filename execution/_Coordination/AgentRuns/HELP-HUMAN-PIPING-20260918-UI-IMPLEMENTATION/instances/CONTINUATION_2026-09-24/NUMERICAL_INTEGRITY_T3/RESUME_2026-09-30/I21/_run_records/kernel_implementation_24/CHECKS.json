@@ -1,0 +1,75 @@
+{
+  "recorded_utc": "2026-10-02T00:39:26.137299+00:00",
+  "commands": [
+    {
+      "argv": [
+        "/Users/ryan/.cargo/bin/rustup",
+        "run",
+        "1.97.1",
+        "rustfmt",
+        "--check",
+        "--edition",
+        "2021",
+        "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs",
+        "projects/chirality-piping/core/solver/performance_harness/tests/k6c_envelope.rs"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+      "env_override": {
+        "RUSTUP_AUTO_INSTALL": "0"
+      },
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+      "env_override": {
+        "RUSTUP_AUTO_INSTALL": "0"
+      },
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "--cached"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+      "env_override": {
+        "RUSTUP_AUTO_INSTALL": "0"
+      },
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--untracked-files=normal"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+      "env_override": {
+        "RUSTUP_AUTO_INSTALL": "0"
+      },
+      "exit_code": 0,
+      "stdout": " M projects/chirality-piping/core/solver/performance_harness/src/k6/w1/mod.rs\n?? projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs\n?? projects/chirality-piping/core/solver/performance_harness/tests/k6c_envelope.rs\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_implementation_24/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV32/\n",
+      "stderr": ""
+    }
+  ],
+  "narrow_allocation_and_runtime_read_scan": {
+    "pattern": "\\b(?:Vec::|Box::|String::|format!|vec!|std::fs|std::env|include_str!|include_bytes!)",
+    "findings": [],
+    "meaning": "corroborates manual complete-source inspection; not a general static proof or allocator measurement"
+  },
+  "source_build_binding_unchanged": true
+}

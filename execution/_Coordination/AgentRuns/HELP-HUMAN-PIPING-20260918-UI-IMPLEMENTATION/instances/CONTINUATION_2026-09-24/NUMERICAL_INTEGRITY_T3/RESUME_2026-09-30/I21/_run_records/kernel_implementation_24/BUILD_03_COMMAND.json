@@ -1,0 +1,42 @@
+{
+  "command_argv": [
+    "/Users/ryan/.cargo/bin/rustup",
+    "run",
+    "1.97.1",
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+    "--release",
+    "--locked",
+    "--offline",
+    "-j",
+    "4",
+    "--test",
+    "k6c_envelope",
+    "--",
+    "--test-threads=2"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+  "environment_overrides": {
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-kernel-impl-target"
+  },
+  "start_utc": "2026-10-02T00:34:18.456991+00:00",
+  "guard_pid": 5387,
+  "purpose": "Focused arithmetic/regression validation only; no timed measurement slot or executable qualification",
+  "guard_check": "5387 03-22:57:59 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh",
+  "rustc_version": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+  "cargo_version": "cargo 1.97.1 (c980f4866 2026-06-30)\n",
+  "exit_code": 0,
+  "end_utc": "2026-10-02T00:34:23.129278+00:00",
+  "build_input_hashes_unchanged": true,
+  "test_binaries": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-kernel-impl-target/release/deps/k6c_envelope-034a985cc2519b0e",
+      "sha256": "e06259825fd0d87fd44580c73fbf0b2551a24ad6981965d408e8e97caef441bc"
+    }
+  ]
+}
