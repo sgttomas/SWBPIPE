@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs
++++ b/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs
+@@ -998,7 +998,7 @@
+         k = k + p.shared[i] + p.solved[i];
+     }
+     for i in 1..count {
+-        k = k + p.verification[i - 1] + 40 * b + g(24, 2 * bc) + 24 * bc;
++        k = k + p.verification[i - 1] + g(24, 2 * bc) + 24 * bc;
+     }
+     let mut out = ScheduleEnvelope::new();
+     out.retained_prefix = k.bytes()?;

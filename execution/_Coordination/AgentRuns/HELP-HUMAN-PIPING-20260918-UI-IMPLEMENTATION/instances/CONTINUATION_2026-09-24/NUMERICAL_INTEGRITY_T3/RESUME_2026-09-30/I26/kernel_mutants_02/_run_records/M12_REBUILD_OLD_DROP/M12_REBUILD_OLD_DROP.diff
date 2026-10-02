@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs
++++ b/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs
+@@ -587,7 +587,7 @@
+             Pair::new(lazy + table, lo),
+             Pair::new(lazy + table, table / 2),
+             Pair::exact(table + sort(40, rows)),
+-            Pair::new(table + kept, old(40, rows)),
++            Pair::new(kept, old(40, rows)),
+         ]),
+         lazy + table,
+     )

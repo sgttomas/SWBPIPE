@@ -1,0 +1,27 @@
+{
+  "finished_utc": "2026-10-02T03:37:59.306260+00:00",
+  "archive_files_checked": 564,
+  "archive_mismatch": [],
+  "maintained_core_files_checked": 564,
+  "maintained_core_mismatch": [],
+  "earlier_sealed_files_checked": 116,
+  "earlier_sealed_mismatch": [],
+  "read_only_git_core_diff": {
+    "argv": [
+      "git",
+      "diff",
+      "--exit-code",
+      "--",
+      "projects/chirality-piping/core"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "last_compiled_variant": "M12_REBUILD_OLD_DROP",
+  "artifact_use": "The target retains M12 mutant diagnostic artifacts; normal archive source restoration does not relabel them as normal.",
+  "all_source_and_tests_unchanged_during_each_command": true,
+  "all_mutant_binaries_differ_from_NONE": true,
+  "no_maintained_edits": true,
+  "cargo_lane_released": true
+}

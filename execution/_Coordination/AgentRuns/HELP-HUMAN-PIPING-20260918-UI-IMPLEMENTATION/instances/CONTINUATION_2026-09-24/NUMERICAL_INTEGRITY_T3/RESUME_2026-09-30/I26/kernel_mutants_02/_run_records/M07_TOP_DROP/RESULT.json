@@ -1,0 +1,119 @@
+{
+  "variant": "M07_TOP_DROP",
+  "candidate": "81c03849033f3ce745668f581f446530789397b8",
+  "start_utc": "2026-10-02T03:35:25.051866+00:00",
+  "source_path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs",
+  "normal_source_sha256": "3781079224cf7a47511cb2bfc9f09ebee6e51d2595ce3ad609d79f8d57b10092",
+  "active_source_sha256": "37ef484098947295bfcc16d761cc898119436684c38f984f04ff2539b1cc45af",
+  "patch_sha256": "c0b6392906df7a979ecd153be4058fdd036a1da7b1e494f1eac38554e7a041b5",
+  "test_hashes": {
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6c_envelope.rs": "4ecf2aa7b3ce0a519aa1758271faba95cd7eceb966d5ce94aa2404765ed3c7b5",
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs": "31de90d62b4cde8dd187af380c6acf608ec16801efaf070c93c0cc4b53e0b422"
+  },
+  "runs": [
+    {
+      "selection": "kernel_reference_suite",
+      "argv": [
+        "/Users/ryan/.cargo/bin/rustup",
+        "run",
+        "1.97.1",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+        "--release",
+        "--locked",
+        "--offline",
+        "-j",
+        "4",
+        "--test",
+        "k6c_envelope",
+        "--",
+        "--test-threads=2"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i26-kernel-mutants-02/archive",
+      "environment_overrides": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target",
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "start_utc": "2026-10-02T03:35:25.055627+00:00",
+      "returncode": 101,
+      "end_utc": "2026-10-02T03:35:28.540549+00:00",
+      "log_sha256": "ec77c4f2b042eef03ed2ee525a6a174d544e0d716355e3d646d43a54bebc5164",
+      "compile_succeeded": true,
+      "passed": 6,
+      "failed": 4,
+      "assertion_excerpt": "failures:\n\n---- cancellation_keeps_all_loads_and_non_power_of_two_body_capacity stdout ----\n\nthread 'cancellation_keeps_all_loads_and_non_power_of_two_body_capacity' (28649867) panicked at tests/k6c_envelope.rs:53:10:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n---- axis_spring_reference_and_owner_phase_regressions stdout ----\n\nthread 'axis_spring_reference_and_owner_phase_regressions' (28649866) panicked at tests/k6c_envelope.rs:130:5:\nassertion `left == right` failed\n  left: 85\n right: 88\n\n---- five_body_upper_preserves_resolution_move_and_report_aliases stdout ----\n\nthread 'five_body_upper_preserves_resolution_move_and_report_aliases' (28649870) panicked at tests/k6c_envelope.rs:53:10:\ncalled `Option::unwrap()` on a `None` value\n\n---- h_and_vr_construction_classes_and_tagged_population_policy stdout ----\n\nthread 'h_and_vr_construction_classes_and_tagged_population_policy' (28649871) panicked at tests/k6c_envelope.rs:53:10:\ncalled `Option::unwrap()` on a `None` value\n\n\nfailures:\n    axis_spring_reference_and_owner_phase_regressions\n    cancellation_keeps_all_loads_and_non_power_of_two_body_capacity\n    five_body_upper_preserves_resolution_move_and_report_aliases\n    h_and_vr_construction_classes_and_tagged_population_policy\n\n",
+      "source_unchanged": true,
+      "tests_unchanged": true,
+      "test_binaries": [
+        {
+          "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target/release/deps/k6c_envelope-82936ea4e46ee56b",
+          "sha256": "e32deaaf55387edbd00c1111b6b719bccc7723e32d6f25f99e664b63512cd3a2"
+        }
+      ],
+      "binary_differs_from_NONE": true
+    },
+    {
+      "selection": "h33_exact_fields",
+      "argv": [
+        "/Users/ryan/.cargo/bin/rustup",
+        "run",
+        "1.97.1",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+        "--release",
+        "--locked",
+        "--offline",
+        "-j",
+        "4",
+        "--test",
+        "k6b_w1",
+        "the_committed_counts_carry_this_codes_estimate",
+        "--",
+        "--exact",
+        "--test-threads=2"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i26-kernel-mutants-02/archive",
+      "environment_overrides": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target",
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "start_utc": "2026-10-02T03:35:28.545785+00:00",
+      "returncode": 0,
+      "end_utc": "2026-10-02T03:35:29.831310+00:00",
+      "log_sha256": "7d6b9b2ec2068460fcccf062756dadab019c8587c889fc6d6482ce8cf5db66a2",
+      "compile_succeeded": true,
+      "passed": 1,
+      "failed": 0,
+      "assertion_excerpt": "",
+      "source_unchanged": true,
+      "tests_unchanged": true,
+      "test_binaries": [
+        {
+          "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target/release/deps/k6b_w1-9e80a9ab221d9df0",
+          "sha256": "17d7309997a6084d09ac5060b93cfb6c8178ec7595d657e8cb06274731085a1e"
+        }
+      ],
+      "binary_differs_from_NONE": true
+    }
+  ],
+  "all_compiled": true,
+  "verdict": "COMPILED_TEST_FAILURE",
+  "source_restored": true,
+  "end_utc": "2026-10-02T03:35:29.836084+00:00"
+}

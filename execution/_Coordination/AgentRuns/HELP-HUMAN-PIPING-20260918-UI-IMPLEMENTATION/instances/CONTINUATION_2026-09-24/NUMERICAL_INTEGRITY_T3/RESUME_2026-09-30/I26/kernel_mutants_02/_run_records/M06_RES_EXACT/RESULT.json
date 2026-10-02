@@ -1,0 +1,119 @@
+{
+  "variant": "M06_RES_EXACT",
+  "candidate": "81c03849033f3ce745668f581f446530789397b8",
+  "start_utc": "2026-10-02T03:35:01.268035+00:00",
+  "source_path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs",
+  "normal_source_sha256": "3781079224cf7a47511cb2bfc9f09ebee6e51d2595ce3ad609d79f8d57b10092",
+  "active_source_sha256": "19cf2ae6009ebbb8412c70d39208fee8c5e8d98f2db9b719512dc89a22271d94",
+  "patch_sha256": "3884564c4206add056bd4446f0534b8adbe700d1f7b0e9849af8bebe02094381",
+  "test_hashes": {
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6c_envelope.rs": "4ecf2aa7b3ce0a519aa1758271faba95cd7eceb966d5ce94aa2404765ed3c7b5",
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs": "31de90d62b4cde8dd187af380c6acf608ec16801efaf070c93c0cc4b53e0b422"
+  },
+  "runs": [
+    {
+      "selection": "kernel_reference_suite",
+      "argv": [
+        "/Users/ryan/.cargo/bin/rustup",
+        "run",
+        "1.97.1",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+        "--release",
+        "--locked",
+        "--offline",
+        "-j",
+        "4",
+        "--test",
+        "k6c_envelope",
+        "--",
+        "--test-threads=2"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i26-kernel-mutants-02/archive",
+      "environment_overrides": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target",
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "start_utc": "2026-10-02T03:35:01.271806+00:00",
+      "returncode": 101,
+      "end_utc": "2026-10-02T03:35:04.881803+00:00",
+      "log_sha256": "177382aede43a4729d4c3dcbf1aa1a3b96f6b9e30f1ec10b360f0e86f50f4c55",
+      "compile_succeeded": true,
+      "passed": 6,
+      "failed": 4,
+      "assertion_excerpt": "failures:\n\n---- cancellation_keeps_all_loads_and_non_power_of_two_body_capacity stdout ----\n\nthread 'cancellation_keeps_all_loads_and_non_power_of_two_body_capacity' (28648515) panicked at tests/k6c_envelope.rs:337:5:\nassertion `left == right` failed\n  left: MetricBytes { requested: 19431280, moving: 20530544 }\n right: MetricBytes { requested: 19431296, moving: 20530560 }\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n---- directional_operators_are_distinct_from_axis_springs stdout ----\n\nthread 'directional_operators_are_distinct_from_axis_springs' (28648517) panicked at tests/k6c_envelope.rs:304:5:\nassertion `left == right` failed\n  left: MetricBytes { requested: 19129987, moving: 20229251 }\n right: MetricBytes { requested: 19130019, moving: 20229283 }\n\n---- five_body_upper_preserves_resolution_move_and_report_aliases stdout ----\n\nthread 'five_body_upper_preserves_resolution_move_and_report_aliases' (28648518) panicked at tests/k6c_envelope.rs:376:5:\nassertion `left == right` failed\n  left: MetricBytes { requested: 20023605, moving: 21120309 }\n right: MetricBytes { requested: 20023653, moving: 21120357 }\n\n---- h_and_vr_construction_classes_and_tagged_population_policy stdout ----\n\nthread 'h_and_vr_construction_classes_and_tagged_population_policy' (28648519) panicked at tests/k6c_envelope.rs:437:5:\nassertion `left == right` failed\n  left: MetricBytes { requested: 21652875, moving: 22734219 }\n right: MetricBytes { requested: 21652923, moving: 22734267 }\n\n\nfailures:\n    cancellation_keeps_all_loads_and_non_power_of_two_body_capacity\n    directional_operators_are_distinct_from_axis_springs\n    five_body_upper_preserves_resolution_move_and_report_aliases\n    h_and_vr_construction_classes_and_tagged_population_policy\n\n",
+      "source_unchanged": true,
+      "tests_unchanged": true,
+      "test_binaries": [
+        {
+          "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target/release/deps/k6c_envelope-82936ea4e46ee56b",
+          "sha256": "c10658988afe5ed466ce8e606ebc86917e62f5e1234a2088e2356bde50c74829"
+        }
+      ],
+      "binary_differs_from_NONE": true
+    },
+    {
+      "selection": "h33_exact_fields",
+      "argv": [
+        "/Users/ryan/.cargo/bin/rustup",
+        "run",
+        "1.97.1",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+        "--release",
+        "--locked",
+        "--offline",
+        "-j",
+        "4",
+        "--test",
+        "k6b_w1",
+        "the_committed_counts_carry_this_codes_estimate",
+        "--",
+        "--exact",
+        "--test-threads=2"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i26-kernel-mutants-02/archive",
+      "environment_overrides": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target",
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "start_utc": "2026-10-02T03:35:04.887458+00:00",
+      "returncode": 101,
+      "end_utc": "2026-10-02T03:35:06.109084+00:00",
+      "log_sha256": "307c3a5639e41e36cd27dd86e0b966eadf233e8efd861e4eb5e91b0aedb9a62e",
+      "compile_succeeded": true,
+      "passed": 0,
+      "failed": 1,
+      "assertion_excerpt": "failures:\n\n---- the_committed_counts_carry_this_codes_estimate stdout ----\n\nthread 'the_committed_counts_carry_this_codes_estimate' (28648666) panicked at tests/k6b_w1.rs:1079:5:\nassertion `left == right` failed: every corrected field: RF-LARGE-CHAIN-n00010-AX\n  left: W1Estimate { decide: 19888711, solve: [1910144, 1945856, 2032960, 2064320], pass: [157206, 256918, 456342], fixed: 87693, shared: [223968, 261328, 445104, 663408], state: [18776, 18776, 31224, 56120], verify: [169536, 297568, 369312], max: 22744252, sel128: 20739580 }\n right: W1Estimate { decide: 19888711, solve: [1910144, 1945856, 2032960, 2064320], pass: [157254, 256966, 456390], fixed: 87693, shared: [223968, 261328, 445104, 663408], state: [18776, 18776, 31224, 56120], verify: [169536, 297568, 369312], max: 22744300, sel128: 20739628 }\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    the_committed_counts_carry_this_codes_estimate\n\n",
+      "source_unchanged": true,
+      "tests_unchanged": true,
+      "test_binaries": [
+        {
+          "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target/release/deps/k6b_w1-9e80a9ab221d9df0",
+          "sha256": "b1c0903af06bcc6fe2f56ac52d19388c223c28effcbc235152eb557264602f44"
+        }
+      ],
+      "binary_differs_from_NONE": true
+    }
+  ],
+  "all_compiled": true,
+  "verdict": "COMPILED_TEST_FAILURE",
+  "source_restored": true,
+  "end_utc": "2026-10-02T03:35:06.112761+00:00"
+}

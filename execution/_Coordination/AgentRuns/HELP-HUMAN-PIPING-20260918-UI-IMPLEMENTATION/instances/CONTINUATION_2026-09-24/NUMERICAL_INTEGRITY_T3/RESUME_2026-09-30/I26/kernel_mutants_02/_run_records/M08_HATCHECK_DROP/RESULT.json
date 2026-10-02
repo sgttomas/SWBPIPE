@@ -1,0 +1,119 @@
+{
+  "variant": "M08_HATCHECK_DROP",
+  "candidate": "81c03849033f3ce745668f581f446530789397b8",
+  "start_utc": "2026-10-02T03:35:37.149209+00:00",
+  "source_path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs",
+  "normal_source_sha256": "3781079224cf7a47511cb2bfc9f09ebee6e51d2595ce3ad609d79f8d57b10092",
+  "active_source_sha256": "2555a34b62ce97d599ee41658205abd54fc701a43cd8f84c7444d1df5187c8e4",
+  "patch_sha256": "cf33993c1d2886c700847ca9194f8deccbb2d5c04f6f11ba12153f05b09836ae",
+  "test_hashes": {
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6c_envelope.rs": "4ecf2aa7b3ce0a519aa1758271faba95cd7eceb966d5ce94aa2404765ed3c7b5",
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs": "31de90d62b4cde8dd187af380c6acf608ec16801efaf070c93c0cc4b53e0b422"
+  },
+  "runs": [
+    {
+      "selection": "kernel_reference_suite",
+      "argv": [
+        "/Users/ryan/.cargo/bin/rustup",
+        "run",
+        "1.97.1",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+        "--release",
+        "--locked",
+        "--offline",
+        "-j",
+        "4",
+        "--test",
+        "k6c_envelope",
+        "--",
+        "--test-threads=2"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i26-kernel-mutants-02/archive",
+      "environment_overrides": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target",
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "start_utc": "2026-10-02T03:35:37.153304+00:00",
+      "returncode": 101,
+      "end_utc": "2026-10-02T03:35:40.868821+00:00",
+      "log_sha256": "451180a50fc0cfc931085d7b4cd2d12cb56a2773a01050cdd8947eb3be46fc78",
+      "compile_succeeded": true,
+      "passed": 7,
+      "failed": 3,
+      "assertion_excerpt": "failures:\n\n---- axis_spring_reference_and_owner_phase_regressions stdout ----\n\nthread 'axis_spring_reference_and_owner_phase_regressions' (28650947) panicked at tests/k6c_envelope.rs:130:5:\nassertion `left == right` failed\n  left: 85\n right: 88\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n---- five_body_upper_preserves_resolution_move_and_report_aliases stdout ----\n\nthread 'five_body_upper_preserves_resolution_move_and_report_aliases' (28650951) panicked at tests/k6c_envelope.rs:53:10:\ncalled `Option::unwrap()` on a `None` value\n\n---- h_and_vr_construction_classes_and_tagged_population_policy stdout ----\n\nthread 'h_and_vr_construction_classes_and_tagged_population_policy' (28650952) panicked at tests/k6c_envelope.rs:53:10:\ncalled `Option::unwrap()` on a `None` value\n\n\nfailures:\n    axis_spring_reference_and_owner_phase_regressions\n    five_body_upper_preserves_resolution_move_and_report_aliases\n    h_and_vr_construction_classes_and_tagged_population_policy\n\n",
+      "source_unchanged": true,
+      "tests_unchanged": true,
+      "test_binaries": [
+        {
+          "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target/release/deps/k6c_envelope-82936ea4e46ee56b",
+          "sha256": "7f89602de38ea56216e85e230c2f2b70dd475a64e9749ec8c973244793524037"
+        }
+      ],
+      "binary_differs_from_NONE": true
+    },
+    {
+      "selection": "h33_exact_fields",
+      "argv": [
+        "/Users/ryan/.cargo/bin/rustup",
+        "run",
+        "1.97.1",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+        "--release",
+        "--locked",
+        "--offline",
+        "-j",
+        "4",
+        "--test",
+        "k6b_w1",
+        "the_committed_counts_carry_this_codes_estimate",
+        "--",
+        "--exact",
+        "--test-threads=2"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i26-kernel-mutants-02/archive",
+      "environment_overrides": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target",
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+      "start_utc": "2026-10-02T03:35:40.873563+00:00",
+      "returncode": 0,
+      "end_utc": "2026-10-02T03:35:42.204434+00:00",
+      "log_sha256": "ea672911f6c36caf5e37eb06b34ecb3c91992349b28d3bb9579f3bc3a9754fbe",
+      "compile_succeeded": true,
+      "passed": 1,
+      "failed": 0,
+      "assertion_excerpt": "",
+      "source_unchanged": true,
+      "tests_unchanged": true,
+      "test_binaries": [
+        {
+          "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-kernel-mutants02-target/release/deps/k6b_w1-9e80a9ab221d9df0",
+          "sha256": "fe8865c99d35a11e121be7d75828e65a49e17fc409c7fe2e806f3a7fd4234640"
+        }
+      ],
+      "binary_differs_from_NONE": true
+    }
+  ],
+  "all_compiled": true,
+  "verdict": "COMPILED_TEST_FAILURE",
+  "source_restored": true,
+  "end_utc": "2026-10-02T03:35:42.207892+00:00"
+}
