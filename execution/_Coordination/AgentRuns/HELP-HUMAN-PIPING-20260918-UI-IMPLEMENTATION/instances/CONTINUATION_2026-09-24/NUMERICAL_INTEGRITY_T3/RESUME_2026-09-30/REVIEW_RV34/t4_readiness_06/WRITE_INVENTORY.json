@@ -1,0 +1,85 @@
+{
+  "scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/t4_readiness_06",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "sha256": "297116bbe700586ac2ee7e60bc9905f83b429f8d9283462b890a0e3dfe7768e3",
+      "bytes": 5858
+    },
+    {
+      "path": "_run_records/CALLER_RECOMPUTATION.json",
+      "sha256": "d845188a1a783c1443a148ec352f4509b670c61cb7e7a37cddc18a0d59252438",
+      "bytes": 2329
+    },
+    {
+      "path": "_run_records/COMMANDS.md",
+      "sha256": "5c576819f04de11e15905a91fe13f4fa2f0786b9545be2b2a4ddb7abb82d2796",
+      "bytes": 1662
+    },
+    {
+      "path": "_run_records/CUSTODY_AND_ADOPTION_CHECK.json",
+      "sha256": "08afc22bbfe2b9b5a2f6b7132b61abb59fd292336f86e6708c0ae11a3e3d9db8",
+      "bytes": 1272
+    },
+    {
+      "path": "_run_records/NUMERICAL_CHECKS.json",
+      "sha256": "26fb8c1a57af04f78843c61410677d72f3396821160ecc3f547f31fcecb9b7fe",
+      "bytes": 2515
+    },
+    {
+      "path": "_run_records/PRESERVATION_AND_RECIPE_CHECKS.json",
+      "sha256": "b16792984c59b00e8a8008789b5a63cd38c28230fe1278fa954b665aa20f5c40",
+      "bytes": 2509
+    },
+    {
+      "path": "_run_records/PROJECTIONS.json",
+      "sha256": "703d5158fe5e65086366b82422b15e55303ffe3b92571229f03f9dbf6acd531d",
+      "bytes": 28519
+    },
+    {
+      "path": "_run_records/READS.jsonl",
+      "sha256": "1cac749678ec0990bfdd67fb9bf934d07928861d60aa693092992fdbb1cb09be",
+      "bytes": 118680
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "sha256": "7cf63bc2e271bc04d0fcce138844c88bd2bb0e2ca325ce5ca54ecbe8761046ba",
+      "bytes": 3389
+    },
+    {
+      "path": "_run_records/check.py",
+      "sha256": "27be77c8dcf58f8f54581e3cd0ec11a54cc917a61e59ef04875694ed084b9571",
+      "bytes": 11548
+    },
+    {
+      "path": "_run_records/check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "_run_records/check.stdout.json",
+      "sha256": "89f3f20ee7fe2bbc23d5cf14fb660dd5ee5438d417ba4fafc2387412b010ecbb",
+      "bytes": 2183
+    },
+    {
+      "path": "_run_records/preservation_recipe.py",
+      "sha256": "1ba1de82118298c36d174cb6b4387a579f597d495fa0e67b667b1273d8bd5dd4",
+      "bytes": 7038
+    },
+    {
+      "path": "_run_records/preservation_recipe.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "_run_records/preservation_recipe.stdout.json",
+      "sha256": "cdd5b8facb280ffb85a9abf89d61eb6012f04f1cde1d9a753a33b7fc20063c0e",
+      "bytes": 1264
+    },
+    {
+      "path": "_run_records/review_io.py",
+      "sha256": "0992fa8b92a8b757cd4ff233d256cf363040e0bc0701b92e255752f0e70f4902",
+      "bytes": 1524
+    }
+  ]
+}

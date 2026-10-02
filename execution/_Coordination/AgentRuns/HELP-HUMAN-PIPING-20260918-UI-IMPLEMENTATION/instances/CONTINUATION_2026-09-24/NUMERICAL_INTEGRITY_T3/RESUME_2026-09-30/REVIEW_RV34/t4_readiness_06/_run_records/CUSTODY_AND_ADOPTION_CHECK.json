@@ -1,0 +1,27 @@
+{
+  "actual_measurement_files": 911,
+  "expected_measurement_files": 911,
+  "only52_new_files": true,
+  "RV36_adoption_seal": "1f55f2b355db885a4985d5adbfe701e6a54512f61f45399859ba4c12ab8cbd64",
+  "RV36_payloads": [
+    {
+      "path": "RETURN.md",
+      "sha256": "3b2c5f7dad38a36c1d7127692a331f63982c974aab24dddf0c392e8533efd620"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "sha256": "e528d343f215e7124235b822a46fe289ea2df57cef3a2d5e89f9a1cb5065e12e"
+    },
+    {
+      "path": "_run_records/RUN.json",
+      "sha256": "0a35d186f60085f310abd30bee37ae5b19c40b2046333a23a403749a908e0be7"
+    }
+  ],
+  "owner_adoption_origin": {
+    "revision": "0deebdf9a248aabe3bbb5ce6109abaca68788885",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/OWNER_CHECKPOINTS/K6C_PUBLISHED_ROWS_ADOPTION_2026-10-02.md",
+    "sha256": "93b3bd735a7ca2b3b7fa94c2a4717caaa77813915a8b6e50096f14f064268ce4"
+  },
+  "scope": "Owner scoped comparison adopted; no further owner permission needed for that policy choice. Normal execution and actual comparison acceptance remain separate.",
+  "checked_utc": "2026-10-02T14:46:51.458005+00:00"
+}
