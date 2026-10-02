@@ -1,0 +1,31 @@
+{
+  "qualification_processes": 6,
+  "normal_processes": 24,
+  "tier_bindings": 12,
+  "tier_noop": 1,
+  "total_product_processes": 43,
+  "actual_normal_repeats": 120,
+  "W1_outcomes": [
+    {
+      "class": "Selected",
+      "selected_precision": 128,
+      "verification_precision": 256,
+      "processes": 12
+    }
+  ],
+  "sparse_outcomes": {
+    "Sensitive": 8,
+    "Passed": 4
+  },
+  "prefix_calls": 18,
+  "publication_dumps": 6,
+  "sparse_solution_dumps": 12,
+  "matched_H_fields": 588,
+  "minimum_H_slack": 45822,
+  "excluded_global_pre_reset": 162,
+  "largest_observed_W1_requested_heap": 90212119,
+  "largest_observed_W1_moving_heap": 90212119,
+  "largest_observed_product_RSS": 129122304,
+  "all_checks_pass": true,
+  "outcome_table_source": "Current raw outcomes reread in this sealing command; cross-checked against FULL_CHECKS counters. No preceding-tier prose reused."
+}

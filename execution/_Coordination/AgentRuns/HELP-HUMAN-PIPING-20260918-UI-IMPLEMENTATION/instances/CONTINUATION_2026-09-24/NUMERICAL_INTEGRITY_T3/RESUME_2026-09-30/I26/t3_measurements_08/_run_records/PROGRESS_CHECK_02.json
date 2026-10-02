@@ -1,0 +1,154 @@
+{
+  "checked_utc": "2026-10-02T06:40:15.335672+00:00",
+  "seen": [
+    {
+      "order": 223,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 224,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 225,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 226,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 227,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 228,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 229,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 230,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 231,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 232,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 233,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 234,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 235,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 236,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 237,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 238,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 239,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 240,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 241,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 242,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 243,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 244,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 245,
+      "mode": "sparse",
+      "complete": true,
+      "repeats": 5
+    },
+    {
+      "order": 246,
+      "mode": "w1a",
+      "complete": true,
+      "repeats": 5
+    }
+  ],
+  "matched_peak_fields": 276,
+  "faults": [],
+  "active_owned_commands": [],
+  "observed_group_ids": [],
+  "driver_tail": "TREE-n01000-ROT_w1a RF-LARGE-TREE-n01000-ROT w1a: ok 8.5s rss=123060224\n239_RF-LARGE-CONT-n01000-AX_w1a RF-LARGE-CONT-n01000-AX w1a: ok 5.2s rss=113541120\n240_RF-LARGE-CONT-n01000-AX_sparse RF-LARGE-CONT-n01000-AX sparse: ok 1.5s rss=37863424\n241_RF-LARGE-CONT-n01000-AX_w1a RF-LARGE-CONT-n01000-AX w1a: ok 4.4s rss=114098176\n242_RF-LARGE-CONT-n01000-AX_sparse RF-LARGE-CONT-n01000-AX sparse: ok 1.5s rss=37601280\n243_RF-LARGE-CONT-n01000-ROT_sparse RF-LARGE-CONT-n01000-ROT sparse: ok 2.0s rss=42319872\n244_RF-LARGE-CONT-n01000-ROT_w1a RF-LARGE-CONT-n01000-ROT w1a: ok 9.5s rss=124370944\n245_RF-LARGE-CONT-n01000-ROT_sparse RF-LARGE-CONT-n01000-ROT sparse: ok 2.0s rss=42319872\n246_RF-LARGE-CONT-n01000-ROT_w1a RF-LARGE-CONT-n01000-ROT w1a: ok 7.6s rss=116817920\n{\"stop\": [], \"stop_after_tier\": []}\n"
+}

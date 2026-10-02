@@ -1,0 +1,8 @@
+{
+  "checked_utc": "2026-10-02T06:49:52.593175+00:00",
+  "source": "current raw normal JSONL outcomes reread before sealing",
+  "W1_cell": "12 Selected128 / verification256",
+  "sparse_cell": "4 Passed; 8 Sensitive",
+  "structured_counters_match_FULL_CHECKS": true,
+  "authored_cells_match_current_raw": true
+}

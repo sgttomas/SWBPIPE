@@ -1,0 +1,13 @@
+{
+  "parent": "/root",
+  "task": "/root/i26_uc_witness",
+  "receipt_utc": "2026-10-02T06:32:51Z",
+  "runtime_cutoff_utc": "2026-10-02T07:12:51Z",
+  "hard_deadline_utc": "2026-10-02T07:17:51Z",
+  "brief_commit": "0edca7fe13d9e907443a9cdd2b48c6e33dfaa09d",
+  "ruling_commit": "9a73e58c446689331ebf96cdc1cb851aaa522ed4",
+  "accepted_T2_commit": "902a4f9d2f94f75af6ceaf6804f4bbc9a05b62c7",
+  "setup_complete_utc": "2026-10-02T06:35:51.687220+00:00",
+  "no_retry": true,
+  "cleanup_credit": "Successful-launch survivors=[] is default, not a performed group scan. Credit actual wait/exit and process/group observations separately."
+}

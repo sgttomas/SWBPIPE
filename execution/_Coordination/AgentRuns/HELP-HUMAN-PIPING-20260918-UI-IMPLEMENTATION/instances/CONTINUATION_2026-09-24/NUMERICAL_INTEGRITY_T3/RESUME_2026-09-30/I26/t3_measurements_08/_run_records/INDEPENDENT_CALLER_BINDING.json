@@ -1,0 +1,201 @@
+{
+  "basis": "Finite scalar metadata from unchanged Builder recipes and HModelFacts::capture; lengths only, no coordinates/models/graphs generated. G/F rules are existing accepted allocation classes. Member clones use length, nodes use formatted class, including conservative P0 policy.",
+  "models": {
+    "RF-LARGE-CHAIN-n01000-AX": {
+      "recipe": "N0..N1000; M1..M1000; one restrained node",
+      "origin": "Builder",
+      "n": 1001,
+      "m": 1000,
+      "restrained_nodes": 1,
+      "loads_from_qualified_seed": 6,
+      "node_label_length_histogram": {
+        "2": 10,
+        "3": 90,
+        "4": 900,
+        "5": 1
+      },
+      "member_label_length_histogram": {
+        "2": 9,
+        "3": 90,
+        "4": 900,
+        "5": 1
+      },
+      "parts": {
+        "nodes_backing": 49152,
+        "members_backing": 64000,
+        "restraints_backing": 64,
+        "loads_backing": 128,
+        "frames_backing": 139264,
+        "formatted_node_label_bytes": 8010,
+        "cloned_member_label_bytes": 3893,
+        "model_id_bytes": 24,
+        "model_source_bytes": 27
+      },
+      "model_bytes": 264562,
+      "caller_without_args": 266262,
+      "reference_caller_without_args": 269433
+    },
+    "RF-LARGE-CHAIN-n01000-ROT": {
+      "recipe": "N0..N1000; M1..M1000; one restrained node",
+      "origin": "Builder",
+      "n": 1001,
+      "m": 1000,
+      "restrained_nodes": 1,
+      "loads_from_qualified_seed": 6,
+      "node_label_length_histogram": {
+        "2": 10,
+        "3": 90,
+        "4": 900,
+        "5": 1
+      },
+      "member_label_length_histogram": {
+        "2": 9,
+        "3": 90,
+        "4": 900,
+        "5": 1
+      },
+      "parts": {
+        "nodes_backing": 49152,
+        "members_backing": 64000,
+        "restraints_backing": 64,
+        "loads_backing": 128,
+        "frames_backing": 139264,
+        "formatted_node_label_bytes": 8010,
+        "cloned_member_label_bytes": 3893,
+        "model_id_bytes": 25,
+        "model_source_bytes": 27
+      },
+      "model_bytes": 264563,
+      "caller_without_args": 266263,
+      "reference_caller_without_args": 269434
+    },
+    "RF-LARGE-TREE-n01000-AX": {
+      "recipe": "P0, P1/B1..P500/B500; S1/Q1..S500/Q500; one restrained node",
+      "origin": "Builder",
+      "n": 1001,
+      "m": 1000,
+      "restrained_nodes": 1,
+      "loads_from_qualified_seed": 428,
+      "node_label_length_histogram": {
+        "2": 19,
+        "3": 180,
+        "4": 802
+      },
+      "member_label_length_histogram": {
+        "2": 18,
+        "3": 180,
+        "4": 802
+      },
+      "parts": {
+        "nodes_backing": 49152,
+        "members_backing": 64000,
+        "restraints_backing": 64,
+        "loads_backing": 8192,
+        "frames_backing": 139264,
+        "formatted_node_label_bytes": 8008,
+        "cloned_member_label_bytes": 3784,
+        "model_id_bytes": 23,
+        "model_source_bytes": 27
+      },
+      "model_bytes": 272514,
+      "caller_without_args": 274214,
+      "reference_caller_without_args": 277496
+    },
+    "RF-LARGE-TREE-n01000-ROT": {
+      "recipe": "P0, P1/B1..P500/B500; S1/Q1..S500/Q500; one restrained node",
+      "origin": "Builder",
+      "n": 1001,
+      "m": 1000,
+      "restrained_nodes": 1,
+      "loads_from_qualified_seed": 1284,
+      "node_label_length_histogram": {
+        "2": 19,
+        "3": 180,
+        "4": 802
+      },
+      "member_label_length_histogram": {
+        "2": 18,
+        "3": 180,
+        "4": 802
+      },
+      "parts": {
+        "nodes_backing": 49152,
+        "members_backing": 64000,
+        "restraints_backing": 64,
+        "loads_backing": 32768,
+        "frames_backing": 139264,
+        "formatted_node_label_bytes": 8008,
+        "cloned_member_label_bytes": 3784,
+        "model_id_bytes": 24,
+        "model_source_bytes": 27
+      },
+      "model_bytes": 297091,
+      "caller_without_args": 298791,
+      "reference_caller_without_args": 302073
+    },
+    "RF-LARGE-CONT-n01000-AX": {
+      "recipe": "S0..S500,C1..C500; A1/B1..A500/B500;501 restrained nodes",
+      "origin": "Builder",
+      "n": 1001,
+      "m": 1000,
+      "restrained_nodes": 501,
+      "loads_from_qualified_seed": 733,
+      "node_label_length_histogram": {
+        "2": 19,
+        "3": 180,
+        "4": 802
+      },
+      "member_label_length_histogram": {
+        "2": 18,
+        "3": 180,
+        "4": 802
+      },
+      "parts": {
+        "nodes_backing": 49152,
+        "members_backing": 64000,
+        "restraints_backing": 8192,
+        "loads_backing": 16384,
+        "frames_backing": 139264,
+        "formatted_node_label_bytes": 8008,
+        "cloned_member_label_bytes": 3784,
+        "model_id_bytes": 23,
+        "model_source_bytes": 27
+      },
+      "model_bytes": 288834,
+      "caller_without_args": 290534,
+      "reference_caller_without_args": 301944
+    },
+    "RF-LARGE-CONT-n01000-ROT": {
+      "recipe": "S0..S500,C1..C500; A1/B1..A500/B500;501 restrained nodes",
+      "origin": "Builder",
+      "n": 1001,
+      "m": 1000,
+      "restrained_nodes": 501,
+      "loads_from_qualified_seed": 1268,
+      "node_label_length_histogram": {
+        "2": 19,
+        "3": 180,
+        "4": 802
+      },
+      "member_label_length_histogram": {
+        "2": 18,
+        "3": 180,
+        "4": 802
+      },
+      "parts": {
+        "nodes_backing": 49152,
+        "members_backing": 64000,
+        "restraints_backing": 8192,
+        "loads_backing": 32768,
+        "frames_backing": 139264,
+        "formatted_node_label_bytes": 8008,
+        "cloned_member_label_bytes": 3784,
+        "model_id_bytes": 24,
+        "model_source_bytes": 27
+      },
+      "model_bytes": 305219,
+      "caller_without_args": 306919,
+      "reference_caller_without_args": 318329
+    }
+  }
+}

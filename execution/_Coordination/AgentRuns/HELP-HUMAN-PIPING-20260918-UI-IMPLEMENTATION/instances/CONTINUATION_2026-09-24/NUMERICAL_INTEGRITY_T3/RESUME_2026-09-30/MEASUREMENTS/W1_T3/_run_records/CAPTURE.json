@@ -1,0 +1,12 @@
+{
+  "actor": "ROOT",
+  "captured_utc": "2026-10-02T06:52:41.085191+00:00",
+  "raw_inventory_sha256": "56797f2d887765593576affb927213baee006a0c4796a841c1593a81e5e111a2",
+  "files": 192,
+  "payload_bytes": 11625525,
+  "archive_sha256": "18cdeb3be2c17f6922ae1e4b89c89f2edb382aa1b841032491a4894c81747199",
+  "archive_bytes": 1457460,
+  "all_payloads_match_original_hashes": true,
+  "prior_prefix_preserved": true,
+  "acceptance": "none; preservation only"
+}

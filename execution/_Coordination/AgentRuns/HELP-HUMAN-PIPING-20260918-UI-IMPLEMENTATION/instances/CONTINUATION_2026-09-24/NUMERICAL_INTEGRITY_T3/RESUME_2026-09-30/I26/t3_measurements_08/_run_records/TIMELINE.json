@@ -1,0 +1,19 @@
+{
+  "qualification_start_utc": "2026-10-02T06:36:38.369983+00:00",
+  "qualification_end_utc": "2026-10-02T06:36:39.539535+00:00",
+  "tier_dispatch_intent_utc": "2026-10-02T06:37:55.461036+00:00",
+  "driver_birth_utc": "2026-10-02T06:37:55.523745+00:00",
+  "driver_last_write_utc": "2026-10-02T06:39:51.941426+00:00",
+  "baseline_check_utc": "2026-10-02T06:37:56.745300+00:00",
+  "baseline_observed_first_product_active": true,
+  "active_progress_check_utc": "2026-10-02T06:39:16.461708+00:00",
+  "active_progress_complete_rows": 15,
+  "active_progress_ongoing_orders": [
+    238
+  ],
+  "active_progress_matched_peak_fields": 182,
+  "completion_observed_by_utc": "2026-10-02T06:40:15.335672+00:00",
+  "slot_released_before_seal": true,
+  "timing_scope": "Driver birth/last-write are filesystem evidence; other check timestamps are sampled. Baseline and one finite progress snapshot were genuinely while active. No pre-first-row gate or exhaustive per-row live-inspection claim.",
+  "full_checks_post_run": true
+}
