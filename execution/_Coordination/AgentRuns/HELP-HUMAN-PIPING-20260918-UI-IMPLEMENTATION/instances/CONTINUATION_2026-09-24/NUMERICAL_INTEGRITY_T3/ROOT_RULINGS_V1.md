@@ -4779,3 +4779,23 @@ M5 guard and sole quiet/timed lane apply; no build or new host tooling follows.
 Complete K6c/E_max, final comparison acceptance, exact-head final review/gates,
 W1 limits and F2a remain open. No owner decision is re-requested for the already
 approved scoped comparison.
+
+
+## Explicit final-family continuation boundary (ROOT, 2026-10-02 UTC)
+
+I26's actual15:25:58 UTC checkpoint has completed orders247–261; TREE ROT
+second W1 pass262 has completed three expected repeats and remains active.
+All available checks remain clear; the reached high-precision TREE work, not
+supporting tooling, consumed the runtime allowance. ROOT explicitly authorizes
+a bounded continuation of only original CONT orders263–270 if and only if all
+rows through262 finish validly before the original15:30:52 UTC cutoff.
+
+If that condition is met, the same unchanged wrapper may finish those remaining
+original rows without interruption, with a new hard normal stop/reap15:40:52 UTC.
+No new comparator runtime is allowed after15:50:52, and final return is16:00:52.
+This is an explicit additional10-minute final-family runtime allocation, not
+compliance with the original deadline or an automatic extension. If TREE is
+still incomplete/invalid at the original cutoff, stop there and return partial
+without R1. No retry, new model, cap/tolerance/admission/first-repeat/per-process
+watchdog change is authorized. Every existing stop condition still applies.
+The original grant and checkpoints remain unedited historical evidence.
