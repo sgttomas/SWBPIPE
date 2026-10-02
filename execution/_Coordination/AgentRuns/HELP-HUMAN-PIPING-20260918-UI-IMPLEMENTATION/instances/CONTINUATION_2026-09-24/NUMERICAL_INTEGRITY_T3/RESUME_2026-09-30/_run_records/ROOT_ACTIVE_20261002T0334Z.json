@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-02T03:34:37.808557+00:00",
+  "role": "ROOT HELP_HUMAN Agent0",
+  "state": "owner resumed; active",
+  "main": "3a0251874d6ab38008173a22ef09d651a0f20d9e",
+  "k6c_head": "da91674ed6f32d1e7b5722922227933af775b68e",
+  "maintained_head": "81c03849033f3ce745668f581f446530789397b8",
+  "closed": [
+    "Uc M05 witness via I26/RV35",
+    "VR sparse16f and refused-format witnesses via I27/RV35",
+    "conditional historical replay via I25/RV34"
+  ],
+  "active_task": {
+    "agent": "/root/i26_uc_witness",
+    "packet": "I26/kernel_mutants_02",
+    "scope": "archive-only M06\u2013M12",
+    "receipt": "2026-10-02T03:32:11Z",
+    "cutoff": "2026-10-02T03:57:11Z",
+    "deadline": "2026-10-02T04:02:11Z",
+    "cargo_lane": "sole owner"
+  },
+  "prepared_not_dispatched": "BRIEFS/I27_VR_MUTANTS_REMAINDER_02.md",
+  "next": [
+    "remaining mutations with real NONE controls",
+    "V-K rerun on deduplicated candidate with accepted semantic witnesses",
+    "ordinary-production artifact/input/launch qualification",
+    "ROOT-granted measurements",
+    "final review/gates/PR",
+    "ROOT W1 limits then facade sequence"
+  ],
+  "limits": "No new scale measurement grant; no broad historical-path recovery or host-tool programme"
+}
