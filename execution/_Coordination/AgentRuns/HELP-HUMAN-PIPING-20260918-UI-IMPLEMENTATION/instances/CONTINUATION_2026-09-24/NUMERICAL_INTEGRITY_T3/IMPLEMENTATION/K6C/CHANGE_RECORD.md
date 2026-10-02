@@ -1,7 +1,8 @@
 # K6c CHANGE_RECORD
 
-Status: final-form, revisable D candidate; final numerical/comparison disposition
-and exact-candidate gates remain open. This record supplies no acceptance.
+Status: frozen D candidate. ROOT accepted finite T4 measurements and the adopted
+comparison after RV34 review. Final exact-candidate review and gates remain open.
+This record reports those dispositions and creates no broader acceptance.
 
 ## Problem and resulting behavior
 
@@ -57,8 +58,8 @@ every reviewer reran every suite.
 [RETURN](RETURN.md) records I26's actual T4 author classes, matched H windows,
 reached512/1024 work, whole-call memory granularity, R1/custody evidence,
 explicit CONT-only time extension and cleanup limits. T4's author report is
-complete provisionally; active RV34 numerical/comparison review and ROOT
-acceptance remain pending at this revision of the D package.
+independently verified by RV34 t4_measurements_07 and accepted by ROOT at finite
+scope. Its precision-memory granularity and RSS forecasting limits are preserved.
 
 Four W1 TREE and four sparse runs exceeded their RSS admission projections.
 Those misses are retained for ROOT policy/reliance disposition, separately from
@@ -74,7 +75,7 @@ value-pass credit; full historical published-value equality stays unestablished.
 
 ## Open closeout
 
-Final T4 review/disposition, final exact-candidate review, full-SHA hosted CI,
+Final exact-candidate review, full-SHA hosted CI,
 exact-final-head Mac DEC-025/fresh target and GEN-8 remain pending. T9/both-entry
 remain inapplicable only while the verified harness/validation-only scope holds.
 Complete K6c/E_max, W1 limits, F2a, engineering acceptance and release remain

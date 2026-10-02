@@ -1,10 +1,11 @@
 # K6c D — obligation and evidence index
 
-Status: revisable D candidate. Source81c038; supplied records basis8cf5271b….
+Status: frozen D candidate. Source81c038; original assembly records basis8cf5271b….
 R = T3/RESUME_2026-09-30. H and VR retain their project aliases.
 “Accepted” refers to ROOT's scoped dispositions, never a new acceptance by this
-index. T4 author observations are available; active RV34 numerical/comparison
-review and ROOT T4 acceptance remain pending.
+index. T4 observations and the adopted comparison are independently verified in
+[RV34 t4_measurements_07](../../RESUME_2026-09-30/REVIEW_RV34/t4_measurements_07/RETURN.md)
+and accepted by ROOT at finite scope. ROOT_FINALIZATION.json records this update.
 
 ## Original obligations and current evidence
 
@@ -26,10 +27,10 @@ review and ROOT T4 acceptance remain pending.
 | W1-T2 | [RV34 T2 review](../../RESUME_2026-09-30/REVIEW_RV34/t2_measurements_04/RETURN.md), scope/classes/monitoring; [base author RETURN](../../RESUME_2026-09-30/I26/t2_measurements_07/RETURN.md) **plus** [mandatory correction](../../RESUME_2026-09-30/I26/t2_measurements_07/OUTCOME_CORRECTION.md). Immutable R/MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz. | Accepted8 Sensitive/4 Passed sparse process classes; base All12 Passed cell is wrong. Limited active baseline observation and post-run complete checks remain explicit. |
 | W1-T3 | [RV34 T3 review](../../RESUME_2026-09-30/REVIEW_RV34/t3_measurements_05/RETURN.md), input/admission/windows/prefix completeness and observation limits. Immutable R/MEASUREMENTS/W1_T3/_run_records/delta_records.tar.gz. | Finite current1000-member measurements, chronology and actual required prefix ends accepted; no continuous-monitoring or larger-tier inference. |
 | T4 readiness and authorized continuation | [RV34 readiness](../../RESUME_2026-09-30/REVIEW_RV34/t4_readiness_06/RETURN.md), caller/projection/recipe; NUM ruling “T4 readiness accepted; original measurements and scoped comparison released.” T4 SESSION/CONTINUATION_AUTHORITY/TIMELINE. | Readiness accepted but not itself normal admission. Actual run subsequently released with an explicit conditional CONT-only time extension; no automatic deadline extension. |
-| Original W1-T4, actual512/1024 and resources | [I26 T4 RETURN](../../RESUME_2026-09-30/I26/t4_measurements_10/RETURN.md), class/heap/high-precision/RSS/timing paragraphs; FULL_CHECKS, METRIC_WINDOW_CHECKS, TREE_HIGH_PRECISION, PRECISION_WORK_AND_PREFIXES, ADMISSION_AND_RSS in its _run_records. | Author observations complete provisionally. Current class/resource tables are in [D RETURN](RETURN.md). Per-attempt LME/storage and whole-call heap are supplied; no per-internal-precision heap claim. Eight RSS projection misses stay explicit and distinct from H-window/cap results. RV34/ROOT acceptance pending. |
-| Adopted five-clause KF3/R1 comparison | NUM R/OWNER_CHECKPOINTS/K6C_PUBLISHED_ROWS_ADOPTION_2026-10-02.md atdcffebac…; [propagation review](../../RESUME_2026-09-30/REVIEW_RV36/comparison_adoption_04/RETURN.md). I26 T4 KF3_SUPPORTED_FACTS, PUBLICATION_ROSTER, R1_INPUT_VIEW, R1_RESULTS and R1 streams. | Criterion approved; actual author comparison now supplied provisionally. Complete Selected dump preflight, unchanged R1 and separate identity hash schemes retained; TREE has no value-pass credit. Full historic equality remains unestablished. Actual independent comparison review/ROOT acceptance pending. |
+| Original W1-T4, actual512/1024 and resources | [I26 T4 RETURN](../../RESUME_2026-09-30/I26/t4_measurements_10/RETURN.md), class/heap/high-precision/RSS/timing paragraphs; FULL_CHECKS, METRIC_WINDOW_CHECKS, TREE_HIGH_PRECISION, PRECISION_WORK_AND_PREFIXES, ADMISSION_AND_RSS in its _run_records. | Author observations independently verified by RV34 and accepted by ROOT at finite scope. Current class/resource tables are in [D RETURN](RETURN.md). Per-attempt LME/storage and whole-call heap are supplied; no per-internal-precision heap claim. Eight RSS projection misses stay explicit and distinct from H-window/cap results. RV34/ROOT finite acceptance complete; precision-isolated heaps remain unavailable. |
+| Adopted five-clause KF3/R1 comparison | NUM R/OWNER_CHECKPOINTS/K6C_PUBLISHED_ROWS_ADOPTION_2026-10-02.md atdcffebac…; [propagation review](../../RESUME_2026-09-30/REVIEW_RV36/comparison_adoption_04/RETURN.md). I26 T4 KF3_SUPPORTED_FACTS, PUBLICATION_ROSTER, R1_INPUT_VIEW, R1_RESULTS and R1 streams. | Criterion approved; actual comparison independently verified and accepted at finite scope. Complete Selected dump preflight, unchanged R1 and separate identity hash schemes retained; TREE has no value-pass credit. Full historic equality remains unestablished. Actual independent comparison review and ROOT finite acceptance complete. |
 | New raw custody | [W1_T4 README](../../RESUME_2026-09-30/MEASUREMENTS/W1_T4/README.md), [CAPTURE](../../RESUME_2026-09-30/MEASUREMENTS/W1_T4/_run_records/CAPTURE.json), delta_records.tar.gz and SHA256SUMS. | ROOT preservation verified; source/prior journals/dumps preserved. Custody is not numerical acceptance. |
-| CheckpointD / final gates and owning decisions | RETURN/CHANGE_RECORD here; original brief Gates; latest NUM dispositions. | D candidate assembled, revisable. Final T4/RSS/granularity disposition, exact-candidate final review, full-SHA CI, exact-final-head DEC-025/fresh target and GEN-8 pending. T9/both-entry only inapplicable while harness/validation-only scope holds. Complete E_max/K6c, W1 limits, F2a/engineering/release remain owning decisions. |
+| CheckpointD / final gates and owning decisions | RETURN/CHANGE_RECORD here; original brief Gates; latest NUM dispositions. | D candidate assembled and frozen. ROOT T4/RSS/granularity disposition is recorded; exact-candidate final review, full-SHA CI, exact-final-head DEC-025/fresh target and GEN-8 pending. T9/both-entry only inapplicable while harness/validation-only scope holds. Complete E_max/K6c, W1 limits, F2a/engineering/release remain owning decisions. |
 
 ## Historical placement and replay
 
@@ -51,10 +52,15 @@ original tree or recover original-relative layout; do not run them against
 navigation substitutes. No sealed script/report, criterion or source was
 rewritten for this D package. No old evidence corpus is duplicated here.
 
-## Pending acceptance cell
+## Review boundary
 
-RV34 actual T4 numerical/comparison review and ROOT acceptance: **pending at
-assembly**. ROOT supplies any later disposition before that cell is changed.
-All final review/gate and owning-decision cells above remain open until their
-actual evidence exists. This index is not an accepted-evidence seal.
+RV34 actual T4 numerical/comparison review and ROOT finite acceptance are complete.
+ROOT accepts reached-precision work/storage plus whole-call heap coverage for the
+original T4 obligation, preserves unavailable precision-isolated peaks, and routes
+all eight RSS projection misses into the later W1-policy decision. The empirical
+RSS forecast is not an upper guarantee.
+
+Final review/gate and broader owning-decision cells remain open until their actual
+evidence exists. SHA256SUMS freezes this D candidate; it does not accept engineering
+use. The earlier I28 at-return inventory remains historical assembly metadata.
 

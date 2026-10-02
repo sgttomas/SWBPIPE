@@ -1,9 +1,9 @@
 # K6c RETURN — K6b addendum 1
 
-**Final-form, revisable D candidate. Source/validation/artifact and finite T1–T3
-dispositions are accepted at their stated scopes. T4 author measurements and
-comparison are complete provisionally; RV34's actual numerical/comparison review
-and ROOT's T4 acceptance are pending. K6c is not complete or merge-ready.**
+**Checkpoint D candidate. Source/validation/artifact and finite T1–T4 dispositions
+are accepted at their stated scopes. RV34 independently verified the actual T4
+measurements and adopted comparison; ROOT accepted them with the qualifications
+below. Final exact-candidate review and merge gates remain open.**
 
 Maintained source: `81c03849033f3ce745668f581f446530789397b8`; supplied committed
 records/placement basis: `8cf5271b13af9cb4ddb383491b11ea15bc5e6ea0`.
@@ -76,10 +76,16 @@ own reviewed class and executed-prefix evidence. Process classification ok is
 not numerical Passed. The [index](EVIDENCE_INDEX.md) retains each owning review,
 monitoring limit, size-floor/calibration rule and immutable raw snapshot.
 
-## 3. T4 execution and actual classes — author evidence pending review
+## 3. T4 execution and actual classes — independently reviewed finite evidence
 
 The following figures are **I26's committed author observations** on source81c038
-and the ordinary H image above; they are not an I28 rerun or ROOT acceptance.
+and the ordinary H image above. They were independently checked by RV34 and
+accepted by ROOT at finite scope; this D assembly performed no rerun.
+[RV34 T4 review](../../RESUME_2026-09-30/REVIEW_RV34/t4_measurements_07/RETURN.md),
+seal282d49093e6ea08c7fc0a72cab150a44371a00be0b9709874014779d2ba1bfeb,
+and ROOT's ruling “K6c T4 measurements and scoped comparison accepted” own that
+disposition. The review confirms the whole-call/per-attempt granularity supplied
+below; precision-isolated heap peaks remain unavailable.
 The owning [T4 RETURN](../../RESUME_2026-09-30/I26/t4_measurements_10/RETURN.md),
 opening/class table and measurement paragraphs, is sealed by manifest
 `9d331a4f6cc9ea637fe24d42a07cf62c69cd4859d0a01f2367ab46ec44d10f84`.
@@ -211,7 +217,7 @@ Normal wrapper and R1 exited0. The
 reports actual scans of known37 product PIDs, observed groups and exact owned
 commands with no matches. Default successful survivors=[] arrays get no group-scan
 credit; no kill/watchdog cleanup-path test is claimed. Runtime was released before
-author sealing. These are I26's recorded observations, pending RV34 review.
+author sealing. RV34 independently confirmed these recorded observations and their limits.
 
 ## 4. Owner-approved comparison and output custody
 
@@ -219,15 +225,16 @@ The owner-adopted five-clause criterion is recorded at NUM
 R/OWNER_CHECKPOINTS/K6C_PUBLISHED_ROWS_ADOPTION_2026-10-02.md, adoption commit
 `dcffebac3a18fdac9be011e2aa748e959c090d27`; its independent propagation check and
 the later T4 grant are indexed below. Actual author comparison evidence is now
-available; independent numerical/comparison review and ROOT disposition are pending.
+available and independently verified by RV34; ROOT accepted the finite comparison
+under its adopted criterion. No stronger historical equality claim follows.
 
-| Adopted obligation | Current author evidence / limit |
+| Adopted obligation | Reviewed evidence / limit |
 |---|---|
 | Bind counterparts and compare supported KF3 fields | [KF3_SUPPORTED_FACTS](../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/KF3_SUPPORTED_FACTS.json) reports matching available class/reason/precision/publication facts and twelve common primitive fields. Historical VK SHA and H FNV/canonical encodings retain distinct provenance; unlike hashes are not equated. Historical TREE's separate [Restrained] geometry suffix is unreported by H, not silently compared as equal. |
 | Unchanged exact R1 and complete Selected preflight | [PUBLICATION_ROSTER](../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/PUBLICATION_ROSTER.json) accounts every first-pass outcome and complete Selected dump. [R1_INPUT_VIEW](../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/R1_INPUT_VIEW.json) binds byte-verified copies before comparison. |
 | Preserve original numerical/self-parity controls | Existing exact Fraction predicate, expected subsets/classes, tolerances/exception lists, source/storage/work/repeat/prefix and sparse self-parity remain unchanged. See FULL_CHECKS and [R1_RESULTS](../../RESUME_2026-09-30/I26/t4_measurements_10/_run_records/R1_RESULTS.json); no comparator logic was changed. |
 | Full new first-pass output custody | Four Selected dumps retain1,030,052 rows in total plus exact input-view copies. TREE has no published dump and receives no passing value-comparison credit. ROOT's immutable T4 capture preserves the new delta and complete prior journal prefix. |
-| Independent review and explicit historic limit | RV34 actual numerical/comparison review: **pending**. ROOT T4 comparison acceptance: **pending**. Complete historical published-value equality remains unestablished; neither R1's analytic subset nor matching counts establishes it. |
+| Independent review and explicit historic limit | RV34 actual numerical/comparison review: **verified**, with ROOT finite-scope acceptance under the cited ruling. Complete historical published-value equality remains unestablished; neither R1's analytic subset nor matching counts establishes it. |
 
 R1 ran once over the four complete Selected dumps: **636 comparisons, zero
 failures or missing values, exit0**, per R1_RESULTS. These636 comparisons are a
@@ -249,12 +256,15 @@ relocation ledger and old sealed-consumer replay restriction.
 
 | Cell | Status |
 |---|---|
-| Actual T4 numerical/comparison review and ROOT acceptance | Pending; author success and ROOT custody do not fill it. |
-| RSS projection misses / available precision-memory granularity | Explicit evidence for ROOT's owning disposition and later W1 limits. No new calibration, policy or per-internal-precision claim is made. |
+| Actual T4 numerical/comparison review and ROOT acceptance | Complete at the finite scope of RV34 t4_measurements_07 and the cited ROOT ruling. Custody alone did not establish acceptance. |
+| RSS projection misses / available precision-memory granularity | ROOT accepts whole-call/per-attempt coverage for the T4 obligation and requires all eight projection misses to inform later W1 policy. The empirical RSS forecast is not an upper guarantee. No new calibration or precision-isolated heap claim is made. |
 | Final independent exact-candidate/slice review | Pending, including this D package, actual comparison and any later authorized correction. Earlier RV38 source coverage is not that final gate. |
 | Hosted full-SHA CI; exact-final-head Mac DEC-025 with fresh sweep target; GEN-8 | Pending until actual final revision evidence exists. |
 | T9/both-entry | Inapplicable only while the verified harness/validation-only scope holds; no passed execution is claimed. |
 | Complete K6c/E_max; ROOT W1 limits; F2a/engineering/product release | Remain owning decisions. K6c is unmerged and not declared complete or merge-ready. |
 
-This RETURN is final-form drafting for checkpointD, kept revisable for the pending
-review/dispositions. No previous sealed evidence is rewritten.
+This checkpointD candidate is frozen by its SHA256SUMS for final review. I28's
+informational at-return inventory and assembly metadata describe the earlier
+revisable draft; ROOT_FINALIZATION.json identifies the later acceptance/reference
+update. Final gates and owning decisions remain separate. No previous sealed
+evidence is rewritten.
