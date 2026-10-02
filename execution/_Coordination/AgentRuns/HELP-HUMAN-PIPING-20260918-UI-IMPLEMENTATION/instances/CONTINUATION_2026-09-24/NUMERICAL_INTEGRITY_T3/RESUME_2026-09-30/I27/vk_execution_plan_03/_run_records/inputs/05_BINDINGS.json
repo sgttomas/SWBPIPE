@@ -1,0 +1,22 @@
+{
+  "grant_git_ref": "196547c22be60f164394378ea118c5367c69fbde:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_VK_RUNTIME_01.md",
+  "grant_sha256": "ecadeaa51654b4078258191761cb682a73f7a00b3fae9aa371e4a07ab2a35fe2",
+  "role": "TASK Type 2; existing I22 identity",
+  "parent": "/root/t3_recovery_manager",
+  "mechanism": "native delegated task",
+  "archive_revision": "942572ede4c15aca87b4660c7d570343e14e679e",
+  "numerical_revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "source_manifest_sha256": "1209dd30446f2b09344590d33ad7bc05a46aecb3e9b07c5edd674bcb3c189a60",
+  "schedule_sha256": "2bb936decaba11d00afafa71e42e12b1c0e0ca2007b39b99c036827f38ca6289",
+  "plans_sha256": "7e32ec2d343a2cd1ad6ef63c96925287f954ef429b2a507617a703899c6719de",
+  "preserved_preparation_seal": "b4098244993a68ed811bf8f6847a72e4a9117133b1667bf922fb02780f1ef397",
+  "review_seal": "cf2afbcd8e3ff9b697978ec369d9b3d5b3be604e78daca4729730d023059132d",
+  "write_fence": [
+    "<A1_WT>/<R>/I22/vk_runtime_01",
+    "<wt>/scratch/i23/vk_prep/logs",
+    "<wt>/a1-vk-target"
+  ],
+  "source_unchanged": true,
+  "git_index_mutations": false,
+  "delegation": false
+}

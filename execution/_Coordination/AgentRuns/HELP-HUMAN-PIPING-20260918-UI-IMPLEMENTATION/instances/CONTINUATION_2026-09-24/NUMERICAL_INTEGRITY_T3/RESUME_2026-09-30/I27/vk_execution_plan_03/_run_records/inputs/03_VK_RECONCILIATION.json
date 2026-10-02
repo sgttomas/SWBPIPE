@@ -1,0 +1,128 @@
+{
+  "candidate": "cb13dcd9fcc8c252fa9610b1c6fef0c5b2c3c20c",
+  "registered_count": 15,
+  "all_registered_ids_match": true,
+  "matrix": [
+    {
+      "fault": "VK-F01",
+      "actual_witness": "Separate RF-CHAIN release D02; P09 remains zero-credit",
+      "controls": "Both full-record release NONEs; actual original P10",
+      "review_warrants": "vk_f01_runtime_28;vk_mid_30",
+      "limits": "Source-attributable persistent R7 numerical unavailability, all30case sequences; no generic Ceiling"
+    },
+    {
+      "fault": "VK-F02",
+      "actual_witness": "P11",
+      "controls": "P10/P12",
+      "review_warrants": "vk_mid_30",
+      "limits": "144 registered T/N/tw/ext predicates among176 retained failures; remaining32 not extra credit"
+    },
+    {
+      "fault": "VK-F03",
+      "actual_witness": "Separate RF-CHAIN+RF-SKEW release D02",
+      "controls": "Both release NONEs; P14 actual return; P16 fresh baseline",
+      "review_warrants": "vk_mid_30;vk_f03_attribution_31;vk_completed_34",
+      "limits": "66root-minimum/material-decrease source warrant plus actual sequences; P13zero-credit and P15supersededunrun"
+    },
+    {
+      "fault": "VK-F04",
+      "actual_witness": "P17 RF-SKEW and P19 RF-INVARIANCE",
+      "controls": "P18/P20 actual returns and original initial baselines",
+      "review_warrants": "vk_f04_mixed_32;vk_completed_34",
+      "limits": "415skew and360ROT numerical predicates;19arithmetic outcomes zero VALUE credit"
+    },
+    {
+      "fault": "VK-F05",
+      "actual_witness": "P40",
+      "controls": "P39/P41",
+      "review_warrants": "vk_remaining_43",
+      "limits": "Both THIN exact p128StopRule retained; required256/512candidate roles and1024verification lost; initial256verification remains"
+    },
+    {
+      "fault": "VK-F06",
+      "actual_witness": "P43",
+      "controls": "P42/P44",
+      "review_warrants": "vk_remaining_43",
+      "limits": "Both exact p128StopRule verdicts lost as registered; actual selection512, not128; no F17 substitution"
+    },
+    {
+      "fault": "VK-F07",
+      "actual_witness": "P46",
+      "controls": "P45/P47",
+      "review_warrants": "vk_remaining_43",
+      "limits": "All8 named MechanismWitnessed/body/empty-attempt signatures lost; full9case and9sparse/8dense parity scope"
+    },
+    {
+      "fault": "VK-F08",
+      "actual_witness": "P21",
+      "controls": "P22 and original initial baseline",
+      "review_warrants": "vk_completed_34",
+      "limits": "RF-LARGE-CHAIN10-AX K(0,6) bit mismatch; later assertions not reached"
+    },
+    {
+      "fault": "VK-F10",
+      "actual_witness": "P23",
+      "controls": "P24 and original initial baseline",
+      "review_warrants": "vk_completed_34",
+      "limits": "Canonical arrays535bytes,14differentpositions on original permutation test"
+    },
+    {
+      "fault": "VK-F13",
+      "actual_witness": "P25",
+      "controls": "P26 and original initial baseline",
+      "review_warrants": "vk_completed_34",
+      "limits": "58named numerical failures across8G1e80 cases;38cases remain selected"
+    },
+    {
+      "fault": "VK-F17",
+      "actual_witness": "P27 actual RF-WEAK CLASS; separate SKEW and CANCEL release certificate-prevention observations",
+      "controls": "P28/P30/P32 actual returns; each diagnostic initial/returned NONE; initial original baselines",
+      "review_warrants": "vk_f17_mixed_33;vk_f17_gap_35;vk_f17_runtime_36;vk_f17_cancel_37",
+      "limits": "Owner-adopted F17-only route; P29/P31zero CLASS; protected/unreached rows never falsely credited"
+    },
+    {
+      "fault": "VK-S1",
+      "actual_witness": "Retargeted RF-SKEW D02",
+      "controls": "P34 actual RF-FINITE return and both new RF-SKEW NONEs",
+      "review_warrants": "vk_s1_result_39",
+      "limits": "99named numerical predicates across18cases; original spring-free P33 zero-credit"
+    },
+    {
+      "fault": "VK-S2",
+      "actual_witness": "Retargeted RF-FINITE D02",
+      "controls": "P36 actual RF-CHAIN return and both new RF-FINITE NONEs",
+      "review_warrants": "vk_s2_result_41",
+      "limits": "36named nonzero constrained-reaction predicates; original zero-reference P35zero-credit; expired P36prep not authority"
+    },
+    {
+      "fault": "VK-R02",
+      "actual_witness": "Original VR TREE100 P49",
+      "controls": "P48/P50",
+      "review_warrants": "RV31/vk_final_01",
+      "limits": "Named member1/I/Ry/body0/Moment VerificationEstimate at128/256/512;3otherCeilingsuncredited; separate scalar supplemental only"
+    },
+    {
+      "fault": "VK-R28",
+      "actual_witness": "P52 both100-AX",
+      "controls": "P51/P53",
+      "review_warrants": "RV31/vk_final_01",
+      "limits": "Actual nonnullp256 data1/shift0 vsbaseline1, exact named sequence changes"
+    }
+  ],
+  "UNKNOWN": {
+    "actual": "P37 exact seeded.rs81 unknown-ID panic, one selected test; original 201case loop scope does not mean201executed before panic",
+    "control": "P38 full original same-filter pass",
+    "review": "vk_remaining_43"
+  },
+  "initial_baselines": "P01-P08 independently checked by RV31 in INITIAL_VK_CONTROLS.json",
+  "historical_stops_preserved": [
+    "P09/P13unqualified",
+    "P15supersededunrun",
+    "P29/P31zeroCLASS",
+    "P33/P35wrongmappingzero-credit",
+    "expiredP36prepnotexecuted",
+    "runtime09manager20.489667secondsoverrun",
+    "RV29final44archiveonlyinterruptednoverdict"
+  ],
+  "no_rerun_or_expanded_fault_criterion": true
+}

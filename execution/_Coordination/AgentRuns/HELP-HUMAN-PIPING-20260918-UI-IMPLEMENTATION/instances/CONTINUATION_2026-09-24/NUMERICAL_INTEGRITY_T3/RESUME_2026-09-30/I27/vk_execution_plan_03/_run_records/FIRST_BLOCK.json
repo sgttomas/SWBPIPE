@@ -1,0 +1,25 @@
+{
+  "status": "PROPOSED ONLY; not authorized by this preparation",
+  "suggested_grant": "One bounded12-minute execution block, with new-work cutoff9minutes; stop/return if build or any control invalid. These are ceilings, not predicted durations.",
+  "steps": [
+    "Fresh complete frozen core+VR archive and installed-toolchain/guard/source precheck",
+    "B1_ADAPTER compile only",
+    "VK-F10-permuting_every_list_changes_no_canonical_byte: NONE/fault/NONE",
+    "VK-UNKNOWN-adapter: NONE/unknown/NONE",
+    "Return source/build/binary/fingerprint/full logs and precise semantic results; no automatic B2/B3 continuation"
+  ],
+  "registered_scope": [
+    "VK-F10",
+    "VK-UNKNOWN",
+    "NONE"
+  ],
+  "prospective_processes": 6,
+  "source_overlay": [],
+  "no_retained_solves": true,
+  "historical_fault_seconds": {
+    "VK-F10": 0.08,
+    "VK-UNKNOWN": 0.08
+  },
+  "fresh_timing_guarantee": null,
+  "must_rebind_argv0": true
+}

@@ -1,0 +1,124 @@
+{
+  "checks": [
+    {
+      "route": "VK-F01-records-RF-CHAIN",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F02-rf_chain",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F03-records-RF-CHAIN",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F04-rf_invariance",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F04-rf_skew",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F05-records-RF-RANGE",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F06-records-RF-RANGE",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F07-records-RF-MECH",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F08-rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F10-permuting_every_list_changes_no_canonical_byte",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F13-rf_cancel",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F17-rf_weak",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F17-records-RF-SKEW",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-F17-records-RF-CANCEL",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-S1-rf_skew",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-S2-rf_finite",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-R02-records-RF-LARGE",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-R28-records-RF-LARGE",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    },
+    {
+      "route": "VK-UNKNOWN-adapter",
+      "exact_original_argv_tail": true,
+      "fresh_NONE_fault_NONE": true,
+      "source_overlay": []
+    }
+  ],
+  "routes": 19,
+  "prospective_processes": 57,
+  "no_runtime": true,
+  "source_adaptation_needed": false,
+  "missing_source_inputs": [],
+  "pending_artifact_identity": "Not yet built; must come from new Cargo compiler-artifact events, never historical argv0."
+}

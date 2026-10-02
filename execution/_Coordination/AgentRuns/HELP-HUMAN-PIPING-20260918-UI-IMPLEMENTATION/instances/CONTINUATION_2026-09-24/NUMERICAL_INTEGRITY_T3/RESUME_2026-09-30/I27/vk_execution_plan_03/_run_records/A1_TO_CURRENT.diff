@@ -1,0 +1,204 @@
+diff --git a/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock b/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock
+index 7d9b4dff7c..81093ffcb6 100644
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock
+@@ -14,10 +14,71 @@ version = "2.8.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
+ 
++[[package]]
++name = "open_pipe_stress_curved_bend"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
++
+ [[package]]
+ name = "open_pipe_stress_frame_kernel"
+ version = "0.1.0"
+ 
++[[package]]
++name = "open_pipe_stress_linear_supports"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
++
++[[package]]
++name = "open_pipe_stress_nonlinear_integration"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_curved_bend",
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_nonlinear_supports",
++ "open_pipe_stress_solver_diagnostics",
++ "open_pipe_stress_sparse_direct",
++]
++
++[[package]]
++name = "open_pipe_stress_nonlinear_supports"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_linear_supports",
++ "open_pipe_stress_solver_diagnostics",
++]
++
++[[package]]
++name = "open_pipe_stress_primitive_loads"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_linear_supports",
++]
++
++[[package]]
++name = "open_pipe_stress_solver_diagnostics"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_linear_supports",
++ "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_sparse_direct",
++]
++
++[[package]]
++name = "open_pipe_stress_solver_performance_harness"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_nonlinear_integration",
++ "open_pipe_stress_solver_diagnostics",
++ "open_pipe_stress_sparse_direct",
++]
++
+ [[package]]
+ name = "open_pipe_stress_sparse_direct"
+ version = "0.1.0"
+@@ -30,6 +91,7 @@ name = "piping_numerical_robustness"
+ version = "0.1.0"
+ dependencies = [
+  "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_solver_performance_harness",
+  "open_pipe_stress_sparse_direct",
+  "serde_json",
+ ]
+diff --git a/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml b/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml
+index 1be719afcd..c305cce25e 100644
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml
+@@ -9,6 +9,7 @@ publish = false
+ path = "src/lib.rs"
+ 
+ [dependencies]
++open_pipe_stress_solver_performance_harness = { path = "../../../core/solver/performance_harness" }
+ open_pipe_stress_frame_kernel = { path = "../../../core/solver/frame_kernel" }
+ open_pipe_stress_sparse_direct = { path = "../../../core/solver/sparse_direct" }
+ serde_json = { version = "1", features = ["float_roundtrip"] }
+diff --git a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
+index 5decbe99d5..015c434765 100644
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
+@@ -221,6 +221,10 @@ pub fn parse_model(m: &Value) -> Model {
+ }
+ 
+ pub fn parse_case(line: &str) -> Case {
++    parse_case_capture(line, None)
++}
++
++fn parse_case_capture(line: &str, facts: Option<&mut crate::envelope::FamilyInputFacts>) -> Case {
+     let v: Value = serde_json::from_str(line).expect("case JSON");
+     let rows = v["rows"]
+         .as_array()
+@@ -258,7 +262,7 @@ pub fn parse_case(line: &str) -> Case {
+             .map(|o| o.iter().map(|(k, v)| (k.clone(), text(v))).collect())
+             .unwrap_or_default()
+     };
+-    Case {
++    let case = Case {
+         id: text(&v["id"]),
+         family: text(&v["family"]),
+         basis: text(&v["basis"]),
+@@ -278,7 +282,11 @@ pub fn parse_case(line: &str) -> Case {
+             .map(text)
+             .collect(),
+         s_full: v.get("s_full").map(strings),
++    };
++    if let Some(facts) = facts {
++        facts.observe(&v, &case);
+     }
++    case
+ }
+ 
+ pub fn load_file(path: &Path) -> Vec<Case> {
+@@ -305,6 +313,41 @@ pub fn load_all() -> Vec<Case> {
+         .collect()
+ }
+ 
++/// Described loader: original Case iterator/collect, separate inline history.
++pub fn load_file_described(path: &Path) -> (Vec<Case>, crate::envelope::FamilyInputFacts) {
++    let text = std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
++    let mut facts =
++        crate::envelope::FamilyInputFacts::begin(&text, path.file_name().unwrap().len());
++    let cases = text
++        .lines()
++        .filter(|l| !l.is_empty())
++        .map(|line| parse_case_capture(line, Some(&mut facts)))
++        .collect();
++    (cases, facts)
++}
++
++pub fn load_family_described(family: &str) -> (Vec<Case>, crate::envelope::FamilyInputFacts) {
++    let (_, file) = FAMILY_FILES
++        .iter()
++        .find(|(f, _)| *f == family)
++        .unwrap_or_else(|| panic!("{family}"));
++    load_file_described(&cases_dir().join(file))
++}
++
++pub fn load_all_described() -> (Vec<Case>, [crate::envelope::FamilyInputFacts; 10]) {
++    let mut facts = [crate::envelope::FamilyInputFacts::default(); 10];
++    let cases = FAMILY_FILES
++        .iter()
++        .enumerate()
++        .flat_map(|(i, (_, file))| {
++            let (cases, description) = load_file_described(&cases_dir().join(file));
++            facts[i] = description;
++            cases
++        })
++        .collect();
++    (cases, facts)
++}
++
+ /// The committed expected-unresolved list (`cases/expected_unresolved.json`;
+ /// ROOT's ruling on I17's A1 stop): the cases W1a is expected to leave
+ /// honestly unresolved, with no rows.
+@@ -334,6 +377,17 @@ pub fn load_large_model(path: &Path) -> (Model, String) {
+     (parse_model(&v), crate::sha256::sha256_hex(text.as_bytes()))
+ }
+ 
++/// Same read/parse/model/hash evaluation and drops, with inline source facts.
++pub fn load_large_model_described(
++    path: &Path,
++) -> (Model, String, crate::envelope::ExternalModelFacts) {
++    let text = std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
++    let v: Value = serde_json::from_str(&text).expect("model JSON");
++    let model = parse_model(&v);
++    let facts = crate::envelope::ExternalModelFacts::capture(&text, &v, &model);
++    (model, crate::sha256::sha256_hex(text.as_bytes()), facts)
++}
++
+ /// The kernel quantity an R1 key is compared with (plan §4.2).
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ pub enum Target {
+diff --git a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lib.rs b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lib.rs
+index cb23eb5557..b209d92619 100644
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lib.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lib.rs
+@@ -19,6 +19,7 @@
+ //! committed here.
+ pub mod cases;
+ pub mod compare;
++pub mod envelope;
+ pub mod exact;
+ pub mod floor;
+ pub mod invariance;
