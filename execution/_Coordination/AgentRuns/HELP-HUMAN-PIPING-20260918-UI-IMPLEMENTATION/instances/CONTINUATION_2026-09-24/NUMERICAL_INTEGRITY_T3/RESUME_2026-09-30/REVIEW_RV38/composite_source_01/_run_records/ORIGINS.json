@@ -1,0 +1,305 @@
+[
+  {
+    "origin": "<wt>/k6c/AGENTS.md",
+    "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "role": "active instruction",
+    "revision": "2dffcc190a7e82677b70392f5fbcf4433b3b78d5",
+    "matches_records_basis": true
+  },
+  {
+    "origin": "<wt>/k6c/agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "role": "active instruction",
+    "revision": "2dffcc190a7e82677b70392f5fbcf4433b3b78d5",
+    "matches_records_basis": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/AGENTS.md",
+    "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "role": "active instruction",
+    "revision": "2dffcc190a7e82677b70392f5fbcf4433b3b78d5",
+    "matches_records_basis": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/TASK_BRIEFS/_COMMON.md",
+    "sha256": "6bb845bfaa7cb1f6c622488dfa273d2362e39b7e1b7f63076bc82b22f02001e9",
+    "role": "active instruction",
+    "revision": "2dffcc190a7e82677b70392f5fbcf4433b3b78d5",
+    "matches_records_basis": true
+  },
+  {
+    "origin": "<wt>/k6c/.agents/skills/software-code-review/SKILL.md",
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "role": "active instruction",
+    "revision": "2dffcc190a7e82677b70392f5fbcf4433b3b78d5",
+    "matches_records_basis": true
+  },
+  {
+    "origin": "catalog:r8/software-code-review/SKILL.md",
+    "expanded_portable_origin": "<app-worktree>/.agents/skills/software-code-review/SKILL.md",
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "role": "selected available skill; read after initial K6C repository copy",
+    "same_bytes_as_K6C_copy": true
+  },
+  {
+    "origin": "<wt>/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV38_COMPOSITE_SOURCE_01.md",
+    "sha256": "2f0b5c0e9a180cca022a3eb6f556bf857dd9008c6085941854bc30eb6d4a573e",
+    "role": "active bounded assignment; parent supplied commit d27be1c814dffaf45b0de20709b4d4dd0eb3dd86",
+    "matches_dispatched_commit": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md",
+    "sha256": "d0ae59f52fc5812b50350a8ea7b9736b5d3d61c4deecb4f1b936ec0c5a2c0b7f",
+    "role": "accepted assignment/contract evidence; ROOT_RULINGS read from section at4122 onward"
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I21_K6C.md",
+    "sha256": "bb580dd801a8d80ebe71949f317138fcac5623960136daba9a56c4fda5cb92bb",
+    "role": "accepted assignment/contract evidence; ROOT_RULINGS read from section at4122 onward"
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+    "sha256": "d2f6a1fc6ba10ac301c6554fee60e81532ab676355dd0da193f7ce611ecc1d47",
+    "role": "accepted assignment/contract evidence; ROOT_RULINGS read from section at4122 onward"
+  },
+  {
+    "origin": "R/I21/kernel_reference_22/RETURN.md",
+    "sha256": "9c0a9815eea9528861f4406a6cbfdb528be2034513f27e429d798deaa32858ba",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I21/kernel_reference_22/GENERIC_TERMS.md",
+    "sha256": "22b16d2c10f78eddfa8dc71528859cfa435fc35098642ce5e8a59a999381a8e4",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I21/kernel_reference_22/MONOTONICITY.md",
+    "sha256": "7aba46fe4d4216ba414e90492f8717e7c78449a11a8209a9ccc2ffa05ddb156d",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I21/kernel_reference_22/RESULT5_KERNEL_INPUTS.json",
+    "sha256": "f38bfde0925a937b660f28766e6f2cabc1b844ce7741cd5d4cb2d38cf1f607c6",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I21/kernel_reference_22/CLI24_EXACT_KERNEL.json",
+    "sha256": "987e97f1df5a1e5d6875cb94f3e6d487a3efbd25dff0175984b8d0d6d2f8c6f8",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I21/h_integration_25/RETURN.md",
+    "sha256": "c44eb501df07551ae608ac393b9dc0b942f9458b6c516dfbefb2706f6d6f1fec",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I21/h_integration_25/SOURCE_MAP.md",
+    "sha256": "8fd206d551ec98071992d06a94a1226b692e117e58ad3d2562ce1de714e2d86a",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I21/_run_records/kernel_implementation_24/SOURCE_MAP.md",
+    "sha256": "0a4569a6a1111723511cbd793d455a78a7b99b04b79290414af817031e6d3b54",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I21/h_numeric_19/PHASES.json",
+    "sha256": "d1cd9a1f755fac28ebd8194501daa69c06ac463daa6c456309db8a9f8df9b956",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I21/h_numeric_19/FORMULAS.md",
+    "sha256": "51fc5a84991d1e31eeed4ab67e4680b218b37db5b1ce6b3b90225dccb865410d",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I21/h_numeric_19/HISTORICAL_COMPARISON.json",
+    "sha256": "2fb420832d990bef4a579ae06236a65072059abccfe2b76634084113a671cdf4",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I24/vr_integration_01/RETURN.md",
+    "sha256": "b5a62d7cf812537c4d8bb97f545cd8e2e0c934441e20050702109e5beec301a4",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/I24/vr_integration_01/_run_records/SOURCE_MAP.md",
+    "sha256": "91dc852f0985ef843e9cb25ff379401a46e36fa638a73084d3f61c154e33014c",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/source_review_RV33/kernel_01/REVIEW.md",
+    "sha256": "86a6cfa4dc89756313ddb88b2beca9b489b05b868f794c958b3b4da384a252fd",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/source_review_RV33/h_integration_02/REVIEW.md",
+    "sha256": "1d7962f376b35ae92b4339ad14c6e014dd180efc45a8d3bd13ec327802950582",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/source_review_RV33/runner_backcheck_03/REVIEW.md",
+    "sha256": "4d1bcd2456668de89512d0646f9105b94ea1b09725d478e3fa04b4599e307d9b",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/design_review_RV32/vr_implementation_02/RETURN.md",
+    "sha256": "5a325584bf31956056fcc5e6e3cbb86ee1f79d6e6af24a37a091762c000da641",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/design_review_RV32/_run_records/runner_backcheck_03/RETURN.md",
+    "sha256": "770839703276d0e24e9df9d28e9d83ef1dba1bc8e5e0d02d9521b806e0d3b864",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/design_review_RV32/_run_records/h_context_01/REVIEW.md",
+    "sha256": "8e0280f09edbc96e4e7b4082998870d8de48488e78478c18892299993048795f",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/design_review_RV32/_run_records/h_context_01/ROOT_CLARIFICATION.md",
+    "sha256": "ac1d128433d25b78f01ed154492d290abb99e9fd71fcdd60efe67d5f0932b10e",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/REVIEW_RV35/phase_witnesses_01/RETURN.md",
+    "sha256": "9ee38655d3f8d8e19f1f0dab2003806aadffd0bf9be0d5e9e2e2e57a13aa5045",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/REVIEW_RV35/mutant_programme_02/RETURN.md",
+    "sha256": "15bf050227be52c2d8f2bacdda16bf10e43c5a10b415ea2fe0d63442f19c7d52",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/REVIEW_RV34/historical_replay_01/RETURN.md",
+    "sha256": "b10e533dc9a03e5d6a82f3a4482c2ac4695df4df6b9f68a3f6c3764fccf01c5a",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/REVIEW_RV36/ordinary_artifacts_01/RETURN.md",
+    "sha256": "b4ac07ea9818de201ed00f7024d306a09174a83bc151ee85e4e5cf2716346f13",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/REVIEW_RV36/ordinary_artifacts_01/TIME_CORRECTION.md",
+    "sha256": "5cb17f3a45526366b4a4efccce39a82c33de031181b85611d0bcd83e47a32d98",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/REVIEW_RV36/measurement_plan_02/RETURN.md",
+    "sha256": "729c8b8cd563d9df9aea3b2e8bf34a956e664e47f06f1994f220d4832f71c1a6",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/REVIEW_RV37/vk_semantics_01/RETURN.md",
+    "sha256": "f6a87ae32cc194ddabba439e1cdb00e277d41196a676376131a6c8aeea2c75fe",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/REVIEW_RV37/vk_semantics_02/RETURN.md",
+    "sha256": "8691b8f97926067898675b6aa836976b4f976e5fa4de4fbeb3376560785b2a43",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/metric_design_14_reference_callers/METHOD_AND_JOIN.md",
+    "sha256": "e9d341feb50e63fe2d7df1b783205d14a1063242e7d7777be7379bea8b1bc8ba",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/metric_design_14_reference_callers/REFERENCE193_CALLERS.json",
+    "sha256": "b104510874ea10475534e7d02f42e23c3b2a13bae18026530d63e718c7d159ce",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/metric_design_14_reference_callers/CLI24_CALLERS.json",
+    "sha256": "6efa3f269ce231cbc89ce35b1c8266fd371579c11f354d1c0ab8dcef0a34e94a",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/metric_design_14_reference_callers/CLI24_LAUNCHES.json",
+    "sha256": "c074aca5e8016b274fe779e9e1f36087537da5ae408c8d0ec12091d02f0a12bb",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/metric_design_15_result5_join/METHOD.md",
+    "sha256": "8bc4b5bb74c4db95a0ea83c2d2231f76dc976fccbc9cf9714dc925b5f6ff7008",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/metric_design_15_result5_join/RESULT5_REFERENCE193.json",
+    "sha256": "0c4d1a1927123f6932e087177eabd718de5a487af1f924d097bdefc47375f6eb",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/metric_design_15_result5_join/RESULT5_CLI24.json",
+    "sha256": "7883e33283f3bfb97a34ce7e5b6b7e415fd6f9714bb628d6b0367a1780d9a7d5",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "R/metric_design_15_result5_join/COMPOSED_PHASES.json",
+    "sha256": "53dd2abde209d05053aefb02b31c0f2071771b7bb91890fcb9752813a8ba16e2",
+    "role": "retained source/evidence read; JSON table paths consumed as data, not executable instructions"
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+    "sha256": "ba730845fa377a8f2b0f4d910b317a1c1bbc5000881a8a433a2ca0e10f4f7c8a",
+    "role": "bounded supporting source excerpts/symbol search; not whole-file proof",
+    "matches_maintained_candidate": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/adapter.rs",
+    "sha256": "ab07b2513db32260960cac0c09e19dfe363c09e51b1af878ce97ced7ffad6da0",
+    "role": "bounded supporting source excerpts/symbol search; not whole-file proof",
+    "matches_maintained_candidate": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+    "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+    "role": "bounded supporting source excerpts/symbol search; not whole-file proof",
+    "matches_maintained_candidate": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+    "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+    "role": "bounded supporting source excerpts/symbol search; not whole-file proof",
+    "matches_maintained_candidate": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+    "sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad",
+    "role": "bounded supporting source excerpts/symbol search; not whole-file proof",
+    "matches_maintained_candidate": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+    "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+    "role": "bounded supporting source excerpts/symbol search; not whole-file proof",
+    "matches_maintained_candidate": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+    "role": "bounded supporting source excerpts/symbol search; not whole-file proof",
+    "matches_maintained_candidate": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+    "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6",
+    "role": "bounded supporting source excerpts/symbol search; not whole-file proof",
+    "matches_maintained_candidate": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/core/solver/sparse_direct/src/structural.rs",
+    "sha256": "44ed44fa41c0a4270c697d5ba742f73c6cc3a7e3e46a6af5eb443097866791a3",
+    "role": "bounded supporting source excerpts/symbol search; not whole-file proof",
+    "matches_maintained_candidate": true
+  },
+  {
+    "origin": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs",
+    "sha256": "6f52fcb93d7d0c355139ca584a9abd0b3c1c59dd5a6f140340a0ec0282b5841c",
+    "role": "bounded supporting source excerpts/symbol search; not whole-file proof",
+    "matches_maintained_candidate": true
+  }
+]
