@@ -41,10 +41,10 @@ normal control passed, fault rows in progress. No timeout or bad row may be
 accepted; executor must stop/reap and return truthfully at the boundary.
 Canonical active packet I27/vk_mechanical_07. It is unsealed and unaccepted.
 
-Fresh RV38 /root/rv38_composite_source reviews the complete maintained K6c diff
-read-only under BRIEFS/RV38_COMPOSITE_SOURCE_01.md. Receipt05:12:24 UTC,
-cutoff06:07:24, final return06:12:24. No runtime or source changes. Its scope
-excludes later measurements and final external gates, which need coverage later.
+Fresh RV38 /root/rv38_composite_source completed the complete maintained K6c
+source review and returned at05:23:52 UTC. REVIEW_RV38/composite_source_01 has
+no actionable maintained-source finding and is accepted at source scope. Its
+coverage excludes later measurements and final external gates, which remain.
 Other bounded workers/reviewers have returned and no automatic follow-on exists.
 
 ## Remaining path and holds

@@ -4502,3 +4502,30 @@ No automatic T1 grant or runner repair follows from this preparation. A later
 grant must explicitly account catalogue preparation, successful same-artifact
 baseline, full small-seed qualification and truthful stop/measurement boundaries.
 I27's independent mechanical work and RV38's composite source review continue.
+
+
+## Fresh composite K6c source review accepted at source scope (ROOT, 2026-10-02 UTC)
+
+ROOT read the full RV38 composite_source_01 RETURN and COVERAGE and verified
+its10 payloads under seal924bacd98904d647db9080716bf2e32fec9b3e5c9d578bf8c384d28bee46dfab.
+Accept source-review fan-in for the complete28-file maintained diff from
+main3a0251874d6ab38008173a22ef09d651a0f20d9e to81c03849033f3ce745668f581f446530789397b8,
+under the accepted conditional profiles and explicit ordinary/input qualifiers.
+Its Source assessment and Independent metadata/arithmetic checks establish the
+reviewed coverage. No actionable maintained-source finding remains in that
+review. It does not establish final measurements, complete K6c/E_max, final
+revision gates, F2a or engineering acceptance.
+
+In particular H's source/solve/prefix windows retain their own matching metrics.
+Do not compare parsing, count-acquisition, later serialization or global summary
+peaks to H's stage bound as though it were an all-process heap theorem. The
+independently reviewed inherited catalogue/no-op behavior and external full-seed
+qualification requirements stand. No runner redesign is commissioned.
+
+Process exception disclosure: RV38's Remaining scope records one initial Git
+status without optional-lock suppression; subsequent reads suppressed it. ROOT
+does not claim that initial command enforced zero optional index refresh. No
+explicit index operation or maintained delta is reported, and all maintained
+postimages match the frozen candidate. Preserve that distinction alongside the
+actual native parentage/write-fence record; do not rewrite it into a blanket
+no-Git-writes history.
