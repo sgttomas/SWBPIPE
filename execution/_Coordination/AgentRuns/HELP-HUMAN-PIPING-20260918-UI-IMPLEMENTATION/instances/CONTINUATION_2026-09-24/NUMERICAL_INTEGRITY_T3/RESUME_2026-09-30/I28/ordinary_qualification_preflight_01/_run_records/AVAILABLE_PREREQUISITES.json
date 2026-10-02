@@ -1,0 +1,143 @@
+{
+  "checks": [
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+      "exists": true,
+      "bytes": 31867672,
+      "sha256": "7672ead309d505577c018fff2cafb3433601f073e38cbe87359ac1f7b944bbf5"
+    },
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+      "exists": true,
+      "bytes": 412504,
+      "sha256": "210df6794001b73ec3d453878707fa1e0bdcb63c427024a6e6574bbe5615a4da"
+    },
+    {
+      "path": "/usr/bin/nm",
+      "exists": true,
+      "bytes": 118640,
+      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    },
+    {
+      "path": "/usr/bin/objdump",
+      "exists": true,
+      "bytes": 118640,
+      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    },
+    {
+      "path": "/usr/bin/otool",
+      "exists": true,
+      "bytes": 118640,
+      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh",
+      "exists": true,
+      "bytes": 1137,
+      "sha256": "ee11ea1f43f0892dd0396bfe5c68e133084c90c87abbf757ce0be723e0ca7b79"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-layout08-target/aarch64-apple-darwin/release/examples/i21_kernel_layout",
+      "exists": true,
+      "bytes": 469520,
+      "sha256": "63ea631507802f2a0ec939299b5dba2b7bdfb08728cb432be45d20c9e6938607"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records",
+      "exists": true,
+      "bytes": 2605200,
+      "sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/rcm-09e04a758b08a557",
+      "exists": true,
+      "bytes": 2365144,
+      "sha256": "cd4955ba3863095bd7af92c02d3471b42a0da22f7237a150b74f4ac4ab41d90f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/scale-7b5e14694df45805",
+      "exists": true,
+      "bytes": 3091928,
+      "sha256": "7db81a7d5086fe79c8f1b776b80213749915ac313378e4c9d6ae3a27470ae0ae"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/public_layout_20/public_layout.rs",
+      "exists": true,
+      "bytes": 836,
+      "sha256": "7f4e0aa8a7a05f50bd325f015a81c1f70c291355ec09193010877f386a601dc6"
+    },
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libstd-4f24f0876fd27385.dylib",
+      "exists": true,
+      "bytes": 1437296,
+      "sha256": "dbc16afd689f0f633f3bc81b9c42a1ad793ce00a8a52412f26de20322338139d",
+      "matches_prior_current_install_hash": true
+    },
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libstd-4f24f0876fd27385.rlib",
+      "exists": true,
+      "bytes": 9525632,
+      "sha256": "72a7109a61061be9678f8cd64abf4cde56f9a5959347148c1f42af6e5c82375f",
+      "matches_prior_current_install_hash": true
+    },
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libstd-4f24f0876fd27385.rmeta",
+      "exists": true,
+      "bytes": 8383534,
+      "sha256": "987c49f29b13ebec919627f71552392fd270965de7a4f617192e308289667d8c",
+      "matches_prior_current_install_hash": true
+    },
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/liballoc-4eb19a7bc969a107.rlib",
+      "exists": true,
+      "bytes": 760904,
+      "sha256": "963cee6d507fb27b513b4f0b4bd6346a59df297d668fa1437af036d5bfe09bea",
+      "matches_prior_current_install_hash": true
+    },
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/liballoc-4eb19a7bc969a107.rmeta",
+      "exists": true,
+      "bytes": 7405153,
+      "sha256": "49ed63ba4a69032f6e4d44a7b9daee881b44dffe82229b2e36bce1ce3216cc62",
+      "matches_prior_current_install_hash": true
+    },
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libcore-df38416008f914c9.rlib",
+      "exists": true,
+      "bytes": 2433912,
+      "sha256": "cafd6a4392187f286668b6390052d284b00431484ae761d3e1a47105548d076e",
+      "matches_prior_current_install_hash": true
+    },
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libcore-df38416008f914c9.rmeta",
+      "exists": true,
+      "bytes": 62154696,
+      "sha256": "d176f829bc08a8bc63e1042140cb0428240a9b1b14c8f3ad65d08dfa44e762c6",
+      "matches_prior_current_install_hash": true
+    }
+  ],
+  "cargo_config_paths_present": [],
+  "package_archives": [
+    {
+      "path": "/Users/ryan/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151.crate",
+      "exists": true,
+      "bytes": 156556,
+      "sha256": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14",
+      "locked_expected_sha256": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14",
+      "matches_lock": true
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.229.crate",
+      "exists": true,
+      "bytes": 63100,
+      "sha256": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48",
+      "locked_expected_sha256": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48",
+      "matches_lock": true
+    }
+  ],
+  "not_checked": "Tool execution, Cargo cache resolvability, guard liveness, future final-binary symbols, prospective archive. Filesystem presence/hash only.",
+  "observed_relevant_environment": {
+    "CARGO_HOME": "/Users/ryan/.cargo",
+    "RUSTUP_TOOLCHAIN": "stable"
+  }
+}

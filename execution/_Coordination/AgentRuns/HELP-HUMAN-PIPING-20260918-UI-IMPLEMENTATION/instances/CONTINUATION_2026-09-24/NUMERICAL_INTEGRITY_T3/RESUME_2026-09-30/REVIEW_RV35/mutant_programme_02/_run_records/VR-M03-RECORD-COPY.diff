@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs
+@@ -1420,7 +1420,7 @@
+     let report = cut + 78 + run + rec + ncfull + 8 * head + output(21, 309, reportchildren, true);
+     let fullfloor =
+         cut + 78 + run + rec + floorh.max(floorret + ncfull + exactrow.max(e * old(24, rows)));
+-    let recordout = cut + 78 + run + rec + ncfull + output(3, 14, 6 + id + rec, false);
++    let recordout = cut + 78 + run + rec + ncfull + output(3, 14, 6 + id, false);
+     let late = cut + 78 + rec + ncfull;
+     let rlate = mx(&[
+         hadj,

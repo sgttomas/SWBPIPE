@@ -1,0 +1,127 @@
+{
+  "maintained_candidate": "81c03849033f3ce745668f581f446530789397b8",
+  "record_candidate": "2529cd365b0a3574c89e41b4ee82c525709483c9",
+  "required_variants": 18,
+  "variants": [
+    {
+      "id": "H-M01_NL_ONE_VECTOR",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_mutants_26",
+      "disposition": "Detected: compiled H33 pass-field numeric assertion; nine original kernel tests passed. One folded vector omission, not three independent kills.",
+      "review_basis": "historical source/test carry"
+    },
+    {
+      "id": "H-M02_NL_ALL_THREE",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_mutants_26",
+      "disposition": "Detected: compiled H33 pass-field numeric assertion, distinct from M01. Nine original kernel tests passed.",
+      "review_basis": "historical source/test carry"
+    },
+    {
+      "id": "H-M03_DEAD_WORK",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_mutants_26",
+      "disposition": "Detected: compiled Shift/H33 identity assertions. This is an overcount identity fault.",
+      "review_basis": "historical source/test carry"
+    },
+    {
+      "id": "H-M04_OPTION_REPORT_PLUS8",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_mutants_26",
+      "disposition": "Detected: compiled report/reference identity assertions. Overcount on live five Option-backed arrays.",
+      "review_basis": "historical carry plus independent current replay"
+    },
+    {
+      "id": "H-M05_UC_C_OVERLAP",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/uc_witness_01",
+      "disposition": "Detected by new source-valid Uc witness; original I21 survivor remains historical. Requested/moving 24-byte local deficit at all four checked schedule/precision positions.",
+      "review_basis": "prior independent phase_witnesses_01 execution"
+    },
+    {
+      "id": "H-M06_RES_EXACT",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/kernel_mutants_02",
+      "disposition": "Detected: compiled kernel/H33 numeric assertions; G16(5)=128 versus 80.",
+      "review_basis": "new sealed evidence audit"
+    },
+    {
+      "id": "H-M07_TOP_DROP",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/kernel_mutants_02",
+      "disposition": "Detected: compiled named-phase roster 85 versus 88 and three direct TOP lookup failures. H33 passed.",
+      "review_basis": "new sealed evidence audit"
+    },
+    {
+      "id": "H-M08_HATCHECK_DROP",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/kernel_mutants_02",
+      "disposition": "Detected: compiled named-phase roster 85 versus 88 and two direct HATCHECK lookup failures. H33 passed.",
+      "review_basis": "new sealed evidence audit"
+    },
+    {
+      "id": "H-M09_SUMMARY_MISSING",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/kernel_mutants_02",
+      "disposition": "Detected: compiled kernel/H33 identities; full five-body prefix 600 bytes low.",
+      "review_basis": "new sealed evidence audit"
+    },
+    {
+      "id": "H-M10_SUMMARY_DOUBLE",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/kernel_mutants_02",
+      "disposition": "Detected: compiled kernel/H33 identities; full five-body prefix 600 bytes high, an overcount.",
+      "review_basis": "new sealed evidence audit"
+    },
+    {
+      "id": "H-M11_ACTIVE_OLD_DROP",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/kernel_mutants_02",
+      "disposition": "Detected: compiled TOP moving assertion loses 64 bytes, requested fixed. H33 passed.",
+      "review_basis": "new sealed evidence audit"
+    },
+    {
+      "id": "H-M12_REBUILD_OLD_DROP",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/kernel_mutants_02",
+      "disposition": "Detected: compiled H33 n10000 count-row assertion, solve/max/sel128 fields each 221440 low. Ten kernel tests passed; no large model constructed.",
+      "review_basis": "new sealed evidence audit plus independent replay"
+    },
+    {
+      "id": "VR-M01-OLD-PORT",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I27/vr_mutants_02",
+      "disposition": "Detected: compiled first-case requested five-field mismatch; caller/join arrays pass first; historical 32 constants and three bodies match.",
+      "review_basis": "new sealed evidence audit plus independent replay"
+    },
+    {
+      "id": "VR-M02-SPARSE-16F",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I27/vr_phase_witness_01",
+      "disposition": "Detected: local 24 versus 328. 193-reference comparison passes because later maximum dominates.",
+      "review_basis": "prior independent phase_witnesses_01 execution"
+    },
+    {
+      "id": "VR-M03-RECORD-COPY",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I27/vr_mutants_02",
+      "disposition": "Detected: compiled first requested record3 phase11 missing46971.",
+      "review_basis": "new sealed evidence audit"
+    },
+    {
+      "id": "VR-M04-LATE-RECORD",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I27/vr_mutants_02",
+      "disposition": "Detected: compiled first requested late phases12/13/14 each missing46971; record3 unchanged.",
+      "review_basis": "new sealed evidence audit"
+    },
+    {
+      "id": "VR-M05-REFUSED-FORMAT-ARG",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I27/vr_phase_witness_01",
+      "disposition": "Detected: local requested388 versus566; existing larger-case moving phase7 also misses178. Separate from H/Uc M05.",
+      "review_basis": "prior independent phase_witnesses_01 execution"
+    },
+    {
+      "id": "VR-M06-SUMMARY-PREFIX",
+      "canonical_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I27/vr_mutants_02",
+      "disposition": "Detected: compiled first requested summary phase14 missing32+21=53.",
+      "review_basis": "new sealed evidence audit"
+    }
+  ],
+  "unaccounted": [],
+  "findings": [],
+  "historical_survivor": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_mutants_26/_run_records/M05_UC_C_OVERLAP/RESULT.json",
+  "not_claimed": [
+    "All variants rerun in this review",
+    "Complete mutated roster after a first assertion failure",
+    "Full E_max proof",
+    "Measured heap or global undercount for every mutation",
+    "Ordinary-artifact qualification",
+    "V-K seeded matrix",
+    "Solver/performance/engineering acceptance"
+  ]
+}

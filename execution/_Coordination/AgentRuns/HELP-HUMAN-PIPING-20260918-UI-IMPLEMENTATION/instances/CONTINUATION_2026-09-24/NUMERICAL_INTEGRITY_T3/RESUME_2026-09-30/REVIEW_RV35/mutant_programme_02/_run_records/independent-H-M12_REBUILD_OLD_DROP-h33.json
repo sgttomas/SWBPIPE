@@ -1,0 +1,52 @@
+{
+  "variant": "M12_REBUILD_OLD_DROP",
+  "check": "h33",
+  "candidate": "81c03849033f3ce745668f581f446530789397b8",
+  "start_utc": "2026-10-02T03:47:00.359168+00:00",
+  "argv": [
+    "/Users/ryan/.cargo/bin/rustup",
+    "run",
+    "1.97.1",
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+    "--release",
+    "--locked",
+    "--offline",
+    "-j",
+    "4",
+    "--test",
+    "k6b_w1",
+    "the_committed_counts_carry_this_codes_estimate",
+    "--",
+    "--exact",
+    "--test-threads=2"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/archive",
+  "environment_overrides": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/target-H"
+  },
+  "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+  "source_sha256": "7ebccc8bb6d789cb7d71fc29bb4cdd5062752bf90d61e7175b9ddadd17109a1a",
+  "test_hashes": {
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6c_envelope.rs": "4ecf2aa7b3ce0a519aa1758271faba95cd7eceb966d5ce94aa2404765ed3c7b5",
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs": "31de90d62b4cde8dd187af380c6acf608ec16801efaf070c93c0cc4b53e0b422"
+  },
+  "returncode": 101,
+  "end_utc": "2026-10-02T03:47:01.836513+00:00",
+  "source_unchanged": true,
+  "log_sha256": "edea253adbdad1e085055e0cc745474665eca95a3b6641efa9d8c159af123b9e",
+  "binaries": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/target-H/release/deps/k6b_w1-e867f75387b09548",
+      "sha256": "982901e1d474de2e6933869f56744b572da8df357a9d5ec6e9e47c86cf856673"
+    }
+  ]
+}

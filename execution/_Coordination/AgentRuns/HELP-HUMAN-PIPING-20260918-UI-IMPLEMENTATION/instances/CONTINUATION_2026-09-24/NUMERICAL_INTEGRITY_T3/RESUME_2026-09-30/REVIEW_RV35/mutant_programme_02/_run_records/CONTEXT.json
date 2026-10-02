@@ -1,0 +1,19 @@
+{
+  "role": "TASK independent reviewer",
+  "native_identity": "/root/rv35_phase_witnesses",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "delegated-harness-native followup_task",
+  "start_utc": "2026-10-02T03:44:29Z",
+  "new_check_cutoff_utc": "2026-10-02T04:09:29Z",
+  "deadline_utc": "2026-10-02T04:14:29Z",
+  "brief_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV35_MUTANT_PROGRAMME_02.md",
+  "brief_revision": "1fae299c171234b5f79624bc9c6bc7936456a625",
+  "brief_sha256": "34180e1d6a16448fdfa181d99af92f970260596d1ed8e8e071b4b398fbd05585",
+  "retained_instructions": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV35/phase_witnesses_01/_run_records/INPUTS.json",
+  "retained_selected_skill_origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+  "selected_skill_sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+  "cargo_lane": "Explicit ROOT release at dispatch, after author ended; no overlap authorized",
+  "enforcement": "Prompt restriction on shared host; no OS sandbox",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV35/mutant_programme_02 and owned scratch/target",
+  "delegation": "none"
+}

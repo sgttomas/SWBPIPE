@@ -1,0 +1,24 @@
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/archive/projects/chirality-piping/core/solver/performance_harness)
+    Finished `release` profile [optimized] target(s) in 1.13s
+     Running tests/k6b_w1.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/target-H/release/deps/k6b_w1-e867f75387b09548)
+
+running 1 test
+test the_committed_counts_carry_this_codes_estimate ... FAILED
+
+failures:
+
+---- the_committed_counts_carry_this_codes_estimate stdout ----
+
+thread 'the_committed_counts_carry_this_codes_estimate' (28698473) panicked at tests/k6b_w1.rs:1079:5:
+assertion `left == right` failed: every corrected field: RF-LARGE-CHAIN-n10000-AX
+  left: W1Estimate { decide: 83516477, solve: [534440384, 569001536, 653661184, 684735872], pass: [156146910, 255524446, 454279518], fixed: 63701085, shared: [221522448, 257683648, 439125984, 657366048], state: [17761016, 17761016, 29601624, 53282840], verify: [167042496, 293763808, 362886432], max: 3266234797, sel128: 1314473405 }
+ right: W1Estimate { decide: 83516477, solve: [534661824, 569222976, 653882624, 684957312], pass: [156146910, 255524446, 454279518], fixed: 63701085, shared: [221522448, 257683648, 439125984, 657366048], state: [17761016, 17761016, 29601624, 53282840], verify: [167042496, 293763808, 362886432], max: 3266456237, sel128: 1314694845 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    the_committed_counts_carry_this_codes_estimate
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test k6b_w1`

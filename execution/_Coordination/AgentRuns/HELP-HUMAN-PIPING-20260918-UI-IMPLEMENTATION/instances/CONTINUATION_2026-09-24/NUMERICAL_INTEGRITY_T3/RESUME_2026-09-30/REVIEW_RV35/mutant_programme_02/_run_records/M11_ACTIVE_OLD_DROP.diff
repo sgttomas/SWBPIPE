@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs
++++ b/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs
+@@ -1087,7 +1087,7 @@
+         out.put(
+             ResolutionTop,
+             precision,
+-            Pair::new(k + n * w + q * w + 2 * b * w + res, old(16, b)),
++            Pair::new(k + n * w + q * w + 2 * b * w + res, zero),
+         )?;
+         out.put(
+             ResolutionHatCheck,

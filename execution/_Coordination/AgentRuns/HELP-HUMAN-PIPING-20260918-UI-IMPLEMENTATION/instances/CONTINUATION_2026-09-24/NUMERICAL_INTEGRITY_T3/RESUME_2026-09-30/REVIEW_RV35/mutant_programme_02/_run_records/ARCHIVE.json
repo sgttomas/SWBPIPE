@@ -1,0 +1,15 @@
+{
+  "source_candidate": "81c03849033f3ce745668f581f446530789397b8",
+  "record_candidate": "7160e7ad6a40c45d8dd5dfb5993af151879ded15",
+  "argv": [
+    "git",
+    "archive",
+    "81c03849033f3ce745668f581f446530789397b8",
+    "projects/chirality-piping/core",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+  "archive": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/archive",
+  "archive_sha256": "5accdf8ffec9e030e168c2430b5dc4ad594f206aff6df4e9f0a3ade8b459590d",
+  "files": 632
+}

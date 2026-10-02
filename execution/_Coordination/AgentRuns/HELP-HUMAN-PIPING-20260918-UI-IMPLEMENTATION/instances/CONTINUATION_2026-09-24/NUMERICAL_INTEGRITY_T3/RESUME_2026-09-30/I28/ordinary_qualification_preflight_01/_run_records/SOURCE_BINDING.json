@@ -1,0 +1,406 @@
+{
+  "head": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "7160e7ad6a40c45d8dd5dfb5993af151879ded15"
+  ],
+  "frozen": "81c03849033f3ce745668f581f446530789397b8",
+  "tracked_product_diff_from_frozen": [],
+  "old_to_frozen_changed": [
+    "projects/chirality-piping/core/solver/performance_harness/observations/k6b/SHA256SUMS",
+    "projects/chirality-piping/core/solver/performance_harness/observations/k6b/counts.jsonl",
+    "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+    "projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py",
+    "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/w1.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/k6/canonical.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/k6/counts.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/h_envelope.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/mod.rs",
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6b_bin.rs",
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs",
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6c_envelope.rs",
+    "projects/chirality-piping/core/solver/performance_harness/tests/k6c_h_envelope.rs",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/SHA256SUMS",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_cancel.json",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_chain.json",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_finite.json",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_invariance.json",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_skew.json",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_weak.json",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_zero.json",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lib.rs",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs"
+  ],
+  "path_dependency_closure": [
+    {
+      "manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/loads/primitive_loads/Cargo.toml",
+      "package": "open_pipe_stress_primitive_loads",
+      "features": {},
+      "profile": {},
+      "manifest_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/loads/primitive_loads/Cargo.toml",
+        "exists": true,
+        "bytes": 372,
+        "sha256": "97959fbf7124f55b39ea51a33ae1da1f1abcc9fc1b969f7d42d9ea0fcab894a0"
+      },
+      "lock_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/loads/primitive_loads/Cargo.lock",
+        "exists": true,
+        "bytes": 462,
+        "sha256": "4cc8edcfe1a36df477b0fcb9852ad63926bf75795e60615f1f820d5a7581a854"
+      }
+    },
+    {
+      "manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/curved_bend/Cargo.toml",
+      "package": "open_pipe_stress_curved_bend",
+      "features": {},
+      "profile": {},
+      "manifest_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/curved_bend/Cargo.toml",
+        "exists": true,
+        "bytes": 274,
+        "sha256": "49e42be72ad63f6f7c215f2fb39592d4134f37533f876b5161591c9004f1f239"
+      },
+      "lock_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/curved_bend/Cargo.lock",
+        "exists": true,
+        "bytes": 295,
+        "sha256": "673aed6ccd24ed82f89b9f5fd949880eb800641f1975879685712af827620f9c"
+      }
+    },
+    {
+      "manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/diagnostics/Cargo.toml",
+      "package": "open_pipe_stress_solver_diagnostics",
+      "features": {},
+      "profile": {},
+      "manifest_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/diagnostics/Cargo.toml",
+        "exists": true,
+        "bytes": 483,
+        "sha256": "b97f1331ea132a493008eb94d985b6afd26c8ea13476e56c1fa2a098f34244b6"
+      },
+      "lock_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/diagnostics/Cargo.lock",
+        "exists": true,
+        "bytes": 824,
+        "sha256": "7dbfc5100df8ce1cd1488d00a5fa1dded65cd86776b7519cec1b2b45c7662c75"
+      }
+    },
+    {
+      "manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "package": "open_pipe_stress_frame_kernel",
+      "features": {
+        "mutation-controls": []
+      },
+      "profile": {},
+      "manifest_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "exists": true,
+        "bytes": 467,
+        "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc"
+      },
+      "lock_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+        "exists": true,
+        "bytes": 173,
+        "sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+      }
+    },
+    {
+      "manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/linear_supports/Cargo.toml",
+      "package": "open_pipe_stress_linear_supports",
+      "features": {},
+      "profile": {},
+      "manifest_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/linear_supports/Cargo.toml",
+        "exists": true,
+        "bytes": 278,
+        "sha256": "db634677878b548ca51ad7b14d0532540b0471a439ac7e8d7e28a405b32e5b08"
+      },
+      "lock_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/linear_supports/Cargo.lock",
+        "exists": true,
+        "bytes": 299,
+        "sha256": "5792a728c5b0687e3306a96ace1bc79eac4d0b5be8294e40de34849921c64537"
+      }
+    },
+    {
+      "manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "package": "open_pipe_stress_nonlinear_integration",
+      "features": {},
+      "profile": {},
+      "manifest_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "exists": true,
+        "bytes": 557,
+        "sha256": "6b6760eafdb97092345cb28aebac456cfccc9381542dcf0ec28bdcd3771587ea"
+      },
+      "lock_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock",
+        "exists": true,
+        "bytes": 1398,
+        "sha256": "c6cad1e1f8ebbc88cb6d29b4eb8ad0ad06fe8c5837e3a1735688fe30cb428426"
+      }
+    },
+    {
+      "manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml",
+      "package": "open_pipe_stress_nonlinear_supports",
+      "features": {},
+      "profile": {},
+      "manifest_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml",
+        "exists": true,
+        "bytes": 356,
+        "sha256": "328a321c2d77b620665f449dbdb58246953299cacffcaae25bb542e7339f3b64"
+      },
+      "lock_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock",
+        "exists": true,
+        "bytes": 996,
+        "sha256": "7f4a6815308c5d05053935109d03be8141a348ce612988aefaa3563dab97751a"
+      }
+    },
+    {
+      "manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "package": "open_pipe_stress_solver_performance_harness",
+      "features": {},
+      "profile": {},
+      "manifest_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+        "exists": true,
+        "bytes": 1136,
+        "sha256": "ba730845fa377a8f2b0f4d910b317a1c1bbc5000881a8a433a2ca0e10f4f7c8a"
+      },
+      "lock_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/Cargo.lock",
+        "exists": true,
+        "bytes": 1653,
+        "sha256": "7b689c8c109f17220157d0bdb934642b06881a4f7c0f6c8154e8df5edd56572e"
+      }
+    },
+    {
+      "manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+      "package": "open_pipe_stress_sparse_direct",
+      "features": {},
+      "profile": {},
+      "manifest_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+        "exists": true,
+        "bytes": 290,
+        "sha256": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88"
+      },
+      "lock_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/sparse_direct/Cargo.lock",
+        "exists": true,
+        "bytes": 297,
+        "sha256": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36"
+      }
+    },
+    {
+      "manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+      "package": "piping_numerical_robustness",
+      "features": {
+        "seeded-faults": [
+          "open_pipe_stress_frame_kernel/mutation-controls"
+        ]
+      },
+      "profile": {},
+      "manifest_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+        "exists": true,
+        "bytes": 797,
+        "sha256": "1b18f97f0cdc89df61323670ea7fbd8039c286f62be12241e385e84d846177dd"
+      },
+      "lock_identity": {
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock",
+        "exists": true,
+        "bytes": 4324,
+        "sha256": "c147175269613b579b3678dbefc6d06f0f950bb360f7acce62a80a2f253160c0"
+      }
+    }
+  ],
+  "registry_lock_blocks_unchanged": true,
+  "registry_packages": [
+    {
+      "name": "itoa",
+      "version": "1.0.18",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
+    },
+    {
+      "name": "memchr",
+      "version": "2.8.3",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
+    },
+    {
+      "name": "proc-macro2",
+      "version": "1.0.107",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
+    },
+    {
+      "name": "quote",
+      "version": "1.0.47",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
+    },
+    {
+      "name": "serde",
+      "version": "1.0.229",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba"
+    },
+    {
+      "name": "serde_core",
+      "version": "1.0.229",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48"
+    },
+    {
+      "name": "serde_derive",
+      "version": "1.0.229",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e7a5d71263a5a7d47b41f6b3f06ba276f10cc18b0931f1799f710578e2309348"
+    },
+    {
+      "name": "serde_json",
+      "version": "1.0.151",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14"
+    },
+    {
+      "name": "syn",
+      "version": "3.0.6",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "8593e8e72159ed2257d083c7a454a85cbf854f37a0966d8d483aff8c8a3ebcee"
+    },
+    {
+      "name": "unicode-ident",
+      "version": "1.0.26",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "d245f478577f809a851594d02313b640fb437e0bb33866753cff937863096954"
+    },
+    {
+      "name": "zmij",
+      "version": "1.0.23",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
+    }
+  ],
+  "VR_allocator_module_byte_equal_old_to_current": true,
+  "VR_allocator_module_sha256": "c63e74edf1e2da14ceb0219350f9dab2cec353e4d9e8397c0f80e9158c44007e",
+  "current_selected_source_hashes": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs",
+      "exists": true,
+      "bytes": 38830,
+      "sha256": "3781079224cf7a47511cb2bfc9f09ebee6e51d2595ce3ad609d79f8d57b10092"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/h_envelope.rs",
+      "exists": true,
+      "bytes": 20797,
+      "sha256": "eb7410a4eef9f1d9b0ff9607986fbac133329e65377010be16c25f802fd2979f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs",
+      "exists": true,
+      "bytes": 18382,
+      "sha256": "f973a69f95a1a3becf01434e3a481bfc164f9fee2baca94dae1fc0e50ffac708"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+      "exists": true,
+      "bytes": 20426,
+      "sha256": "d2a34830f51e08991096034b5cd05296266e42ed744777930314b798760eaad9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/src/k6/canonical.rs",
+      "exists": true,
+      "bytes": 6724,
+      "sha256": "62a9b86a127c722535182bee688085a9c9924992d36a38e9ef570630e17e2fe2"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/alloc.rs",
+      "exists": true,
+      "bytes": 7487,
+      "sha256": "0bb07a2346d0fedf9411ec9e93ab427b4fc4eafbb9de01c412067e3fbe7e4ba0"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+      "exists": true,
+      "bytes": 42761,
+      "sha256": "e72cb08ee2ad27b3f291d1303330f0cc4099a1ea8ff770cde5225fa3c9995df2"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+      "exists": true,
+      "bytes": 69295,
+      "sha256": "4cfbd86c2ba293c7d67202120c44fe94f5d30b9938f283d8d55e25f0c5686840"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs",
+      "exists": true,
+      "bytes": 56044,
+      "sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "exists": true,
+      "bytes": 20236,
+      "sha256": "7bdb36bf6fd260e1193648f9b404c9c1212e98aaf2e52c02fe556129ca6b50d3"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
+      "exists": true,
+      "bytes": 6958,
+      "sha256": "38d06350d289a64650b9f88e72889efa2d70a5d0e44ff3fa8626489a37bdd7c2"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+      "exists": true,
+      "bytes": 20620,
+      "sha256": "60fce121b6d7101297b3b3581a77dfa8ff08b88bcba45e47fdaf89b5bac48710"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py",
+      "exists": true,
+      "bytes": 19674,
+      "sha256": "fd50b1e26bd1da2abf1a0c325571a5fb565dbf31c2a75d8e453297463d6b7132"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "exists": true,
+      "bytes": 160870,
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "exists": true,
+      "bytes": 24432,
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "exists": true,
+      "bytes": 29088,
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/archive/projects/chirality-piping/core/solver/performance_harness)
+    Finished `release` profile [optimized] target(s) in 3.88s
+     Running tests/k6c_envelope.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/target-H/release/deps/k6c_envelope-718fc0dc70437340)
+
+running 10 tests
+test cancellation_keeps_all_loads_and_non_power_of_two_body_capacity ... ok
+test axis_spring_reference_and_owner_phase_regressions ... ok
+test count_and_encoding_overflow_fail_closed ... ok
+test directional_operators_are_distinct_from_axis_springs ... ok
+test five_body_upper_preserves_resolution_move_and_report_aliases ... ok
+test h_and_vr_construction_classes_and_tagged_population_policy ... ok
+test maximum_id_length_must_fit_the_retained_nonempty_ids ... ok
+test missing_invalid_and_unproved_inputs_return_errors_not_totals ... ok
+test reference_request_width_failure_returns_no_envelope ... ok
+test six_axis_springs_expose_uc_c_overlap_in_verification_build ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,326 @@
+[
+  {
+    "variant": "VR-M01-OLD-PORT",
+    "normal_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+    "active_sha256": "a30cb3c4835c3cce5778b46909a19e2cff41dbb253c453bf8f284e6249fd3c0e",
+    "patch_sha256": "b986e03145166fe0410cc0ac3ac1b6832246382e9800541939610f23a603d5e6",
+    "semantic_added_removed_lines_identical_to_I24": true,
+    "build": {
+      "exit_code": 0,
+      "artifacts": [
+        {
+          "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-mutants-02-target/debug/deps/k6c_envelope-ec31cc87259c661f",
+          "target": {
+            "kind": [
+              "test"
+            ],
+            "crate_types": [
+              "bin"
+            ],
+            "name": "k6c_envelope",
+            "src_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/VR-M01-OLD-PORT/projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+            "edition": "2021",
+            "doc": false,
+            "doctest": false,
+            "test": true
+          },
+          "profile": {
+            "opt_level": "0",
+            "debuginfo": 2,
+            "debug_assertions": true,
+            "overflow_checks": true,
+            "test": true
+          },
+          "features": [],
+          "sha256": "cef8f8e8705a13c62f5c85cb3ae39072f41e4f16e2e83894320cadc8383fabd7"
+        }
+      ]
+    },
+    "runs": [
+      {
+        "stage": "NONE-pre",
+        "exit_code": 0,
+        "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+        "binary_sha256": "283ddc57d8b6e6ab619a3cecfd10381a906b6d701ff036f9b9d474839413c318",
+        "stdout_sha256": "636ddd736a9b52fbe18b246b8e0c31d51ba6764a452e75c9c1c46b106c1c3de1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "test_summary": "test result: ok. 1 passed; 0 failed;",
+        "assertion_excerpt": "",
+        "start_utc": "2026-10-02T03:39:38.794295+00:00",
+        "end_utc": "2026-10-02T03:39:41.715051+00:00"
+      },
+      {
+        "stage": "mutant",
+        "exit_code": 101,
+        "source_sha256": "a30cb3c4835c3cce5778b46909a19e2cff41dbb253c453bf8f284e6249fd3c0e",
+        "binary_sha256": "cef8f8e8705a13c62f5c85cb3ae39072f41e4f16e2e83894320cadc8383fabd7",
+        "stdout_sha256": "a05cef05f58f73f7bc1494596c5c6080a2f0a286840d2046d5531f649f9f7160",
+        "stderr_sha256": "29fac11556ed16cd62c5647944c64f218947784c35f4788a0b02c22f096acda2",
+        "test_summary": "test result: FAILED. 0 passed; 1 failed;",
+        "assertion_excerpt": "assertion `left == right` failed: RF-CHAIN-T-n03-r1e-04 requested\n  left: [10440, 26707, 19853952, 20743723, 20121083]\n right: [17806, 59937, 18770496, 19774883, 19081795]\n",
+        "start_utc": "2026-10-02T03:40:16.010186+00:00",
+        "end_utc": "2026-10-02T03:40:16.659845+00:00"
+      },
+      {
+        "stage": "NONE-post",
+        "exit_code": 0,
+        "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+        "binary_sha256": "283ddc57d8b6e6ab619a3cecfd10381a906b6d701ff036f9b9d474839413c318",
+        "stdout_sha256": "636ddd736a9b52fbe18b246b8e0c31d51ba6764a452e75c9c1c46b106c1c3de1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "test_summary": "test result: ok. 1 passed; 0 failed;",
+        "assertion_excerpt": "",
+        "start_utc": "2026-10-02T03:40:35.346615+00:00",
+        "end_utc": "2026-10-02T03:40:37.983819+00:00"
+      }
+    ],
+    "restoration": {
+      "restored_normal_source": true,
+      "archive_files_verified": 632,
+      "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d"
+    }
+  },
+  {
+    "variant": "VR-M03-RECORD-COPY",
+    "normal_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+    "active_sha256": "400a8726474c45a2cd5a53372e1b32fdd7c1a1d6e03fe8cccb64f6ab769dc018",
+    "patch_sha256": "0fc52098e2b40467aa15d7d0a6f75528fcd3931aa340883c715e2507ee166aee",
+    "semantic_added_removed_lines_identical_to_I24": true,
+    "build": {
+      "exit_code": 0,
+      "artifacts": [
+        {
+          "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-mutants-02-target/debug/deps/k6c_envelope-4ad28c5726e9f663",
+          "target": {
+            "kind": [
+              "test"
+            ],
+            "crate_types": [
+              "bin"
+            ],
+            "name": "k6c_envelope",
+            "src_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/VR-M03-RECORD-COPY/projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+            "edition": "2021",
+            "doc": false,
+            "doctest": false,
+            "test": true
+          },
+          "profile": {
+            "opt_level": "0",
+            "debuginfo": 2,
+            "debug_assertions": true,
+            "overflow_checks": true,
+            "test": true
+          },
+          "features": [],
+          "sha256": "c1a0b4395e14a303b6bc2f1ccc3d87f742a529fc50f6f0805b56f7bf27e398e0"
+        }
+      ]
+    },
+    "runs": [
+      {
+        "stage": "NONE-pre",
+        "exit_code": 0,
+        "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+        "binary_sha256": "283ddc57d8b6e6ab619a3cecfd10381a906b6d701ff036f9b9d474839413c318",
+        "stdout_sha256": "636ddd736a9b52fbe18b246b8e0c31d51ba6764a452e75c9c1c46b106c1c3de1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "test_summary": "test result: ok. 1 passed; 0 failed;",
+        "assertion_excerpt": "",
+        "start_utc": "2026-10-02T03:40:48.887397+00:00",
+        "end_utc": "2026-10-02T03:40:51.520672+00:00"
+      },
+      {
+        "stage": "mutant",
+        "exit_code": 101,
+        "source_sha256": "400a8726474c45a2cd5a53372e1b32fdd7c1a1d6e03fe8cccb64f6ab769dc018",
+        "binary_sha256": "c1a0b4395e14a303b6bc2f1ccc3d87f742a529fc50f6f0805b56f7bf27e398e0",
+        "stdout_sha256": "a05cef05f58f73f7bc1494596c5c6080a2f0a286840d2046d5531f649f9f7160",
+        "stderr_sha256": "e2abf71f00541029303be926ff2261c55cf2a2bd0eb6849dc61baeb55fd4ca14",
+        "test_summary": "test result: FAILED. 0 passed; 1 failed;",
+        "assertion_excerpt": "assertion `left == right` failed: RF-CHAIN-T-n03-r1e-04 requested caller phases\n  left: [969499, 16651, 11842, 11991, 16960, 19356, 15290, 134247, 196977, 199209, 232514, 194446, 83451, 286272, 58880]\n right: [969499, 16651, 11842, 11991, 16960, 19356, 15290, 134247, 196977, 199209, 232514, 241417, 83451, 286272, 58880]\n",
+        "start_utc": "2026-10-02T03:41:07.483912+00:00",
+        "end_utc": "2026-10-02T03:41:08.049413+00:00"
+      },
+      {
+        "stage": "NONE-post",
+        "exit_code": 0,
+        "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+        "binary_sha256": "283ddc57d8b6e6ab619a3cecfd10381a906b6d701ff036f9b9d474839413c318",
+        "stdout_sha256": "636ddd736a9b52fbe18b246b8e0c31d51ba6764a452e75c9c1c46b106c1c3de1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "test_summary": "test result: ok. 1 passed; 0 failed;",
+        "assertion_excerpt": "",
+        "start_utc": "2026-10-02T03:41:26.938233+00:00",
+        "end_utc": "2026-10-02T03:41:29.574178+00:00"
+      }
+    ],
+    "restoration": {
+      "restored_normal_source": true,
+      "archive_files_verified": 632,
+      "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d"
+    }
+  },
+  {
+    "variant": "VR-M04-LATE-RECORD",
+    "normal_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+    "active_sha256": "7a74e3b3816bfb0908204ede82a872afca574c60a11378b72bb7474eb6043e02",
+    "patch_sha256": "712bba94fa165e120ca53f975a3bf2217aec2a0bf6ac015bd882c5719a06cee7",
+    "semantic_added_removed_lines_identical_to_I24": true,
+    "build": {
+      "exit_code": 0,
+      "artifacts": [
+        {
+          "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-mutants-02-target/debug/deps/k6c_envelope-1c89c44ccfd2b5df",
+          "target": {
+            "kind": [
+              "test"
+            ],
+            "crate_types": [
+              "bin"
+            ],
+            "name": "k6c_envelope",
+            "src_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/VR-M04-LATE-RECORD/projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+            "edition": "2021",
+            "doc": false,
+            "doctest": false,
+            "test": true
+          },
+          "profile": {
+            "opt_level": "0",
+            "debuginfo": 2,
+            "debug_assertions": true,
+            "overflow_checks": true,
+            "test": true
+          },
+          "features": [],
+          "sha256": "653c518d12c7d2e8ed0165cc093a53eb70ff2ef1db0b13d1ca33f8de633c4fae"
+        }
+      ]
+    },
+    "runs": [
+      {
+        "stage": "NONE-pre",
+        "exit_code": 0,
+        "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+        "binary_sha256": "283ddc57d8b6e6ab619a3cecfd10381a906b6d701ff036f9b9d474839413c318",
+        "stdout_sha256": "6cbf969d5d48f1b783908c1f1c72753be53b4bfa1d5cb06b4cf6ebf8cce31c52",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "test_summary": "test result: ok. 1 passed; 0 failed;",
+        "assertion_excerpt": "",
+        "start_utc": "2026-10-02T03:41:29.624419+00:00",
+        "end_utc": "2026-10-02T03:41:32.253786+00:00"
+      },
+      {
+        "stage": "mutant",
+        "exit_code": 101,
+        "source_sha256": "7a74e3b3816bfb0908204ede82a872afca574c60a11378b72bb7474eb6043e02",
+        "binary_sha256": "653c518d12c7d2e8ed0165cc093a53eb70ff2ef1db0b13d1ca33f8de633c4fae",
+        "stdout_sha256": "a05cef05f58f73f7bc1494596c5c6080a2f0a286840d2046d5531f649f9f7160",
+        "stderr_sha256": "c7f78c52d16aae0910293747f89c70e20a748b4f8074d35b9cc094a4d73ebb77",
+        "test_summary": "test result: FAILED. 0 passed; 1 failed;",
+        "assertion_excerpt": "assertion `left == right` failed: RF-CHAIN-T-n03-r1e-04 requested caller phases\n  left: [969499, 16651, 11842, 11991, 16960, 19356, 15290, 134247, 196977, 199209, 232514, 241417, 36480, 239301, 11909]\n right: [969499, 16651, 11842, 11991, 16960, 19356, 15290, 134247, 196977, 199209, 232514, 241417, 83451, 286272, 58880]\n",
+        "start_utc": "2026-10-02T03:41:50.086663+00:00",
+        "end_utc": "2026-10-02T03:41:50.652433+00:00"
+      },
+      {
+        "stage": "NONE-post",
+        "exit_code": 0,
+        "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+        "binary_sha256": "283ddc57d8b6e6ab619a3cecfd10381a906b6d701ff036f9b9d474839413c318",
+        "stdout_sha256": "78926979a9c2b42071242151be17bd15a75efd6747636c4b09d0bc498950e51d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "test_summary": "test result: ok. 1 passed; 0 failed;",
+        "assertion_excerpt": "",
+        "start_utc": "2026-10-02T03:42:07.067020+00:00",
+        "end_utc": "2026-10-02T03:42:09.654249+00:00"
+      }
+    ],
+    "restoration": {
+      "restored_normal_source": true,
+      "archive_files_verified": 632,
+      "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d"
+    }
+  },
+  {
+    "variant": "VR-M06-SUMMARY-PREFIX",
+    "normal_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+    "active_sha256": "195c57d0bf5cf0a8df21ca030fb4e91e1151a948b94ab4bab5c2ea8375d3225c",
+    "patch_sha256": "d50ab6fb999f2324b607261474f55116e863650ea807934f609d6c27d1f59de3",
+    "semantic_added_removed_lines_identical_to_I24": true,
+    "build": {
+      "exit_code": 0,
+      "artifacts": [
+        {
+          "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-mutants-02-target/debug/deps/k6c_envelope-6b2c7086fc219508",
+          "target": {
+            "kind": [
+              "test"
+            ],
+            "crate_types": [
+              "bin"
+            ],
+            "name": "k6c_envelope",
+            "src_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-mutants-02/VR-M06-SUMMARY-PREFIX/projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+            "edition": "2021",
+            "doc": false,
+            "doctest": false,
+            "test": true
+          },
+          "profile": {
+            "opt_level": "0",
+            "debuginfo": 2,
+            "debug_assertions": true,
+            "overflow_checks": true,
+            "test": true
+          },
+          "features": [],
+          "sha256": "c537178ba990cb72c351414b3e095dc258d9d31d2b02186580ef39323ab2ba0c"
+        }
+      ]
+    },
+    "runs": [
+      {
+        "stage": "NONE-pre",
+        "exit_code": 0,
+        "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+        "binary_sha256": "283ddc57d8b6e6ab619a3cecfd10381a906b6d701ff036f9b9d474839413c318",
+        "stdout_sha256": "dfa1b47637f15243125690c83dbe55f04f89709cc64eb1c07b083d036523add8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "test_summary": "test result: ok. 1 passed; 0 failed;",
+        "assertion_excerpt": "",
+        "start_utc": "2026-10-02T03:42:09.705478+00:00",
+        "end_utc": "2026-10-02T03:42:12.347366+00:00"
+      },
+      {
+        "stage": "mutant",
+        "exit_code": 101,
+        "source_sha256": "195c57d0bf5cf0a8df21ca030fb4e91e1151a948b94ab4bab5c2ea8375d3225c",
+        "binary_sha256": "c537178ba990cb72c351414b3e095dc258d9d31d2b02186580ef39323ab2ba0c",
+        "stdout_sha256": "a05cef05f58f73f7bc1494596c5c6080a2f0a286840d2046d5531f649f9f7160",
+        "stderr_sha256": "8a057fa3502b0cda6730842817d651e023f58cf4d45bdd78f0ecad33c1b1a424",
+        "test_summary": "test result: FAILED. 0 passed; 1 failed;",
+        "assertion_excerpt": "assertion `left == right` failed: RF-CHAIN-T-n03-r1e-04 requested caller phases\n  left: [969499, 16651, 11842, 11991, 16960, 19356, 15290, 134247, 196977, 199209, 232514, 241417, 83451, 286272, 58827]\n right: [969499, 16651, 11842, 11991, 16960, 19356, 15290, 134247, 196977, 199209, 232514, 241417, 83451, 286272, 58880]\n",
+        "start_utc": "2026-10-02T03:42:18.856695+00:00",
+        "end_utc": "2026-10-02T03:42:19.331783+00:00"
+      },
+      {
+        "stage": "NONE-post",
+        "exit_code": 0,
+        "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+        "binary_sha256": "283ddc57d8b6e6ab619a3cecfd10381a906b6d701ff036f9b9d474839413c318",
+        "stdout_sha256": "636ddd736a9b52fbe18b246b8e0c31d51ba6764a452e75c9c1c46b106c1c3de1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "test_summary": "test result: ok. 1 passed; 0 failed;",
+        "assertion_excerpt": "",
+        "start_utc": "2026-10-02T03:42:33.040342+00:00",
+        "end_utc": "2026-10-02T03:42:35.678990+00:00"
+      }
+    ],
+    "restoration": {
+      "restored_normal_source": true,
+      "archive_files_verified": 632,
+      "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d"
+    }
+  }
+]

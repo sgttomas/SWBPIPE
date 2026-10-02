@@ -1,0 +1,30 @@
+{
+  "task": "I28 ordinary artifact qualification preflight",
+  "native_identity": "/root/i28_artifact_preflight",
+  "parent": "/root",
+  "parent_role": "HELP_HUMAN Agent0",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native collaboration child",
+  "descendants": 0,
+  "start_utc": "2026-10-02T03:40:20Z",
+  "hard_deadline_utc": "2026-10-02T03:55:20Z",
+  "scope": "source/records/filesystem metadata only",
+  "write_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_qualification_preflight_01",
+  "product_freeze": "81c03849033f3ce745668f581f446530789397b8",
+  "records_basis_supplied": "da91674ed6f32d1e7b5722922227933af775b68e",
+  "brief_commit_supplied": "bbc81d050af7d0b6d882dd66e72a5e3ca7a7bdcb",
+  "parent_clarification": "Write own R/I28 packet in K6C; NUM holds ROOT briefs/rulings. No scope or deadline change.",
+  "not_run": [
+    "Rust or Cargo",
+    "binary or diagnostic execution",
+    "model/solver/count",
+    "native nm/objdump/otool",
+    "build/test/measurement",
+    "new tool/config/library proof",
+    "delegation",
+    "Git/index mutations"
+  ],
+  "enforcement": "Prompt write/scope restrictions on shared host, not OS-enforced isolation",
+  "model_identity": "not asserted",
+  "skill_workflow_selection": "none"
+}

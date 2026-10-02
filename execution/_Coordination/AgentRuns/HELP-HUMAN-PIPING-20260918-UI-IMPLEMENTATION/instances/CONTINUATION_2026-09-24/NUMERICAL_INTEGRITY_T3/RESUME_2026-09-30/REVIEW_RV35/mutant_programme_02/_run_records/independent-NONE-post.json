@@ -1,0 +1,48 @@
+{
+  "variant": "NONE-post",
+  "candidate": "81c03849033f3ce745668f581f446530789397b8",
+  "record_candidate": "2529cd365b0a3574c89e41b4ee82c525709483c9",
+  "start_utc": "2026-10-02T03:48:58.572995+00:00",
+  "argv": [
+    "/Users/ryan/.cargo/bin/rustup",
+    "run",
+    "1.97.1",
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+    "--locked",
+    "--offline",
+    "-j",
+    "4",
+    "--test",
+    "k6c_envelope",
+    "all_193_independently_reviewed_reference_values_and_source_drop",
+    "--",
+    "--exact",
+    "--test-threads=2"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/archive",
+  "environment_overrides": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/target-VR"
+  },
+  "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+  "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+  "test_sha256": "ab1975d4d056b012e8cef515521bc12c5050eda278c04ed90b300c8e06b4c676",
+  "returncode": 0,
+  "end_utc": "2026-10-02T03:49:02.372215+00:00",
+  "source_unchanged": true,
+  "log_sha256": "8d0b9088eb62aecd0805c786e231729e7e0ffa0da90e09ef28042495c970785e",
+  "binaries": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-mutant-programme-02/target-VR/debug/deps/k6c_envelope-066c06dbc9d5d473",
+      "sha256": "c508b5255763798cdfaa1e6e54867c4552a14a9f755a7d9a86920d0c229e4d6b"
+    }
+  ]
+}
