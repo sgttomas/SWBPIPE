@@ -4826,3 +4826,45 @@ Its failed initial archive-mode check was repaired by a command-local standard
 Git archive option before deleting the original extracted packet; no Git config,
 policy, classifier or sealed evidence changed. The bounded existing-classifier
 preflight passes; actual GEN-8 remains. This closes custody placement only.
+
+
+## K6c T4 measurements and scoped comparison accepted (ROOT, 2026-10-02 UTC)
+
+ROOT read RV34 t4_measurements_07 RETURN in full and verified all31 payloads
+under seal282d49093e6ea08c7fc0a72cab150a44371a00be0b9709874014779d2ba1bfeb.
+Accept checkpointB's finite current T4 observations and the owner-adopted scoped
+KF3 comparison. The review's actual-tier table, source/context/admission section,
+matched-memory section, reached-precision/prefix section and independent comparison
+section establish the supplied original schedule and numerical checks. Complete
+new published outputs and immutable journal prefixes are preserved. Unpublished
+TREE cases receive no value-pass credit; full historic published-value equality
+and full W1/sparse value equality remain unestablished.
+
+For I21 §4 and K6B §13.5, accept the reached512/1024 evidence at its actual
+granularity: per-attempt work/storage plus measured whole-call source/solve/prefix
+requested/moving windows that span those attempts. No per-internal-phase or
+precision-isolated heap peak is supplied or inferred. This closes the finite
+post-KF3 T4 measurement obligation at that explicit scope, not a stronger
+per-precision attribution claim or a universal runtime bound.
+
+RV34's memory/policy section establishes eight empirical RSS projection misses,
+with no matching H-window breach or configured RSS-cap breach. Disposition:
+retain them as mandatory input to the next ROOT W1-limit/policy ruling. The
+empirical RSS projection must not be relied upon as an observed-consumption upper
+guarantee. This changes no current admission criterion, retrospectively changes
+no decision and provides no new runtime permission. K6c's matched heap-envelope
+claim and whole-process RSS forecasting remain distinct. No additional experiment
+is required merely to relabel the unavailable precision-isolated peaks.
+
+The review confirms the explicit CONT-only continuation condition and revised
+deadlines. Its finite monitoring/cleanup credit is accepted as stated; file-write
+timestamps and default survivor arrays are not promoted to observations they did
+not provide. Earlier T1 monitoring failure, T2 outcome correction and historical
+VR/artifact qualifications remain.
+
+ROOT read I28's complete revisable D RETURN, CHANGE_RECORD and EVIDENCE_INDEX,
+verified its informational inventory and committed the8 owned files. ROOT now
+updates only the accepted T4 reference/status and freezes D for RV39's final
+records delta. Complete K6c/E_max disposition, final independent exact-candidate
+review, hosted CI/full-SHA dispatch, exact-final-head Mac DEC-025/fresh target and
+GEN-8 remain. W1 limits wait for K6c's merge; F2a retains its own adoption/gates.
