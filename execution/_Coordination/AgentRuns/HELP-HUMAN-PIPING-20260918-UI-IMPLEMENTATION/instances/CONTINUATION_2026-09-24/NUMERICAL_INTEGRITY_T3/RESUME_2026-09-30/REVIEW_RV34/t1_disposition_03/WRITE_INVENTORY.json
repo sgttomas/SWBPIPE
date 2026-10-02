@@ -1,0 +1,15 @@
+{
+  "scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/t1_disposition_03",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "sha256": "76260a4727fbd3862ebce5487c249630b89fd2876c51d3ae86c1b2cab2b6608d",
+      "bytes": 3042
+    },
+    {
+      "path": "_run_records/CHECK.json",
+      "sha256": "02c90d5b526e9724df4b9669dcd53c00d2bf12080815f8da31bc4e4d913a9bbe",
+      "bytes": 18558
+    }
+  ]
+}
