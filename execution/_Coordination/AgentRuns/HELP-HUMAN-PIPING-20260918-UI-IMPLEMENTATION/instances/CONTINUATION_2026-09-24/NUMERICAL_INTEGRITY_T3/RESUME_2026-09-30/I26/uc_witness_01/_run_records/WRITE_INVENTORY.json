@@ -1,0 +1,82 @@
+{
+  "maintained_files": [
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/tests/k6c_envelope.rs",
+      "sha256": "4ecf2aa7b3ce0a519aa1758271faba95cd7eceb966d5ce94aa2404765ed3c7b5"
+    }
+  ],
+  "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/uc_witness_01",
+  "packet_files_before_inventory_and_seal": [
+    {
+      "path": "RETURN.md",
+      "sha256": "a66c2e0a7dad12b385204d1b2039ef1e8631c70513b14f622e0bd891f198bebf"
+    },
+    {
+      "path": "_run_records/ENVIRONMENT.json",
+      "sha256": "6a77eb76801be73e2418e8c1040ccd48e2e7bbba866e051dc73d3b1b83594370"
+    },
+    {
+      "path": "_run_records/INPUT_BINDING.json",
+      "sha256": "88142769656cfed9472069cd3de8f4d1898748532b2e589ec55ef32a06f0e2b0"
+    },
+    {
+      "path": "_run_records/M05_UC_C_OVERLAP/RESULT.json",
+      "sha256": "0d8496e587649b72152374b3c2364e0f469ac02e996c7f88224cdd54ed7663ca"
+    },
+    {
+      "path": "_run_records/M05_UC_C_OVERLAP/k6c_envelope.log",
+      "sha256": "368b5aa3f2e2ce9b5797b32fdb95eca72d40a8d97f124efb2ddef1800cb61ded"
+    },
+    {
+      "path": "_run_records/M05_UC_C_OVERLAP.diff",
+      "sha256": "641fe90c77fa9762301517dd443965f03020f309bb5b4b3e12f63fd62f66e795"
+    },
+    {
+      "path": "_run_records/NONE/RESULT.json",
+      "sha256": "417ce91c8349047b66d45827e02e291a6124587a23faf85ddbcf40e5f1c1ac06"
+    },
+    {
+      "path": "_run_records/NONE/k6c_envelope.log",
+      "sha256": "340a80d34769066625c71c21c9a9c603d359dc84269068d8b4474f45b4f4b7f1"
+    },
+    {
+      "path": "_run_records/NONE.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/RUN.json",
+      "sha256": "203e1dadb55f9b2676d085237146aa8c59cac28ad44b824ebca781a13a101e58"
+    },
+    {
+      "path": "_run_records/TEST.after.rs",
+      "sha256": "4ecf2aa7b3ce0a519aa1758271faba95cd7eceb966d5ce94aa2404765ed3c7b5"
+    },
+    {
+      "path": "_run_records/TEST.before.rs",
+      "sha256": "5c7232e18f4e96fe26cc3711024b9275909d1f9f4bbf875afd6c7edbaf6cf883"
+    },
+    {
+      "path": "_run_records/TEST.diff",
+      "sha256": "61b8c9310b3409c34d7478cd1b52ac9acb0f5dfb79b364b7e2bbdc03799aa880"
+    },
+    {
+      "path": "_run_records/VERIFICATION.json",
+      "sha256": "23b120627b45e6420c623919d26f45f3ae2815d9e2697d55e6148f3a3d75669e"
+    },
+    {
+      "path": "_run_records/WITNESS_BASIS.json",
+      "sha256": "7771faeb8611ba64b8beeb119b3cbdb68e733854d9e99a6518ebfc98da2ce69d"
+    },
+    {
+      "path": "_run_records/WORKTREE_STATUS.txt",
+      "sha256": "47de85e88694a6d856eda1e50c9c8503802b5a46fc7d22b8a7262f9d049d3546"
+    },
+    {
+      "path": "_run_records/run_controls.py",
+      "sha256": "9a152b25a9e4bd72decaf11225e084f5888de9919c8f12555df4cdd9a4b27c16"
+    }
+  ],
+  "owned_scratch": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i26-uc-witness",
+  "owned_target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-uc-witness-target",
+  "other_writes": "None by this TASK. No Git/index writes or source edits beyond maintained test and owned archive control mutation/restoration."
+}

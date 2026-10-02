@@ -1,0 +1,17 @@
+{
+  "assignment": "I26_UC_WITNESS_01",
+  "mechanism": "delegated-harness-native collaboration.spawn_agent",
+  "native_parent": "/root",
+  "native_child": "/root/i26_uc_witness",
+  "role": "TASK Type 2",
+  "receipt_utc": "2026-10-02T03:13:17Z",
+  "new_work_cutoff_utc": "2026-10-02T03:38:17Z",
+  "return_deadline_utc": "2026-10-02T03:43:17Z",
+  "checkout": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+  "scratch": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i26-uc-witness",
+  "fresh_target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i26-uc-witness-target",
+  "maintained_write_scope": "projects/chirality-piping/core/solver/performance_harness/tests/k6c_envelope.rs",
+  "evidence_write_scope": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/uc_witness_01",
+  "enforcement": "Prompt-scoped on shared unrestricted host; no OS isolation asserted. No children, Git/index writes, guard/config changes, performance job or broader mutation scope authorized.",
+  "guard_pid": 5387
+}
