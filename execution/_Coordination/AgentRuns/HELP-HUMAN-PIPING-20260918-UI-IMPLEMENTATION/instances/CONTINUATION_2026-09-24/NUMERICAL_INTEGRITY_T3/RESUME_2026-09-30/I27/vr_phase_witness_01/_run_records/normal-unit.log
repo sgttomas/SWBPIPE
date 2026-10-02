@@ -1,0 +1,15 @@
+error: failed to get `open_pipe_stress_primitive_loads` as a dependency of package `open_pipe_stress_solver_diagnostics v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/source/projects/chirality-piping/core/solver/diagnostics)`
+    ... which satisfies path dependency `open_pipe_stress_solver_diagnostics` (locked to 0.1.0) of package `open_pipe_stress_solver_performance_harness v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/source/projects/chirality-piping/core/solver/performance_harness)`
+    ... which satisfies path dependency `open_pipe_stress_solver_performance_harness` (locked to 0.1.0) of package `piping_numerical_robustness v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/source/projects/chirality-piping/validation/benchmarks/numerical_robustness)`
+
+Caused by:
+  failed to load source for dependency `open_pipe_stress_primitive_loads`
+
+Caused by:
+  unable to update /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/source/projects/chirality-piping/core/loads/primitive_loads
+
+Caused by:
+  failed to read `/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/source/projects/chirality-piping/core/loads/primitive_loads/Cargo.toml`
+
+Caused by:
+  No such file or directory (os error 2)

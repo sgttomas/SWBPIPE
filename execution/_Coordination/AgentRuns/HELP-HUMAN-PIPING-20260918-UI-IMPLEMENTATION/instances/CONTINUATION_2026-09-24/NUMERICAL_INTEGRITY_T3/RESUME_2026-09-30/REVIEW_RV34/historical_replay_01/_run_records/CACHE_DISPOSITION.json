@@ -1,0 +1,35 @@
+{
+  "cache": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv34_historical_replay_01",
+  "moved_only_own_unsealed_temporary_files": true,
+  "relocations": [
+    {
+      "from": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/historical_replay_01/_run_records/snapshot",
+      "to": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv34_historical_replay_01/snapshot",
+      "files": 70,
+      "bytes": 4755730,
+      "reason": "Reviewer-owned unsealed input cache, preserved as bounded scratch; authoritative inputs remain at pinned Git origins."
+    },
+    {
+      "from": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/historical_replay_01/_run_records/inputs",
+      "to": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv34_historical_replay_01/inputs",
+      "files": 467,
+      "bytes": 44120025,
+      "reason": "Reviewer-owned unsealed input cache, preserved as bounded scratch; authoritative inputs remain at pinned Git origins."
+    },
+    {
+      "from": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/historical_replay_01/_run_records/raw_named_sources",
+      "to": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv34_historical_replay_01/raw_named_sources",
+      "files": 4,
+      "bytes": 5933,
+      "reason": "Reviewer-owned unsealed input cache, preserved as bounded scratch; authoritative inputs remain at pinned Git origins."
+    },
+    {
+      "from": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/historical_replay_01/_run_records/__pycache__",
+      "to": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv34_historical_replay_01/__pycache__",
+      "files": 1,
+      "bytes": 3739,
+      "reason": "Reviewer-owned unsealed input cache, preserved as bounded scratch; authoritative inputs remain at pinned Git origins."
+    }
+  ],
+  "time_utc": "2026-10-02T03:22:56.976166+00:00"
+}

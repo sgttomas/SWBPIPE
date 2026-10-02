@@ -1,0 +1,13 @@
+{
+  "native_identity": "/root/rv34_historical_replay",
+  "parent": "/root",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native child",
+  "review_basis": "40179f1da5961cfef7edeaf7be4eb675379f79b5",
+  "start_utc": "2026-10-02 03:13:33 UTC",
+  "check_cutoff_utc": "2026-10-02 03:48:33 UTC",
+  "return_deadline_utc": "2026-10-02 03:53:33 UTC",
+  "limitations": "Prompt write fence on shared unrestricted host; no Git writes or process/model/solver/Rust/host tools permitted",
+  "workspace": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+  "python": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python"
+}

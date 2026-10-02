@@ -1,0 +1,40 @@
+{
+  "normal_envelope_unit": {
+    "passed": 6,
+    "failed": 0
+  },
+  "normal_integration": {
+    "passed": 7,
+    "failed": 0,
+    "includes": "193 independent five-field/caller/join reference rows and 213-order preservation"
+  },
+  "VR-M02-SPARSE-16F": {
+    "build_exit": 0,
+    "NONE_pre": 0,
+    "mutant": 101,
+    "NONE_post": 0,
+    "assertion": "local validation: 24 != 328",
+    "existing_reference_exit": 0,
+    "disposition": "local phase witness; no global or measured undercount"
+  },
+  "VR-M05-REFUSED-FORMAT-ARG": {
+    "build_exit": 0,
+    "NONE_pre": 0,
+    "mutant": 101,
+    "NONE_post": 0,
+    "assertion": "local requested formatting overlap: 388 != 566",
+    "moving_normal_literal": 760,
+    "moving_mutant_local_assertion": "not reached after requested assertion failed",
+    "existing_reference_exit": 101,
+    "existing_reference_observation": "RF-LARGE-CHAIN-n00100-AX moving caller phase[7] 8031899 != 8032077; separate 178-byte observation, no all-193 mutated pass claimed",
+    "existing_reference_NONE_post": 0,
+    "disposition": "local phase witness; distinct from H/Uc M05"
+  },
+  "preparation_error": {
+    "log": "normal-unit.log",
+    "exit": 101,
+    "reason": "incomplete archive omitted core/loads/primitive_loads; no compilation or semantic kill",
+    "correction": "same frozen base entire core archived before successful builds"
+  },
+  "all_runtime_ended_utc": "2026-10-02T03:23:20.574070+00:00"
+}

@@ -1,0 +1,26 @@
+{
+  "label": "M05-mutant",
+  "variant": "M05",
+  "command": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/binaries/M05/piping_numerical_robustness",
+    "envelope::tests::refused_format_argument_survives_outer_format_phase",
+    "--exact",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/M05",
+  "environment": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-phase-target"
+  },
+  "start_utc": "2026-10-02T03:22:43.054860+00:00",
+  "source_sha256": "1f3066ca88d3f4fcae01637098f627ba1aa6369bdddd0eb7d122dff87f57727b",
+  "binary_sha256": "e1849710064559fade46d819f5b22d3a7abcabfadf03da5cec4207e8001da83a",
+  "exit_code": 101,
+  "end_utc": "2026-10-02T03:22:43.598496+00:00"
+}

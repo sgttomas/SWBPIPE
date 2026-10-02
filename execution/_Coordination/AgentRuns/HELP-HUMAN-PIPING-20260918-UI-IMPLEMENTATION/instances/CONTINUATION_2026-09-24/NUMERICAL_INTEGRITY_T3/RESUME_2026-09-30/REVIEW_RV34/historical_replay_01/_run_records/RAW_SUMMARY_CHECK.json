@@ -1,0 +1,831 @@
+{
+  "counts": {
+    "summary_dictionary": 102,
+    "runner_summary_peak": 204,
+    "inner_maximum": 132,
+    "stage_aggregate_maximum": 452,
+    "prefix_outer_contains_inner": 66,
+    "dataset_source_identity": 102,
+    "VR_global_contains_phases": 72
+  },
+  "failures": [],
+  "identity_rows": [
+    {
+      "dataset": "K6B",
+      "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "141_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "144_RF-LARGE-CHAIN-n00010-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "146_RF-LARGE-CHAIN-n00010-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "147_RF-LARGE-TREE-n00010-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "149_RF-LARGE-TREE-n00010-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "152_RF-LARGE-TREE-n00010-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "154_RF-LARGE-TREE-n00010-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "155_RF-LARGE-CONT-n00010-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "157_RF-LARGE-CONT-n00010-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "160_RF-LARGE-CONT-n00010-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "162_RF-LARGE-CONT-n00010-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "163_DEC053_invented-cantilever-chain-8_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "165_DEC053_invented-cantilever-chain-8_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "168_DEC053_invented-cantilever-chain-24_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "170_DEC053_invented-cantilever-chain-24_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "171_DEC053_invented-cantilever-chain-48_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "173_DEC053_invented-cantilever-chain-48_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "176_DEC053_invented-grid-frame-4x3_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "178_DEC053_invented-grid-frame-4x3_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "179_DEC053_invented-grid-frame-6x8_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "181_DEC053_invented-grid-frame-6x8_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "184_DEC053_invented-grid-frame-7x8_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "186_DEC053_invented-grid-frame-7x8_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "187_DEC053_invented-grid-frame-5x5_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "189_DEC053_invented-grid-frame-5x5_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "192_DEC053_invented-cantilever-chain-32_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "194_DEC053_invented-cantilever-chain-32_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "195_DEC053_invented-grid-frame-5x6_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "197_DEC053_invented-grid-frame-5x6_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "206_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "214_RF-LARGE-TREE-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "222_RF-LARGE-CONT-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "223_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "225_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "228_RF-LARGE-CHAIN-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "230_RF-LARGE-CHAIN-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "231_RF-LARGE-TREE-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "233_RF-LARGE-TREE-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "236_RF-LARGE-TREE-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "238_RF-LARGE-TREE-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "239_RF-LARGE-CONT-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "241_RF-LARGE-CONT-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "244_RF-LARGE-CONT-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "246_RF-LARGE-CONT-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "247_RF-LARGE-CHAIN-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "249_RF-LARGE-CHAIN-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "252_RF-LARGE-CHAIN-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "254_RF-LARGE-CHAIN-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "255_RF-LARGE-TREE-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "257_RF-LARGE-TREE-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "260_RF-LARGE-TREE-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "262_RF-LARGE-TREE-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "263_RF-LARGE-CONT-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "265_RF-LARGE-CONT-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "268_RF-LARGE-CONT-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "K6B",
+      "run_id": "270_RF-LARGE-CONT-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "20b6777675a1ddd46c7c4d82cc3b45ca864008bb12f031cc0d4fe56bacf6fdee",
+      "classification": "ok",
+      "outcome": null,
+      "source_commit": "4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "02_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "03_RF-LARGE-TREE-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "04_RF-LARGE-TREE-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "05_RF-LARGE-CONT-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "06_RF-LARGE-CONT-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "07_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "08_RF-LARGE-CHAIN-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "09_RF-LARGE-TREE-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "10_RF-LARGE-TREE-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "11_RF-LARGE-CONT-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "12_RF-LARGE-CONT-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "13_RF-LARGE-CHAIN-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Unresolved ExactSumSpan [Restrained]",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "14_RF-LARGE-CHAIN-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Unresolved ExactSumSpan [Restrained]",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "15_RF-LARGE-TREE-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Unresolved ExactSumSpan [Restrained]",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "16_RF-LARGE-TREE-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Unresolved ExactSumSpan [Restrained]",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "17_RF-LARGE-CONT-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "VK",
+      "run_id": "18_RF-LARGE-CONT-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9",
+      "classification": "ok",
+      "outcome": "Unresolved ExactSumSpan [Restrained]",
+      "source_commit": "a4b8c1957"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "02_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "03_RF-LARGE-TREE-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "04_RF-LARGE-TREE-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "05_RF-LARGE-CONT-n00100-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "06_RF-LARGE-CONT-n00100-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "07_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "08_RF-LARGE-CHAIN-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "09_RF-LARGE-TREE-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "10_RF-LARGE-TREE-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "11_RF-LARGE-CONT-n01000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "12_RF-LARGE-CONT-n01000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "13_RF-LARGE-CHAIN-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "14_RF-LARGE-CHAIN-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "15_RF-LARGE-TREE-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "16_RF-LARGE-TREE-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "17_RF-LARGE-CONT-n10000-AX_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    },
+    {
+      "dataset": "KF3",
+      "run_id": "18_RF-LARGE-CONT-n10000-ROT_w1a",
+      "binary_sha256_from_dataset_metadata": "2bc2a43654ac358b2e3e27470bbf9b69cc6341ae2a9782e343778c6ece637e51",
+      "classification": "ok",
+      "outcome": "Selected at 128",
+      "source_commit": "e114b23c1"
+    }
+  ],
+  "completed_at_utc": "2026-10-02T03:22:57.534520+00:00"
+}

@@ -1,0 +1,27 @@
+{
+  "checks": {
+    "INDEPENDENT_AUDIT.json": {
+      "failure_count": 0,
+      "completed_at": "2026-10-02T03:22:57.158412+00:00"
+    },
+    "PROVENANCE_CHECK.json": {
+      "failure_count": 0,
+      "completed_at": "2026-10-02T03:22:57.333896+00:00"
+    },
+    "BOUNDARY_CHECK.json": {
+      "failure_count": 0,
+      "completed_at": "2026-10-02T03:22:57.422640+00:00"
+    },
+    "RAW_SUMMARY_CHECK.json": {
+      "failure_count": 0,
+      "completed_at": "2026-10-02T03:22:57.534520+00:00"
+    }
+  },
+  "all_final_stderr_empty": true,
+  "known_scope_gates": [
+    "VR original full argv0/model-file and artifact-bound manifest path",
+    "H and VR ordinary-production artifact transfer",
+    "required measurements and future launch authority"
+  ],
+  "new_actionable_findings": []
+}

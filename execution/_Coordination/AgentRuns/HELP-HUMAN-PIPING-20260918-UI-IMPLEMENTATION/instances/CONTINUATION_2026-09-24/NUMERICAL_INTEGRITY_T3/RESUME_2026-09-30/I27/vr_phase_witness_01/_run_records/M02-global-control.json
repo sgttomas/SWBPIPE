@@ -1,0 +1,26 @@
+{
+  "label": "M02-global-control",
+  "variant": "M02",
+  "command": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/binaries/M02/k6c_envelope",
+    "all_193_independently_reviewed_reference_values_and_source_drop",
+    "--exact",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/M02",
+  "environment": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-phase-target"
+  },
+  "start_utc": "2026-10-02T03:22:12.029831+00:00",
+  "source_sha256": "4a9e7e6c5984211f48e96f58285019f6472fe491584e7e8e0721e37e5c61324b",
+  "binary_sha256": "231c797e76dcd2008a3f2ed0a5e04d6873d995a4a019598da25ae13b246d3d57",
+  "exit_code": 0,
+  "end_utc": "2026-10-02T03:22:14.934491+00:00"
+}

@@ -1,0 +1,87 @@
+{
+  "label": "normal-build",
+  "variant": "source",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-j",
+    "4",
+    "--manifest-path",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+    "--lib",
+    "--test",
+    "k6c_envelope",
+    "--no-run",
+    "--message-format=json"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/source",
+  "environment": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-phase-target"
+  },
+  "start_utc": "2026-10-02T03:21:17.928430+00:00",
+  "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+  "exit_code": 0,
+  "end_utc": "2026-10-02T03:21:22.828834+00:00",
+  "artifacts": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-phase-target/debug/deps/k6c_envelope-2c52ad3289678da5",
+      "target": {
+        "kind": [
+          "test"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "k6c_envelope",
+        "src_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/source/projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+        "edition": "2021",
+        "doc": false,
+        "doctest": false,
+        "test": true
+      },
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "features": [],
+      "sha256": "5095222cfe4fa8e3e83180cfe2718487234c671cbfedeab3de753814decba0e7"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vr-phase-target/debug/deps/piping_numerical_robustness-40fc53238e4bd3bf",
+      "target": {
+        "kind": [
+          "lib"
+        ],
+        "crate_types": [
+          "lib"
+        ],
+        "name": "piping_numerical_robustness",
+        "src_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vr-phase-witness/source/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lib.rs",
+        "edition": "2021",
+        "doc": true,
+        "doctest": true,
+        "test": true
+      },
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "features": [],
+      "sha256": "0f7af970d48a487bdfa077719c68b9900b39731e46e40ee83f196f67dfe12b66"
+    }
+  ]
+}

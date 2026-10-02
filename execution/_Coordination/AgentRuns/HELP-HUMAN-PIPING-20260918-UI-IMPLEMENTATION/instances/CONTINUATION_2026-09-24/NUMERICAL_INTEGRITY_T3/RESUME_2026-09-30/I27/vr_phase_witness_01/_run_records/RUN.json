@@ -1,0 +1,14 @@
+{
+  "role": "TASK Type2",
+  "identity": "I27 /root/i27_vr_phase_witness",
+  "parent": "ROOT HELP_HUMAN Agent0 /root",
+  "mechanism": "delegated-harness-native direct child",
+  "delegation": false,
+  "frozen_base": "40179f1da5961cfef7edeaf7be4eb675379f79b5",
+  "start_utc": "2026-10-02 03:16:55 UTC",
+  "new_work_cutoff_utc": "2026-10-02 03:36:55 UTC",
+  "hard_end_utc": "2026-10-02 03:41:55 UTC",
+  "scope": "VR/src/envelope.rs and VR/tests/k6c_envelope.rs; additive own packet/scratch/target",
+  "enforcement": "prompt fence on shared host; no OS sandbox claimed",
+  "cargo_release": "Explicit ROOT message received after I26 focused runs finished"
+}

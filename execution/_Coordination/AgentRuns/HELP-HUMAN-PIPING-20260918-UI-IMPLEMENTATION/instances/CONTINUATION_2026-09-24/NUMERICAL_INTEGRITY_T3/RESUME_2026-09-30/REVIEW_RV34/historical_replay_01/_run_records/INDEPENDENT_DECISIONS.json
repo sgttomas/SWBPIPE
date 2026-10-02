@@ -1,0 +1,3508 @@
+[
+  {
+    "dataset": "K6B",
+    "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+    "members": 10,
+    "estimate": 22744155,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22715996 B x rho 2.000 <= C/2; projected RSS 65876388 B <= 0.8C",
+      "estimate_adm_bytes": 22715996,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45431992,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65876388,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22744155 B x rho 2.000 <= C/2; projected RSS 65958049 B <= 0.8C",
+      "estimate_adm_bytes": 22744155,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45488310,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65958049,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "141_RF-LARGE-CHAIN-n00010-AX_w1a",
+    "members": 10,
+    "estimate": 22743624,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22715996 B x rho 2.000 <= C/2; projected RSS 65876388 B <= 0.8C",
+      "estimate_adm_bytes": 22715996,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45431992,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65876388,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22743624 B x rho 2.000 <= C/2; projected RSS 65956509 B <= 0.8C",
+      "estimate_adm_bytes": 22743624,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45487248,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65956509,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "144_RF-LARGE-CHAIN-n00010-ROT_w1a",
+    "members": 10,
+    "estimate": 22744158,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22715996 B x rho 2.000 <= C/2; projected RSS 65876388 B <= 0.8C",
+      "estimate_adm_bytes": 22715996,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45431992,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65876388,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22744158 B x rho 2.000 <= C/2; projected RSS 65958058 B <= 0.8C",
+      "estimate_adm_bytes": 22744158,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45488316,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65958058,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "146_RF-LARGE-CHAIN-n00010-ROT_w1a",
+    "members": 10,
+    "estimate": 22743626,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22715996 B x rho 2.000 <= C/2; projected RSS 65876388 B <= 0.8C",
+      "estimate_adm_bytes": 22715996,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45431992,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65876388,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22743626 B x rho 2.000 <= C/2; projected RSS 65956515 B <= 0.8C",
+      "estimate_adm_bytes": 22743626,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45487252,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65956515,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "147_RF-LARGE-TREE-n00010-AX_w1a",
+    "members": 10,
+    "estimate": 22742624,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22715568 B x rho 2.000 <= C/2; projected RSS 65875147 B <= 0.8C",
+      "estimate_adm_bytes": 22715568,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45431136,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65875147,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22742624 B x rho 2.000 <= C/2; projected RSS 65953609 B <= 0.8C",
+      "estimate_adm_bytes": 22742624,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45485248,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65953609,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "149_RF-LARGE-TREE-n00010-AX_w1a",
+    "members": 10,
+    "estimate": 22742094,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22715568 B x rho 2.000 <= C/2; projected RSS 65875147 B <= 0.8C",
+      "estimate_adm_bytes": 22715568,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45431136,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65875147,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22742094 B x rho 2.000 <= C/2; projected RSS 65952072 B <= 0.8C",
+      "estimate_adm_bytes": 22742094,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45484188,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65952072,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "152_RF-LARGE-TREE-n00010-ROT_w1a",
+    "members": 10,
+    "estimate": 22748675,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22717280 B x rho 2.000 <= C/2; projected RSS 65880112 B <= 0.8C",
+      "estimate_adm_bytes": 22717280,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45434560,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65880112,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22748675 B x rho 2.000 <= C/2; projected RSS 65971157 B <= 0.8C",
+      "estimate_adm_bytes": 22748675,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45497350,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65971157,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "154_RF-LARGE-TREE-n00010-ROT_w1a",
+    "members": 10,
+    "estimate": 22748144,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22717280 B x rho 2.000 <= C/2; projected RSS 65880112 B <= 0.8C",
+      "estimate_adm_bytes": 22717280,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45434560,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65880112,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22748144 B x rho 2.000 <= C/2; projected RSS 65969617 B <= 0.8C",
+      "estimate_adm_bytes": 22748144,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45496288,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65969617,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "155_RF-LARGE-CONT-n00010-AX_w1a",
+    "members": 10,
+    "estimate": 22674347,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22643925 B x rho 2.000 <= C/2; projected RSS 65667382 B <= 0.8C",
+      "estimate_adm_bytes": 22643925,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45287850,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65667382,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22674347 B x rho 2.000 <= C/2; projected RSS 65755606 B <= 0.8C",
+      "estimate_adm_bytes": 22674347,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45348694,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65755606,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "157_RF-LARGE-CONT-n00010-AX_w1a",
+    "members": 10,
+    "estimate": 22673817,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22643925 B x rho 2.000 <= C/2; projected RSS 65667382 B <= 0.8C",
+      "estimate_adm_bytes": 22643925,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45287850,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65667382,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22673817 B x rho 2.000 <= C/2; projected RSS 65754069 B <= 0.8C",
+      "estimate_adm_bytes": 22673817,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45347634,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65754069,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "160_RF-LARGE-CONT-n00010-ROT_w1a",
+    "members": 10,
+    "estimate": 22679602,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22645423 B x rho 2.000 <= C/2; projected RSS 65671726 B <= 0.8C",
+      "estimate_adm_bytes": 22645423,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45290846,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65671726,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22679602 B x rho 2.000 <= C/2; projected RSS 65770845 B <= 0.8C",
+      "estimate_adm_bytes": 22679602,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45359204,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65770845,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "162_RF-LARGE-CONT-n00010-ROT_w1a",
+    "members": 10,
+    "estimate": 22679071,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22645423 B x rho 2.000 <= C/2; projected RSS 65671726 B <= 0.8C",
+      "estimate_adm_bytes": 22645423,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45290846,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65671726,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22679071 B x rho 2.000 <= C/2; projected RSS 65769305 B <= 0.8C",
+      "estimate_adm_bytes": 22679071,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45358142,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65769305,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "163_DEC053_invented-cantilever-chain-8_w1a",
+    "members": 8,
+    "estimate": 22172244,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22148046 B x rho 2.000 <= C/2; projected RSS 64229333 B <= 0.8C",
+      "estimate_adm_bytes": 22148046,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 44296092,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 64229333,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22172244 B x rho 2.000 <= C/2; projected RSS 64299507 B <= 0.8C",
+      "estimate_adm_bytes": 22172244,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 44344488,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 64299507,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "165_DEC053_invented-cantilever-chain-8_w1a",
+    "members": 8,
+    "estimate": 22171703,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 22148046 B x rho 2.000 <= C/2; projected RSS 64229333 B <= 0.8C",
+      "estimate_adm_bytes": 22148046,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 44296092,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 64229333,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 22171703 B x rho 2.000 <= C/2; projected RSS 64297938 B <= 0.8C",
+      "estimate_adm_bytes": 22171703,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 44343406,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 64297938,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "168_DEC053_invented-cantilever-chain-24_w1a",
+    "members": 24,
+    "estimate": 26717357,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 26683087 B x rho 0.104 <= C/2; projected RSS 4425520 B <= 0.8C",
+      "estimate_adm_bytes": 26683087,
+      "rho": 0.10430572520934804,
+      "rho_rss": 0.16348458008440112,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2783198,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 4425520,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 26717357 B x rho 0.104 <= C/2; projected RSS 4426368 B <= 0.8C",
+      "estimate_adm_bytes": 26717357,
+      "rho": 0.10419188964364635,
+      "rho_rss": 0.1633061588173033,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2783731,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 4426368,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "170_DEC053_invented-cantilever-chain-24_w1a",
+    "members": 24,
+    "estimate": 26716815,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 26683087 B x rho 0.104 <= C/2; projected RSS 4425520 B <= 0.8C",
+      "estimate_adm_bytes": 26683087,
+      "rho": 0.10430572520934804,
+      "rho_rss": 0.16348458008440112,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2783198,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 4425520,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 26716815 B x rho 0.104 <= C/2; projected RSS 4426279 B <= 0.8C",
+      "estimate_adm_bytes": 26716815,
+      "rho": 0.10419188964364635,
+      "rho_rss": 0.1633061588173033,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2783675,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 4426279,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "171_DEC053_invented-cantilever-chain-48_w1a",
+    "members": 48,
+    "estimate": 33527429,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 33485647 B x rho 0.317 <= C/2; projected RSS 16902690 B <= 0.8C",
+      "estimate_adm_bytes": 33485647,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10630056,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 16902690,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 33527429 B x rho 0.317 <= C/2; projected RSS 16902073 B <= 0.8C",
+      "estimate_adm_bytes": 33527429,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10629668,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 16902073,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "173_DEC053_invented-cantilever-chain-48_w1a",
+    "members": 48,
+    "estimate": 33526887,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 33485647 B x rho 0.317 <= C/2; projected RSS 16902690 B <= 0.8C",
+      "estimate_adm_bytes": 33485647,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10630056,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 16902690,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 33526887 B x rho 0.317 <= C/2; projected RSS 16901800 B <= 0.8C",
+      "estimate_adm_bytes": 33526887,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10629496,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 16901800,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "176_DEC053_invented-grid-frame-4x3_w1a",
+    "members": 17,
+    "estimate": 24297117,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 24271872 B x rho 0.104 <= C/2; projected RSS 4025609 B <= 0.8C",
+      "estimate_adm_bytes": 24271872,
+      "rho": 0.10430572520934804,
+      "rho_rss": 0.16348458008440112,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2531695,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 4025609,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 24297117 B x rho 0.104 <= C/2; projected RSS 4025398 B <= 0.8C",
+      "estimate_adm_bytes": 24297117,
+      "rho": 0.10419188964364635,
+      "rho_rss": 0.1633061588173033,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2531562,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 4025398,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "178_DEC053_invented-grid-frame-4x3_w1a",
+    "members": 17,
+    "estimate": 24296580,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 24271872 B x rho 0.104 <= C/2; projected RSS 4025609 B <= 0.8C",
+      "estimate_adm_bytes": 24271872,
+      "rho": 0.10430572520934804,
+      "rho_rss": 0.16348458008440112,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2531695,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 4025609,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 24296580 B x rho 0.104 <= C/2; projected RSS 4025309 B <= 0.8C",
+      "estimate_adm_bytes": 24296580,
+      "rho": 0.10419188964364635,
+      "rho_rss": 0.1633061588173033,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2531506,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 4025309,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "179_DEC053_invented-grid-frame-6x8_w1a",
+    "members": 82,
+    "estimate": 42171444,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 42166017 B x rho 0.317 <= C/2; projected RSS 21284317 B <= 0.8C",
+      "estimate_adm_bytes": 42166017,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 13385649,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 21284317,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 42171444 B x rho 0.317 <= C/2; projected RSS 21259752 B <= 0.8C",
+      "estimate_adm_bytes": 42171444,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 13370200,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 21259752,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "181_DEC053_invented-grid-frame-6x8_w1a",
+    "members": 82,
+    "estimate": 42170907,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 42166017 B x rho 0.317 <= C/2; projected RSS 21284317 B <= 0.8C",
+      "estimate_adm_bytes": 42166017,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 13385649,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 21284317,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 42170907 B x rho 0.317 <= C/2; projected RSS 21259481 B <= 0.8C",
+      "estimate_adm_bytes": 42170907,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 13370030,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 21259481,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "184_DEC053_invented-grid-frame-7x8_w1a",
+    "members": 97,
+    "estimate": 46486296,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 46422139 B x rho 0.317 <= C/2; projected RSS 23432698 B <= 0.8C",
+      "estimate_adm_bytes": 46422139,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 14736760,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 23432698,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 46486296 B x rho 0.317 <= C/2; projected RSS 23434985 B <= 0.8C",
+      "estimate_adm_bytes": 46486296,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 14738198,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 23434985,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a",
+      "179_DEC053_invented-grid-frame-6x8_w1a",
+      "181_DEC053_invented-grid-frame-6x8_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "186_DEC053_invented-grid-frame-7x8_w1a",
+    "members": 97,
+    "estimate": 46485759,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 46422139 B x rho 0.317 <= C/2; projected RSS 23432698 B <= 0.8C",
+      "estimate_adm_bytes": 46422139,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 14736760,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 23432698,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 46485759 B x rho 0.317 <= C/2; projected RSS 23434713 B <= 0.8C",
+      "estimate_adm_bytes": 46485759,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 14738027,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 23434713,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a",
+      "179_DEC053_invented-grid-frame-6x8_w1a",
+      "181_DEC053_invented-grid-frame-6x8_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "187_DEC053_invented-grid-frame-5x5_w1a",
+    "members": 40,
+    "estimate": 30508305,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 30491975 B x rho 0.317 <= C/2; projected RSS 15391561 B <= 0.8C",
+      "estimate_adm_bytes": 30491975,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9679711,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 15391561,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 30508305 B x rho 0.317 <= C/2; projected RSS 15380052 B <= 0.8C",
+      "estimate_adm_bytes": 30508305,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9672473,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 15380052,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "189_DEC053_invented-grid-frame-5x5_w1a",
+    "members": 40,
+    "estimate": 30507768,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 30491975 B x rho 0.317 <= C/2; projected RSS 15391561 B <= 0.8C",
+      "estimate_adm_bytes": 30491975,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9679711,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 15391561,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 30507768 B x rho 0.317 <= C/2; projected RSS 15379780 B <= 0.8C",
+      "estimate_adm_bytes": 30507768,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9672302,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 15379780,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "192_DEC053_invented-cantilever-chain-32_w1a",
+    "members": 32,
+    "estimate": 28967157,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 28950607 B x rho 0.317 <= C/2; projected RSS 14613518 B <= 0.8C",
+      "estimate_adm_bytes": 28950607,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9190402,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 14613518,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 28967157 B x rho 0.317 <= C/2; projected RSS 14603118 B <= 0.8C",
+      "estimate_adm_bytes": 28967157,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9183861,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 14603118,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "194_DEC053_invented-cantilever-chain-32_w1a",
+    "members": 32,
+    "estimate": 28966615,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 28950607 B x rho 0.317 <= C/2; projected RSS 14613518 B <= 0.8C",
+      "estimate_adm_bytes": 28950607,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9190402,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 14613518,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 28966615 B x rho 0.317 <= C/2; projected RSS 14602844 B <= 0.8C",
+      "estimate_adm_bytes": 28966615,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9183689,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 14602844,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "195_DEC053_invented-grid-frame-5x6_w1a",
+    "members": 49,
+    "estimate": 33018918,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 32976135 B x rho 0.317 <= C/2; projected RSS 16645502 B <= 0.8C",
+      "estimate_adm_bytes": 32976135,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10468311,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 16645502,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 33018918 B x rho 0.317 <= C/2; projected RSS 16645718 B <= 0.8C",
+      "estimate_adm_bytes": 33018918,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10468447,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 16645718,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a",
+      "187_DEC053_invented-grid-frame-5x5_w1a",
+      "189_DEC053_invented-grid-frame-5x5_w1a",
+      "192_DEC053_invented-cantilever-chain-32_w1a",
+      "194_DEC053_invented-cantilever-chain-32_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "197_DEC053_invented-grid-frame-5x6_w1a",
+    "members": 49,
+    "estimate": 33018381,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 32976135 B x rho 0.317 <= C/2; projected RSS 16645502 B <= 0.8C",
+      "estimate_adm_bytes": 32976135,
+      "rho": 0.3174511255013335,
+      "rho_rss": 0.3653430354591281,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10468311,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 16645502,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 33018381 B x rho 0.317 <= C/2; projected RSS 16645448 B <= 0.8C",
+      "estimate_adm_bytes": 33018381,
+      "rho": 0.3170439351467288,
+      "rho_rss": 0.36487441478586374,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10468277,
+      "rss_to_footprint": 1.5900848333579434,
+      "projected_rss_bytes": 16645448,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a",
+      "187_DEC053_invented-grid-frame-5x5_w1a",
+      "189_DEC053_invented-grid-frame-5x5_w1a",
+      "192_DEC053_invented-cantilever-chain-32_w1a",
+      "194_DEC053_invented-cantilever-chain-32_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 48275013,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48225602 B x rho 0.115 <= C/2; projected RSS 8544131 B <= 0.8C",
+      "estimate_adm_bytes": 48225602,
+      "rho": 0.11468042167290397,
+      "rho_rss": 0.17237967465745282,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5530532,
+      "rss_to_footprint": 1.544902330777791,
+      "projected_rss_bytes": 8544131,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48275013 B x rho 0.115 <= C/2; projected RSS 8542296 B <= 0.8C",
+      "estimate_adm_bytes": 48275013,
+      "rho": 0.11453843855707103,
+      "rho_rss": 0.17216625546211764,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5529344,
+      "rss_to_footprint": 1.544902330777791,
+      "projected_rss_bytes": 8542296,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "141_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "144_RF-LARGE-CHAIN-n00010-ROT_w1a",
+      "146_RF-LARGE-CHAIN-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 48274482,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48225602 B x rho 0.115 <= C/2; projected RSS 8544131 B <= 0.8C",
+      "estimate_adm_bytes": 48225602,
+      "rho": 0.11468042167290397,
+      "rho_rss": 0.17237967465745282,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5530532,
+      "rss_to_footprint": 1.544902330777791,
+      "projected_rss_bytes": 8544131,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48274482 B x rho 0.115 <= C/2; projected RSS 8542202 B <= 0.8C",
+      "estimate_adm_bytes": 48274482,
+      "rho": 0.11453843855707103,
+      "rho_rss": 0.17216625546211764,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5529283,
+      "rss_to_footprint": 1.544902330777791,
+      "projected_rss_bytes": 8542202,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "141_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "144_RF-LARGE-CHAIN-n00010-ROT_w1a",
+      "146_RF-LARGE-CHAIN-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 48275016,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48225602 B x rho 0.115 <= C/2; projected RSS 8544131 B <= 0.8C",
+      "estimate_adm_bytes": 48225602,
+      "rho": 0.11468042167290397,
+      "rho_rss": 0.17237967465745282,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5530532,
+      "rss_to_footprint": 1.544902330777791,
+      "projected_rss_bytes": 8544131,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48275016 B x rho 0.115 <= C/2; projected RSS 8542296 B <= 0.8C",
+      "estimate_adm_bytes": 48275016,
+      "rho": 0.11453843855707103,
+      "rho_rss": 0.17216625546211764,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5529344,
+      "rss_to_footprint": 1.544902330777791,
+      "projected_rss_bytes": 8542296,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "141_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "144_RF-LARGE-CHAIN-n00010-ROT_w1a",
+      "146_RF-LARGE-CHAIN-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "206_RF-LARGE-CHAIN-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 48274484,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48225602 B x rho 0.115 <= C/2; projected RSS 8544131 B <= 0.8C",
+      "estimate_adm_bytes": 48225602,
+      "rho": 0.11468042167290397,
+      "rho_rss": 0.17237967465745282,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5530532,
+      "rss_to_footprint": 1.544902330777791,
+      "projected_rss_bytes": 8544131,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48274484 B x rho 0.115 <= C/2; projected RSS 8542203 B <= 0.8C",
+      "estimate_adm_bytes": 48274484,
+      "rho": 0.11453843855707103,
+      "rho_rss": 0.17216625546211764,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5529284,
+      "rss_to_footprint": 1.544902330777791,
+      "projected_rss_bytes": 8542203,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "141_RF-LARGE-CHAIN-n00010-AX_w1a",
+      "144_RF-LARGE-CHAIN-n00010-ROT_w1a",
+      "146_RF-LARGE-CHAIN-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "207_RF-LARGE-TREE-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 48303140,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48233550 B x rho 0.107 <= C/2; projected RSS 8113822 B <= 0.8C",
+      "estimate_adm_bytes": 48233550,
+      "rho": 0.10746990786230835,
+      "rho_rss": 0.1651702479990815,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5183655,
+      "rss_to_footprint": 1.5652705594619383,
+      "projected_rss_bytes": 8113822,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48303140 B x rho 0.107 <= C/2; projected RSS 8115862 B <= 0.8C",
+      "estimate_adm_bytes": 48303140,
+      "rho": 0.10734205516478662,
+      "rho_rss": 0.16497375148971377,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5184958,
+      "rss_to_footprint": 1.5652705594619383,
+      "projected_rss_bytes": 8115862,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "147_RF-LARGE-TREE-n00010-AX_w1a",
+      "149_RF-LARGE-TREE-n00010-AX_w1a",
+      "152_RF-LARGE-TREE-n00010-ROT_w1a",
+      "154_RF-LARGE-TREE-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "209_RF-LARGE-TREE-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 48302610,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48233550 B x rho 0.107 <= C/2; projected RSS 8113822 B <= 0.8C",
+      "estimate_adm_bytes": 48233550,
+      "rho": 0.10746990786230835,
+      "rho_rss": 0.1651702479990815,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5183655,
+      "rss_to_footprint": 1.5652705594619383,
+      "projected_rss_bytes": 8113822,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48302610 B x rho 0.107 <= C/2; projected RSS 8115772 B <= 0.8C",
+      "estimate_adm_bytes": 48302610,
+      "rho": 0.10734205516478662,
+      "rho_rss": 0.16497375148971377,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5184901,
+      "rss_to_footprint": 1.5652705594619383,
+      "projected_rss_bytes": 8115772,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "147_RF-LARGE-TREE-n00010-AX_w1a",
+      "149_RF-LARGE-TREE-n00010-AX_w1a",
+      "152_RF-LARGE-TREE-n00010-ROT_w1a",
+      "154_RF-LARGE-TREE-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "212_RF-LARGE-TREE-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 48369527,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48252026 B x rho 0.107 <= C/2; projected RSS 8116929 B <= 0.8C",
+      "estimate_adm_bytes": 48252026,
+      "rho": 0.10746990786230835,
+      "rho_rss": 0.1651702479990815,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5185640,
+      "rss_to_footprint": 1.5652705594619383,
+      "projected_rss_bytes": 8116929,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48369527 B x rho 0.107 <= C/2; projected RSS 8127016 B <= 0.8C",
+      "estimate_adm_bytes": 48369527,
+      "rho": 0.10734205516478662,
+      "rho_rss": 0.16497375148971377,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5192084,
+      "rss_to_footprint": 1.5652705594619383,
+      "projected_rss_bytes": 8127016,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "147_RF-LARGE-TREE-n00010-AX_w1a",
+      "149_RF-LARGE-TREE-n00010-AX_w1a",
+      "152_RF-LARGE-TREE-n00010-ROT_w1a",
+      "154_RF-LARGE-TREE-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "214_RF-LARGE-TREE-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 48368996,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48252026 B x rho 0.107 <= C/2; projected RSS 8116929 B <= 0.8C",
+      "estimate_adm_bytes": 48252026,
+      "rho": 0.10746990786230835,
+      "rho_rss": 0.1651702479990815,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5185640,
+      "rss_to_footprint": 1.5652705594619383,
+      "projected_rss_bytes": 8116929,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48368996 B x rho 0.107 <= C/2; projected RSS 8126927 B <= 0.8C",
+      "estimate_adm_bytes": 48368996,
+      "rho": 0.10734205516478662,
+      "rho_rss": 0.16497375148971377,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5192027,
+      "rss_to_footprint": 1.5652705594619383,
+      "projected_rss_bytes": 8126927,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "147_RF-LARGE-TREE-n00010-AX_w1a",
+      "149_RF-LARGE-TREE-n00010-AX_w1a",
+      "152_RF-LARGE-TREE-n00010-ROT_w1a",
+      "154_RF-LARGE-TREE-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "215_RF-LARGE-CONT-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 47491915,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 47465317 B x rho 0.200 <= C/2; projected RSS 14565832 B <= 0.8C",
+      "estimate_adm_bytes": 47465317,
+      "rho": 0.20042532378993483,
+      "rho_rss": 0.2561365134357228,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9513251,
+      "rss_to_footprint": 1.5311098227091025,
+      "projected_rss_bytes": 14565832,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 47491915 B x rho 0.200 <= C/2; projected RSS 14554440 B <= 0.8C",
+      "estimate_adm_bytes": 47491915,
+      "rho": 0.2001564146477956,
+      "rho_rss": 0.25579285701149407,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9505811,
+      "rss_to_footprint": 1.5311098227091025,
+      "projected_rss_bytes": 14554440,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "155_RF-LARGE-CONT-n00010-AX_w1a",
+      "157_RF-LARGE-CONT-n00010-AX_w1a",
+      "160_RF-LARGE-CONT-n00010-ROT_w1a",
+      "162_RF-LARGE-CONT-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "217_RF-LARGE-CONT-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 47491385,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 47465317 B x rho 0.200 <= C/2; projected RSS 14565832 B <= 0.8C",
+      "estimate_adm_bytes": 47465317,
+      "rho": 0.20042532378993483,
+      "rho_rss": 0.2561365134357228,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9513251,
+      "rss_to_footprint": 1.5311098227091025,
+      "projected_rss_bytes": 14565832,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 47491385 B x rho 0.200 <= C/2; projected RSS 14554278 B <= 0.8C",
+      "estimate_adm_bytes": 47491385,
+      "rho": 0.2001564146477956,
+      "rho_rss": 0.25579285701149407,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9505705,
+      "rss_to_footprint": 1.5311098227091025,
+      "projected_rss_bytes": 14554278,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "155_RF-LARGE-CONT-n00010-AX_w1a",
+      "157_RF-LARGE-CONT-n00010-AX_w1a",
+      "160_RF-LARGE-CONT-n00010-ROT_w1a",
+      "162_RF-LARGE-CONT-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "220_RF-LARGE-CONT-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 47532453,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 47477142 B x rho 0.200 <= C/2; projected RSS 14569460 B <= 0.8C",
+      "estimate_adm_bytes": 47477142,
+      "rho": 0.20042532378993483,
+      "rho_rss": 0.2561365134357228,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9515621,
+      "rss_to_footprint": 1.5311098227091025,
+      "projected_rss_bytes": 14569460,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 47532453 B x rho 0.200 <= C/2; projected RSS 14566864 B <= 0.8C",
+      "estimate_adm_bytes": 47532453,
+      "rho": 0.2001564146477956,
+      "rho_rss": 0.25579285701149407,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9513925,
+      "rss_to_footprint": 1.5311098227091025,
+      "projected_rss_bytes": 14566864,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "155_RF-LARGE-CONT-n00010-AX_w1a",
+      "157_RF-LARGE-CONT-n00010-AX_w1a",
+      "160_RF-LARGE-CONT-n00010-ROT_w1a",
+      "162_RF-LARGE-CONT-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "222_RF-LARGE-CONT-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 47531922,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 47477142 B x rho 0.200 <= C/2; projected RSS 14569460 B <= 0.8C",
+      "estimate_adm_bytes": 47477142,
+      "rho": 0.20042532378993483,
+      "rho_rss": 0.2561365134357228,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9515621,
+      "rss_to_footprint": 1.5311098227091025,
+      "projected_rss_bytes": 14569460,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 47531922 B x rho 0.200 <= C/2; projected RSS 14566701 B <= 0.8C",
+      "estimate_adm_bytes": 47531922,
+      "rho": 0.2001564146477956,
+      "rho_rss": 0.25579285701149407,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 9513819,
+      "rss_to_footprint": 1.5311098227091025,
+      "projected_rss_bytes": 14566701,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "155_RF-LARGE-CONT-n00010-AX_w1a",
+      "157_RF-LARGE-CONT-n00010-AX_w1a",
+      "160_RF-LARGE-CONT-n00010-ROT_w1a",
+      "162_RF-LARGE-CONT-n00010-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "223_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 347434356,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 303321608 B x rho 0.335 <= C/2; projected RSS 113180254 B <= 0.8C",
+      "estimate_adm_bytes": 303321608,
+      "rho": 0.33532097743435113,
+      "rho_rss": 0.3618194335863345,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 101710098,
+      "rss_to_footprint": 1.1127730326262273,
+      "projected_rss_bytes": 113180254,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 347434356 B x rho 0.335 <= C/2; projected RSS 129507623 B <= 0.8C",
+      "estimate_adm_bytes": 347434356,
+      "rho": 0.33497776582680566,
+      "rho_rss": 0.3614490999722776,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 116382784,
+      "rss_to_footprint": 1.1127730326262273,
+      "projected_rss_bytes": 129507623,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "225_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 347433825,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 303321608 B x rho 0.335 <= C/2; projected RSS 113180254 B <= 0.8C",
+      "estimate_adm_bytes": 303321608,
+      "rho": 0.33532097743435113,
+      "rho_rss": 0.3618194335863345,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 101710098,
+      "rss_to_footprint": 1.1127730326262273,
+      "projected_rss_bytes": 113180254,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 347433825 B x rho 0.335 <= C/2; projected RSS 129507425 B <= 0.8C",
+      "estimate_adm_bytes": 347433825,
+      "rho": 0.33497776582680566,
+      "rho_rss": 0.3614490999722776,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 116382606,
+      "rss_to_footprint": 1.1127730326262273,
+      "projected_rss_bytes": 129507425,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "228_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 347434359,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 303321608 B x rho 0.335 <= C/2; projected RSS 113180254 B <= 0.8C",
+      "estimate_adm_bytes": 303321608,
+      "rho": 0.33532097743435113,
+      "rho_rss": 0.3618194335863345,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 101710098,
+      "rss_to_footprint": 1.1127730326262273,
+      "projected_rss_bytes": 113180254,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 347434359 B x rho 0.335 <= C/2; projected RSS 129507624 B <= 0.8C",
+      "estimate_adm_bytes": 347434359,
+      "rho": 0.33497776582680566,
+      "rho_rss": 0.3614490999722776,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 116382785,
+      "rss_to_footprint": 1.1127730326262273,
+      "projected_rss_bytes": 129507624,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "230_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 347433827,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 303321608 B x rho 0.335 <= C/2; projected RSS 113180254 B <= 0.8C",
+      "estimate_adm_bytes": 303321608,
+      "rho": 0.33532097743435113,
+      "rho_rss": 0.3618194335863345,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 101710098,
+      "rss_to_footprint": 1.1127730326262273,
+      "projected_rss_bytes": 113180254,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 347433827 B x rho 0.335 <= C/2; projected RSS 129507426 B <= 0.8C",
+      "estimate_adm_bytes": 347433827,
+      "rho": 0.33497776582680566,
+      "rho_rss": 0.3614490999722776,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 116382607,
+      "rss_to_footprint": 1.1127730326262273,
+      "projected_rss_bytes": 129507426,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "231_RF-LARGE-TREE-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 347755151,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 303412682 B x rho 0.273 <= C/2; projected RSS 94433100 B <= 0.8C",
+      "estimate_adm_bytes": 303412682,
+      "rho": 0.2726600536939112,
+      "rho_rss": 0.29914399863748725,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 82728518,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 94433100,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 347755151 B x rho 0.272 <= C/2; projected RSS 107972352 B <= 0.8C",
+      "estimate_adm_bytes": 347755151,
+      "rho": 0.2720006840745671,
+      "rho_rss": 0.29842058330092275,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 94589638,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 107972352,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "233_RF-LARGE-TREE-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 347754621,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 303412682 B x rho 0.273 <= C/2; projected RSS 94433100 B <= 0.8C",
+      "estimate_adm_bytes": 303412682,
+      "rho": 0.2726600536939112,
+      "rho_rss": 0.29914399863748725,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 82728518,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 94433100,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 347754621 B x rho 0.272 <= C/2; projected RSS 107972188 B <= 0.8C",
+      "estimate_adm_bytes": 347754621,
+      "rho": 0.2720006840745671,
+      "rho_rss": 0.29842058330092275,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 94589494,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 107972188,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "236_RF-LARGE-TREE-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 348414102,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 303597422 B x rho 0.273 <= C/2; projected RSS 94490597 B <= 0.8C",
+      "estimate_adm_bytes": 303597422,
+      "rho": 0.2726600536939112,
+      "rho_rss": 0.29914399863748725,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 82778889,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 94490597,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 348414102 B x rho 0.272 <= C/2; projected RSS 108176947 B <= 0.8C",
+      "estimate_adm_bytes": 348414102,
+      "rho": 0.2720006840745671,
+      "rho_rss": 0.29842058330092275,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 94768874,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 108176947,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "238_RF-LARGE-TREE-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 348413571,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 303597422 B x rho 0.273 <= C/2; projected RSS 94490597 B <= 0.8C",
+      "estimate_adm_bytes": 303597422,
+      "rho": 0.2726600536939112,
+      "rho_rss": 0.29914399863748725,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 82778889,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 94490597,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 348413571 B x rho 0.272 <= C/2; projected RSS 108176782 B <= 0.8C",
+      "estimate_adm_bytes": 348413571,
+      "rho": 0.2720006840745671,
+      "rho_rss": 0.29842058330092275,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 94768729,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 108176782,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "239_RF-LARGE-CONT-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 337224059,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 295679900 B x rho 0.434 <= C/2; projected RSS 143444903 B <= 0.8C",
+      "estimate_adm_bytes": 295679900,
+      "rho": 0.4342358863841571,
+      "rho_rss": 0.46012274604633946,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 128394823,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 143444903,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 337224059 B x rho 0.434 <= C/2; projected RSS 163509663 B <= 0.8C",
+      "estimate_adm_bytes": 337224059,
+      "rho": 0.4339975345002046,
+      "rho_rss": 0.4598701848766887,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 146354410,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 163509663,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "241_RF-LARGE-CONT-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 337223529,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 295679900 B x rho 0.434 <= C/2; projected RSS 143444903 B <= 0.8C",
+      "estimate_adm_bytes": 295679900,
+      "rho": 0.4342358863841571,
+      "rho_rss": 0.46012274604633946,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 128394823,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 143444903,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 337223529 B x rho 0.434 <= C/2; projected RSS 163509406 B <= 0.8C",
+      "estimate_adm_bytes": 337223529,
+      "rho": 0.4339975345002046,
+      "rho_rss": 0.4598701848766887,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 146354180,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 163509406,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "244_RF-LARGE-CONT-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 337637416,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 295795460 B x rho 0.434 <= C/2; projected RSS 143500965 B <= 0.8C",
+      "estimate_adm_bytes": 295795460,
+      "rho": 0.4342358863841571,
+      "rho_rss": 0.46012274604633946,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 128445003,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 143500965,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 337637416 B x rho 0.434 <= C/2; projected RSS 163710087 B <= 0.8C",
+      "estimate_adm_bytes": 337637416,
+      "rho": 0.4339975345002046,
+      "rho_rss": 0.4598701848766887,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 146533806,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 163710087,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "246_RF-LARGE-CONT-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 337636885,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 295795460 B x rho 0.434 <= C/2; projected RSS 143500965 B <= 0.8C",
+      "estimate_adm_bytes": 295795460,
+      "rho": 0.4342358863841571,
+      "rho_rss": 0.46012274604633946,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 128445003,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 143500965,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 337636885 B x rho 0.434 <= C/2; projected RSS 163709829 B <= 0.8C",
+      "estimate_adm_bytes": 337636885,
+      "rho": 0.4339975345002046,
+      "rho_rss": 0.4598701848766887,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 146533575,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 163709829,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "247_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 3266456092,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2856520478 B x rho 0.385 <= C/2; projected RSS 1254139894 B <= 0.8C",
+      "estimate_adm_bytes": 2856520478,
+      "rho": 0.3850212741849898,
+      "rho_rss": 0.43730766454330544,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1099821154,
+      "rss_to_footprint": 1.1403125775443816,
+      "projected_rss_bytes": 1254139894,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3266456092 B x rho 0.336 <= C/2; projected RSS 1252035716 B <= 0.8C",
+      "estimate_adm_bytes": 3266456092,
+      "rho": 0.33613673625473856,
+      "rho_rss": 0.3817839559155403,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1097975889,
+      "rss_to_footprint": 1.1403125775443816,
+      "projected_rss_bytes": 1252035716,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "223_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "225_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "228_RF-LARGE-CHAIN-n01000-ROT_w1a",
+      "230_RF-LARGE-CHAIN-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "249_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 3266455561,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2856520478 B x rho 0.385 <= C/2; projected RSS 1254139894 B <= 0.8C",
+      "estimate_adm_bytes": 2856520478,
+      "rho": 0.3850212741849898,
+      "rho_rss": 0.43730766454330544,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1099821154,
+      "rss_to_footprint": 1.1403125775443816,
+      "projected_rss_bytes": 1254139894,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3266455561 B x rho 0.336 <= C/2; projected RSS 1252035513 B <= 0.8C",
+      "estimate_adm_bytes": 3266455561,
+      "rho": 0.33613673625473856,
+      "rho_rss": 0.3817839559155403,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1097975711,
+      "rss_to_footprint": 1.1403125775443816,
+      "projected_rss_bytes": 1252035513,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "223_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "225_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "228_RF-LARGE-CHAIN-n01000-ROT_w1a",
+      "230_RF-LARGE-CHAIN-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "252_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 3266456095,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2856520478 B x rho 0.385 <= C/2; projected RSS 1254139894 B <= 0.8C",
+      "estimate_adm_bytes": 2856520478,
+      "rho": 0.3850212741849898,
+      "rho_rss": 0.43730766454330544,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1099821154,
+      "rss_to_footprint": 1.1403125775443816,
+      "projected_rss_bytes": 1254139894,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3266456095 B x rho 0.336 <= C/2; projected RSS 1252035717 B <= 0.8C",
+      "estimate_adm_bytes": 3266456095,
+      "rho": 0.33613673625473856,
+      "rho_rss": 0.3817839559155403,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1097975890,
+      "rss_to_footprint": 1.1403125775443816,
+      "projected_rss_bytes": 1252035717,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "223_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "225_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "228_RF-LARGE-CHAIN-n01000-ROT_w1a",
+      "230_RF-LARGE-CHAIN-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "254_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 3266455563,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2856520478 B x rho 0.385 <= C/2; projected RSS 1254139894 B <= 0.8C",
+      "estimate_adm_bytes": 2856520478,
+      "rho": 0.3850212741849898,
+      "rho_rss": 0.43730766454330544,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1099821154,
+      "rss_to_footprint": 1.1403125775443816,
+      "projected_rss_bytes": 1254139894,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3266455563 B x rho 0.336 <= C/2; projected RSS 1252035514 B <= 0.8C",
+      "estimate_adm_bytes": 3266455563,
+      "rho": 0.33613673625473856,
+      "rho_rss": 0.3817839559155403,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1097975712,
+      "rss_to_footprint": 1.1403125775443816,
+      "projected_rss_bytes": 1252035514,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "199_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "201_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "204_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "206_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "223_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "225_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "228_RF-LARGE-CHAIN-n01000-ROT_w1a",
+      "230_RF-LARGE-CHAIN-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "255_RF-LARGE-TREE-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 3269780233,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2857448446 B x rho 0.432 <= C/2; projected RSS 1407480959 B <= 0.8C",
+      "estimate_adm_bytes": 2857448446,
+      "rho": 0.4315142307104307,
+      "rho_rss": 0.4355072553942833,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1233029667,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 1407480959,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3269780233 B x rho 0.376 <= C/2; projected RSS 1403411540 B <= 0.8C",
+      "estimate_adm_bytes": 3269780233,
+      "rho": 0.3760083396394788,
+      "rho_rss": 0.3794877395634233,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1229464636,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 1403411540,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a",
+      "231_RF-LARGE-TREE-n01000-AX_w1a",
+      "233_RF-LARGE-TREE-n01000-AX_w1a",
+      "236_RF-LARGE-TREE-n01000-ROT_w1a",
+      "238_RF-LARGE-TREE-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "257_RF-LARGE-TREE-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 3269779703,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2857448446 B x rho 0.432 <= C/2; projected RSS 1407480959 B <= 0.8C",
+      "estimate_adm_bytes": 2857448446,
+      "rho": 0.4315142307104307,
+      "rho_rss": 0.4355072553942833,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1233029667,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 1407480959,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3269779703 B x rho 0.376 <= C/2; projected RSS 1403411313 B <= 0.8C",
+      "estimate_adm_bytes": 3269779703,
+      "rho": 0.3760083396394788,
+      "rho_rss": 0.3794877395634233,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1229464437,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 1403411313,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a",
+      "231_RF-LARGE-TREE-n01000-AX_w1a",
+      "233_RF-LARGE-TREE-n01000-AX_w1a",
+      "236_RF-LARGE-TREE-n01000-ROT_w1a",
+      "238_RF-LARGE-TREE-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "260_RF-LARGE-TREE-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 3276306672,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2859306986 B x rho 0.432 <= C/2; projected RSS 1408396412 B <= 0.8C",
+      "estimate_adm_bytes": 2859306986,
+      "rho": 0.4315142307104307,
+      "rho_rss": 0.4355072553942833,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1233831654,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 1408396412,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3276306672 B x rho 0.376 <= C/2; projected RSS 1406212731 B <= 0.8C",
+      "estimate_adm_bytes": 3276306672,
+      "rho": 0.3760083396394788,
+      "rho_rss": 0.3794877395634233,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1231918631,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 1406212731,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a",
+      "231_RF-LARGE-TREE-n01000-AX_w1a",
+      "233_RF-LARGE-TREE-n01000-AX_w1a",
+      "236_RF-LARGE-TREE-n01000-ROT_w1a",
+      "238_RF-LARGE-TREE-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "262_RF-LARGE-TREE-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 3276306141,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2859306986 B x rho 0.432 <= C/2; projected RSS 1408396412 B <= 0.8C",
+      "estimate_adm_bytes": 2859306986,
+      "rho": 0.4315142307104307,
+      "rho_rss": 0.4355072553942833,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1233831654,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 1408396412,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3276306141 B x rho 0.376 <= C/2; projected RSS 1406212504 B <= 0.8C",
+      "estimate_adm_bytes": 3276306141,
+      "rho": 0.3760083396394788,
+      "rho_rss": 0.3794877395634233,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1231918432,
+      "rss_to_footprint": 1.1414818286611859,
+      "projected_rss_bytes": 1406212504,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "207_RF-LARGE-TREE-n00100-AX_w1a",
+      "209_RF-LARGE-TREE-n00100-AX_w1a",
+      "212_RF-LARGE-TREE-n00100-ROT_w1a",
+      "214_RF-LARGE-TREE-n00100-ROT_w1a",
+      "231_RF-LARGE-TREE-n01000-AX_w1a",
+      "233_RF-LARGE-TREE-n01000-AX_w1a",
+      "236_RF-LARGE-TREE-n01000-ROT_w1a",
+      "238_RF-LARGE-TREE-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "263_RF-LARGE-CONT-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 3169690958,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2777832333 B x rho 0.434 <= C/2; projected RSS 1347625906 B <= 0.8C",
+      "estimate_adm_bytes": 2777832333,
+      "rho": 0.4342358863841571,
+      "rho_rss": 0.46012274604633946,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1206234485,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 1347625906,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3169690958 B x rho 0.434 <= C/2; projected RSS 1536886493 B <= 0.8C",
+      "estimate_adm_bytes": 3169690958,
+      "rho": 0.4339975345002046,
+      "rho_rss": 0.4598701848766887,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1375638060,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 1536886493,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a",
+      "239_RF-LARGE-CONT-n01000-AX_w1a",
+      "241_RF-LARGE-CONT-n01000-AX_w1a",
+      "244_RF-LARGE-CONT-n01000-ROT_w1a",
+      "246_RF-LARGE-CONT-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "265_RF-LARGE-CONT-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 3169690428,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2777832333 B x rho 0.434 <= C/2; projected RSS 1347625906 B <= 0.8C",
+      "estimate_adm_bytes": 2777832333,
+      "rho": 0.4342358863841571,
+      "rho_rss": 0.46012274604633946,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1206234485,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 1347625906,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3169690428 B x rho 0.434 <= C/2; projected RSS 1536886236 B <= 0.8C",
+      "estimate_adm_bytes": 3169690428,
+      "rho": 0.4339975345002046,
+      "rho_rss": 0.4598701848766887,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1375637830,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 1536886236,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a",
+      "239_RF-LARGE-CONT-n01000-AX_w1a",
+      "241_RF-LARGE-CONT-n01000-AX_w1a",
+      "244_RF-LARGE-CONT-n01000-ROT_w1a",
+      "246_RF-LARGE-CONT-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "268_RF-LARGE-CONT-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 3173807278,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2778990028 B x rho 0.434 <= C/2; projected RSS 1348187546 B <= 0.8C",
+      "estimate_adm_bytes": 2778990028,
+      "rho": 0.4342358863841571,
+      "rho_rss": 0.46012274604633946,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1206737198,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 1348187546,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3173807278 B x rho 0.434 <= C/2; projected RSS 1538882371 B <= 0.8C",
+      "estimate_adm_bytes": 3173807278,
+      "rho": 0.4339975345002046,
+      "rho_rss": 0.4598701848766887,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1377424533,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 1538882371,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a",
+      "239_RF-LARGE-CONT-n01000-AX_w1a",
+      "241_RF-LARGE-CONT-n01000-AX_w1a",
+      "244_RF-LARGE-CONT-n01000-ROT_w1a",
+      "246_RF-LARGE-CONT-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "K6B",
+    "run_id": "270_RF-LARGE-CONT-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 3173806747,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2778990028 B x rho 0.434 <= C/2; projected RSS 1348187546 B <= 0.8C",
+      "estimate_adm_bytes": 2778990028,
+      "rho": 0.4342358863841571,
+      "rho_rss": 0.46012274604633946,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1206737198,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 1348187546,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 3173806747 B x rho 0.434 <= C/2; projected RSS 1538882114 B <= 0.8C",
+      "estimate_adm_bytes": 3173806747,
+      "rho": 0.4339975345002046,
+      "rho_rss": 0.4598701848766887,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1377424303,
+      "rss_to_footprint": 1.1172171938627022,
+      "projected_rss_bytes": 1538882114,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "215_RF-LARGE-CONT-n00100-AX_w1a",
+      "217_RF-LARGE-CONT-n00100-AX_w1a",
+      "220_RF-LARGE-CONT-n00100-ROT_w1a",
+      "222_RF-LARGE-CONT-n00100-ROT_w1a",
+      "239_RF-LARGE-CONT-n01000-AX_w1a",
+      "241_RF-LARGE-CONT-n01000-AX_w1a",
+      "244_RF-LARGE-CONT-n01000-ROT_w1a",
+      "246_RF-LARGE-CONT-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 48517318,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48490166 B x rho 2.000 <= C/2; projected RSS 140621481 B <= 0.8C",
+      "estimate_adm_bytes": 48490166,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 96980332,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140621481,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48517318 B x rho 2.000 <= C/2; projected RSS 140700222 B <= 0.8C",
+      "estimate_adm_bytes": 48517318,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 97034636,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140700222,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "VK",
+    "run_id": "02_RF-LARGE-CHAIN-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 48517848,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48490166 B x rho 2.000 <= C/2; projected RSS 140621481 B <= 0.8C",
+      "estimate_adm_bytes": 48490166,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 96980332,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140621481,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48517848 B x rho 2.000 <= C/2; projected RSS 140701759 B <= 0.8C",
+      "estimate_adm_bytes": 48517848,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 97035696,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140701759,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "VK",
+    "run_id": "03_RF-LARGE-TREE-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 48530991,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48499782 B x rho 2.000 <= C/2; projected RSS 140649367 B <= 0.8C",
+      "estimate_adm_bytes": 48499782,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 96999564,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140649367,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48530991 B x rho 2.000 <= C/2; projected RSS 140739873 B <= 0.8C",
+      "estimate_adm_bytes": 48530991,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 97061982,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140739873,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "VK",
+    "run_id": "04_RF-LARGE-TREE-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 48612396,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48522171 B x rho 2.000 <= C/2; projected RSS 140714295 B <= 0.8C",
+      "estimate_adm_bytes": 48522171,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 97044342,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140714295,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48612396 B x rho 2.000 <= C/2; projected RSS 140975948 B <= 0.8C",
+      "estimate_adm_bytes": 48612396,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 97224792,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140975948,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "VK",
+    "run_id": "05_RF-LARGE-CONT-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 47745455,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 47751492 B x rho 2.000 <= C/2; projected RSS 138479326 B <= 0.8C",
+      "estimate_adm_bytes": 47751492,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 95502984,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 138479326,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 47745455 B x rho 2.000 <= C/2; projected RSS 138461819 B <= 0.8C",
+      "estimate_adm_bytes": 47745455,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 95490910,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 138461819,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "VK",
+    "run_id": "06_RF-LARGE-CONT-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 47797124,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 47765820 B x rho 2.000 <= C/2; projected RSS 138520878 B <= 0.8C",
+      "estimate_adm_bytes": 47765820,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 95531640,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 138520878,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 47797124 B x rho 2.000 <= C/2; projected RSS 138611659 B <= 0.8C",
+      "estimate_adm_bytes": 47797124,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 95594248,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 138611659,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "VK",
+    "run_id": "07_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 481972600,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 305951366 B x rho 0.426 <= C/2; projected RSS 142704232 B <= 0.8C",
+      "estimate_adm_bytes": 305951366,
+      "rho": 0.4264097590426892,
+      "rho_rss": 0.4537767925974929,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 130460648,
+      "rss_to_footprint": 1.0938488742747987,
+      "projected_rss_bytes": 142704232,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 481972600 B x rho 0.426 <= C/2; projected RSS 224677172 B <= 0.8C",
+      "estimate_adm_bytes": 481972600,
+      "rho": 0.42616646970821953,
+      "rho_rss": 0.4535178889220313,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 205400561,
+      "rss_to_footprint": 1.0938488742747987,
+      "projected_rss_bytes": 224677172,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "02_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "08_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 481973334,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 305951366 B x rho 0.426 <= C/2; projected RSS 142704232 B <= 0.8C",
+      "estimate_adm_bytes": 305951366,
+      "rho": 0.4264097590426892,
+      "rho_rss": 0.4537767925974929,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 130460648,
+      "rss_to_footprint": 1.0938488742747987,
+      "projected_rss_bytes": 142704232,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 481973334 B x rho 0.426 <= C/2; projected RSS 224677514 B <= 0.8C",
+      "estimate_adm_bytes": 481973334,
+      "rho": 0.42616646970821953,
+      "rho_rss": 0.4535178889220313,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 205400874,
+      "rss_to_footprint": 1.0938488742747987,
+      "projected_rss_bytes": 224677514,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "02_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "09_RF-LARGE-TREE-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 482009943,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 306061410 B x rho 0.364 <= C/2; projected RSS 123948107 B <= 0.8C",
+      "estimate_adm_bytes": 306061410,
+      "rho": 0.36366089225480036,
+      "rho_rss": 0.39134802933693963,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 111302565,
+      "rss_to_footprint": 1.1136141190361522,
+      "projected_rss_bytes": 123948107,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 482009943 B x rho 0.363 <= C/2; projected RSS 194841076 B <= 0.8C",
+      "estimate_adm_bytes": 482009943,
+      "rho": 0.36298593469863116,
+      "rho_rss": 0.3906216842304996,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 174962829,
+      "rss_to_footprint": 1.1136141190361522,
+      "projected_rss_bytes": 194841076,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "03_RF-LARGE-TREE-n00100-AX_w1a",
+      "04_RF-LARGE-TREE-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "10_RF-LARGE-TREE-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 482055093,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 306285110 B x rho 0.364 <= C/2; projected RSS 124038701 B <= 0.8C",
+      "estimate_adm_bytes": 306285110,
+      "rho": 0.36366089225480036,
+      "rho_rss": 0.39134802933693963,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 111383916,
+      "rss_to_footprint": 1.1136141190361522,
+      "projected_rss_bytes": 124038701,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 482055093 B x rho 0.363 <= C/2; projected RSS 194859327 B <= 0.8C",
+      "estimate_adm_bytes": 482055093,
+      "rho": 0.36298593469863116,
+      "rho_rss": 0.3906216842304996,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 174979218,
+      "rss_to_footprint": 1.1136141190361522,
+      "projected_rss_bytes": 194859327,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "03_RF-LARGE-TREE-n00100-AX_w1a",
+      "04_RF-LARGE-TREE-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "11_RF-LARGE-CONT-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 337533014,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 298528275 B x rho 0.412 <= C/2; projected RSS 135013020 B <= 0.8C",
+      "estimate_adm_bytes": 298528275,
+      "rho": 0.41160964053375404,
+      "rho_rss": 0.4393916821693839,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 122877115,
+      "rss_to_footprint": 1.0987645730407445,
+      "projected_rss_bytes": 135013020,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 337533014 B x rho 0.411 <= C/2; projected RSS 152553408 B <= 0.8C",
+      "estimate_adm_bytes": 337533014,
+      "rho": 0.4113400630548399,
+      "rho_rss": 0.4391039092644988,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 138840851,
+      "rss_to_footprint": 1.0987645730407445,
+      "projected_rss_bytes": 152553408,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "05_RF-LARGE-CONT-n00100-AX_w1a",
+      "06_RF-LARGE-CONT-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "12_RF-LARGE-CONT-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 337991405,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 298668178 B x rho 0.412 <= C/2; projected RSS 135076294 B <= 0.8C",
+      "estimate_adm_bytes": 298668178,
+      "rho": 0.41160964053375404,
+      "rho_rss": 0.4393916821693839,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 122934701,
+      "rss_to_footprint": 1.0987645730407445,
+      "projected_rss_bytes": 135076294,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 337991405 B x rho 0.411 <= C/2; projected RSS 152760584 B <= 0.8C",
+      "estimate_adm_bytes": 337991405,
+      "rho": 0.4113400630548399,
+      "rho_rss": 0.4391039092644988,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 139029405,
+      "rss_to_footprint": 1.0987645730407445,
+      "projected_rss_bytes": 152760584,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "05_RF-LARGE-CONT-n00100-AX_w1a",
+      "06_RF-LARGE-CONT-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "13_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 43794368434,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2882802230 B x rho 0.426 <= C/2; projected RSS 1344619202 B <= 0.8C",
+      "estimate_adm_bytes": 2882802230,
+      "rho": 0.4264097590426892,
+      "rho_rss": 0.4537767925974929,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1229255004,
+      "rss_to_footprint": 1.0938488742747987,
+      "projected_rss_bytes": 1344619202,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 43794368434 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "02_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "07_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "08_RF-LARGE-CHAIN-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "14_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 43794369202,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2882802230 B x rho 0.426 <= C/2; projected RSS 1344619202 B <= 0.8C",
+      "estimate_adm_bytes": 2882802230,
+      "rho": 0.4264097590426892,
+      "rho_rss": 0.4537767925974929,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1229255004,
+      "rss_to_footprint": 1.0938488742747987,
+      "projected_rss_bytes": 1344619202,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 43794369202 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "02_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "07_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "08_RF-LARGE-CHAIN-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "15_RF-LARGE-TREE-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 43794608050,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2883922498 B x rho 0.405 <= C/2; projected RSS 1299635965 B <= 0.8C",
+      "estimate_adm_bytes": 2883922498,
+      "rho": 0.4046722349643442,
+      "rho_rss": 0.4086837913863981,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1167043362,
+      "rss_to_footprint": 1.1136141190361522,
+      "projected_rss_bytes": 1299635965,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 43794608050 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "03_RF-LARGE-TREE-n00100-AX_w1a",
+      "04_RF-LARGE-TREE-n00100-ROT_w1a",
+      "09_RF-LARGE-TREE-n01000-AX_w1a",
+      "10_RF-LARGE-TREE-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "16_RF-LARGE-TREE-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 43795065566,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2886171220 B x rho 0.405 <= C/2; projected RSS 1300649349 B <= 0.8C",
+      "estimate_adm_bytes": 2886171220,
+      "rho": 0.4046722349643442,
+      "rho_rss": 0.4086837913863981,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1167953358,
+      "rss_to_footprint": 1.1136141190361522,
+      "projected_rss_bytes": 1300649349,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 43795065566 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "03_RF-LARGE-TREE-n00100-AX_w1a",
+      "04_RF-LARGE-TREE-n00100-ROT_w1a",
+      "09_RF-LARGE-TREE-n01000-AX_w1a",
+      "10_RF-LARGE-TREE-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "17_RF-LARGE-CONT-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 24893213660,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2806302708 B x rho 0.437 <= C/2; projected RSS 1346260595 B <= 0.8C",
+      "estimate_adm_bytes": 2806302708,
+      "rho": 0.43660627279816866,
+      "rho_rss": 0.4407200555527546,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1225249365,
+      "rss_to_footprint": 1.0987645730407445,
+      "projected_rss_bytes": 1346260595,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 24893213660 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "05_RF-LARGE-CONT-n00100-AX_w1a",
+      "06_RF-LARGE-CONT-n00100-ROT_w1a",
+      "11_RF-LARGE-CONT-n01000-AX_w1a",
+      "12_RF-LARGE-CONT-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "VK",
+    "run_id": "18_RF-LARGE-CONT-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 24893498994,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2807703146 B x rho 0.437 <= C/2; projected RSS 1346932424 B <= 0.8C",
+      "estimate_adm_bytes": 2807703146,
+      "rho": 0.43660627279816866,
+      "rho_rss": 0.4407200555527546,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1225860805,
+      "rss_to_footprint": 1.0987645730407445,
+      "projected_rss_bytes": 1346932424,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 24893498994 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "05_RF-LARGE-CONT-n00100-AX_w1a",
+      "06_RF-LARGE-CONT-n00100-ROT_w1a",
+      "11_RF-LARGE-CONT-n01000-AX_w1a",
+      "12_RF-LARGE-CONT-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 48517318,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48490166 B x rho 2.000 <= C/2; projected RSS 140621481 B <= 0.8C",
+      "estimate_adm_bytes": 48490166,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 96980332,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140621481,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48517318 B x rho 2.000 <= C/2; projected RSS 140700222 B <= 0.8C",
+      "estimate_adm_bytes": 48517318,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 97034636,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140700222,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "02_RF-LARGE-CHAIN-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 48517848,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48490166 B x rho 2.000 <= C/2; projected RSS 140621481 B <= 0.8C",
+      "estimate_adm_bytes": 48490166,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 96980332,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140621481,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48517848 B x rho 2.000 <= C/2; projected RSS 140701759 B <= 0.8C",
+      "estimate_adm_bytes": 48517848,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 97035696,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140701759,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "03_RF-LARGE-TREE-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 48530991,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48499782 B x rho 2.000 <= C/2; projected RSS 140649367 B <= 0.8C",
+      "estimate_adm_bytes": 48499782,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 96999564,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140649367,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48530991 B x rho 2.000 <= C/2; projected RSS 140739873 B <= 0.8C",
+      "estimate_adm_bytes": 48530991,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 97061982,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140739873,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "04_RF-LARGE-TREE-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 48612396,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 48522171 B x rho 2.000 <= C/2; projected RSS 140714295 B <= 0.8C",
+      "estimate_adm_bytes": 48522171,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 97044342,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140714295,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 48612396 B x rho 2.000 <= C/2; projected RSS 140975948 B <= 0.8C",
+      "estimate_adm_bytes": 48612396,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 97224792,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 140975948,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "05_RF-LARGE-CONT-n00100-AX_w1a",
+    "members": 100,
+    "estimate": 47745455,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 47751492 B x rho 2.000 <= C/2; projected RSS 138479326 B <= 0.8C",
+      "estimate_adm_bytes": 47751492,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 95502984,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 138479326,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 47745455 B x rho 2.000 <= C/2; projected RSS 138461819 B <= 0.8C",
+      "estimate_adm_bytes": 47745455,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 95490910,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 138461819,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "06_RF-LARGE-CONT-n00100-ROT_w1a",
+    "members": 100,
+    "estimate": 47797124,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 47765820 B x rho 2.000 <= C/2; projected RSS 138520878 B <= 0.8C",
+      "estimate_adm_bytes": 47765820,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 95531640,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 138520878,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 47797124 B x rho 2.000 <= C/2; projected RSS 138611659 B <= 0.8C",
+      "estimate_adm_bytes": 47797124,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 95594248,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 138611659,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": []
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "07_RF-LARGE-CHAIN-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 481972600,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 305951366 B x rho 0.428 <= C/2; projected RSS 142995096 B <= 0.8C",
+      "estimate_adm_bytes": 305951366,
+      "rho": 0.427760795869414,
+      "rho_rss": 0.4551283243699351,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 130873999,
+      "rss_to_footprint": 1.0926165469340936,
+      "projected_rss_bytes": 142995096,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 481972600 B x rho 0.428 <= C/2; projected RSS 225135116 B <= 0.8C",
+      "estimate_adm_bytes": 481972600,
+      "rho": 0.42751673569693366,
+      "rho_rss": 0.45486864957407014,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 206051352,
+      "rss_to_footprint": 1.0926165469340936,
+      "projected_rss_bytes": 225135116,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "02_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "08_RF-LARGE-CHAIN-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 481973334,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 305951366 B x rho 0.428 <= C/2; projected RSS 142995096 B <= 0.8C",
+      "estimate_adm_bytes": 305951366,
+      "rho": 0.427760795869414,
+      "rho_rss": 0.4551283243699351,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 130873999,
+      "rss_to_footprint": 1.0926165469340936,
+      "projected_rss_bytes": 142995096,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 481973334 B x rho 0.428 <= C/2; projected RSS 225135459 B <= 0.8C",
+      "estimate_adm_bytes": 481973334,
+      "rho": 0.42751673569693366,
+      "rho_rss": 0.45486864957407014,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 206051666,
+      "rss_to_footprint": 1.0926165469340936,
+      "projected_rss_bytes": 225135459,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "02_RF-LARGE-CHAIN-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "09_RF-LARGE-TREE-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 482009943,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 306061410 B x rho 0.361 <= C/2; projected RSS 122871464 B <= 0.8C",
+      "estimate_adm_bytes": 306061410,
+      "rho": 0.36095911701889843,
+      "rho_rss": 0.3889844087973722,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 110475656,
+      "rss_to_footprint": 1.1122039798579113,
+      "projected_rss_bytes": 122871464,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 482009943 B x rho 0.360 <= C/2; projected RSS 193148639 B <= 0.8C",
+      "estimate_adm_bytes": 482009943,
+      "rho": 0.3602891739794105,
+      "rho_rss": 0.38826245058976316,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 173662964,
+      "rss_to_footprint": 1.1122039798579113,
+      "projected_rss_bytes": 193148639,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "03_RF-LARGE-TREE-n00100-AX_w1a",
+      "04_RF-LARGE-TREE-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "10_RF-LARGE-TREE-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 482055093,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 306285110 B x rho 0.361 <= C/2; projected RSS 122961270 B <= 0.8C",
+      "estimate_adm_bytes": 306285110,
+      "rho": 0.36095911701889843,
+      "rho_rss": 0.3889844087973722,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 110556402,
+      "rss_to_footprint": 1.1122039798579113,
+      "projected_rss_bytes": 122961270,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 482055093 B x rho 0.360 <= C/2; projected RSS 193166731 B <= 0.8C",
+      "estimate_adm_bytes": 482055093,
+      "rho": 0.3602891739794105,
+      "rho_rss": 0.38826245058976316,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 173679231,
+      "rss_to_footprint": 1.1122039798579113,
+      "projected_rss_bytes": 193166731,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "03_RF-LARGE-TREE-n00100-AX_w1a",
+      "04_RF-LARGE-TREE-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "11_RF-LARGE-CONT-n01000-AX_w1a",
+    "members": 1000,
+    "estimate": 337533014,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 298528275 B x rho 0.412 <= C/2; projected RSS 135114382 B <= 0.8C",
+      "estimate_adm_bytes": 298528275,
+      "rho": 0.41195214486006937,
+      "rho_rss": 0.43973468894703366,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 122979363,
+      "rss_to_footprint": 1.0986752521911527,
+      "projected_rss_bytes": 135114382,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 337533014 B x rho 0.412 <= C/2; projected RSS 152667938 B <= 0.8C",
+      "estimate_adm_bytes": 337533014,
+      "rho": 0.41168234306315166,
+      "rho_rss": 0.4394466913950722,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 138956382,
+      "rss_to_footprint": 1.0986752521911527,
+      "projected_rss_bytes": 152667938,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "05_RF-LARGE-CONT-n00100-AX_w1a",
+      "06_RF-LARGE-CONT-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "12_RF-LARGE-CONT-n01000-ROT_w1a",
+    "members": 1000,
+    "estimate": 337991405,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 298668178 B x rho 0.412 <= C/2; projected RSS 135177702 B <= 0.8C",
+      "estimate_adm_bytes": 298668178,
+      "rho": 0.41195214486006937,
+      "rho_rss": 0.43973468894703366,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 123036996,
+      "rss_to_footprint": 1.0986752521911527,
+      "projected_rss_bytes": 135177702,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "admitted",
+      "reason": "estimate 337991405 B x rho 0.412 <= C/2; projected RSS 152875270 B <= 0.8C",
+      "estimate_adm_bytes": 337991405,
+      "rho": 0.41168234306315166,
+      "rho_rss": 0.4394466913950722,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 139145093,
+      "rss_to_footprint": 1.0986752521911527,
+      "projected_rss_bytes": 152875270,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "population_ids": [
+      "05_RF-LARGE-CONT-n00100-AX_w1a",
+      "06_RF-LARGE-CONT-n00100-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "13_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 43794368434,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2882802230 B x rho 0.428 <= C/2; projected RSS 1347359850 B <= 0.8C",
+      "estimate_adm_bytes": 2882802230,
+      "rho": 0.427760795869414,
+      "rho_rss": 0.4551283243699351,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1233149776,
+      "rss_to_footprint": 1.0926165469340936,
+      "projected_rss_bytes": 1347359850,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 43794368434 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "02_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "07_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "08_RF-LARGE-CHAIN-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "14_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 43794369202,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2882802230 B x rho 0.428 <= C/2; projected RSS 1347359850 B <= 0.8C",
+      "estimate_adm_bytes": 2882802230,
+      "rho": 0.427760795869414,
+      "rho_rss": 0.4551283243699351,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1233149776,
+      "rss_to_footprint": 1.0926165469340936,
+      "projected_rss_bytes": 1347359850,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 43794369202 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "01_RF-LARGE-CHAIN-n00100-AX_w1a",
+      "02_RF-LARGE-CHAIN-n00100-ROT_w1a",
+      "07_RF-LARGE-CHAIN-n01000-AX_w1a",
+      "08_RF-LARGE-CHAIN-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "15_RF-LARGE-TREE-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 43794608050,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2883922498 B x rho 0.403 <= C/2; projected RSS 1292328191 B <= 0.8C",
+      "estimate_adm_bytes": 2883922498,
+      "rho": 0.4029069777502406,
+      "rho_rss": 0.40691853417229457,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1161952497,
+      "rss_to_footprint": 1.1122039798579113,
+      "projected_rss_bytes": 1292328191,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 43794608050 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "03_RF-LARGE-TREE-n00100-AX_w1a",
+      "04_RF-LARGE-TREE-n00100-ROT_w1a",
+      "09_RF-LARGE-TREE-n01000-AX_w1a",
+      "10_RF-LARGE-TREE-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "16_RF-LARGE-TREE-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 43795065566,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2886171220 B x rho 0.403 <= C/2; projected RSS 1293335877 B <= 0.8C",
+      "estimate_adm_bytes": 2886171220,
+      "rho": 0.4029069777502406,
+      "rho_rss": 0.40691853417229457,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1162858523,
+      "rss_to_footprint": 1.1122039798579113,
+      "projected_rss_bytes": 1293335877,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 43795065566 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "03_RF-LARGE-TREE-n00100-AX_w1a",
+      "04_RF-LARGE-TREE-n00100-ROT_w1a",
+      "09_RF-LARGE-TREE-n01000-AX_w1a",
+      "10_RF-LARGE-TREE-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "17_RF-LARGE-CONT-n10000-AX_w1a",
+    "members": 10000,
+    "estimate": 24893213660,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2806302708 B x rho 0.437 <= C/2; projected RSS 1347335104 B <= 0.8C",
+      "estimate_adm_bytes": 2806302708,
+      "rho": 0.43699027085503567,
+      "rho_rss": 0.44110405360962157,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1226326980,
+      "rss_to_footprint": 1.0986752521911527,
+      "projected_rss_bytes": 1347335104,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 24893213660 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "05_RF-LARGE-CONT-n00100-AX_w1a",
+      "06_RF-LARGE-CONT-n00100-ROT_w1a",
+      "11_RF-LARGE-CONT-n01000-AX_w1a",
+      "12_RF-LARGE-CONT-n01000-ROT_w1a"
+    ]
+  },
+  {
+    "dataset": "KF3",
+    "run_id": "18_RF-LARGE-CONT-n10000-ROT_w1a",
+    "members": 10000,
+    "estimate": 24893498994,
+    "old": {
+      "decision": "admitted",
+      "reason": "estimate 2807703146 B x rho 0.437 <= C/2; projected RSS 1348007469 B <= 0.8C",
+      "estimate_adm_bytes": 2807703146,
+      "rho": 0.43699027085503567,
+      "rho_rss": 0.44110405360962157,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 1226938958,
+      "rss_to_footprint": 1.0986752521911527,
+      "projected_rss_bytes": 1348007469,
+      "projected_rss_limit_bytes": 6871947673
+    },
+    "new": {
+      "decision": "deferred",
+      "reason": "deferred:the binary's backstop would refuse (estimate 24893498994 B > half the heap cap 4026531840 B)"
+    },
+    "population_ids": [
+      "05_RF-LARGE-CONT-n00100-AX_w1a",
+      "06_RF-LARGE-CONT-n00100-ROT_w1a",
+      "11_RF-LARGE-CONT-n01000-AX_w1a",
+      "12_RF-LARGE-CONT-n01000-ROT_w1a"
+    ]
+  }
+]
