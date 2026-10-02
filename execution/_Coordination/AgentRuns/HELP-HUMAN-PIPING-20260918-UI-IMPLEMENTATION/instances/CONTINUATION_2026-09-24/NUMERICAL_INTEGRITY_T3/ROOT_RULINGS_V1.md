@@ -4261,3 +4261,16 @@ acceptance distinct; give shared edits one owner and frozen review bases; report
 supporting work against the numerical question and its time bound; retain one
 compact recovery entrypoint with selected evidence. These are this run's execution
 practice, not an amendment to standing agent instructions or a reusable workflow.
+
+
+## Narrow VR lifetime-phase regression grant (ROOT, 2026-10-02 UTC)
+
+The saved VR preparation names two unexecuted witness gaps. ROOT commissions
+fresh I27 to distinguish phase-identity coverage from domination by later global
+maxima, and to add only source-backed local phase regressions. A narrowly
+mechanical private helper extraction in VR/src/envelope.rs is permitted if the
+existing estimator consumes it and algebra/lifetimes remain unchanged. No public
+contract, bound policy, supported input domain or protected criterion changes.
+The detailed fence and25-minute bound are R/BRIEFS/I27_VR_PHASE_WITNESSES_01.md.
+I26 retains the Cargo lane until explicit ROOT release. H/VR writes are disjoint.
+Independent review follows ROOT verification/commit before any claimed closure.
