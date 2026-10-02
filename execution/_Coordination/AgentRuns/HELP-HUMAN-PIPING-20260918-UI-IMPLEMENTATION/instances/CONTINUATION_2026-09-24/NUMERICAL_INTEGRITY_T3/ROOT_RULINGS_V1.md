@@ -4398,3 +4398,29 @@ filters/criteria and historical timing fields; these are no fresh duration promi
 Only original small-case retained solves/parity in those tests are permitted.
 No release records group, mechanical full matrix, scale job or measurement follows
 automatically. Ordinary-artifact review RV36 runs read-only on a disjoint fence.
+
+
+## Ordinary artifact correspondence accepted; V-K release block C (ROOT, 2026-10-02 UTC)
+
+ROOT read the full RV36 RETURN and additive TIME_CORRECTION, verified final95
+payloads under sealccfce99f7a5099bc6910fea41f3fa9b4e56b9763f95882d7c2bd4a65ed293fb2
+and the unchanged original92-payload seal42b7d36683f1157e8ba56473fe2f90142cb855b3ccd2d34924e22dae8b01f1e8.
+Accept I28's ordinary H/VR source/build/type/request correspondence within those
+stated premises. Direct current-image requests, carried nominal facts, four
+source-composed internal pairs, unavailable complete link map and inferred omitted
+defaults remain distinguished. The ten-type current reporter is independently
+confirmed. The timestamp correction withdraws unsampled precision; it changes no
+technical result. No complete run, input/launch, admission or measurement grant
+is implied. Those separate bindings remain required.
+
+ROOT also read I27 B_DEBUG RETURN and verified206 payloads under
+seal01ae9fd2f71ff16a96ea35979b98978b93a7cf0821cb3e19847336f8bd8c9909.
+All assigned author routes have actual restoring controls and qualified named
+witnesses; full independent V-K programme review remains outstanding. Preserve
+zero-credit extras and unexecuted later assertions.
+
+Release only B3/C_RELEASE under R/BRIEFS/I27_VK_RELEASE_06.md for30 minutes.
+The full existing family/show/parity scope, original criteria and separately
+owner-approved F17 cases remain unchanged. Historical seconds are not a current
+duration guarantee. No full mechanical matrix, scale run or maintained edit
+is included. The Cargo lane is idle and assigned only to that TASK.
