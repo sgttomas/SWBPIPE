@@ -64,7 +64,11 @@ raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz.
 ## Current bounded assignment
 
 I26 t4_measurements_10 is released: receipt14:50:52 UTC, hard normal solver
-stop/reap15:30:52, comparator cutoff15:40:52, final return15:50:52. Original
+original stop/reap15:30:52, comparator15:40:52 and return15:50:52. ROOT later
+issued explicit final-family continuation bf234cf6 before that cutoff. Its
+condition was met by I26 snapshot15:29:36: all rows through262 completed validly.
+Only remaining original CONT rows may continue in the same wrapper, with hard
+normal stop/reap15:40:52, comparator cutoff15:50:52 and final return16:00:52. Original
 wrapper once, named T4 hold lift only, unchanged actual numeric gates. Existing
 M5 guard and sole quiet/timed lane; no builds. A valid completed normal tier may
 proceed to the exact unchanged R1 comparison under the approved scope. Partial
