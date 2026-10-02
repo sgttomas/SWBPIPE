@@ -4362,3 +4362,22 @@ inspection and one unchanged accepted ten-type reporter are authorized. No new
 tool/reader/guard/probe, arbitrary private-layout inference, counts/model/solver
 or measurement run. Missing attribution remains a named unqualified cell. ROOT
 will independently review returned evidence before relying on a bound.
+
+
+## V-K first adapter block released (ROOT, 2026-10-02 UTC)
+
+ROOT read I27 vk_execution_plan_03 RETURN/PLAN and the exact B1/first-route
+command and criterion metadata; its seal41fe834ae3ef144754a9396a002aca17bd8defbc772002963c0a1ad5c107035c
+verifies. The unchanged original seeded sites, criterion-bearing sources and
+empty overlay list support this current-candidate execution selection.
+
+Release only block A_FIRST: fresh debug seeded adapter build on maintained81c038,
+then separate NONE/F10/NONE and NONE/UNKNOWN/NONE processes using the exact
+canonical-permutation filter. Twelve-minute total from native receipt, cutoff9.
+Expected F10 is the original canonical-array comparison; UNKNOWN must reach the
+named unknown-fault panic. Compilation, zero-test or unrelated failure is not a
+witness. Normal controls must execute and pass the complete original test.
+No retained solve,10000 construction, other group, overlay or source/criterion
+change is granted. I28 completed all compiler/reporter work and continues only
+native evidence inspection; the sole Cargo lane transfers to I27. Later B/C/D
+blocks and independent acceptance remain separate.
