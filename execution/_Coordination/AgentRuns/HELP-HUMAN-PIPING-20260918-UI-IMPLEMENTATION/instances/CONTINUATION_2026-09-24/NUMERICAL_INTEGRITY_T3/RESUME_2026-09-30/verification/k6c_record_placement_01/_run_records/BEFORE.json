@@ -1,0 +1,915 @@
+{
+  "actor": "ROOT",
+  "checked_utc": "2026-10-02T15:01:36.251530+00:00",
+  "head": "ae2e4b83f0c96db54a3d4dddc476cd07e5260757",
+  "scope": "Read-only changed-file preflight using existing effective_role and path detector; not final GEN-8",
+  "policy_issues": [],
+  "findings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        34
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout_04/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        108
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_01/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        73
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        76
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_03/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        83
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_10/RUNTIME_DIRECT_LINKS.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        57
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_02/SOURCES.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        123
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_03_exact/INTEGER_PARSE_SOURCE.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        3,
+        26
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_03_exact/SOURCES.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        152,
+        171
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_04_sparse/SORT_UNSTABLE_SOURCE.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_04_sparse/SOURCES.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        164
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/exact_11/CALLER_SOURCE_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        5,
+        9,
+        13,
+        17,
+        21,
+        25,
+        29
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/exact_11/CARRIED_CONTRACTS.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        3,
+        8,
+        13,
+        18,
+        23
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/exact_11/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        13,
+        73
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/exact_11/INTEGER_PARSE_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        3,
+        9
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/exact_11/REACHABILITY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2,
+        5,
+        10,
+        15,
+        20,
+        25,
+        30,
+        35
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/exact_11/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        40
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/exact_11/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/finite_callers_12/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        11,
+        71
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/finite_callers_12/INPUT_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        4,
+        50,
+        70,
+        75,
+        80,
+        85,
+        90,
+        95,
+        100,
+        105,
+        110,
+        115,
+        120,
+        125,
+        130,
+        135,
+        140,
+        145,
+        150,
+        155,
+        160,
+        165,
+        172,
+        178,
+        184,
+        190,
+        196,
+        202,
+        208,
+        214,
+        220,
+        226,
+        232,
+        238
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/finite_callers_12/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        37
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/finite_callers_12/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/format_stream_18/ARITHMETIC_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        76
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/format_stream_18/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        9,
+        15,
+        75
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/format_stream_18/INPUT_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/format_stream_18/SOURCE_LIBRARY_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44,
+        48,
+        54,
+        59,
+        64,
+        69,
+        74,
+        79,
+        84,
+        89,
+        95,
+        100,
+        105,
+        114,
+        118,
+        122
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/format_stream_18/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        25
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/format_stream_18/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_request_bindings_10/EXECUTABLE_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        10,
+        24
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_request_bindings_10/FACADE_SOURCE_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        3,
+        9,
+        15,
+        21,
+        27,
+        33
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_request_bindings_10/FINGERPRINT_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        3,
+        10,
+        17
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_request_bindings_10/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        13,
+        72
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_request_bindings_10/INPUT_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        4,
+        59,
+        78,
+        134
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_request_bindings_10/SOURCE_AND_BUILD_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        6,
+        11,
+        16,
+        21,
+        26,
+        31,
+        36,
+        41,
+        48,
+        53,
+        58,
+        63,
+        68,
+        73,
+        80,
+        84,
+        88,
+        92,
+        96,
+        100,
+        104,
+        108,
+        112,
+        116,
+        120,
+        124,
+        130,
+        135,
+        140,
+        145,
+        150,
+        155,
+        160,
+        167
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_request_bindings_10/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        38
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_request_bindings_10/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/k0_assembly_16/DEPENDENCY_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/k0_assembly_16/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        11,
+        70
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/k0_assembly_16/PRIOR_EVIDENCE_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        4,
+        9,
+        14,
+        19,
+        24,
+        29,
+        34,
+        39,
+        44,
+        49,
+        54,
+        59,
+        64,
+        69,
+        74,
+        79,
+        84,
+        89,
+        94,
+        99,
+        104,
+        109,
+        114,
+        119,
+        124,
+        129,
+        134,
+        139,
+        144,
+        149,
+        154,
+        159,
+        164,
+        169,
+        175
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/k0_assembly_16/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        36
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/k0_assembly_16/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_plan_21/BINDING_CHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2,
+        4,
+        6,
+        52,
+        57,
+        65,
+        109,
+        135,
+        145,
+        155,
+        166
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_plan_21/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        11,
+        70
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_plan_21/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        16
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_plan_21/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_result_22/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        11,
+        70
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_result_22/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        17
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_result_22/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/serializer_15/CLONE_AND_OPERATION_CHECKS.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/serializer_15/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        11,
+        72
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/serializer_15/INPUT_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        31,
+        36,
+        41,
+        46,
+        51,
+        56,
+        61,
+        66,
+        71,
+        76,
+        83,
+        87,
+        91,
+        95,
+        99,
+        103,
+        107,
+        111,
+        115
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/serializer_15/PRIOR_AND_MANAGER_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        4,
+        9,
+        14,
+        19,
+        25
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/serializer_15/SCHEMA_AND_FEATURE_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        56
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/serializer_15/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        32
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/serializer_15/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/sparse_13/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        12,
+        73
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/sparse_13/INPUT_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        48,
+        54,
+        60,
+        66,
+        72,
+        78,
+        84
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/sparse_13/LIBRARY_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/sparse_13/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        48
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/sparse_13/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/sparse_correction_14/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        11,
+        71
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/sparse_correction_14/INPUT_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        32,
+        38,
+        45,
+        50
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/sparse_correction_14/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/static_pools_20/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        11,
+        71
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/static_pools_20/INPUT_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        3,
+        65
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/static_pools_20/SOURCE_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        4,
+        9,
+        14,
+        19,
+        24
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/static_pools_20/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        42
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/static_pools_20/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_nodes_17/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        9,
+        15,
+        75
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_nodes_17/INPUT_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        3,
+        45
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_nodes_17/SOURCE_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        4,
+        9,
+        14,
+        19,
+        24,
+        29,
+        34,
+        39,
+        44,
+        50,
+        54,
+        58,
+        62,
+        66,
+        70,
+        74,
+        78,
+        82,
+        86,
+        90,
+        95
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_nodes_17/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        24
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_nodes_17/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_nodes_17/_run_records/BRIEF_BINDING.json",
+      "role": "CONTROL",
+      "reason": "managed control record `BRIEF_BINDING.json`",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/wrapped_errors_19/GRANT.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        12,
+        71
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/wrapped_errors_19/INPUT_BINDING.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/wrapped_errors_19/RECORD_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        3,
+        7,
+        11,
+        15,
+        19,
+        23,
+        27,
+        31,
+        35,
+        39
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/wrapped_errors_19/SOURCE_AND_PROFILE_RECHECK.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        26,
+        30,
+        34,
+        38
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/wrapped_errors_19/VERIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        14,
+        19,
+        29
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/wrapped_errors_19/WRITE_INVENTORY.json",
+      "role": "UNCLASSIFIED",
+      "reason": "unknown managed AgentRuns artifact",
+      "lines": [
+        2
+      ]
+    }
+  ]
+}
