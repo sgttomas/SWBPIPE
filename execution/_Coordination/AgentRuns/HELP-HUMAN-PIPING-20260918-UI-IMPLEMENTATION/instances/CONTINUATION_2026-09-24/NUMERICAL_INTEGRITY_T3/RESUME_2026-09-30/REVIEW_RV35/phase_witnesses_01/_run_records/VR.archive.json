@@ -1,0 +1,10 @@
+{
+  "candidate": "81c03849033f3ce745668f581f446530789397b8",
+  "base": "2ae028eb275684ac0aa8082e034128ff251027a4",
+  "archive": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-phase-witnesses-01/VR",
+  "tar_sha256": "5accdf8ffec9e030e168c2430b5dc4ad594f206aff6df4e9f0a3ade8b459590d",
+  "files": 632,
+  "core_unchanged": true,
+  "I24_original_patch_bytes_identical": true,
+  "scope": "VR maintained delta and I27 evidence only; concurrent RV34 historical review packet is outside assigned independent phase review"
+}

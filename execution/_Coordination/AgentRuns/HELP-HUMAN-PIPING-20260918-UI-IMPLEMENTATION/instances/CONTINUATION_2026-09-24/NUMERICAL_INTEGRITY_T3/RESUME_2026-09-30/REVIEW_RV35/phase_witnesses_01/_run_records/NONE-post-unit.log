@@ -1,0 +1,14 @@
+   Compiling piping_numerical_robustness v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-phase-witnesses-01/VR/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `release` profile [optimized] target(s) in 1.19s
+     Running unittests src/lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-phase-witnesses-01/target-VR/release/deps/piping_numerical_robustness-ced20345872e2b85)
+
+running 6 tests
+test envelope::tests::all_tokens_and_overwritten_values_are_in_the_actual_prefix ... ok
+test envelope::tests::continuation_bounds_normal_cap_spelling_and_retains_actual_counts_prefix ... ok
+test envelope::tests::poisoned_alternative_and_reference_width_fail_explicitly ... ok
+test envelope::tests::refused_format_argument_survives_outer_format_phase ... ok
+test envelope::tests::whitespace_is_measured_and_unbound_escape_scratch_is_named ... ok
+test envelope::tests::sparse_factor_validation_retains_caller_ordering_phase ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.02s
+

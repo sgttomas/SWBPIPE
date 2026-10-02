@@ -1,0 +1,15 @@
+   Compiling piping_numerical_robustness v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-phase-witnesses-01/VR/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `release` profile [optimized] target(s) in 2.76s
+     Running tests/k6c_envelope.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-phase-witnesses-01/target-VR/release/deps/k6c_envelope-962d1fbf69545d4d)
+
+running 7 tests
+test absent_argument_history_is_rejected ... ok
+test described_loads_preserve_original_213_case_order_and_content ... ok
+test all_193_independently_reviewed_reference_values_and_source_drop ... ok
+test embedded_actual_cli_policy_matches_independent_values_at_bound_path_lengths ... ok
+test missing_input_and_mismatched_counts_are_errors_without_partial_estimates ... ok
+test public_type_observations_remain_separate_from_reference_math ... ok
+test missing_scale_is_a_named_cell_not_a_panic_or_zero ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+

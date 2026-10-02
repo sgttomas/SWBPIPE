@@ -1,0 +1,13 @@
+{
+  "candidate": "81c03849033f3ce745668f581f446530789397b8",
+  "independent_normal_units": "6 passed",
+  "independent_original_integration": "7 passed, includes 193 reference and 213 case order/content checks",
+  "M02": "compiles; intended local numeric assertion 24 != 328; 193-reference comparison passes",
+  "M05": "compiles; intended local numeric assertion 388 != 566; existing moving caller phase index 7 at RF-LARGE-CHAIN-n00100-AX is 8031899 != 8032077",
+  "normal_post": "6 envelope units and 193-reference test pass",
+  "normal_and_mutant_unit_binaries_distinct": true,
+  "restored_normal_unit_binary_identical": true,
+  "blocking_findings": [],
+  "nonblocking_findings": [],
+  "claim": "local conditional identity; no actual refusal/heap/global maximum failure claim"
+}

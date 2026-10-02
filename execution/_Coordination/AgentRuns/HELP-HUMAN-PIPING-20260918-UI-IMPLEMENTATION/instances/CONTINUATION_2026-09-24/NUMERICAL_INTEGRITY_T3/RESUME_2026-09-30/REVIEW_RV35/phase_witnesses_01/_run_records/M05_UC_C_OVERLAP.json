@@ -1,0 +1,51 @@
+{
+  "candidate": "2ae028eb275684ac0aa8082e034128ff251027a4",
+  "variant": "M05_UC_C_OVERLAP",
+  "start_utc": "2026-10-02T03:25:15.689192+00:00",
+  "argv": [
+    "/Users/ryan/.cargo/bin/rustup",
+    "run",
+    "1.97.1",
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+    "--release",
+    "--locked",
+    "--offline",
+    "-j",
+    "4",
+    "--test",
+    "k6c_envelope",
+    "--",
+    "--test-threads=2"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-phase-witnesses-01/H",
+  "environment_overrides": {
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-phase-witnesses-01/target-H"
+  },
+  "versions": {
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\n",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)\n"
+  },
+  "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+  "source_sha256": "a0e9e3e5519837dfc85791cb59c83a4dc2ad35277c282a5c081529877b15b9ef",
+  "test_sha256": "4ecf2aa7b3ce0a519aa1758271faba95cd7eceb966d5ce94aa2404765ed3c7b5",
+  "returncode": 101,
+  "finished_utc": "2026-10-02T03:25:19.709726+00:00",
+  "log_sha256": "26137a2b8fffa6149c57c7f8c6312c01748d48097cae62454120dfc15d478956",
+  "source_unchanged": true,
+  "binaries": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv35-phase-witnesses-01/target-H/release/deps/k6c_envelope-366c56020f1776d6",
+      "sha256": "a8a1414e8c2133f7408b110eed0ed6e83ad1762cffd376db45652acc3f07a1f2"
+    }
+  ],
+  "normal_source_restored": true
+}

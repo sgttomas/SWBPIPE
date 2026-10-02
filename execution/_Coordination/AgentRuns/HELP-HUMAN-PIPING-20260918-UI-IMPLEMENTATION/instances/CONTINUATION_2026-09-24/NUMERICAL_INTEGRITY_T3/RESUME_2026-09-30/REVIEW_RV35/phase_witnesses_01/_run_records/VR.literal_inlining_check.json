@@ -1,0 +1,6 @@
+{
+  "method": "Extract actual body of each candidate helper; substitute that body at production call sites; remove helper definitions/comments and the two new tests; compare full file against original or original-semantic mutation. No assumed helper body is injected.",
+  "normal_exact": true,
+  "M02_exact": true,
+  "M05_exact": true
+}
