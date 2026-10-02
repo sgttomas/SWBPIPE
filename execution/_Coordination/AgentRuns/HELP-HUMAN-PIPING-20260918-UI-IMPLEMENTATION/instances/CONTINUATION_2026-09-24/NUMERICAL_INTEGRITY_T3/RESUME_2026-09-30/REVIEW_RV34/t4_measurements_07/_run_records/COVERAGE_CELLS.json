@@ -1,0 +1,25 @@
+{
+  "journal_source_identity_rows": 24,
+  "baseline_exact_argv": true,
+  "field_dispositions": {
+    "configuration": 12,
+    "unclaimed_normal_W1_fields": 174
+  },
+  "original_I21_scope4": {
+    "original_schedule_both_passes_five_repeats": "verified",
+    "six_first_pass_prefix_sequences": "verified:30 exact calls;3 each for Selected CHAIN/CONT,9 each for unpublished TREE",
+    "outcome_precision_work_heap_footprint_RSS_time_load": "retained raw and independently checked at stated scopes",
+    "TREE512_1024": "40 actual attempt records across4 runs*5 repeats*2 high precisions; storage and stage-work facts verified; whole-call heap windows verified",
+    "per_precision_or_internal_phase_heap_peaks": "unavailable; not inferred from whole-call maxima",
+    "KF3_outcome_comparison": "supported fields match; unreported H geometry suffix remains unavailable",
+    "owner_amended_value_comparison": "636 exact R1 checks pass;4 complete Selected dumps/1030052 rows in custody;2 TREE cases not evaluated/not passed",
+    "historical_full_value_equality": "unestablished under owner-approved scope"
+  },
+  "remaining_ROOT_cells": [
+    "Disposition8 observed RSS projection misses before W1-policy/limit acceptance; no retuning performed",
+    "Disposition exact512/1024 memory-coverage interpretation without inventing per-precision heaps",
+    "Final D/CHANGE_RECORD and integrated K6c evidence reconciliation",
+    "Final exact-candidate independent review;full-SHA hosted CI;fresh exact-final-head Mac DEC-025;GEN-8 as applicable",
+    "Complete K6c/E_max,W1 limits,F2a and engineering/downstream acceptance remain outside this review"
+  ]
+}

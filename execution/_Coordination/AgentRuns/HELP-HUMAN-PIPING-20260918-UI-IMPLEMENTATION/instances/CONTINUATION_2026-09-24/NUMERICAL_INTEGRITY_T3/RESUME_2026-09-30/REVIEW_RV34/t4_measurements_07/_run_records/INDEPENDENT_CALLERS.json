@@ -1,0 +1,350 @@
+[
+  {
+    "run_id": "247_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "model_bytes": 3801805,
+    "args": 312,
+    "fixed": 63667882,
+    "delta": -33203,
+    "windows": {
+      "all": {
+        "requested_bytes": 3125389562,
+        "moving_bytes": 3266423034,
+        "source_requested": 6967965,
+        "source_moving": 6967965,
+        "solve_requested": 3125389175,
+        "solve_moving": 3266422647,
+        "prefix_requested": 3125389562,
+        "prefix_moving": 3266423034
+      },
+      "selected128": {
+        "requested_bytes": 1173628170,
+        "moving_bytes": 1314661642,
+        "source_requested": 6967965,
+        "source_moving": 6967965,
+        "solve_requested": 1173627783,
+        "solve_moving": 1314661255,
+        "prefix_requested": 1173628170,
+        "prefix_moving": 1314661642
+      }
+    }
+  },
+  {
+    "run_id": "249_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "model_bytes": 3801805,
+    "args": 155,
+    "fixed": 63667338,
+    "delta": -33126,
+    "windows": {
+      "all": {
+        "requested_bytes": 3125389018,
+        "moving_bytes": 3266422490,
+        "source_requested": 6967808,
+        "source_moving": 6967808,
+        "solve_requested": 3125389018,
+        "solve_moving": 3266422490,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      },
+      "selected128": {
+        "requested_bytes": 1173627626,
+        "moving_bytes": 1314661098,
+        "source_requested": 6967808,
+        "source_moving": 6967808,
+        "solve_requested": 1173627626,
+        "solve_moving": 1314661098,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      }
+    }
+  },
+  {
+    "run_id": "252_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "model_bytes": 3801806,
+    "args": 314,
+    "fixed": 63667885,
+    "delta": -33203,
+    "windows": {
+      "all": {
+        "requested_bytes": 3125389565,
+        "moving_bytes": 3266423037,
+        "source_requested": 6967968,
+        "source_moving": 6967968,
+        "solve_requested": 3125389178,
+        "solve_moving": 3266422650,
+        "prefix_requested": 3125389565,
+        "prefix_moving": 3266423037
+      },
+      "selected128": {
+        "requested_bytes": 1173628173,
+        "moving_bytes": 1314661645,
+        "source_requested": 6967968,
+        "source_moving": 6967968,
+        "solve_requested": 1173627786,
+        "solve_moving": 1314661258,
+        "prefix_requested": 1173628173,
+        "prefix_moving": 1314661645
+      }
+    }
+  },
+  {
+    "run_id": "254_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "model_bytes": 3801806,
+    "args": 156,
+    "fixed": 63667340,
+    "delta": -33126,
+    "windows": {
+      "all": {
+        "requested_bytes": 3125389020,
+        "moving_bytes": 3266422492,
+        "source_requested": 6967810,
+        "source_moving": 6967810,
+        "solve_requested": 3125389020,
+        "solve_moving": 3266422492,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      },
+      "selected128": {
+        "requested_bytes": 1173627628,
+        "moving_bytes": 1314661100,
+        "source_requested": 6967810,
+        "source_moving": 6967810,
+        "solve_requested": 1173627628,
+        "solve_moving": 1314661100,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      }
+    }
+  },
+  {
+    "run_id": "255_RF-LARGE-TREE-n10000-AX_w1a",
+    "model_bytes": 3929640,
+    "args": 310,
+    "fixed": 66988915,
+    "delta": -36311,
+    "windows": {
+      "all": {
+        "requested_bytes": 3128710595,
+        "moving_bytes": 3269744067,
+        "source_requested": 7333894,
+        "source_moving": 7333894,
+        "solve_requested": 3128710208,
+        "solve_moving": 3269743680,
+        "prefix_requested": 3128710595,
+        "prefix_moving": 3269744067
+      },
+      "selected128": {
+        "requested_bytes": 1176949203,
+        "moving_bytes": 1317982675,
+        "source_requested": 7333894,
+        "source_moving": 7333894,
+        "solve_requested": 1176948816,
+        "solve_moving": 1317982288,
+        "prefix_requested": 1176949203,
+        "prefix_moving": 1317982675
+      }
+    }
+  },
+  {
+    "run_id": "257_RF-LARGE-TREE-n10000-AX_w1a",
+    "model_bytes": 3929640,
+    "args": 154,
+    "fixed": 66988372,
+    "delta": -36234,
+    "windows": {
+      "all": {
+        "requested_bytes": 3128710052,
+        "moving_bytes": 3269743524,
+        "source_requested": 7333738,
+        "source_moving": 7333738,
+        "solve_requested": 3128710052,
+        "solve_moving": 3269743524,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      },
+      "selected128": {
+        "requested_bytes": 1176948660,
+        "moving_bytes": 1317982132,
+        "source_requested": 7333738,
+        "source_moving": 7333738,
+        "solve_requested": 1176948660,
+        "solve_moving": 1317982132,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      }
+    }
+  },
+  {
+    "run_id": "260_RF-LARGE-TREE-n10000-ROT_w1a",
+    "model_bytes": 4060713,
+    "args": 312,
+    "fixed": 73515354,
+    "delta": -36311,
+    "windows": {
+      "all": {
+        "requested_bytes": 3135237034,
+        "moving_bytes": 3276270506,
+        "source_requested": 7941833,
+        "source_moving": 7941833,
+        "solve_requested": 3135236647,
+        "solve_moving": 3276270119,
+        "prefix_requested": 3135237034,
+        "prefix_moving": 3276270506
+      },
+      "selected128": {
+        "requested_bytes": 1183475642,
+        "moving_bytes": 1324509114,
+        "source_requested": 7941833,
+        "source_moving": 7941833,
+        "solve_requested": 1183475255,
+        "solve_moving": 1324508727,
+        "prefix_requested": 1183475642,
+        "prefix_moving": 1324509114
+      }
+    }
+  },
+  {
+    "run_id": "262_RF-LARGE-TREE-n10000-ROT_w1a",
+    "model_bytes": 4060713,
+    "args": 155,
+    "fixed": 73514810,
+    "delta": -36234,
+    "windows": {
+      "all": {
+        "requested_bytes": 3135236490,
+        "moving_bytes": 3276269962,
+        "source_requested": 7941676,
+        "source_moving": 7941676,
+        "solve_requested": 3135236490,
+        "solve_moving": 3276269962,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      },
+      "selected128": {
+        "requested_bytes": 1183475098,
+        "moving_bytes": 1324508570,
+        "source_requested": 7941676,
+        "source_moving": 7941676,
+        "solve_requested": 1183475098,
+        "solve_moving": 1324508570,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      }
+    }
+  },
+  {
+    "run_id": "263_RF-LARGE-CONT-n10000-AX_w1a",
+    "model_bytes": 4060648,
+    "args": 310,
+    "fixed": 75722872,
+    "delta": -167319,
+    "windows": {
+      "all": {
+        "requested_bytes": 3028490312,
+        "moving_bytes": 3169523784,
+        "source_requested": 7877118,
+        "source_moving": 7877118,
+        "solve_requested": 3028489925,
+        "solve_moving": 3169523397,
+        "prefix_requested": 3028490312,
+        "prefix_moving": 3169523784
+      },
+      "selected128": {
+        "requested_bytes": 1147524888,
+        "moving_bytes": 1288558360,
+        "source_requested": 7877118,
+        "source_moving": 7877118,
+        "solve_requested": 1147524501,
+        "solve_moving": 1288557973,
+        "prefix_requested": 1147524888,
+        "prefix_moving": 1288558360
+      }
+    }
+  },
+  {
+    "run_id": "265_RF-LARGE-CONT-n10000-AX_w1a",
+    "model_bytes": 4060648,
+    "args": 154,
+    "fixed": 75722329,
+    "delta": -167242,
+    "windows": {
+      "all": {
+        "requested_bytes": 3028489769,
+        "moving_bytes": 3169523241,
+        "source_requested": 7876962,
+        "source_moving": 7876962,
+        "solve_requested": 3028489769,
+        "solve_moving": 3169523241,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      },
+      "selected128": {
+        "requested_bytes": 1147524345,
+        "moving_bytes": 1288557817,
+        "source_requested": 7876962,
+        "source_moving": 7876962,
+        "solve_requested": 1147524345,
+        "solve_moving": 1288557817,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      }
+    }
+  },
+  {
+    "run_id": "268_RF-LARGE-CONT-n10000-ROT_w1a",
+    "model_bytes": 4191721,
+    "args": 312,
+    "fixed": 79839192,
+    "delta": -167319,
+    "windows": {
+      "all": {
+        "requested_bytes": 3032606632,
+        "moving_bytes": 3173640104,
+        "source_requested": 8306953,
+        "source_moving": 8306953,
+        "solve_requested": 3032606245,
+        "solve_moving": 3173639717,
+        "prefix_requested": 3032606632,
+        "prefix_moving": 3173640104
+      },
+      "selected128": {
+        "requested_bytes": 1151641208,
+        "moving_bytes": 1292674680,
+        "source_requested": 8306953,
+        "source_moving": 8306953,
+        "solve_requested": 1151640821,
+        "solve_moving": 1292674293,
+        "prefix_requested": 1151641208,
+        "prefix_moving": 1292674680
+      }
+    }
+  },
+  {
+    "run_id": "270_RF-LARGE-CONT-n10000-ROT_w1a",
+    "model_bytes": 4191721,
+    "args": 155,
+    "fixed": 79838648,
+    "delta": -167242,
+    "windows": {
+      "all": {
+        "requested_bytes": 3032606088,
+        "moving_bytes": 3173639560,
+        "source_requested": 8306796,
+        "source_moving": 8306796,
+        "solve_requested": 3032606088,
+        "solve_moving": 3173639560,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      },
+      "selected128": {
+        "requested_bytes": 1151640664,
+        "moving_bytes": 1292674136,
+        "source_requested": 8306796,
+        "source_moving": 8306796,
+        "solve_requested": 1151640664,
+        "solve_moving": 1292674136,
+        "prefix_requested": 0,
+        "prefix_moving": 0
+      }
+    }
+  }
+]

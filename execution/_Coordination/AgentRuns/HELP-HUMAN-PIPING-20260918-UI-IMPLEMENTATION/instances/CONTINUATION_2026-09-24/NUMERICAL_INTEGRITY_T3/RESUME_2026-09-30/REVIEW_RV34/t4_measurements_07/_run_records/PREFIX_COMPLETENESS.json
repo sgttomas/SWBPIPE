@@ -1,0 +1,494 @@
+[
+  {
+    "run_id": "247_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "full_segments": [
+      [
+        "solve_128",
+        2407264229
+      ],
+      [
+        "solve_256",
+        5520962164
+      ],
+      [
+        "verify_256",
+        7994646695
+      ],
+      [
+        "decide_128",
+        14751371503
+      ]
+    ],
+    "actual": [
+      {
+        "kind": "prefix",
+        "prefix": 1,
+        "through_segment": "solve_128",
+        "case_limit": 2407264229,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 2407292969
+      },
+      {
+        "kind": "prefix",
+        "prefix": 2,
+        "through_segment": "solve_256",
+        "case_limit": 5520962164,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 5520995110
+      },
+      {
+        "kind": "prefix",
+        "prefix": 3,
+        "through_segment": "verify_256",
+        "case_limit": 7994646695,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 7994729155
+      }
+    ],
+    "complete": true
+  },
+  {
+    "run_id": "252_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "full_segments": [
+      [
+        "solve_128",
+        2825256681
+      ],
+      [
+        "solve_256",
+        6677767485
+      ],
+      [
+        "verify_256",
+        9948381516
+      ],
+      [
+        "decide_128",
+        16695322954
+      ]
+    ],
+    "actual": [
+      {
+        "kind": "prefix",
+        "prefix": 1,
+        "through_segment": "solve_128",
+        "case_limit": 2825256681,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 2825302169
+      },
+      {
+        "kind": "prefix",
+        "prefix": 2,
+        "through_segment": "solve_256",
+        "case_limit": 6677767485,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 6677800431
+      },
+      {
+        "kind": "prefix",
+        "prefix": 3,
+        "through_segment": "verify_256",
+        "case_limit": 9948381516,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 9948463800
+      }
+    ],
+    "complete": true
+  },
+  {
+    "run_id": "255_RF-LARGE-TREE-n10000-AX_w1a",
+    "full_segments": [
+      [
+        "solve_128",
+        2313466291
+      ],
+      [
+        "solve_256",
+        5343287427
+      ],
+      [
+        "verify_256",
+        7876924359
+      ],
+      [
+        "decide_128",
+        8215407872
+      ],
+      [
+        "solve_512",
+        18162100062
+      ],
+      [
+        "verify_512",
+        26442815484
+      ],
+      [
+        "decide_256",
+        26791622960
+      ],
+      [
+        "solve_1024",
+        49752493198
+      ],
+      [
+        "verify_1024",
+        65228585698
+      ],
+      [
+        "decide_512",
+        65593818970
+      ]
+    ],
+    "actual": [
+      {
+        "kind": "prefix",
+        "prefix": 1,
+        "through_segment": "solve_128",
+        "case_limit": 2313466291,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 2313495031
+      },
+      {
+        "kind": "prefix",
+        "prefix": 2,
+        "through_segment": "solve_256",
+        "case_limit": 5343287427,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 5343320373
+      },
+      {
+        "kind": "prefix",
+        "prefix": 3,
+        "through_segment": "verify_256",
+        "case_limit": 7876924359,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 7877006665
+      },
+      {
+        "kind": "prefix",
+        "prefix": 4,
+        "through_segment": "decide_128",
+        "case_limit": 8215407872,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 3,
+        "meter_charged": 8215502212
+      },
+      {
+        "kind": "prefix",
+        "prefix": 5,
+        "through_segment": "solve_512",
+        "case_limit": 18162100062,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 3,
+        "meter_charged": 18162181968
+      },
+      {
+        "kind": "prefix",
+        "prefix": 6,
+        "through_segment": "verify_512",
+        "case_limit": 26442815484,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 3,
+        "meter_charged": 26442907903
+      },
+      {
+        "kind": "prefix",
+        "prefix": 7,
+        "through_segment": "decide_256",
+        "case_limit": 26791622960,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 4,
+        "meter_charged": 26791960820
+      },
+      {
+        "kind": "prefix",
+        "prefix": 8,
+        "through_segment": "solve_1024",
+        "case_limit": 49752493198,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 4,
+        "meter_charged": 49752729472
+      },
+      {
+        "kind": "prefix",
+        "prefix": 9,
+        "through_segment": "verify_1024",
+        "case_limit": 65228585698,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 4,
+        "meter_charged": 65228710602
+      }
+    ],
+    "complete": true
+  },
+  {
+    "run_id": "260_RF-LARGE-TREE-n10000-ROT_w1a",
+    "full_segments": [
+      [
+        "solve_128",
+        2697410927
+      ],
+      [
+        "solve_256",
+        6440662215
+      ],
+      [
+        "verify_256",
+        9758737967
+      ],
+      [
+        "decide_128",
+        10097233716
+      ],
+      [
+        "solve_512",
+        21957979697
+      ],
+      [
+        "verify_512",
+        32346140583
+      ],
+      [
+        "decide_256",
+        32694412993
+      ],
+      [
+        "solve_1024",
+        57393785772
+      ],
+      [
+        "verify_1024",
+        74204585019
+      ],
+      [
+        "decide_512",
+        74572170690
+      ]
+    ],
+    "actual": [
+      {
+        "kind": "prefix",
+        "prefix": 1,
+        "through_segment": "solve_128",
+        "case_limit": 2697410927,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 2697456415
+      },
+      {
+        "kind": "prefix",
+        "prefix": 2,
+        "through_segment": "solve_256",
+        "case_limit": 6440662215,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 6440695161
+      },
+      {
+        "kind": "prefix",
+        "prefix": 3,
+        "through_segment": "verify_256",
+        "case_limit": 9758737967,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 9758820323
+      },
+      {
+        "kind": "prefix",
+        "prefix": 4,
+        "through_segment": "decide_128",
+        "case_limit": 10097233716,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 3,
+        "meter_charged": 10097367339
+      },
+      {
+        "kind": "prefix",
+        "prefix": 5,
+        "through_segment": "solve_512",
+        "case_limit": 21957979697,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 3,
+        "meter_charged": 21958061603
+      },
+      {
+        "kind": "prefix",
+        "prefix": 6,
+        "through_segment": "verify_512",
+        "case_limit": 32346140583,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 3,
+        "meter_charged": 32346233073
+      },
+      {
+        "kind": "prefix",
+        "prefix": 7,
+        "through_segment": "decide_256",
+        "case_limit": 32694412993,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 4,
+        "meter_charged": 32694859477
+      },
+      {
+        "kind": "prefix",
+        "prefix": 8,
+        "through_segment": "solve_1024",
+        "case_limit": 57393785772,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 4,
+        "meter_charged": 57394022046
+      },
+      {
+        "kind": "prefix",
+        "prefix": 9,
+        "through_segment": "verify_1024",
+        "case_limit": 74204585019,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 4,
+        "meter_charged": 74204710063
+      }
+    ],
+    "complete": true
+  },
+  {
+    "run_id": "263_RF-LARGE-CONT-n10000-AX_w1a",
+    "full_segments": [
+      [
+        "solve_128",
+        1607660954
+      ],
+      [
+        "solve_256",
+        3937380977
+      ],
+      [
+        "verify_256",
+        5637988524
+      ],
+      [
+        "decide_128",
+        12653125464
+      ]
+    ],
+    "actual": [
+      {
+        "kind": "prefix",
+        "prefix": 1,
+        "through_segment": "solve_128",
+        "case_limit": 1607660954,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 1607689694
+      },
+      {
+        "kind": "prefix",
+        "prefix": 2,
+        "through_segment": "solve_256",
+        "case_limit": 3937380977,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 3937413923
+      },
+      {
+        "kind": "prefix",
+        "prefix": 3,
+        "through_segment": "verify_256",
+        "case_limit": 5637988524,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 5638030312
+      }
+    ],
+    "complete": true
+  },
+  {
+    "run_id": "268_RF-LARGE-CONT-n10000-ROT_w1a",
+    "full_segments": [
+      [
+        "solve_128",
+        2088312947
+      ],
+      [
+        "solve_256",
+        5151289956
+      ],
+      [
+        "verify_256",
+        7829247844
+      ],
+      [
+        "decide_128",
+        14954819472
+      ]
+    ],
+    "actual": [
+      {
+        "kind": "prefix",
+        "prefix": 1,
+        "through_segment": "solve_128",
+        "case_limit": 2088312947,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 2088358435
+      },
+      {
+        "kind": "prefix",
+        "prefix": 2,
+        "through_segment": "solve_256",
+        "case_limit": 5151289956,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 5151322902
+      },
+      {
+        "kind": "prefix",
+        "prefix": 3,
+        "through_segment": "verify_256",
+        "case_limit": 7829247844,
+        "class": "Unresolved",
+        "reason": "Budget(Case)",
+        "attempts": 2,
+        "meter_charged": 7829289678
+      }
+    ],
+    "complete": true
+  }
+]

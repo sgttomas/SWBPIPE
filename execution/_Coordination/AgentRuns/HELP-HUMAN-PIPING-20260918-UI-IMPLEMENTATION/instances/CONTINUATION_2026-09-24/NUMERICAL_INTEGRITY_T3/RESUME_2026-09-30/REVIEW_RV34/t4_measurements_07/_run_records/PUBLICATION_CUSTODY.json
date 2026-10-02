@@ -1,0 +1,50 @@
+[
+  {
+    "model": "RF-LARGE-CHAIN-n10000-AX",
+    "run_id": "247_RF-LARGE-CHAIN-n10000-AX_w1a",
+    "sha256": "a6abda0ce2ab8b7669a7d2f10bcf3a2fc0ae0cecf0ef30b13fce092276dc821f",
+    "rows": 250013,
+    "classes": {
+      "input_derived": 6,
+      "absolute_verified": 10001,
+      "relative_verified": 240006
+    },
+    "input_copy_identical": true
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n10000-ROT",
+    "run_id": "252_RF-LARGE-CHAIN-n10000-ROT_w1a",
+    "sha256": "1d35d9042dff7033edff8d6178b019bc7b25e90975c3bc192ed2646c6b760b7b",
+    "rows": 250013,
+    "classes": {
+      "input_derived": 6,
+      "relative_verified": 250006,
+      "absolute_verified": 1
+    },
+    "input_copy_identical": true
+  },
+  {
+    "model": "RF-LARGE-CONT-n10000-AX",
+    "run_id": "263_RF-LARGE-CONT-n10000-AX_w1a",
+    "sha256": "616dab3e227990e2236c74c2968e198f0c48e84f688d2417dfabdec7f907880b",
+    "rows": 265013,
+    "classes": {
+      "input_derived": 15006,
+      "absolute_verified": 101289,
+      "relative_verified": 148718
+    },
+    "input_copy_identical": true
+  },
+  {
+    "model": "RF-LARGE-CONT-n10000-ROT",
+    "run_id": "268_RF-LARGE-CONT-n10000-ROT_w1a",
+    "sha256": "599cae158c96bf8aadbc8b0b0ab416c230c135d16e1fa5125cebc0487bbd7a12",
+    "rows": 265013,
+    "classes": {
+      "input_derived": 15006,
+      "relative_verified": 179363,
+      "absolute_verified": 70644
+    },
+    "input_copy_identical": true
+  }
+]

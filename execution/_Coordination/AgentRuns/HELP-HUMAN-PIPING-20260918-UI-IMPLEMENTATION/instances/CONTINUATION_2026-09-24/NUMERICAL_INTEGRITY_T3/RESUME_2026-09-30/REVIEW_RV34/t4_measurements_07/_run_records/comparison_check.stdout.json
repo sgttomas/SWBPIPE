@@ -1,0 +1,42 @@
+{
+  "failures": [],
+  "R1_cases": [
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "compared": 103,
+      "failures": 0,
+      "missing": 0,
+      "worst_ratio": 1.7462060826900309e-06,
+      "worst_ratio_display": "1.746e-06",
+      "worst_label": "tw.M1"
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "compared": 103,
+      "failures": 0,
+      "missing": 0,
+      "worst_ratio": 1.7462060826900309e-06,
+      "worst_ratio_display": "1.746e-06",
+      "worst_label": "tw.M1"
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "compared": 215,
+      "failures": 0,
+      "missing": 0,
+      "worst_ratio": 1.5728301623592383e-06,
+      "worst_ratio_display": "1.573e-06",
+      "worst_label": "th.S5000.RZ"
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "compared": 215,
+      "failures": 0,
+      "missing": 0,
+      "worst_ratio": 1.3931528521392407e-06,
+      "worst_ratio_display": "1.393e-06",
+      "worst_label": "th.S5000.RX"
+    }
+  ],
+  "checks": 1030367
+}
