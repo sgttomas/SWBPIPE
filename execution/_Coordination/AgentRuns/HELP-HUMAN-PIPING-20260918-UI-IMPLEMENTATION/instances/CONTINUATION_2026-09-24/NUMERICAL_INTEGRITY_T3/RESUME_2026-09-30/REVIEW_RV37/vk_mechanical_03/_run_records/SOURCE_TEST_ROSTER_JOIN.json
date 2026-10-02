@@ -1,0 +1,147 @@
+{
+  "source_test_functions": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs",
+      "sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+      "test_functions": [
+        "sparse_factor_validation_retains_caller_ordering_phase",
+        "refused_format_argument_survives_outer_format_phase",
+        "poisoned_alternative_and_reference_width_fail_explicitly",
+        "all_tokens_and_overwritten_values_are_in_the_actual_prefix",
+        "continuation_bounds_normal_cap_spelling_and_retains_actual_counts_prefix",
+        "whitespace_is_measured_and_unbound_escape_scratch_is_named"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/exact.rs",
+      "sha256": "a336e9c787dd1a2a0c99e7065c6822a398ebeed0eddb9af2e1cdae476165b855",
+      "test_functions": [
+        "nat_arithmetic_equals_u128_arithmetic",
+        "decimals_and_binary64_values_parse_exactly",
+        "the_predicate_holds_at_its_boundary_and_not_one_ulp_beyond",
+        "the_magnitude_predicate_holds_at_both_bounds_and_not_one_ulp_beyond",
+        "the_binary64_range_is_decided_exactly",
+        "the_floor_is_r_times_s_star_exactly"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/sha256.rs",
+      "sha256": "21c33f4a5215ebad7406c4a046ae3dc27304d687025d1748e8a229e84d6ad937",
+      "test_functions": [
+        "fips_180_known_answers"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/adapter.rs",
+      "sha256": "53d8a3b2046b2bb55c26fef7d4d1a9f2e1f255a08ddb7a231f2e827538cba66d",
+      "test_functions": [
+        "every_ci_models_canonical_bytes_equal_the_generators_from_references_py_model",
+        "rf_mech_k0s_literal_model_is_refused_by_the_source_naming_its_spring",
+        "permuting_every_list_changes_no_canonical_byte",
+        "permuting_every_list_changes_no_published_bit_on_rf_invariance"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/engine.rs",
+      "sha256": "d44d21f9e194a089a36c266dcf294c7b6b94a4d7093edbbd08e1b8ad99fa3025",
+      "test_functions": [
+        "the_comparison_scale_is_exps_magnitude_never_obss",
+        "r1s_five_absolute_range_rows_are_counted_apart_from_the_passes",
+        "a_discriminating_control_that_passes_is_listed_never_dropped",
+        "a_wrong_value_on_a_sub_range_row_fails",
+        "an_overflowed_published_row_fails"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/feature_guard.rs",
+      "sha256": "99d3c61885aa1e6b548b200da795be73fee7a9225390e628c903083107ff2b1b",
+      "test_functions": [
+        "no_manifest_enables_the_mutation_controls_feature",
+        "ci_passes_no_cargo_features",
+        "no_vr_source_names_the_execution_tree",
+        "the_guard_flags_what_it_must",
+        "a_manifest_enabling_vrs_seeded_faults_is_flagged"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/files.rs",
+      "sha256": "0aa557b74d749083ccf943aea0d2ad85bf0fe6e68d2d218096d9b63e4cfb9480",
+      "test_functions": [
+        "the_case_files_match_their_recorded_sha256",
+        "the_files_hold_r1s_213_kernel_lane_cases_as_counted",
+        "every_r1_key_resolves_and_the_structural_zeros_are_exact_zeros",
+        "the_exact_engine_agrees_with_the_generators_fractions_on_every_vector",
+        "the_rows_outside_binary64s_range_are_cont_n10000s_five",
+        "the_floor_check_reproduces_the_committed_not_covered_list",
+        "v_ks_s_star_equals_k4s_exported_functions_bit_for_bit",
+        "c1_the_prescaled_coefficients_equal_the_designs_wherever_it_is_defined",
+        "every_discriminating_value_control_fails_the_predicate",
+        "the_expected_unresolved_list_is_thin_a_and_thin_b"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/invariance.rs",
+      "sha256": "2f624c7caef6b9d36a442afb9d28fb8f92de63387711330d82e7b049eebc910c",
+      "test_functions": [
+        "every_small_variants_rows_map_onto_its_base"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/k6c_envelope.rs",
+      "sha256": "ab1975d4d056b012e8cef515521bc12c5050eda278c04ed90b300c8e06b4c676",
+      "test_functions": [
+        "all_193_independently_reviewed_reference_values_and_source_drop",
+        "described_loads_preserve_original_213_case_order_and_content",
+        "embedded_actual_cli_policy_matches_independent_values_at_bound_path_lengths",
+        "missing_input_and_mismatched_counts_are_errors_without_partial_estimates",
+        "public_type_observations_remain_separate_from_reference_math",
+        "missing_scale_is_a_named_cell_not_a_panic_or_zero",
+        "absent_argument_history_is_rejected"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+      "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794",
+      "test_functions": [
+        "rf_chain",
+        "rf_skew",
+        "rf_weak",
+        "rf_large_at_10_and_100_members",
+        "rf_invariance",
+        "rf_range",
+        "rf_zero",
+        "rf_finite",
+        "rf_mech",
+        "rf_cancel"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/parity.rs",
+      "sha256": "622ccacd0e9fde5c732b6f60fe68f1a445b6386abc569cbd8d9e2cc9cfb7b0f0",
+      "test_functions": [
+        "rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis",
+        "rf_mech_is_refused_in_both_modes_with_bitwise_k"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/rcm.rs",
+      "sha256": "1d82829c31a1358ab7d673c8d8b009799f2a9100c935d4d5a5bca9c70c4843a9",
+      "test_functions": [
+        "k4s_rcm_equals_sparse_directs_on_every_ci_models_adjacency",
+        "k4s_rcm_equals_sparse_directs_on_seeded_synthetic_graphs"
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs",
+      "sha256": "304887d65bf5d1395a7be9c45b92f893d65ee8c37448ba6ed5c3beab8ea4fe2e",
+      "test_functions": [
+        "the_counts_equal_k4s_storage_counts_on_every_factored_ci_case"
+      ]
+    }
+  ],
+  "source_declared_count": 60,
+  "raw_NONE_count": 60,
+  "exact_source_name_multiset_matches": true,
+  "missing_from_logs": [],
+  "extra_in_logs": []
+}

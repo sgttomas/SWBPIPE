@@ -1,0 +1,1023 @@
+{
+  "binaries": [
+    {
+      "label": "unittests src/lib.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/piping_numerical_robustness-7b068f1c3e8164d0",
+      "sha256": "3abfc35dc123b5a89eaf97a3c7ad3d68d3a06bdb9f69d02d9959147d23b0a19e",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "7b068f1c3e8164d0"
+    },
+    {
+      "label": "tests/adapter.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/adapter-5837b06008e6eb25",
+      "sha256": "c7db5bf39460fd0181d23e1f7a5390c23485309c2656c72ca63f972eecbeb333",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "5837b06008e6eb25"
+    },
+    {
+      "label": "tests/engine.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/engine-0b1f76fcf007fe46",
+      "sha256": "15de85fc033bb6608456ff73cb6d7b902afbbfe447158ab102cbf15808ee9a36",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "0b1f76fcf007fe46"
+    },
+    {
+      "label": "tests/feature_guard.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/feature_guard-315923969c26dc39",
+      "sha256": "68409536f7300c41bb9dce8f2c283fd23c09041fc5ba4d5defbf75ec97955e2d",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "315923969c26dc39"
+    },
+    {
+      "label": "tests/files.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/files-fe67a98451a17e8c",
+      "sha256": "40f9df838fb807b5a183250ee81f6f514ae40f6cafed8aff865845bfa63f7f1c",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "fe67a98451a17e8c"
+    },
+    {
+      "label": "tests/invariance.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/invariance-d5106482ce77dcc0",
+      "sha256": "50d5685707c5f897a96b1f2d15eb950e0b5f69e9adc9bad150dfda813348aa3f",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "d5106482ce77dcc0"
+    },
+    {
+      "label": "tests/k6c_envelope.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/k6c_envelope-f172b45c6be5ef8a",
+      "sha256": "cbf163e3de12b0e11976a87e49084516a8ebe02438796b73bd010557e84d7a47",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "f172b45c6be5ef8a"
+    },
+    {
+      "label": "tests/lane.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/lane-1631953ed8dc9240",
+      "sha256": "fad9d8f3d6e5138f0453c2e484291f62b5246941b070c58d0544ded2f7bd41f2",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "1631953ed8dc9240"
+    },
+    {
+      "label": "tests/parity.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/parity-7c3cc27996d81d93",
+      "sha256": "9d27f50283cb208ee97174a8d37eb1935568550a3950948884063de355eba8a6",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "7c3cc27996d81d93"
+    },
+    {
+      "label": "tests/rcm.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/rcm-39828dc568e96163",
+      "sha256": "14cb327090371b597858e709309a509ddc03fef65eeaa503e39ff1af7de86a90",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "39828dc568e96163"
+    },
+    {
+      "label": "tests/scale.rs",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-mechanical-07/target/debug/deps/scale-2875b56270494cf9",
+      "sha256": "d506ce91d2897910344a2807925c413ade62b507a12615180252724b59a3bb5b",
+      "live_bytes_match": true,
+      "all_17_logs_execute_same_target": true,
+      "fingerprint_suffix": "2875b56270494cf9"
+    }
+  ],
+  "fingerprints": [
+    {
+      "path": "fingerprints/piping_numerical_robustness-39828dc568e96163/test-integration-test-rcm.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/serde_json-d551a2996129560d/run-build-script-build-script-build.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "",
+      "profile_integer": 0,
+      "rustflags": [],
+      "deps": [
+        [
+          5330460842384404171,
+          "build_script_build",
+          false,
+          11555192544803242402
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/serde_json-5ec129a51245433c/lib-serde_json.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"default\", \"float_roundtrip\", \"std\"]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          5330460842384404171,
+          "build_script_build",
+          false,
+          6368945573106488741
+        ],
+        [
+          5532778797167691009,
+          "itoa",
+          false,
+          8647954528000077594
+        ],
+        [
+          11029742160753049355,
+          "serde_core",
+          false,
+          7926840218427507699
+        ],
+        [
+          12613788554453945248,
+          "memchr",
+          false,
+          6230812911491130002
+        ],
+        [
+          16226529040278277557,
+          "zmij",
+          false,
+          4121666432557582289
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/open_pipe_stress_frame_kernel-e3865a6d64e32297/lib-open_pipe_stress_frame_kernel.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"mutation-controls\"]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": []
+    },
+    {
+      "path": "fingerprints/open_pipe_stress_nonlinear_integration-4a6e926bdb3441a3/lib-open_pipe_stress_nonlinear_integration.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          1049544045118801698,
+          "open_pipe_stress_nonlinear_supports",
+          false,
+          13214063264750601778
+        ],
+        [
+          3404527046730136277,
+          "open_pipe_stress_solver_diagnostics",
+          false,
+          7230951465456975135
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          14712799479206595575,
+          "open_pipe_stress_curved_bend",
+          false,
+          7863098259568632360
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/serde_core-6f305b37aeaf3dfc/run-build-script-build-script-build.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "",
+      "profile_integer": 0,
+      "rustflags": [],
+      "deps": [
+        [
+          11029742160753049355,
+          "build_script_build",
+          false,
+          14540152340907382316
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/itoa-026cf0f37cb458ff/lib-itoa.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": []
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-f172b45c6be5ef8a/test-integration-test-k6c_envelope.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/zmij-fe6fdbeb265cfe25/build-script-build-script-build.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 3033921117576893,
+      "rustflags": [],
+      "deps": []
+    },
+    {
+      "path": "fingerprints/open_pipe_stress_solver_performance_harness-b49d75f54d412653/lib-open_pipe_stress_solver_performance_harness.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          3404527046730136277,
+          "open_pipe_stress_solver_diagnostics",
+          false,
+          7230951465456975135
+        ],
+        [
+          6795877286214713119,
+          "open_pipe_stress_nonlinear_integration",
+          false,
+          2995612611898634041
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/serde_core-2eca8a00925d748e/lib-serde_core.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"std\"]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          11029742160753049355,
+          "build_script_build",
+          false,
+          17275869127520441674
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-1631953ed8dc9240/test-integration-test-lane.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-7b068f1c3e8164d0/test-lib-piping_numerical_robustness.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-315923969c26dc39/test-integration-test-feature_guard.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-d5106482ce77dcc0/test-integration-test-invariance.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/open_pipe_stress_linear_supports-4fd42e11334323e9/lib-open_pipe_stress_linear_supports.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-0b1f76fcf007fe46/test-integration-test-engine.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/serde_core-557666126a605ac2/build-script-build-script-build.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"std\"]",
+      "profile_integer": 3033921117576893,
+      "rustflags": [],
+      "deps": []
+    },
+    {
+      "path": "fingerprints/zmij-d781fcf90565b839/lib-zmij.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          16226529040278277557,
+          "build_script_build",
+          false,
+          13822595308479606548
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-2875b56270494cf9/test-integration-test-scale.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/open_pipe_stress_primitive_loads-07b469a40225a6fe/lib-open_pipe_stress_primitive_loads.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          13667293960696473624,
+          "open_pipe_stress_linear_supports",
+          false,
+          10159265485560262682
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-5837b06008e6eb25/test-integration-test-adapter.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/serde_json-d25ca41529577d4f/build-script-build-script-build.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"default\", \"float_roundtrip\", \"std\"]",
+      "profile_integer": 3033921117576893,
+      "rustflags": [],
+      "deps": []
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-fe67a98451a17e8c/test-integration-test-files.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-7c3cc27996d81d93/test-integration-test-parity.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 8945848500906766827,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/zmij-dc8f1b9bf9421f63/run-build-script-build-script-build.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "",
+      "profile_integer": 0,
+      "rustflags": [],
+      "deps": [
+        [
+          16226529040278277557,
+          "build_script_build",
+          false,
+          13693483635111723056
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/open_pipe_stress_nonlinear_supports-a08267c19324610f/lib-open_pipe_stress_nonlinear_supports.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          3404527046730136277,
+          "open_pipe_stress_solver_diagnostics",
+          false,
+          7230951465456975135
+        ],
+        [
+          13667293960696473624,
+          "open_pipe_stress_linear_supports",
+          false,
+          10159265485560262682
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-e0158d0a733d5cb8/example-vk_scale.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-fcbc2f53eafa2595/lib-piping_numerical_robustness.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/open_pipe_stress_curved_bend-ecc54f42c945df17/lib-open_pipe_stress_curved_bend.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/piping_numerical_robustness-6bb5da8463d90a70/example-vk_records.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"seeded-faults\"]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          136847448496861035,
+          "open_pipe_stress_solver_performance_harness",
+          false,
+          11310064845646223459
+        ],
+        [
+          5330460842384404171,
+          "serde_json",
+          false,
+          1280300579815967452
+        ],
+        [
+          9292006953407508484,
+          "piping_numerical_robustness",
+          false,
+          10915325206390104636
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/open_pipe_stress_sparse_direct-700f01d11e9ef619/lib-open_pipe_stress_sparse_direct.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/open_pipe_stress_solver_diagnostics-d899aec366eb075f/lib-open_pipe_stress_solver_diagnostics.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": [
+        [
+          10299845785790871641,
+          "open_pipe_stress_primitive_loads",
+          false,
+          16967241959771395640
+        ],
+        [
+          10646818785860357717,
+          "open_pipe_stress_frame_kernel",
+          false,
+          12176428426977303926
+        ],
+        [
+          13667293960696473624,
+          "open_pipe_stress_linear_supports",
+          false,
+          10159265485560262682
+        ],
+        [
+          16605211322307622349,
+          "open_pipe_stress_sparse_direct",
+          false,
+          9530235540141638896
+        ]
+      ]
+    },
+    {
+      "path": "fingerprints/memchr-a915c919029f2036/lib-memchr.json",
+      "sha256_equal": true,
+      "live_copy_equal": true,
+      "features": "[\"alloc\", \"std\"]",
+      "profile_integer": 5347358027863023418,
+      "rustflags": [],
+      "deps": []
+    }
+  ],
+  "all_tests_seeded": true,
+  "FK_features": [
+    "[\"mutation-controls\"]"
+  ],
+  "debug_test_profile_in_all_logs": true,
+  "build_stream_and_live_no_run_sample_absent": true,
+  "binding_limit": "Original runner captures/discards successful no-run build output; no compiler-artifact event or build no-run process snapshot retained. Initial build success follows unchanged main control flow reaching NONE, not a separately observed compiler stream. Executed targets are bound by all full logs plus executable hashes and raw fingerprints."
+}
