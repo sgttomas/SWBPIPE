@@ -1,0 +1,3 @@
+structural::retained::wide_sum::tests::a_refused_span_adds_nothing: test
+
+1 test, 0 benchmarks

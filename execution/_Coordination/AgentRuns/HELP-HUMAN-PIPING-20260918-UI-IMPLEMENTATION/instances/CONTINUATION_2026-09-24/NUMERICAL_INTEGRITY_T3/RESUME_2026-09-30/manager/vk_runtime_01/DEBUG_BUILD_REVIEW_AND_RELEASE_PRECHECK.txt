@@ -1,0 +1,4 @@
+PASS debug actual Cargo JSON profiles/test=true/opt0/features,3binary hashes and raw harness+dependency fingerprints; complete189source/protectedinputs unchanged. Release-profile target absent/empty, assigned logs unused/writable/contained, live guard5387. No direct runs released.
+parity 646e4276acbba7cdb039ca9a1f93eb161977570f9adb6fd8657d32cec9ac6b65
+lane 8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18
+adapter dfd771acb65db91b7358f9c101b3c175dc8dd11594be4d9ab45b610a420d7b1f

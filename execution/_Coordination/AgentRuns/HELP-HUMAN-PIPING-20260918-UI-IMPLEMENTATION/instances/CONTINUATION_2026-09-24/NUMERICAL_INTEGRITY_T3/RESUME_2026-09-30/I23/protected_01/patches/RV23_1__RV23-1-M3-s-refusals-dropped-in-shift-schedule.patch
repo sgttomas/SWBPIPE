@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
+@@ -1129,7 +1129,7 @@
+         Ok(factorizations)
+     };
+     let steps = steps();
+-    if steps.is_err() {
++    if false && steps.is_err() {
+         for (b, r) in &results {
+             if let Some(x) = r.refused {
+                 record(&mut s_refused[*b], x.kind, x.pass, x.row);

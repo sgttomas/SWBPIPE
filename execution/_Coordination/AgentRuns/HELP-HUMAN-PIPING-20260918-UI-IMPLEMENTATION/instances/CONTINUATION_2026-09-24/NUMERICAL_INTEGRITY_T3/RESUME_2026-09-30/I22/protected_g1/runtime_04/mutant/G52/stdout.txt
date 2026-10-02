@@ -1,0 +1,18 @@
+
+running 1 test
+test structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence ... FAILED
+
+failures:
+
+---- structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence stdout ----
+
+thread 'structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence' (25710684) panicked at src/structural/retained/../../../tests/retained_k4/bound_tests.rs:756:9:
+room 36651: 0 after 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.70s
+

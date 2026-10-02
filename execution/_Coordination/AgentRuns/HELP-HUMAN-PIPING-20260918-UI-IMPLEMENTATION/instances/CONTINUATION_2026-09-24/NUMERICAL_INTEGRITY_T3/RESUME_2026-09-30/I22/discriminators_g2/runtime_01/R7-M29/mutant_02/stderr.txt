@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::method_tests::i23_r7_bound_choice' (25769648) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2043:13:
+assertion `left == right` failed: I23:B_CHOICE:HH-SLENDER-m40:2
+  left: Some(+d68a9b7ff8bbb9806a100b7f5b9af4e281b36928ee7f980f51e334de75355f99p35)
+ right: Some(+c000000000000000000000000000000000000000000000000000000000000304p2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.44 real         0.43 user         0.00 sys
+            20611072  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                1614  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  14  involuntary context switches
+          4900223988  instructions retired
+          1261359130  cycles elapsed
+            11092328  peak memory footprint

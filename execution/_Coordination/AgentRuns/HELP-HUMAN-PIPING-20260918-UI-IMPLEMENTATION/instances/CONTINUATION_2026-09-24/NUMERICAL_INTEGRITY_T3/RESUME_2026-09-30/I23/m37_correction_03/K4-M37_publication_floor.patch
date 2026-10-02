@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2693,7 +2693,7 @@
+         .enumerate()
+         .map(|(b, (&s, &e))| {
+             let mut c = coupled_scales(s, e);
+-            if let Some(phi) = floor {
++            if let Some(phi) = floor.filter(|_| false) {
+                 c[Kind::Force.index()] = c[Kind::Force.index()].max(phi[b][0]);
+                 c[Kind::Moment.index()] = c[Kind::Moment.index()].max(phi[b][1]);
+             }

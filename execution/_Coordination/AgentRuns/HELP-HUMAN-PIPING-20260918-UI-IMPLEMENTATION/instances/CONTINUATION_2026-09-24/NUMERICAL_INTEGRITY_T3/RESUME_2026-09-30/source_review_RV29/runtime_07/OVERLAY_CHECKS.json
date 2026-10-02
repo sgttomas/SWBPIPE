@@ -1,0 +1,35 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "seal": "7bee1eb4f29d29baa52bbfd391dc9f0e60ef965ed9a1def596bf96a6f100bc93",
+  "sealed_payload_count": 8,
+  "target": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+  "target_before_sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+  "target_after_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+  "append_only_lines": 147,
+  "tests": 6,
+  "warrants_exact_source_checked": 23,
+  "fixed_records_exact_source_checked": 139,
+  "fixed_corpus_files_checked": 5,
+  "mapped_patch_hashes_checked": 8,
+  "unmodified_original_prefix": true,
+  "baseline_compilation_readiness": "READY_FOR_SEPARATE_DISPOSABLE_BASELINE_COMPILATION",
+  "runtime_claim": false,
+  "named_faults": [
+    "R7-M25",
+    "R7-M26",
+    "R7-M28",
+    "R7-M29",
+    "R7-M3",
+    "R7-M4",
+    "R7-M5",
+    "R7-M9"
+  ],
+  "filters": [
+    "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+    "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+    "structural::retained::adaptive::method_tests::i23_r7_g_scope",
+    "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+    "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+    "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale"
+  ]
+}

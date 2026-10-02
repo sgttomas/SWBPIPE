@@ -1,0 +1,11 @@
+
+running 1 test
+test structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling ... FAILED
+
+failures:
+
+failures:
+    structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.02s
+

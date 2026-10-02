@@ -1,0 +1,14 @@
+PASS:READY contains66 selected registrations; all66 patch hashes match I23 frozen files.
+PASS:complete path/pre/post binding equality plus exact filter lists yields54 physical groups in first-READY occurrence order;28 distinct filters, one filter per physical experiment.
+Prospective total:28 baselines+54 mutants+54 baseline-return controls=136 test invocations, before any stop. Draft manifest proposes82 direct pinned-binary baseline/return calls plus54 Cargo mutant calls, for explicit ROOT release. No runtime release or kill inferred.
+ALIASES ["A2_ORIGINAL/M1", "RV23/RV23-M1b-refused-bound-formed-as-0"]
+ALIASES ["A2_ORIGINAL/M2", "RV23/RV23-M2-B-is-max"]
+ALIASES ["A2_ORIGINAL/M3", "RV23/RV23-M3b-no-bound-stop-dropped"]
+ALIASES ["A2_ORIGINAL/M4b", "RV23/RV23-M5b-partial-stage-unrecorded-solve-case-at"]
+ALIASES ["A2_ORIGINAL/M4c", "RV23/RV23-M5-partial-stage-unrecorded-build-verify-shared"]
+ALIASES ["A2_ORIGINAL/M4d", "RV23/I19-M4d-partial-stage-unrecorded-verify-state"]
+ALIASES ["A2_ORIGINAL/M5", "RV23/I19-M5-refusal-not-per-block"]
+ALIASES ["A2_ORIGINAL/M6", "RV23/I19-M6-budget-as-refusal"]
+ALIASES ["A2_ORIGINAL/M7", "RV23/I19-M7-refused-block-without-data-stops"]
+ALIASES ["A2_ORIGINAL/M8", "RV23/I19-M8-pre-KF3-any-refusal-stops"]
+ALIASES ["RV23/RV23-M4b-precedence-swapped-in-verify-state", "RV23_1/RV23-M4b-precedence-swapped-in-verify-state", "RV23C/RV23-M4b-precedence-swapped-in-verify-state"]

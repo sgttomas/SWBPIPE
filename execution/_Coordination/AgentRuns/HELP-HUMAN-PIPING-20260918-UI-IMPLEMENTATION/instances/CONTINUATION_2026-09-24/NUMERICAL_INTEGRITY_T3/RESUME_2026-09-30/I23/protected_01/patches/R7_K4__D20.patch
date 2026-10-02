@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -368,7 +368,7 @@
+ 
+ /// t = fl(R·S*).
+ pub fn threshold(s_star: f64) -> f64 {
+-    f64::from_bits(FLOOR_RATIO_BITS) * s_star
++    (1e9 / 18_446_744_073_709_551_616.0) * s_star
+ }
+ 
+ /// b = fl↑(2^-64·S*), for S* ≥ 0: exact whenever 2^-64·S* is representable,

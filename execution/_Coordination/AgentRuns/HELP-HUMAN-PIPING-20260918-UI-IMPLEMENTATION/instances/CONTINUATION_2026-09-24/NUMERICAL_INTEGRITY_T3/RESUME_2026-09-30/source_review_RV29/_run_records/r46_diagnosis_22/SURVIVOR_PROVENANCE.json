@@ -1,0 +1,95 @@
+{
+  "packet_commit": "25cde653ecf7b72250850a4a7d3bcf165ad1f22f",
+  "archive_sha256": "ccc8375cc9c3fe184242b5c6825b9aaaf89d67871023a43586ad4dd3e861cf5c",
+  "packet_seals": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/protected_g3/runtime_05",
+      "sha256": "caa2478359d22d9c7120afa67eff5d7c72c9d080d20454b68891ef3124ae3f72",
+      "payloads": 213
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/manager/protected_g3/runtime_05",
+      "sha256": "e76cd282f44825aeec18d1a79e8ffc5bd3b4bf1b7456cfecc46651cc1b3a8b8d",
+      "payloads": 7
+    }
+  ],
+  "narrow_review": "Only R46 source/build/list/survivor provenance; R34\u2013R45 semantic runtime acceptance not performed in this diagnosis",
+  "source_files_checked": 116,
+  "only_fault_postimage": "3151195bd41cd8b6b22a960521954fc2295ec006f2e200ce21312485582fc095",
+  "runs": [
+    {
+      "kind": "build",
+      "argv": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i22/protected_g3/R46/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-protected-target/g3/R46",
+        "--lib",
+        "--no-run"
+      ],
+      "start": "2026-10-01T17:23:17.799Z",
+      "end": "2026-10-01T17:23:25.733Z",
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_stderr_sha256": "3f686a92bd538dc82fcff3aa9e92052c169d616adf240cbc3df260bcc2ab6c75",
+      "binary": {
+        "path": "<wt>/a1-protected-target/g3/R46/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "ff8dbe80165c3097db94efc4d17dfe58cb04e1ace6ac891b4020146cbab8f337"
+      },
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+    },
+    {
+      "kind": "list",
+      "argv": [
+        "<wt>/a1-protected-target/g3/R46/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--list",
+        "--exact",
+        "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+      ],
+      "start": "2026-10-01T17:23:25.809Z",
+      "end": "2026-10-01T17:23:26.867Z",
+      "exit": 0,
+      "stdout_sha256": "c7a411eae9f42900fc73d5e9baf84f46e622a892ab09976325a4f6d284a4ea2c",
+      "raw_stderr_sha256": "a86651f8f3ca1b4ddca81ec7f095983c5a77ac37e662bb1cdcf925e8de154e70",
+      "binary": {
+        "path": "<wt>/a1-protected-target/g3/R46/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "ff8dbe80165c3097db94efc4d17dfe58cb04e1ace6ac891b4020146cbab8f337"
+      },
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+    },
+    {
+      "kind": "mutant",
+      "argv": [
+        "<wt>/a1-protected-target/g3/R46/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--exact",
+        "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "start": "2026-10-01T17:23:26.945Z",
+      "end": "2026-10-01T17:23:27.221Z",
+      "exit": 0,
+      "stdout_sha256": "5efe07f794bcf013bafef84c1604445a53ed5d601639edef7b2f9f8df3473c92",
+      "raw_stderr_sha256": "154ea5a8108d4b18ab21b026f80d475507baa42106e3baaa228cba34c040e584",
+      "binary": {
+        "path": "<wt>/a1-protected-target/g3/R46/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "ff8dbe80165c3097db94efc4d17dfe58cb04e1ace6ac891b4020146cbab8f337"
+      },
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+    }
+  ],
+  "outcome": "SURVIVOR_NO_CREDIT",
+  "R46_control": "UNRUN",
+  "later_launches_in_packet": false,
+  "ROOT_disposition": {
+    "commit": "c86c1bb86bb63e46b02499e8f8e3ad37b9eba8b2",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_R46_MAPPING_DISPOSITION.md",
+    "sha256": "15cf229c3422f0c61b24d33bf2bba3e66d045344d7e1d4c8a88f94968fcd324e"
+  }
+}

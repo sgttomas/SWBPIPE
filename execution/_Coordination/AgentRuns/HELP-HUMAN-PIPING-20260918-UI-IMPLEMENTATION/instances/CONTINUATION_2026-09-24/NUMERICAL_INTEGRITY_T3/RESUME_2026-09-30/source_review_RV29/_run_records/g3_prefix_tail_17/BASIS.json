@@ -1,0 +1,32 @@
+{
+  "role": "TASK",
+  "reviewer": "RV29",
+  "parent": "ROOT /root",
+  "start_utc": "2026-10-01T16:47:12Z",
+  "end_utc": "2026-10-01T16:54:06.336622+00:00",
+  "checkpoint_limit_minutes": 30,
+  "candidate_packet_commit": "55fa4df4605c0668c5dadd0bd62813e366d2a8e6",
+  "numerical_source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "skill": {
+    "origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "retained_selection_origin_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/preparation_01/BASIS.json"
+  },
+  "scope": "Completed G3 prefix runtime01/02/03 and exact tail; sealed batch preparation source readiness only",
+  "active_runtime04": "NOT_INSPECTED",
+  "runtime_by_reviewer": "NONE",
+  "write_fence": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/g3_prefix_tail_17",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv29-a1/g3_prefix_tail_17"
+  ],
+  "verification_scripts": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv29-a1/g3_prefix_tail_17/check_runtime.py",
+      "sha256": "890c815a9bea294ac5c645dd5c67a3e48cb5e377f9bb5586d0adcf91be659afa"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv29-a1/g3_prefix_tail_17/check_preparation.py",
+      "sha256": "7b94b7365fb0886ddd511d4608a287006ab40e59f59a0fcf24690e518e312307"
+    }
+  ]
+}

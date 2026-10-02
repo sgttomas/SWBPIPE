@@ -1,0 +1,155 @@
+{
+  "qualified": [
+    {
+      "runtime_id": "R01",
+      "registration": "R7_K4::R7-M7",
+      "assertion": "scale_tests.rs:183",
+      "meaning": "N01 p128 assembled A-bar digest mismatch against original SCALE abar token; setup succeeded.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R02",
+      "registration": "R7_K4::R7-M13",
+      "assertion": "scale_tests.rs:123",
+      "meaning": "TWO-SPAN p128 correction count0 versus fixed1; direct solve reached before publication.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R03",
+      "registration": "R7_K4::R7-M15",
+      "assertion": "method_tests.rs:1054",
+      "meaning": "SEEDED-COMMON p256 r-hat digest versus fixed CHARGE token; no estimate-threshold assertion claimed reached.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R04",
+      "registration": "R7_K4::K4-M36",
+      "assertion": "scale_tests.rs:650",
+      "meaning": "BLOCK-PRESC with-prescription flags [true,false] versus [true,true]; subsequent without-prescription assertion not claimed reached.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R05",
+      "registration": "R7_K4::K4-M38",
+      "assertion": "scale_tests.rs:202",
+      "meaning": "N01 p128 body0 moment resolution ...0000 versus fixed upward ...0001; five other compared fields equal.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R06",
+      "registration": "R7_K4::K4-M39",
+      "assertion": "method_tests.rs:1522",
+      "meaning": "Above fixed R7 boundary returns None versus Some(StopRule{index:0}); preceding equality boundary and result setup pass.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R07",
+      "registration": "R7_K4::K4-M40",
+      "assertion": "method_tests.rs:1054",
+      "meaning": "PRESCRIBED p256 r-hat digest mismatch against CHARGE; no later delta/W claim.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R08",
+      "registration": "R7_K4::K4-M1",
+      "assertion": "wide_sum_tests.rs:169",
+      "meaning": "Once-rounded RV12 result is1+2^-126 versus1+2^-127; subsequent fold assertion not claimed reached.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R09",
+      "registration": "R7_K4::K4-M2",
+      "assertion": "wide_sum_tests.rs:102",
+      "meaning": "Exact isolated original line6/p128/three terms: +8p0 versus original upper token, under corrected direct-loss mechanism.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R10",
+      "registration": "R7_K4::K4-M3",
+      "assertion": "wide_sum_tests.rs:102",
+      "meaning": "Exact isolated original line2/p128/three terms: Z+ versus original upper token, under corrected spare-zero-limb truncation mechanism.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R11",
+      "registration": "R7_K4::K4-M4",
+      "assertion": "wide_sum_tests.rs:185",
+      "meaning": "Cancelled sum is not positive zero; subsequent empty/reuse assertions not claimed reached.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R12",
+      "registration": "R7_K4::K4-M5",
+      "assertion": "wide_sum_tests.rs:215",
+      "meaning": "Over-span addition returns Ok(()) versus Err(Span); subsequent value-preservation assertion not claimed reached.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R13",
+      "registration": "R7_K4::K4-M7",
+      "assertion": "ledger_tests.rs:107",
+      "meaning": "Accessor exponent-2147 versus protected quantum-2148; subsequent canonical-value/sign assertions not claimed reached.",
+      "same_filter_returned_control": "PASS"
+    },
+    {
+      "runtime_id": "R14",
+      "registration": "R7_K4::K4-M8",
+      "assertion": "ledger_tests.rs:292",
+      "meaning": "Prescribed coupled RHS token+8p0 versus1+2^-127; setup including exact Kij passes, later projected-ledger assertion not claimed reached.",
+      "same_filter_returned_control": "PASS"
+    }
+  ],
+  "uncredited": [
+    {
+      "id": "R09",
+      "packet": "I22/protected_g3/runtime_01",
+      "reason": "Earlier whole-loop line2 failure does not reach registered line6. Original control later passes in runtime02; no retrospective kill credit."
+    },
+    {
+      "id": "R10",
+      "packet": "I22/protected_g3/runtime_02",
+      "reason": "Earlier whole-loop line1 failure does not reach registered line2. Original control later passes in runtime03; no retrospective kill credit."
+    }
+  ],
+  "runtime_remainder_unreviewed": [
+    "R15",
+    "R16",
+    "R17",
+    "R18",
+    "R19",
+    "R20",
+    "R21",
+    "R22",
+    "R23",
+    "R24",
+    "R25",
+    "R26",
+    "R27",
+    "R28",
+    "R29",
+    "R30",
+    "R31",
+    "R32",
+    "R33",
+    "R34",
+    "R35",
+    "R36",
+    "R37",
+    "R38",
+    "R39",
+    "R40",
+    "R41",
+    "R42",
+    "R43",
+    "R44",
+    "R45",
+    "R46",
+    "R47",
+    "R48",
+    "R49",
+    "R50",
+    "R51",
+    "R52"
+  ],
+  "final_G3_A1": "PENDING"
+}

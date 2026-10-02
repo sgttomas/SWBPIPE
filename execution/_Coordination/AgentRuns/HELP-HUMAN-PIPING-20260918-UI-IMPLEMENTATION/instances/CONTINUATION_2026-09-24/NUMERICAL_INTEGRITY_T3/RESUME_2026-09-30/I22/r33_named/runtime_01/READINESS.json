@@ -1,0 +1,44 @@
+{
+  "start_utc": "2026-10-01T17:30:06Z",
+  "end_utc": "2026-10-01T17:45:06Z",
+  "seals": [
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r33_e_row_12/SHA256SUMS",
+      "sha256": "94572067f0cd61d23e7519de38ffc2bc52514f84d68825b5df227ec6e15afa23",
+      "entries": 11
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/r33_source_19/SHA256SUMS",
+      "sha256": "637b6dc526684ee27d084ae8607d5e8d97ea8c90ed42abd57178b901c5237591",
+      "entries": 5
+    }
+  ],
+  "copies": [
+    {
+      "id": "BASELINE",
+      "source": "<wt>/scratch/i23/r33_e_row/BASELINE",
+      "target": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE",
+      "logs": "<wt>/scratch/i23/r33_e_row/logs/BASELINE",
+      "files": 116,
+      "complete_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "target_logs_empty": true
+    },
+    {
+      "id": "D2",
+      "source": "<wt>/scratch/i23/r33_e_row/D2",
+      "target": "<wt>/a1-diagnostic-target/r33_e_row/D2",
+      "logs": "<wt>/scratch/i23/r33_e_row/logs/D2",
+      "files": 116,
+      "complete_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "target_logs_empty": true
+    }
+  ],
+  "files": 232,
+  "overlay_sha256": "d808bbc60e3a534606906179fde4769c1a0eb7a9c79926ca6f67b5d592289299",
+  "source_manifest_sha256": "41ddd81461cb28f0913c149b9f7067ac4c2f7ac7edb70a1151311506d2efee95",
+  "required": "only original N05 p128 E rows185/208; coverage1 baseline/control required",
+  "guard": "5387     1 03-15:54:57 /bin/bash <wt>/guard/memguard.sh",
+  "Rust_started": false
+}

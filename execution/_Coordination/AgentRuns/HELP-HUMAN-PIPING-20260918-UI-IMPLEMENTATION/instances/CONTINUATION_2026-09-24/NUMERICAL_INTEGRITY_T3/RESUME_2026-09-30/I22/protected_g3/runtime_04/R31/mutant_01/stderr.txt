@@ -1,0 +1,24 @@
+
+thread 'structural::retained::factor::tests::the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_direct_does' (26157126) panicked at src/structural/retained/../../../tests/retained_k4/factor_tests.rs:56:9:
+assertion `left == right` failed: [[1], [0, 2], [1, 3], [2]]
+  left: [0, 1, 2, 3]
+ right: [3, 2, 1, 0]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.00 real         0.00 user         0.00 sys
+             4669440  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 642  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   9  involuntary context switches
+            35411194  instructions retired
+            14183314  cycles elapsed
+             1720680  peak memory footprint

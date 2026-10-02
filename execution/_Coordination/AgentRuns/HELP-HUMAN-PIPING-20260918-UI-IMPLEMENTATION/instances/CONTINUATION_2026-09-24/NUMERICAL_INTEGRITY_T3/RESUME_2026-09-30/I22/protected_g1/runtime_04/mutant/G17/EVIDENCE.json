@@ -1,0 +1,50 @@
+{
+  "stdout": "\nrunning 1 test\ntest structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without ... FAILED\n\nfailures:\n\n---- structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without stdout ----\n\nthread 'structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without' (25472813) panicked at src/structural/retained/../../../tests/retained_k4/bound_tests.rs:512:5:\nassertion `left == right` failed\n  left: (None, None, None)\n right: (None, None, Some((0, BoundRefusal { kind: Span, pass: Backward, row: 20 })))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.03s\n\n",
+  "stderr": "   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)\nwarning: variable does not need to be mutable\n    --> src/structural/retained/bound.rs:1290:26\n     |\n1290 |     let (mut uc_missing, mut stop) = (None, None);\n     |                          ----^^^^\n     |                          |\n     |                          help: remove this `mut`\n     |\n     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default\n\nwarning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.69s\n     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)\nerror: test failed, to rerun pass `--lib`\n        9.61 real        13.68 user         0.73 sys\n          1290027008  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              155783  page reclaims\n               10364  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   2  signals received\n                 810  voluntary context switches\n                7793  involuntary context switches\n           284986385  instructions retired\n           125360272  cycles elapsed\n             6275552  peak memory footprint\n",
+  "stdout_sha256": "6df0f8f588f4e7aa6d80497508fbe2fabfa6f116a1bb6a0e9ac301210baf9c3e",
+  "stderr_raw_sha256": "bb46fe67a421ace07908a6b3a1242cde77f813ade182526cd166927d63584d0f",
+  "source_bindings": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "779a079fca7da561d1f92df66c0519fc96e315d9c8fe834cef3bf6d1b2dabd9b"
+  },
+  "test": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+    "sha256": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9",
+    "line": 483,
+    "function": "kf3_neither_bound_stops_a_block_with_data_and_not_one_without"
+  },
+  "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "binary": {
+    "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "845a12f8a460bc10f9a826738a7c809f4fffdaa6f81fb599e087cacdb56744e4"
+  },
+  "features": [
+    {
+      "path": "<RUN_TARGET>/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "metadata": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 8945848500906766827,
+        "path": 10763286916239946207,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/dep-test-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "guard_after": {
+    "exit": 0,
+    "stdout": " 5387     1 03-12:02:39 /bin/bash <HOME>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+  }
+}

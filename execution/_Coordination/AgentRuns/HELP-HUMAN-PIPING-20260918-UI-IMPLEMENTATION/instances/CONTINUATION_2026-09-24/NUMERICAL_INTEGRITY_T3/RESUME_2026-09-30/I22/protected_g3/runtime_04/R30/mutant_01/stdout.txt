@@ -1,0 +1,11 @@
+
+running 1 test
+test structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld ... FAILED
+
+failures:
+
+failures:
+    structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.08s
+

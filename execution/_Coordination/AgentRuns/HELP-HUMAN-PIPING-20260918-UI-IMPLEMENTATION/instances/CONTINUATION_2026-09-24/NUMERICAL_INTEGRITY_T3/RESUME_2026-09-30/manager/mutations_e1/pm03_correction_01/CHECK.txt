@@ -1,0 +1,2 @@
+PASS: corrected patch is exactly one4→L constructor-token substitution in frozen PM03 patch; failed source retained unchanged; in-memory corrected postimage matches override.
+PASS: original variant/filter/semantic discriminator retained; no source application or Rust execution.

@@ -1,0 +1,42 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -52,6 +52,10 @@
+ use std::sync::Arc;
+ 
+ /// Proposed method token (a placeholder for ROOT, D1 §4.1).
++thread_local! {
++    pub(crate) static TIED: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
++}
++
+ pub const METHOD_TOKEN: &str = "contribution_preserving_multiprecision_v1";
+ /// ROOT's corrected SI publication policy: all R7 gates, then exact H admission.
+ /// Historical v1 evidence is not certified by this policy retroactively.
+@@ -3950,7 +3954,15 @@
+     let mut states: Vec<PrecisionState> = Vec::new();
+     // A solved verification that becomes the next candidate.
+     let mut pending: Option<(PrecisionState, usize)> = None;
+-    let mut c = 0;
++    let mut c = if prep.factors.is_empty() {
++        0
++    } else {
++        PRECISIONS
++            .iter()
++            .position(|&q| q == TIED.with(|t| t.get()))
++            .unwrap_or(0)
++            .min(2)
++    };
+     while c < 3 {
+         let p = PRECISIONS[c];
+         let (candidate, candidate_index) = match pending.take() {
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs
+@@ -112,6 +112,9 @@
+             Err(e) => return withheld(CombinationReason::LedgerUnavailable(e)),
+         };
+         let mut cache = GroupCache::merged(operands.iter().map(|o| &o.1.cache));
++        super::adaptive::TIED.with(|t| {
++            t.set(operands.iter().map(|o| o.1.selected_precision()).max().unwrap_or(0))
++        });
+         match run_schedule(prep, first.group.clone(), &mut cache, case_limit, meter) {
+             CaseOutcome::Selected(solve) => CombinationOutcome::Selected(solve),
+             CaseOutcome::Unresolved {

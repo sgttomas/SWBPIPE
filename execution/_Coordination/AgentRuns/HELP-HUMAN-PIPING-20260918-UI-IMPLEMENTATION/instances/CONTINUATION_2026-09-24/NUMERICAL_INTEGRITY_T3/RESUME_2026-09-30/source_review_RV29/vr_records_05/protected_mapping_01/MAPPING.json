@@ -1,0 +1,355 @@
+{
+  "inventory_origin": "164e6a2d4c76a114fec0c1c09b6613f38e68d065:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/mutations_e/PROTECTED_FAULTS.json",
+  "inventory_sha256": "59532890759cb10eb9ece3a01f1159a238d79af608142315fa063601abe19cce",
+  "source_basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "source_hashes": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+  },
+  "stale_R7_K4": [
+    {
+      "id": "R7-M8",
+      "registered_meaning": "Phi = 2^-(2p-74)*e_hat (2^-950 at 1024)",
+      "registered_filters": [
+        "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 0
+        },
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 1
+        }
+      ],
+      "recommendation": "Target current public PHI_SCALE_BITS and paired upward back-scaling constant in verify::phi_512. Keep visibility/API intact; apply the registered 2^-950 versus 2^-438 fault coherently. Require wrong floor magnitude, not compile/policy failure.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "R7-M25",
+      "registered_meaning": "theta and the g check unscoped (every block carries data; every member in scope)",
+      "registered_filters": [
+        "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 0
+        },
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 1
+        }
+      ],
+      "recommendation": "In verify_state replace its local block data vector with all-true and make its local member g in_scope unconditional. Preserve current A2 wrappers. Require violation of the no-data/block/member scope criterion, not merely changed accounting.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "R7-M26",
+      "registered_meaning": "F*est (F = 2^16) in place of B",
+      "registered_filters": [
+        "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "B selection moved into bound::certificates. Substitute 2^16*est[b] for certified min only on data blocks, retaining original estimate metadata. This function returns a tuple, so the old ?-using snippet cannot simply move there; freeze explicit checked-scaling/error treatment in the proposed patch. An overflow panic is not its kill.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "R7-M28",
+      "registered_meaning": "no shift (Uc alone)",
+      "registered_filters": [
+        "structural::retained::adaptive::references_tests::rf_large_chain_ax_at_100_members_is_selected_at_128_and_honest",
+        "structural::retained::adaptive::references_tests::rf_large_tree_ax_at_100_members_is_selected_at_128_and_honest",
+        "structural::retained::adaptive::method_tests::e_charge_on_rf_large_at_100_members_at_256"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "Bypass verify_state shift_start to produce an empty start list, or equivalent current helper control, so Uc alone remains. Clearing after executing shift_start adds comparison/refusal behavior absent from the old disabled branch; disclose and avoid that unintended second change.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "R7-M29",
+      "registered_meaning": "R5's form: one global Uc, per-body scope, no shift",
+      "registered_filters": [
+        "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly",
+        "structural::retained::adaptive::references_tests::rf_large_chain_ax_at_100_members_is_selected_at_128_and_honest",
+        "structural::retained::adaptive::references_tests::rf_large_tree_ax_at_100_members_is_selected_at_128_and_honest"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 0
+        },
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 0
+        },
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "Reconstruct the compound R5 fault deliberately: per-body OR of block-data flags; global max over all available Uc with any None preserving unavailability; no shift; substitute that global bound for B on data blocks. Keep reported per-block Uc/est/refusal metadata distinct. Do not approximate this as only max(Uc,S) or only no shift.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "R7-M24",
+      "registered_meaning": "est in place of B [guard]",
+      "registered_filters": [
+        "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly",
+        "structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "B selection is now bound::certificates: substitute est[b] for the certified bound on data blocks while retaining normal data/refusal/output structure. Test the wrong B/theta/charge value or registered R7 verdict, not new-publication masking.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "K4-M34",
+      "registered_meaning": "nearest instead of directed (upward) rounding in the Uc pass",
+      "registered_filters": [
+        "structural::retained::adaptive::scale_tests::e_uc_uc_s_and_b_equal_the_emulation_and_never_fall_below_the_norm_per_block",
+        "structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm",
+        "structural::retained::bound::tests::sd_g5s_searched_profiles_reach_each_boundary_of_7b_to_7d",
+        "structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "Within bound::u_pass forward recurrence, replace only the named directed multiply/add with nearest context operations inside the existing refusable wrappers. Preserve refusal recording/reset/budget propagation. Require exact emulation or true norm-bound failure.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "K4-M35",
+      "registered_meaning": "a changed operation order in shifted_factor (reversed inner sums)",
+      "registered_filters": [
+        "structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "Reverse the off-diagonal inner kk accumulation in shifted_factor current row closure; preserve its surrounding refusal handling and separate diagonal pivot loop. Fixed factor bit/order assertions are the discriminator.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "K4-M24",
+      "registered_meaning": "a combination's acceptance tied to its operands (accepted at their precision) [CEIL5A3]",
+      "registered_filters": [
+        "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly",
+        "structural::retained::combine::tests::a_combination_runs_its_own_stop_rule",
+        "structural::retained::combine::tests::a_combination_escalates_independently_of_its_operands"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "expected": 1,
+          "actual": 0
+        },
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+          "expected": 1,
+          "actual": 1
+        }
+      ],
+      "recommendation": "Carry operand maximum precision through the combination path and bypass its R7 rejection at that tied precision. Adapt at current run_schedule; preserve the new certificate rather than fabricating a CertifiedPublication to satisfy finish_selected. If certification masks acceptance, require the precise old-R7/schedule reason violation; do not count arbitrary publication refusal or force a second bypass fault.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "K4-M17",
+      "registered_meaning": "an attempt's context recorded twice",
+      "registered_filters": [
+        "structural::retained::adaptive::tests::golden_work_counts"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "Duplicate recording of ctx at the solve_case_at work-finalization block, before total/stage closure. Do not duplicate a different build/rule context or certificate meter merely because a nearby string matches. Retained golden/stage-context mismatch must identify the doubled attempt work.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "K4-M19",
+      "registered_meaning": "the verification pass is not charged to the budget or the meter",
+      "registered_filters": [
+        "structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends",
+        "structural::retained::adaptive::tests::failed_and_verification_attempts_are_charged"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "At verify_precision own verification completion remove only the case-budget and invocation charges for spent.total. Preserve work/stage/verification_work and bound_refusals recording now interposed between the old anchors. Require actual missed verification-budget/charge assertion.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "K4-M25b",
+      "registered_meaning": "the S* < 2^-988 rule dropped",
+      "registered_filters": [
+        "structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit",
+        "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "Change shared relative_class to omit the small-scale absolute branch; changing exported classify alone misses production certify_publication. Preserve the ordinary strict threshold behavior.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "K4-M29",
+      "registered_meaning": "the classification with <= t instead of < t",
+      "registered_filters": [
+        "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+        "structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "Change only the value-versus-threshold strict comparison inside shared relative_class to its faulty inclusive boundary. Preserve the small-scale branch. The tie/adjacent fixed classifier assertions are the semantic target.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "K4-M30i",
+      "registered_meaning": "(K4-M30's inverse; O7's start rule was superseded) a combination starts at its operands' precision",
+      "registered_filters": [
+        "structural::retained::combine::tests::a_combination_escalates_independently_of_its_operands",
+        "structural::retained::combine::tests::a_combination_runs_its_own_stop_rule",
+        "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "expected": 1,
+          "actual": 0
+        },
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+          "expected": 1,
+          "actual": 1
+        }
+      ],
+      "recommendation": "Set combination initial schedule index from operands selected precision while plain cases retain index0. Update the former private METHOD_TOKEN anchor to its current public declaration without changing visibility. Preserve the maximum512 start bound and normal new certificate.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "D1",
+      "registered_meaning": "promote the binary64 assembled K to p (every entry rounded to binary64)",
+      "registered_filters": [
+        "structural::retained::adaptive::references_tests::n05_and_n06_agree_with_the_intended_basis_and_n05_is_not_np_as_represented_answer",
+        "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "Apply binary64 promotion at assemble first exact entry-round result before seeded hooks, preserving upper-triangle and mirror logic. The inserted V-K hook broke the old round/done adjacent anchor. Require N05 intended-basis/formed-entry numerical failure, not incidental sum-work drift.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "D16a",
+      "registered_meaning": "sequential addition at p in assembly",
+      "registered_filters": [
+        "structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member",
+        "structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "At the same assemble entry, fold Member/Spring/Directional contributions in their existing order using rounded context adds, preserving mirror/carry interfaces and all contribution types. Require loss of the duplicate weak contribution or exact assembly emulation failure.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    },
+    {
+      "id": "D17",
+      "registered_meaning": "drop the verified-accuracy classification (every row relative)",
+      "registered_filters": [
+        "structural::retained::adaptive::classification_tests::input_derived_rows_and_s8_ws_far_node_rows_are_classified_as_the_design_says",
+        "structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit"
+      ],
+      "current_anchor_check": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "recommendation": "Force shared relative_class true for finite eligible rows, so both pure classification and production metered publication are affected. A wrapper-only classify mutation is not the current production fault. Preserve InputDerived/Unpublishable bypass semantics.",
+      "status": "mapping recommendation only; exact I23 patch and semantic kill unreviewed"
+    }
+  ],
+  "no_patch_or_runtime": true
+}

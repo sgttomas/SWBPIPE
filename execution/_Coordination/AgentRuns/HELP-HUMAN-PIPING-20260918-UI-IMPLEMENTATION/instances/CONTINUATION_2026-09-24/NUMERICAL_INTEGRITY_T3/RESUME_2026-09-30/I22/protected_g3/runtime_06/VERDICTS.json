@@ -1,0 +1,113 @@
+{
+  "status": "COMPLETE",
+  "start": "2026-10-01T17:37:35Z",
+  "end": "2026-10-01T17:54:33Z",
+  "R46": {
+    "focused_survivor": "preserved uncredited",
+    "original_control": "PASS once",
+    "historical_baseline": "PASS exactly1",
+    "historical_mutant": "KILLED_REQUIRED_HISTORICAL_SET19_ROW20",
+    "historical_control": "PASS exactly1",
+    "review": "Original classification_tests.rs:96 set19 class vector reached. Only zero-based row20 differs: AbsoluteVerified bound_bits2 versus protected3; all other23-row vector entries match. Exact recovered historical discriminator; focused survivor remains uncredited."
+  },
+  "groups": [
+    {
+      "id": "R47",
+      "registration": "RV19::RV19-D3",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "combine_tests.rs:548 reason closure receivesSelected for A+C instead of immediateWithheld(OperandsDiffer) with empty attempts. Unchanged first A+B station mismatch gate passed; support membership-only guard omitted. Exact registered combination mismatch, not certificate failure."
+        }
+      ]
+    },
+    {
+      "id": "R48",
+      "registration": "RV19::RV19-M2",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::the_sas_norm_is_the_larger_of_the_one_and_infinity_norms",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:1948 transposed-entry perturbation has one-norm>infinity-norm; recorded sas comparesLess rather thanEqual to larger one-norm. Exact mapped max(one,inf) criterion; final found>0 assertion is not claimed reached after failure."
+        }
+      ]
+    },
+    {
+      "id": "R49",
+      "registration": "RV19::RV19-M6",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "scale_tests.rs:185 GROUP-DIR p128 E-row digest015f1f… versus fixed95d755…. Exact directional contributors-in-support-E witness reached; earlier unaffected cases passed, GROUP-DIR-X/later cases not claimed reached."
+        }
+      ]
+    },
+    {
+      "id": "R50",
+      "registration": "R7_K4::K4-M31",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "site_table_is_exactly_the_accumulations_of_the_scanned_files",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "Fresh full-core S11 mutant at tests/s11_site_table.rs:623 reports exactly FK/structural/retained/ledger.rs/from_source:1 unlisted accumulation and exact site now1 versus protected0. Actual mutated include_str input compiled; baseline binary was not used as mutant."
+        }
+      ]
+    },
+    {
+      "id": "R51",
+      "registration": "R7_K4::R7-M12",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "scale_tests.rs:122 exact LOADONLY-y345 p128 reports ResidualGate{global_dof:9} instead of fixed SCALE state with3 corrections. This specifically named lost-bounded-fallback availability failure is the registered criterion on direct solve path; no publication certificate involved. Contingent diagnostic remains UNRUN."
+        }
+      ]
+    },
+    {
+      "id": "R52",
+      "registration": "R7_K4::K4-M37",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::classification_tests::item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "classification_tests.rs:295 binding Phi force row actualRelativeVerified versus requiredAbsoluteVerified bound_bits2074523249324037237. Exact mapped pure classification criterion (mapping cites operand line296); later scale assertions not claimed reached."
+        },
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "publication_tests.rs:982 after genuineAccepted draft with valid p512 Some floor: Force scale bits0 versus required minimum-subnormal1. Initial zero-floor iteration passed; designated numeric assertion reached, not Shape/nonaccepted-draft failure. Later Moment scale assertion983 not claimed reached."
+        }
+      ]
+    }
+  ],
+  "owned_job_running": false,
+  "completed_utc": "2026-10-01T17:48:32.748Z",
+  "original_end": "2026-10-01T17:43:57Z",
+  "window_addendum": {
+    "commit": "5bfd7755f44b6102728d00513dfab4cd181ba97a",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_RUNTIME06_FINAL_WINDOW.md",
+    "sha256": "f95fd26b306cb077f26dcade0b775b4368c6666e734d73057980882f6d1c2a78",
+    "ROOT_decision_utc": "2026-10-01T17:39:33Z",
+    "received_read_utc": "2026-10-01T17:41:31Z",
+    "prior_end_utc": "2026-10-01T17:43:57Z",
+    "new_end_utc": "2026-10-01T17:54:33Z",
+    "scope": "Only remaining original runtime06 calls; prior commands keep original authority"
+  },
+  "R51_contingency": "UNRUN; original witness qualified"
+}

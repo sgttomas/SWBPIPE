@@ -1,0 +1,49 @@
+{
+  "G3": {
+    "manifest_sha256": "5194a1b926f01b1bc4372ec6771a76a75e2d80fbeb000a3b93855268113837f6",
+    "entry_count": 52,
+    "R7_M2_present": false,
+    "baseline_basis": {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/fk_baseline_03",
+      "result_sha256": "c0dbedd3a44baef75d92751a39e906518c7be00f3cf6b332b954ce52009fd86a",
+      "stdout_sha256": "c226d7d4afe5949cbee2c292a88a15b59a67f5666a4a503bf7075ff612105810",
+      "head": "9562747f6a8edc49608d9b7c64e1411ad3d5a9af",
+      "all_selected_filters_exactly_one_pass": true,
+      "physical_binary_hashes_verified": true
+    },
+    "returns_inspected": [
+      "runtime_01",
+      "runtime_02",
+      "runtime_03",
+      "runtime_04",
+      "runtime_05",
+      "runtime_06"
+    ],
+    "disposition": "No G3R7-M2 kill or VK-R02 run inferred. G3 points to fk_baseline_03, which supplies the untouched artifact pointer."
+  },
+  "actual_relevant_prior_experiment": {
+    "group": "G1",
+    "id": "G27/R7-M2",
+    "manifest_sha256": "bd4dae325f30af11bb9ec1479f255f73912b96b7d4e50a066825aee725644e90",
+    "patch_sha256": "0a810d8286ceca6cc2c2513825167e7bdc0573846aff798bffa84cc984d155e7",
+    "patch": "Changes later if extent==0 into extent==0 || extent==extent; does not select the earlier active(R02) branch.",
+    "preimage": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+    "postimage": "cf762120f705c4c4e9d669f59c4335c15908ddd39977e5d7803978a6ab64ce3b",
+    "historical_test_filter": [
+      "structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64"
+    ],
+    "historical_mutant_evidence_sha256": "6f0f5a047d17d2e4d4526a74e1a9f42ff2fe9f250cf3371b89fb1ac73bd246ac",
+    "historical_mutant_binary": {
+      "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "b8974dc764a3e294723157ef592d889e5f7a498fe0f07c55aa09ca6f333974dc"
+    },
+    "historical_stdout": "\nrunning 1 test\ntest structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64 ... FAILED\n\nfailures:\n\n---- structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64 stdout ----\n\nthread 'structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64' (25516017) panicked at src/structural/retained/../../../tests/retained_k4/verify_tests.rs:45:5:\nassertion `left == right` failed\n  left: [1.0, 8.0]\n right: [4.0, 8.0]\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s\n\n",
+    "control_evidence_sha256": "5d67403c480a8c44109df5ce6003ab16386137dc45002a0b16b45777680f6944",
+    "control_binary": {
+      "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970"
+    },
+    "original_baseline_evidence_sha256": "d9791aeffe3ad7748b3334c3d5280fdc7a6677d070f7e3bee71af86f6be926a6",
+    "disposition": "Historicalpatchedmutant failure atline45 proves that test has an independent numeric discriminator, but is not env-seededVK-R02 execution or P49credit. Same return e for these finite explicitinputs follows direct source comparison only; no blanket equivalence for all inputs/NaN extents or builds asserted."
+  }
+}

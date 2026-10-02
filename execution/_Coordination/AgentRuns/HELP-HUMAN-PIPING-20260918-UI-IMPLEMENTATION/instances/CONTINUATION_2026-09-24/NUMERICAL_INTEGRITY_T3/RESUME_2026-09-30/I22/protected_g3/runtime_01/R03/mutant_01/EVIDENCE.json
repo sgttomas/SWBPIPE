@@ -1,0 +1,77 @@
+{
+  "kind": "mutant",
+  "id": "R03",
+  "registration": "R7_K4::R7-M15",
+  "index": 0,
+  "name": "mutant_01",
+  "source_id": "R03",
+  "binary_id": "R03",
+  "filter": "structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification",
+  "argv": [
+    "<wt>/a1-protected-target/g3/R03/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "--exact",
+    "structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-protected-target/g3/R03/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification' '--test-threads=2' '--nocapture' > '<wt>/scratch/i22/protected_g3/logs/R03/mutant_01.stdout' 2> '<wt>/scratch/i22/protected_g3/logs/R03/mutant_01.stderr'",
+  "workdir": "<wt>/scratch/i22/protected_g3/R03/projects/chirality-piping/core/solver/frame_kernel",
+  "log": "<wt>/scratch/i22/protected_g3/logs/R03/mutant_01",
+  "guard_before": {
+    "chunk_id": "4b012e",
+    "wall_time_seconds": 6.75e-06,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-13:59:39 /bin/bash <wt>/guard/memguard.sh\n"
+  },
+  "launch_utc": "2026-10-01T15:35:58.732Z",
+  "tool_initial": {
+    "chunk_id": "420cad",
+    "wall_time_seconds": 1.00304725,
+    "session_id": 60045,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "13382e",
+    "wall_time_seconds": 9.209e-06,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "info": {
+    "stdout": "\nrunning 1 test\ntest structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification ... FAILED\n\nfailures:\n\nfailures:\n    structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 17.47s\n\n",
+    "stderr": "\nthread 'structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification' (25894991) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1054:21:\nassertion `left == right` failed: SEEDED-COMMON 256 r\u0302\n  left: \"adf149577de523c9fdbc7878e1d46f800ec6c64880002730e72e25ae5ce6754b\"\n right: \"8471078ce047965a13a8f045f729f4845dff7181dcfddcfc14f60b6fa6b08a58\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n       17.47 real        17.37 user         0.09 sys\n            24395776  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                1845  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                 322  involuntary context switches\n        208892901285  instructions retired\n         50227452983  cycles elapsed\n            14270848  peak memory footprint\n",
+    "stdout_sha256": "385eb7ce3ec4af628dbb36d8aa5c75b592f08fd31330369ae3ea97bdbc66a6c6",
+    "stderr_raw_sha256": "56abf0378027409279d83df65201c578579af1d2f3d7b04b7aba9d3fc7749d9e",
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_role": "executed source binding",
+    "complete_source_hashes_match": true,
+    "source_manifest_sha256": "bb8e649fa4a7c3992c22c8f132417324865e93d89a4a6757247babf811ba7d8b",
+    "affected_images": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "after_sha256": "a740e26ac3f93bb50a4791b90e77d5307ca77cc53bf935a5798e9891562d6ed2"
+      },
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+        "after_sha256": "77f3efa4be3a161353ff1e2879b03c49cbd2e1098a60e4f118d0d1b2b35da1e6"
+      }
+    ],
+    "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "binary": {
+      "path": "<wt>/a1-protected-target/g3/R03/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "fd535d9007cf6d67f18b5d27ae91649040ffe69743dd70da48d8887f1b72f1ac"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-protected-target/g3/R03/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    },
+    "guard_after": "5387     1 03-14:00:06 /bin/bash <wt>/guard/memguard.sh"
+  }
+}

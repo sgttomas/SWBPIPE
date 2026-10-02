@@ -1,0 +1,2661 @@
+{
+  "warrants": [
+    {
+      "id": "W01_PHI_RULE",
+      "claim": "Accepted rule: floor only at candidate 512/verification 1024. The test uses fixed e_hat=1; expected 2^-438 is the source rule, not a mutated constant.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "start_line": 2010,
+      "end_line": 2039,
+      "excerpt": "\n/// D1 revision 5a.3's acceptance (R7 \u00a75.1): (a) with V_q \u2014 \u00ea\u00b72^(8\u22122p) for\n/// force and moment rows, W\u207a_q for the other rows that are not input-derived\n/// (plus 2^(1\u22122p)\u00b7|q_2p| for a magnitude) \u2014 and, at p = 512, S\\* floored by\n/// \u03a6 = fl\u2191(2^-438\u00b7\u00ea) for force and moment; then (b) the verification estimate\n/// \u0174_q \u2264 2^(6\u22122p)\u00b7\u00ea; (c) `uc`, \u03b8_c \u2264 1/2 and the g check; (d) the charge,\n/// C_q \u2264 60\u00b72^-2p\u00b7\u00ea at p = 128 and 256 and C_q \u2264 2^-86\u00b7M_q at p = 512. The\n/// first failure in that order (emu7's; ROOT's A3-0 ruling Q7) rejects p.\npub(crate) fn decide<const L: usize, const M: usize>(\n    layout: &[QuantityMeta],\n    extents: &[f64],\n    candidate: &[Wide<L>],\n    verification: &[Wide<M>],\n    report: &VerificationReport<M>,\n    guard: StageGuard,\n) -> StopDecision\nwhere\n    Wide<L>: SupportedWidth,\n    Wide<M>: SupportedWidth,\n{\n    rule(\n        layout,\n        extents,\n        candidate,\n        verification,\n        report.precision,\n        Some(report),\n        guard,\n    )\n}\n"
+    },
+    {
+      "id": "W02_PHI_ORACLE",
+      "claim": "Existing protected Phi test independently expects exact 2^-438 for normal multiplication at e=1.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/verify_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "3de53d2d018cb7286bed092760398b69f59c92214fcaf20c09e269feddd4d135",
+      "start_line": 1,
+      "end_line": 41,
+      "excerpt": "//! K4 tests of `retained/verify.rs` at A3a (D1 revision 5a.3, R7 \u00a74.1.6.1\n//! item 6a): \u00ea's binary64 coupling and \u03a6 = fl\u2191(2^-438\u00b7\u00ea), decided exactly,\n//! with its boundary at \u00ea = 2^-584 (below it the product is subnormal and \u03a6 is\n//! rounded up). E itself is tested on the models in `scale_tests.rs` (E-UNIT).\nuse super::*;\n\n#[allow(dead_code)]\n#[path = \"support.rs\"]\nmod support;\n\n#[test]\nfn phi_is_exact_where_the_product_is_normal_and_rounded_up_below_2_to_the_minus_584() {\n    assert_eq!(f64::from_bits(PHI_SCALE_BITS), support::pow2(-438));\n    // \u00ea \u2265 2^-584: \u03a6 = 2^-438\u00b7\u00ea exactly.\n    for e in [\n        1.0f64,\n        3.0,\n        support::pow2(-584),\n        1.5 * support::pow2(-584),\n        f64::MAX,\n    ] {\n        let phi = phi_512(e);\n        assert_eq!(phi, e * support::pow2(-438), \"{e:e}\");\n    }\n    // Below: the product is subnormal; \u03a6 is the least binary64 not below it.\n    for e in [\n        support::pow2(-584) * 1.25,\n        support::pow2(-600) * 1.75,\n        f64::from_bits(1) * 3.0,\n    ] {\n        let phi = phi_512(e);\n        // Exact check with integers: \u03a6\u00b72^438 \u2265 \u00ea, and the next binary64 down fails.\n        let scale = support::pow2(438);\n        assert!(phi * scale >= e, \"{e:e}\");\n        let below = f64::from_bits(phi.to_bits() - 1);\n        assert!(below * scale < e || phi.to_bits() == 1, \"{e:e}\");\n    }\n    // \u00ea = 0 gives \u03a6 = 0.\n    assert_eq!(phi_512(0.0), 0.0);\n}\n\n"
+    },
+    {
+      "id": "W03_DATA_DERIVATION",
+      "claim": "Independent Fraction emulation sets data from nonzero authored loads, state, and prescribed coupling; selected CHARGE records give [true,false].",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7",
+      "start_line": 4405,
+      "end_line": 4420,
+      "excerpt": "    # Blocks, data flags, Uc, the shift, B.\n    blocks, blk = em[\"blocks\"], em[\"blk\"]\n    prescribed_nonzero = {g for g, v in pres.items() if v != 0}\n    data = []\n    for pl in blocks:\n        flag = False\n        for a in pl:\n            g = free[a]\n            if g in em[\"nonzero_terms\"] or u[g] != 0 or any(c in prescribed_nonzero for c in pattern[g]):\n                flag = True\n        data.append(flag)\n    get, first, order = em[\"get\"], em[\"first\"], em[\"order\"]\n    block_of_row = [blk[order[i]] for i in range(nf)]\n    gam = gamma_em(nf, p)\n    # Amendment A2 (T3 KF3): a refused Uc_c (or S_c) is unavailable for its\n    # block only (verify.rs `verify_state`, bound.rs `certificates`).\n"
+    },
+    {
+      "id": "W04_BOUND_DERIVATION",
+      "claim": "Independent emulation forms B as min of available bounds only for a data block; fixed CHARGE tokens, not live report fields, supply expected B.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7",
+      "start_line": 4435,
+      "end_line": 4461,
+      "excerpt": "            refused[b] = (\"span\", \"form\", None)\n            ucs.append(None)\n    start = []\n    for b, pl in enumerate(blocks):\n        est = em[\"est_blk\"][b]\n        if data[b] and est > 0 and (ucs[b] is None or ucs[b] > 2 * ceil_sqrt_em(len(pl)) * est):\n            start.append((b, rd(Fr(1) / (2 * est), p), len(pl)))\n    shifts, count = shift_schedule_em(em[\"scaled\"], first, block_of_row, gam, start, p, a2=True) if start else ({}, 0)\n    B = []\n    uc_missing = None\n    stop = None\n    for b in range(len(blocks)):\n        cands = [x for x in (ucs[b], shifts.get(b, {}).get(\"S\")) if x is not None]\n        bb = min(cands) if (data[b] and cands) else None\n        if data[b] and bb is None:\n            why = refused.get(b) or shifts.get(b, {}).get(\"refused\")\n            if why is not None and stop is None:\n                stop = why\n            elif why is None and uc_missing is None:\n                uc_missing = b\n        B.append(bb)\n    if stop is not None:\n        # 7d with A2: a block with data and no bound after a refusal stops the\n        # attempt with that refusal, before any `uc` rejection.\n        return dict(stop=\"Span\" if stop[0] == \"span\" else \"Exponent\")\n    norms = []\n    for pl in blocks:\n"
+    },
+    {
+      "id": "W05_G_SCOPE_DERIVATION",
+      "claim": "g includes only members connected to a data block or a nonzero prescription; selected CHARGE G-FIXED-MEMBER has g_max=0 and no violation.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7",
+      "start_line": 4467,
+      "end_line": 4477,
+      "excerpt": "    theta = [up(B[b] * norms[b][\"sas\"]) * Fr(2) ** (7 - p) if B[b] is not None else None for b in range(len(blocks))]\n    g_max, g_violation = 0, None\n    for m, op in zip(model[\"members\"], em[\"members\"]):\n        dofs = member_dofs_em(m)\n        in_scope = any((d in position and data[blk[position[d]]]) or (d not in position and d in prescribed_nonzero)\n                       for d in dofs)\n        if in_scope:\n            g_max = max(g_max, op[\"g\"])\n            if op[\"g\"] > p - 16 and g_violation is None:\n                g_violation = m[\"id\"]\n    block_body = [body_of[free[pl[0]] // 6] for pl in blocks]\n"
+    },
+    {
+      "id": "W06_CHARGE_SCHEMA",
+      "claim": "CHARGE fields: chgblk block/data/B/theta/.../tries; chgcount factorization count and g_max.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7",
+      "start_line": 4751,
+      "end_line": 4784,
+      "excerpt": "    return lines\n\n\ndef charge_record(name, model, P, seeds=()):\n    \"\"\"E-CHARGE's record of a verification state at P (R7 \u00a74.1.6.3 items\n    1-12, with R7's directed roundings), as digests and tokens.\"\"\"\n    em = emulate(model, P, seeds=seeds)\n    if \"stop\" in em:\n        return [\"chg %s %d stop %s\" % (name, P, em[\"stop\"])]\n    rep = verify_em(em)\n    if \"stop\" in rep:\n        return [\"chg %s %d stop %s\" % (name, P, rep[\"stop\"])]\n    L = width_of(P)\n    tok = lambda v: W_of(v, L).token() if v is not None else \"-\"\n    rows = lambda vals: digest([\"%d %s\" % (i, tok(v)) for i, v in enumerate(vals) if v is not None])\n    lines = [\"chg %s %d ok %d %s %s\" % (name, P, rep[\"qw\"], \"-\" if rep[\"uc_missing\"] is None else rep[\"uc_missing\"],\n                                         \"-\" if rep[\"g_violation\"] is None else rep[\"g_violation\"])]\n    lines.append(\"chgrows %s %d %s %s %s %s %s %s\" % (\n        name, P, rows(rep[\"r_hat\"]), rows(rep[\"delta\"]), rows(rep[\"W\"]), rows(rep[\"a_s\"]), rows(rep[\"C\"]),\n        rows(rep[\"Wp\"])))\n    for b, n_ in enumerate(rep[\"norms\"]):\n        lines.append(\"chgblk %s %d %d %d %s %s %s %s %s %s %s %s %s\" % (\n            name, P, b, int(rep[\"data\"][b]), tok(rep[\"B\"][b]), tok(rep[\"theta\"][b]), tok(n_[\"sas_one\"]),\n            tok(n_[\"sas_inf\"]), tok(n_[\"sau\"]), tok(n_[\"sr\"]), tok(n_[\"sr2\"]), tok(n_[\"sid\"]),\n            rep[\"shifts\"].get(b, {}).get(\"tries\", 0)))\n    for b, bd in enumerate(rep[\"bodies\"]):\n        lines.append(\"chgbody %s %d %d %s %s %s %s %s %s\" % (name, P, b, tok(bd[\"b\"]), tok(bd[\"theta\"]),\n                                                           tok(bd[\"n_u\"]), tok(bd[\"t1\"]), tok(bd[\"t2\"]), tok(bd[\"t3\"])))\n    lines.append(\"chgcount %s %d %d %d\" % (name, P, rep[\"count\"], rep[\"g_max\"]))\n    return lines\n\n\ndef charge_lines():\n    lines = []\n"
+    },
+    {
+      "id": "W07_FORCED_SHIFT_WARRANT",
+      "claim": "BOUNDS forces all positive-est blocks; the selected models each have one data block with need=1, so the same first sigma/one-try S is scheduled by verify_em. Selected CHARGE B equals that S.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7",
+      "start_line": 3458,
+      "end_line": 3531,
+      "excerpt": "def bounds_record(name, model, p, exact=True):\n    \"\"\"E-UC's record at a verification precision p: the factor's digest (Q4's\n    pin), per block est_c, U, N_L, t, Uc, the data flag at the state, the\n    forced shift (every block with est_c > 0) and the exact \u2016K\u0303_c\u207b\u00b9\u2016\u2081.\"\"\"\n    em = emulate(model, p)\n    if \"order\" not in em or \"est_blk\" not in em:\n        return [\"bnd %s %d stop %s\" % (name, p, em.get(\"stop\"))]\n    L = width_of(p)\n    nf = len(em[\"free\"])\n    get, first, order, blk = em[\"get\"], em[\"first\"], em[\"order\"], em[\"blk\"]\n    block_of_row = [blk[order[i]] for i in range(nf)]\n    gam = gamma_em(nf, p)\n    lines = [\"bnd %s %d %d %d %s %s\" % (name, p, nf, len(em[\"blocks\"]), W_of(gam, L).token(), factor_digest(em, L))]\n    # Amendment A2 (T3 KF3): the passes refuse per block as K4's do.\n    refused = {}\n    c_ = u_pass_em(get, first, nf, p, block_of_row, refused)\n    ct = nl_pass_em(get, first, nf, p, block_of_row, refused)\n    # Data flags at the state (7a), when the state exists.\n    data = None\n    if \"u\" in em:\n        data = []\n        prescribed_nonzero = {g for g, v in em[\"prescribed\"].items() if v != 0}\n        for b, pl in enumerate(em[\"blocks\"]):\n            flag = False\n            for a in pl:\n                g = em[\"free\"][a]\n                if g in em[\"nonzero_terms\"] or em[\"u\"][g] != 0:\n                    flag = True\n                if any(c in prescribed_nonzero for c in em[\"pattern\"][g]):\n                    flag = True\n            data.append(flag)\n    start = []\n    for b, pl in enumerate(em[\"blocks\"]):\n        rows_b = [i for i in range(nf) if block_of_row[i] == b]\n        tok = lambda v: W_of(v, L).token() if v is not None else \"-\"\n        if b not in refused:\n            U = max(c_[i] for i in rows_b)\n            NL = max(ct[i] for i in rows_b)\n            try:\n                t, uc = uc_from_em_a2(U, NL, gam, p)\n            except Refused:\n                refused[b] = (\"span\", \"form\", None)\n        if b in refused:\n            U, NL, t, uc = refusal_token(refused[b]), None, None, None\n            u_tok = U\n        else:\n            u_tok = tok(U)\n        est = em[\"est_blk\"][b]\n        norm = \"- - -\"\n        if exact:\n            sub = [[em[\"scaled\"][max(i, j)].get(min(i, j), Fr(0)) for j in rows_b] for i in rows_b]\n            if len(rows_b) <= 40:\n                norm = \"exact \" + frac_hex(inv_norm1_exact(sub))\n            else:\n                norm = \"upper \" + frac_hex(inv_norm1_upper(sub))\n        need = None\n        if est > 0:\n            need = uc is None or uc > 2 * ceil_sqrt_em(len(pl)) * est\n            start.append((b, rd(Fr(1) / (2 * est), p), len(pl)))\n        lines.append(\"blk %s %d %d %d %s %s %s %s %s %s %s %s\" % (\n            name, p, b, len(pl), \"-\" if data is None else int(data[b]), tok(est), u_tok, tok(NL), tok(t), tok(uc),\n            \"-\" if need is None else int(need), norm))\n    res, count = shift_schedule_em(em[\"scaled\"], first, block_of_row, gam, start, p, a2=True)\n    for b in sorted(res):\n        r = res[b]\n        tok = lambda v: W_of(v, L).token() if v is not None else \"-\"\n        line = \"shf %s %d %d %s %d %s %s %s %s\" % (name, p, b, tok(r[\"sigma\"]), r[\"tries\"], tok(r[\"nl\"]),\n                                                  tok(r[\"delta\"]), tok(r[\"sp\"]), tok(r[\"S\"]))\n        if \"refused\" in r:\n            line += \" \" + refusal_token(r[\"refused\"])\n        lines.append(line)\n    lines.append(\"shiftcount %s %d %d\" % (name, p, count))\n    return lines\n\n"
+    },
+    {
+      "id": "W08_SCALE_SCHEMA",
+      "claim": "Fixed SCALE includes PRESCRIBED explicit E rows. Body force/moment maxima are independently upward-rounded to binary64 before ebody serialization.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7",
+      "start_line": 3051,
+      "end_line": 3085,
+      "excerpt": "def scale_record(name, model, p):\n    \"\"\"E-UNIT's record of a model at p: g, \u0100, E_q, E(body, kind), \u00ea and \u03a6.\"\"\"\n    em = emulate(model, p)\n    if \"stop\" in em:\n        return [\"scale %s %d stop %s\" % (name, p, em[\"stop\"])]\n    L = width_of(p)\n    mdl = em[\"model\"]\n    abar = abar_em(em)\n    w = [abs(v) for v in em[\"u\"]]\n    E = formation_scale_em(em, abar, w, em[\"ledger\"], lambda x: rp(x, p))\n    kinds = layout_kinds(mdl)\n    assert len(E) == len(kinds)\n    lines = [\"scale %s %d state %d\" % (name, p, em[\"corrections\"])]\n    lines.append(\"g %s %d %s\" % (name, p, \",\".join(str(op[\"g\"]) for op in em[\"members\"]) or \"-\"))\n    lines.append(\"abar %s %d %s\" % (name, p, digest([\"%d %d %s\" % (r, c, W_of(abar[(r, c)], L).token())\n                                                     for (r, c) in sorted(abar)])))\n    erows = [\"%d %s\" % (i, W_of(v, L).token()) for i, (v, (k, _b, _i)) in enumerate(zip(E, kinds))\n             if k >= 2 and v is not None]\n    lines.append(\"erows %s %d %s\" % (name, p, digest(erows)))\n    body_of, nb = bodies_em(mdl)\n    top = [[Fr(0), Fr(0)] for _ in range(nb)]\n    for v, (k, b, _i) in zip(E, kinds):\n        if k >= 2 and v is not None:\n            top[b][k - 2] = max(top[b][k - 2], v)\n    for b in range(nb):\n        e = [fl_up(top[b][0]), fl_up(top[b][1])]\n        coords = [mdl[\"nodes\"][nd] for nd in range(len(mdl[\"nodes\"])) if body_of[nd] == b]\n        eh = e_hat_em(e, body_extent_em(coords))\n        ph = [phi_em(x) for x in eh]\n        lines.append(\"ebody %s %d %d %s\" % (name, p, b, \" \".join(\"%016x\" % b64(x) for x in e + eh + ph)))\n    if name in (\"N05\", \"TWO-SPAN\", \"CHARGE-SLENDER\", \"DIRECTIONAL-SPAN\", \"PRESCRIBED\"):\n        lines += [\"erow %s %d %s\" % (name, p, r) for r in erows]\n    return lines\n\n\n"
+    },
+    {
+      "id": "W09_SAME_E_DEFINITION",
+      "claim": "verify_em uses E=formation_scale_em(abs(u),ledger,nearest at P), the same definition as scale_record; u includes the prescriptions as represented at P.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7",
+      "start_line": 4346,
+      "end_line": 4368,
+      "excerpt": "                Kc[key] = Kc.get(key, Fr(0)) + blk[a][b]\n    abar = abar_em(em)\n    u = em[\"u\"]\n    free, position, pattern = em[\"free\"], em[\"position\"], em[\"pattern\"]\n    ledger = em[\"ledger\"]\n    pres = em[\"prescribed\"]\n    u0 = list(u)\n    for g, v in pres.items():\n        u0[g] = v\n    E = formation_scale_em(em, abar, [abs(x) for x in u], ledger, rnd)\n    meta = layout_meta(model)\n    body_of, nb = bodies_em(model)\n    top = [[Fr(0), Fr(0)] for _ in range(nb)]\n    for v, (k, b, _i, _t) in zip(E, meta):\n        if k >= 2 and v is not None:\n            top[b][k - 2] = max(top[b][k - 2], v)\n    resolution = [[fl_up(t[0]), fl_up(t[1])] for t in top]\n    for b, rr in enumerate(resolution):\n        for kind, v in ((\"fo\", rr[0]), (\"mo\", rr[1])):\n            if v == math.inf:\n                return dict(stop=\"ResolutionScale\", body=b, kind=kind)\n    # \u00ea overflowing binary64 while E encodes is the same terminal case (ROOT's\n    # A3b ruling; verify.rs `resolution_hats`): E first for every body, then \u00ea.\n"
+    },
+    {
+      "id": "W10_EXISTING_SCALE_TEST_LIMIT",
+      "claim": "Existing scale_at reconstructs E through formation_scale directly; it never calls verify_state and therefore does not exercise the R7-M5 mutated w_abs site.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+      "start_line": 99,
+      "end_line": 210,
+      "excerpt": "pub(super) fn scale_at<const L: usize, const R: usize>(\n    p: u32,\n    q: u32,\n    prep: &CasePrep,\n    group: &GroupPrep,\n    recs: &[Vec<&str>],\n) where\n    Wide<L>: SupportedWidth,\n    Wide<R>: SupportedWidth,\n{\n    let name = recs[0][1];\n    let guard = StageGuard::unlimited();\n    let shared = build_shared::<L, R>(p, q, &prep.source, group, guard).result;\n    let solved = shared\n        .as_ref()\n        .map_err(|s| s.clone())\n        .and_then(|sh| solve_case_at::<L, R>(sh, prep, group, guard).result);\n    if recs[0][3] == \"stop\" {\n        let stop = solved.expect_err(name);\n        assert_eq!(stop_name(&stop), recs[0][4], \"{name} {p}\");\n        return;\n    }\n    let shared = shared.unwrap();\n    let solved = solved.unwrap_or_else(|e| panic!(\"{name} {p}: {e:?}\"));\n    assert_eq!(\n        solved.corrections.to_string(),\n        recs[0][4],\n        \"{name} {p} corrections\"\n    );\n    let mut ctx = WideContext::<L>::new(p).unwrap();\n    let mut sum = ExactWideSum::new();\n    let source = &prep.source;\n    let bounded: Vec<BoundedCoefficients<L>> = shared.members.iter().map(|m| m.bounded()).collect();\n    let abar = assemble_bounded(\n        &mut ctx,\n        &mut sum,\n        &guard,\n        source,\n        &group.structure,\n        &bounded,\n        &shared.directional,\n    )\n    .unwrap();\n    let w: Vec<Wide<L>> = solved.u.iter().map(|v| v.abs()).collect();\n    let e = formation_scale(\n        &mut ctx,\n        &mut sum,\n        &guard,\n        source,\n        &prep.layout,\n        &group.structure,\n        &abar,\n        &shared.members,\n        &shared.directional,\n        Some(&prep.ledger),\n        &w,\n        StageRounding::Nearest,\n    )\n    .unwrap();\n    let erows: Vec<String> = e\n        .iter()\n        .enumerate()\n        .filter_map(|(i, v)| v.as_ref().map(|v| format!(\"{i} {}\", tok(v))))\n        .collect();\n    let resolution = resolution_scale(&prep.layout, &e, source.body_count() as usize).unwrap();\n    let mut explicit = Vec::new();\n    for f in &recs[1..] {\n        match f[0] {\n            \"g\" => {\n                let got: Vec<String> = shared.members.iter().map(|m| m.g_exp.to_string()).collect();\n                let got = if got.is_empty() {\n                    \"-\".to_string()\n                } else {\n                    got.join(\",\")\n                };\n                assert_eq!(got, f[3], \"{name} {p} g\");\n            }\n            \"abar\" => {\n                let mut entries: Vec<(usize, usize, usize)> = group.structure.entries().collect();\n                entries.sort_unstable();\n                let lines: Vec<String> = entries\n                    .iter()\n                    .map(|&(r, c, index)| format!(\"{r} {c} {}\", tok(&abar[index])))\n                    .collect();\n                assert_eq!(digest(&lines), f[3], \"{name} {p} \u0100\");\n            }\n            \"erows\" => assert_eq!(digest(&erows), f[3], \"{name} {p} E rows\"),\n            \"erow\" => explicit.push(format!(\"{} {}\", f[3], f[4])),\n            \"ebody\" => {\n                let b: usize = f[3].parse().unwrap();\n                let eh = e_hat(resolution[b], prep.extents[b]);\n                let values = [\n                    resolution[b][0],\n                    resolution[b][1],\n                    eh[0],\n                    eh[1],\n                    phi_512(eh[0]),\n                    phi_512(eh[1]),\n                ];\n                let got: Vec<String> = values\n                    .iter()\n                    .map(|v| format!(\"{:016x}\", v.to_bits()))\n                    .collect();\n                assert_eq!(got, f[4..10].to_vec(), \"{name} {p} body {b}\");\n            }\n            other => panic!(\"{other}\"),\n        }\n    }\n    if !explicit.is_empty() {\n        assert_eq!(explicit, erows, \"{name} {p} explicit E rows\");\n    }\n}\n"
+    },
+    {
+      "id": "W11_MUTATED_E_PATH",
+      "claim": "verify_state passes abs(u) including prescribed DOFs to formation_scale and stores e_rows and resolution. The additive M5 test reads exactly these returned fields.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+      "start_line": 760,
+      "end_line": 789,
+      "excerpt": "        // ---- E (\u00a74.1.6.2 item 4): |u| with the prescribed values as at P.\n        let w_abs: Vec<Wide<L>> = u.iter().map(|v| v.abs()).collect();\n        let e_rows = formation_scale(\n            &mut ctx,\n            &mut sum,\n            &guard,\n            source,\n            layout,\n            structure,\n            &vs.abar,\n            &shared.members,\n            &shared.directional,\n            Some(&prep.ledger),\n            &w_abs,\n            StageRounding::Nearest,\n        )?;\n        let bodies = source.body_count() as usize;\n        let resolution = resolution_scale(layout, &e_rows, bodies)?;\n        for (b, e) in resolution.iter().enumerate() {\n            for (kind, v) in [(Kind::Force, e[0]), (Kind::Moment, e[1])] {\n                if !v.is_finite() {\n                    return Err(AttemptStop::ResolutionScale {\n                        body: b as u32,\n                        kind,\n                    });\n                }\n            }\n        }\n        // E encodes for every body; then \u00ea (ROOT's A3b ruling).\n        resolution_hats(&resolution, &prep.extents)?;\n"
+    },
+    {
+      "id": "W12_SHARED_E_FORMATION",
+      "claim": "build_verify_shared<4,8,8> constructs A-bar from the same P=256 shared members/directional data used by scale_record and scale_at.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+      "start_line": 420,
+      "end_line": 463,
+      "excerpt": "pub(crate) fn build_verify_shared<const L: usize, const R: usize, const W: usize>(\n    shared: &Shared<L, R>,\n    source: &PrimitiveSource,\n    group: &GroupPrep,\n    guard: StageGuard,\n) -> VerifySpent<VerifyShared<L, W>>\nwhere\n    Wide<L>: SupportedWidth,\n    Wide<R>: SupportedWidth,\n    Wide<W>: SupportedWidth,\n{\n    let p = shared.p;\n    let q_w = q_w_of(p);\n    let mut ctx = WideContext::<L>::new(p).expect(\"supported precision\");\n    let mut ctx_w = WideContext::<W>::new(q_w).expect(\"supported precision\");\n    let mut sum = ExactWideSum::new();\n    let mut stages = StageWork::default();\n    // T3 KF3: the stage in progress, for a stopped build's unstaged work.\n    let mut current = Stage::BoundedFormation;\n    // RV23-1: the Uc_c refusal slots, one per block, held outside the build so\n    // that a stop after a refusal keeps it in the evidence.\n    let mut uc_refused: Vec<Option<BoundRefusal>> = vec![None; group.blocks.len()];\n    let mut run = || -> Result<VerifyShared<L, W>, AttemptStop> {\n        let spent = |ctx: &WideContext<L>, ctx_w: &WideContext<W>, sum: &ExactWideSum| {\n            lme(ctx) + lme(ctx_w) + sum.work().limb_multiply_equivalents()\n        };\n        let t0 = spent(&ctx, &ctx_w, &sum);\n        let g = guard;\n        let bounded: Vec<BoundedCoefficients<L>> =\n            shared.members.iter().map(|m| m.bounded()).collect();\n        let abar = assemble_bounded(\n            &mut ctx,\n            &mut sum,\n            &g,\n            source,\n            &group.structure,\n            &bounded,\n            &shared.directional,\n        )?;\n        let t1 = spent(&ctx, &ctx_w, &sum);\n        stages.bounded_formation = t1 - t0;\n        current = Stage::WideFormation;\n        let (ke_w, directional_w) = if q_w == p {\n            (\n"
+    },
+    {
+      "id": "W13_REPORT_FIELDS",
+      "claim": "VerificationReport<4> fields: Vec<Option<Wide<4>>> e_rows, Vec<[f64;2]> resolution, block certificates, theta, g and u8 shift count.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+      "start_line": 597,
+      "end_line": 638,
+      "excerpt": "pub(crate) struct VerificationReport<const L: usize>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    pub(crate) precision: u32,\n    #[allow(dead_code)] // evidence (E-CHARGE)\n    pub(crate) q_w: u32,\n    /// [E_fo, E_mo] per body (uncoupled, rounded upward to binary64).\n    pub(crate) resolution: Vec<[f64; 2]>,\n    #[allow(dead_code)] // evidence (E-CHARGE, E-HEADROOM)\n    pub(crate) e_rows: Vec<Option<Wide<L>>>,\n    /// \u0174_q on force and moment rows.\n    pub(crate) w: Vec<Option<Wide<L>>>,\n    /// \u2016\u0101_q S\u2016\u2081 on force and moment rows.\n    #[allow(dead_code)] // evidence (E-CHARGE)\n    pub(crate) a_s: Vec<Option<Wide<L>>>,\n    /// C_q on force and moment rows (None when a block lacks B).\n    pub(crate) charge: Vec<Option<Wide<L>>>,\n    /// W\u207a on free translation and rotation rows and node magnitudes (None\n    /// when a block lacks B: rule (a) then uses 0, R7-order Q7).\n    pub(crate) w_plus: Vec<Option<Wide<L>>>,\n    /// r\u0302 and \u03b4\u0302 per free position.\n    #[allow(dead_code)] // evidence (E-CHARGE)\n    pub(crate) r_hat: Vec<Wide<L>>,\n    #[allow(dead_code)] // evidence (E-CHARGE)\n    pub(crate) delta: Vec<Wide<L>>,\n    pub(crate) blocks: Vec<BlockCertificate<L>>,\n    #[allow(dead_code)] // evidence (E-CHARGE)\n    pub(crate) norms: Vec<BlockNorms<L>>,\n    /// \u03b8_c for each block with data.\n    pub(crate) theta: Vec<Option<Wide<L>>>,\n    pub(crate) bodies: Vec<BodyReport<L>>,\n    /// The largest g_exp in the g check's scope, and the first member (id)\n    /// above P \u2212 16.\n    pub(crate) g_max: u32,\n    pub(crate) g_violation: Option<u32>,\n    pub(crate) uc_missing: Option<usize>,\n    pub(crate) shift_factorizations: u8,\n}\n\n/// K^c's contributions to row g (free), times u\u2070 (exact at prescribed DOFs),\n/// subtracted from `r` (item 1): r_g = f_g \u2212 \u03a3 k\u00b7u\u2070. With `delta`, instead\n"
+    },
+    {
+      "id": "W14_BOUND_FIELDS",
+      "claim": "ShiftResult<4>.s is Option<Wide<4>> and tries is u8; BlockCertificate<4>.b is Option<Wide<4>>.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+      "start_line": 928,
+      "end_line": 941,
+      "excerpt": "pub(crate) struct ShiftResult<const L: usize>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    /// The last \u03c3_c tried.\n    pub(crate) sigma: Wide<L>,\n    /// The shifted factorizations this block took part in.\n    pub(crate) tries: u8,\n    pub(crate) n_l: Option<Wide<L>>,\n    pub(crate) delta: Option<Wide<L>>,\n    pub(crate) sigma_prime: Option<Wide<L>>,\n    pub(crate) s: Option<Wide<L>>,\n    /// Amendment A2: the block's first refusal in 7c; S_c is then unavailable\n    /// and the block is not retried.\n"
+    },
+    {
+      "id": "W15_BLOCK_FIELDS",
+      "claim": "Block certificate data/b/shift are crate-visible and readable from mounted method_tests.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+      "start_line": 1170,
+      "end_line": 1182,
+      "excerpt": "pub(crate) struct BlockCertificate<const L: usize>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    pub(crate) bound: BlockBound<L>,\n    pub(crate) est: Wide<L>,\n    pub(crate) data: bool,\n    pub(crate) shift: Option<ShiftResult<L>>,\n    /// Amendment A2: S_c's first refusal (before the shift, or in it).\n    pub(crate) s_refused: Option<BoundRefusal>,\n    /// B_c, for a block with data (None: neither bound exists, or no data).\n    pub(crate) b: Option<Wide<L>>,\n}\n"
+    },
+    {
+      "id": "W16_WIDTHS",
+      "claim": "Wide<4>, Wide<8>, Wide<16> implement SupportedWidth. The diagnostic uses P=256/512/1024 respectively.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17",
+      "start_line": 105,
+      "end_line": 140,
+      "excerpt": "\n/// Widths the generic core runs at: L = 2 (tests only), 4, 8 and 16.\npub(crate) trait CoreWidth {\n    /// The 2L-limb stack buffer of products, quotients and remainders.\n    type Double: Copy + AsRef<[u64]> + AsMut<[u64]>;\n    const DOUBLE_ZERO: Self::Double;\n}\n\n/// Widths with the value API and an arithmetic context: L = 4, 8 and 16.\npub(crate) trait SupportedWidth: CoreWidth {\n    /// Index of the width in `AttemptWork`.\n    const SLOT: usize;\n}\n\nmacro_rules! core_width {\n    ($limbs:literal, $double:literal) => {\n        impl CoreWidth for Wide<$limbs> {\n            type Double = [u64; $double];\n            const DOUBLE_ZERO: [u64; $double] = [0; $double];\n        }\n    };\n}\ncore_width!(2, 4);\ncore_width!(4, 8);\ncore_width!(8, 16);\ncore_width!(16, 32);\n\nimpl SupportedWidth for Wide<4> {\n    const SLOT: usize = 0;\n}\nimpl SupportedWidth for Wide<8> {\n    const SLOT: usize = 1;\n}\nimpl SupportedWidth for Wide<16> {\n    const SLOT: usize = 2;\n}\n"
+    },
+    {
+      "id": "W17_PRECISION_CAPACITY",
+      "claim": "WideContext permits precision through 64*L; helper state widths 4/8 and verifier wide precision min(3*(256/2)+64,1024)=448 fit 8 limbs.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17",
+      "start_line": 1122,
+      "end_line": 1142,
+      "excerpt": "pub(crate) struct WideContext<const L: usize> {\n    precision: u32,\n    work: WidthWork,\n}\n\nimpl<const L: usize> WideContext<L>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    #[allow(dead_code)] // K4 API\n    pub(crate) fn new(precision: u32) -> Result<Self, WideError> {\n        if !(MIN_PRECISION..=(64 * L) as u32).contains(&precision) {\n            return Err(WideError::InvalidPrecision(precision));\n        }\n        Ok(Self {\n            precision,\n            work: WidthWork::default(),\n        })\n    }\n\n    #[allow(dead_code)] // K4 API\n"
+    },
+    {
+      "id": "W18_TEST_HELPERS",
+      "claim": "Existing module imports/models/Seeded/helpers supply the same frozen inputs; Seeded clears the test seed hook on drop.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+      "start_line": 12,
+      "end_line": 67,
+      "excerpt": "use super::super::directed::binary64_up;\nuse super::super::recover::{End, Kind, QuantityId, QuantityMeta};\nuse super::super::source::{\n    Component, Constraint, Dof, NodalLoad, PrimitiveSource, SourceParts, StraightMember,\n};\nuse super::super::verify::{\n    build_verify_shared, e_hat, formation_scale, resolution_scale, verify_state, BlockNorms,\n    StageRounding, VerificationReport,\n};\nuse super::*;\nuse std::collections::BTreeMap;\n\n#[allow(dead_code)]\n#[path = \"models.rs\"]\npub(super) mod models;\n#[allow(dead_code)]\n#[path = \"support.rs\"]\nmod support;\nuse support::{sha256_hex, tok};\n\nconst MODELS_5A3: &str = include_str!(\"models5a3.txt\");\nconst OUTCOMES: &str = include_str!(\"outcomes.txt\");\nconst CHARGE: &str = include_str!(\"charge.txt\");\nconst ESTIMATE: &str = include_str!(\"estimate.txt\");\n\nfn all_models() -> Vec<models::Model> {\n    let mut out = models::models();\n    out.extend(models::parse_models(MODELS_5A3));\n    out\n}\n\n/// RF-LARGE at 100 members runs in the references lane (plan \u00a76, Q13).\nfn in_default_lane(name: &str) -> bool {\n    !name.contains(\"n00100\")\n}\n\n/// R7 \u00a77's SEED hook for the duration of a solve (cleared on drop, so a\n/// failing test leaves no seed on its thread).\npub(super) struct Seeded;\n\nimpl Seeded {\n    pub(super) fn new(seeds: &[(usize, f64)]) -> Self {\n        seed::set(seeds.to_vec());\n        Seeded\n    }\n}\n\nimpl Drop for Seeded {\n    fn drop(&mut self) {\n        seed::set(Vec::new());\n    }\n}\n\nfn run(m: &models::Model) -> CaseOutcome {\n    let _seeded = Seeded::new(&m.seeds);\n    let mut meter = InvocationMeter::new(u64::MAX);\n"
+    },
+    {
+      "id": "W19_REPORT_CONSTRUCTOR",
+      "claim": "Existing force_row and report helpers support the one-row scalar floor diagnostic without a new physical model.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+      "start_line": 1415,
+      "end_line": 1473,
+      "excerpt": "fn force_row() -> Vec<QuantityMeta> {\n    vec![QuantityMeta {\n        id: QuantityId::EndAction {\n            member: 1,\n            end: End::I,\n            component: Component::Ux,\n        },\n        kind: Kind::Force,\n        body: 0,\n        input_derived: false,\n    }]\n}\n\nfn translation_row() -> Vec<QuantityMeta> {\n    vec![QuantityMeta {\n        id: QuantityId::Displacement(Dof {\n            node: 1,\n            component: Component::Ux,\n        }),\n        kind: Kind::Translation,\n        body: 0,\n        input_derived: false,\n    }]\n}\n\n/// A one-row report at P: E_fo = E_mo = \u00ea (a body of zero extent), and the\n/// row's \u0174, C and W\u207a, with \u03b8 on one block.\nfn report<const L: usize>(\n    precision: u32,\n    e: f64,\n    w: Option<Wide<L>>,\n    charge: Option<Wide<L>>,\n    w_plus: Option<Wide<L>>,\n    theta: Wide<L>,\n) -> VerificationReport<L>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    VerificationReport {\n        precision,\n        q_w: super::super::verify::q_w_of(precision),\n        resolution: vec![[e, e]],\n        e_rows: vec![None],\n        w: vec![w],\n        a_s: vec![None],\n        charge: vec![charge],\n        w_plus: vec![w_plus],\n        r_hat: Vec::new(),\n        delta: Vec::new(),\n        blocks: Vec::new(),\n        norms: Vec::new(),\n        theta: vec![Some(theta)],\n        bodies: Vec::new(),\n        g_max: 0,\n        g_violation: None,\n        uc_missing: None,\n        shift_factorizations: 0,\n    }\n}\n"
+    },
+    {
+      "id": "W20_RECORD_PARSER",
+      "claim": "Existing records(text,name,p) returns only matching immutable records for the finite model/precision.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+      "start_line": 846,
+      "end_line": 853,
+      "excerpt": "fn records<'a>(text: &'a str, name: &str, p: u32) -> Vec<Vec<&'a str>> {\n    let p = p.to_string();\n    text.lines()\n        .map(|l| l.split_whitespace().collect::<Vec<_>>())\n        .filter(|f| f.len() > 2 && f[1] == name && f[2] == p)\n        .collect()\n}\n\n"
+    },
+    {
+      "id": "W21_TOKEN_PARSER",
+      "claim": "support::parse<4> constructs Wide<4> directly from accepted fixed token bytes; it does not evaluate the production bound/E path.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "db546b9c509954389e6107aeb9cdb81c338d4b0f7aba7a41d8b45fb723b4643e",
+      "start_line": 270,
+      "end_line": 303,
+      "excerpt": "\n// ---------------------------------------------------------------- tokens\n\n/// `Z+`, `Z-`, or `<sign><hex>p<e>`: the significand's hex digits from the\n/// top, left-aligned to 64L bits, and the exponent of the leading bit.\npub(crate) fn parse<const L: usize>(token: &str) -> Wide<L>\nwhere\n    Wide<L>: SupportedWidth,\n{\n    match token {\n        \"Z+\" => return Wide::<L>::ZERO,\n        \"Z-\" => return Wide::<L>::ZERO.neg(),\n        _ => {}\n    }\n    let negative = match &token[..1] {\n        \"+\" => false,\n        \"-\" => true,\n        other => panic!(\"bad sign {other} in {token}\"),\n    };\n    let (hex, exponent) = token[1..].split_once('p').expect(token);\n    assert!(!hex.is_empty() && hex.len() <= 16 * L, \"{token}\");\n    let mut significand = [0u64; L];\n    for k in 0..L {\n        let start = (16 * k).min(hex.len());\n        let end = (16 * k + 16).min(hex.len());\n        let mut digits = hex[start..end].to_string();\n        while digits.len() < 16 {\n            digits.push('0');\n        }\n        significand[L - 1 - k] = u64::from_str_radix(&digits, 16).expect(token);\n    }\n    Wide::<L>::from_parts(negative, exponent.parse().expect(token), significand).expect(token)\n}\n\n"
+    },
+    {
+      "id": "W22_PRESCRIBED_INPUT",
+      "claim": "Existing PRESCRIBED model has nonzero node 0 Rz and node 2 Uy constraints; no inputs or parameters are invented.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e",
+      "start_line": 1633,
+      "end_line": 1647,
+      "excerpt": "model PRESCRIBED\nnode 0000000000000000 0000000000000000 0000000000000000\nnode 4000000000000000 0000000000000000 0000000000000000\nnode 4010000000000000 0000000000000000 0000000000000000\nmember 1 0 1 42474876e8000000 4232a05f20000000 3f7872fa3a37ac13 3efc526644422108 3efc526644422108 3f0c526644422108 0000000000000000 0000000000000000 3ff0000000000000\nmember 2 1 2 42474876e8000000 4232a05f20000000 3f7872fa3a37ac13 3efc526644422108 3efc526644422108 3f0c526644422108 0000000000000000 0000000000000000 3ff0000000000000\nconstraint 0 0 0000000000000000\nconstraint 0 1 0000000000000000\nconstraint 0 2 0000000000000000\nconstraint 0 3 0000000000000000\nconstraint 0 4 0000000000000000\nconstraint 0 5 3f50624dd2f1a9fc\nconstraint 2 1 bf2a36e2eb1c432d\nconstraint 2 0 0000000000000000\nconstraint 2 2 0000000000000000\n"
+    },
+    {
+      "id": "W23_TEST_MOUNT",
+      "claim": "method_tests is already mounted under cfg(test), giving exact lib-test filter namespace structural::retained::adaptive::method_tests.",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "start_line": 4513,
+      "end_line": 4520,
+      "excerpt": "#[cfg(test)]\n#[path = \"../../../tests/retained_k4/kf3_tests.rs\"]\nmod kf3_tests;\n#[cfg(test)]\n#[path = \"../../../tests/retained_k4/method_tests.rs\"]\nmod method_tests;\n#[cfg(test)]\n#[path = \"../../../tests/retained_k4/scale_tests.rs\"]\n"
+    }
+  ],
+  "selected_fixed_records": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 406,
+      "fields": [
+        "chg",
+        "PRESCRIBED",
+        "256",
+        "ok",
+        "448",
+        "-",
+        "-"
+      ],
+      "text": "chg PRESCRIBED 256 ok 448 - -"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 408,
+      "fields": [
+        "chgblk",
+        "PRESCRIBED",
+        "256",
+        "0",
+        "1",
+        "+ba5877dbed6d11e1efe0ea91815c44bc98fb5f5b686d9db748f177605c4606d6p1",
+        "+e6b521f1db3a00e38e8f30bed50c887d9b790d47c04a33d935322587ec60c9b7p-239",
+        "+9e78d868e80daf25e95c87p9",
+        "+9e78d868e80daf25e95c87p9",
+        "+f36b4d86a327a1263f3cd67152467d4bff9c0000000000000000000000000001p8",
+        "+a4dae122bced5659e7dp-256",
+        "Z+",
+        "+8p-256",
+        "0"
+      ],
+      "text": "chgblk PRESCRIBED 256 0 1 +ba5877dbed6d11e1efe0ea91815c44bc98fb5f5b686d9db748f177605c4606d6p1 +e6b521f1db3a00e38e8f30bed50c887d9b790d47c04a33d935322587ec60c9b7p-239 +9e78d868e80daf25e95c87p9 +9e78d868e80daf25e95c87p9 +f36b4d86a327a1263f3cd67152467d4bff9c0000000000000000000000000001p8 +a4dae122bced5659e7dp-256 Z+ +8p-256 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 410,
+      "fields": [
+        "chgcount",
+        "PRESCRIBED",
+        "256",
+        "0",
+        "0"
+      ],
+      "text": "chgcount PRESCRIBED 256 0 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 673,
+      "fields": [
+        "chg",
+        "CHARGE-SLENDER",
+        "256",
+        "ok",
+        "448",
+        "-",
+        "-"
+      ],
+      "text": "chg CHARGE-SLENDER 256 ok 448 - -"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 675,
+      "fields": [
+        "chgblk",
+        "CHARGE-SLENDER",
+        "256",
+        "0",
+        "1",
+        "+c00000000000000000000000000000000000000000000000000000000000011ep2",
+        "+c0000000000000000000003000000000000000000001b000000000000000012p-68",
+        "+8000000000000000000000200000000000000000000120000000000000000001p179",
+        "+8000000000000000000000200000000000000000000120000000000000000001p179",
+        "+8000000000000000000000000000000000000000000080000000000000000001p268",
+        "+8p-166",
+        "+8p-423",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-168",
+        "0"
+      ],
+      "text": "chgblk CHARGE-SLENDER 256 0 1 +c00000000000000000000000000000000000000000000000000000000000011ep2 +c0000000000000000000003000000000000000000001b000000000000000012p-68 +8000000000000000000000200000000000000000000120000000000000000001p179 +8000000000000000000000200000000000000000000120000000000000000001p179 +8000000000000000000000000000000000000000000080000000000000000001p268 +8p-166 +8p-423 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-168 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 677,
+      "fields": [
+        "chgcount",
+        "CHARGE-SLENDER",
+        "256",
+        "0",
+        "0"
+      ],
+      "text": "chgcount CHARGE-SLENDER 256 0 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 772,
+      "fields": [
+        "chg",
+        "HH-SLENDER-m40",
+        "256",
+        "ok",
+        "448",
+        "-",
+        "-"
+      ],
+      "text": "chg HH-SLENDER-m40 256 ok 448 - -"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 774,
+      "fields": [
+        "chgblk",
+        "HH-SLENDER-m40",
+        "256",
+        "0",
+        "0",
+        "-",
+        "-",
+        "+87c3b667002caccce1f4c46d15541e58d16b411298f36e069cf0141429a7129dp3",
+        "+87c3b667002caccce1f4c46d15541e58d16b411298f36e069cf0141429a7129dp3",
+        "Z+",
+        "Z+",
+        "Z+",
+        "Z+",
+        "0"
+      ],
+      "text": "chgblk HH-SLENDER-m40 256 0 0 - - +87c3b667002caccce1f4c46d15541e58d16b411298f36e069cf0141429a7129dp3 +87c3b667002caccce1f4c46d15541e58d16b411298f36e069cf0141429a7129dp3 Z+ Z+ Z+ Z+ 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 775,
+      "fields": [
+        "chgblk",
+        "HH-SLENDER-m40",
+        "256",
+        "1",
+        "0",
+        "-",
+        "-",
+        "+97p5",
+        "+97p5",
+        "Z+",
+        "Z+",
+        "Z+",
+        "Z+",
+        "0"
+      ],
+      "text": "chgblk HH-SLENDER-m40 256 1 0 - - +97p5 +97p5 Z+ Z+ Z+ Z+ 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 776,
+      "fields": [
+        "chgblk",
+        "HH-SLENDER-m40",
+        "256",
+        "2",
+        "1",
+        "+c000000000000000000000000000000000000000000000000000000000000304p2",
+        "+c0000000000000000000003000000000000000000001b0000000000000000306p-68",
+        "+8000000000000000000000200000000000000000000120000000000000000001p179",
+        "+8000000000000000000000200000000000000000000120000000000000000001p179",
+        "+8000000000000000000000000000000000000000000080000000000000000001p268",
+        "+8p-166",
+        "+8p-423",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-168",
+        "0"
+      ],
+      "text": "chgblk HH-SLENDER-m40 256 2 1 +c000000000000000000000000000000000000000000000000000000000000304p2 +c0000000000000000000003000000000000000000001b0000000000000000306p-68 +8000000000000000000000200000000000000000000120000000000000000001p179 +8000000000000000000000200000000000000000000120000000000000000001p179 +8000000000000000000000000000000000000000000080000000000000000001p268 +8p-166 +8p-423 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-168 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 780,
+      "fields": [
+        "chgcount",
+        "HH-SLENDER-m40",
+        "256",
+        "0",
+        "0"
+      ],
+      "text": "chgcount HH-SLENDER-m40 256 0 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 799,
+      "fields": [
+        "chg",
+        "THETA-ZERO-BODY",
+        "256",
+        "ok",
+        "448",
+        "-",
+        "-"
+      ],
+      "text": "chg THETA-ZERO-BODY 256 ok 448 - -"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 801,
+      "fields": [
+        "chgblk",
+        "THETA-ZERO-BODY",
+        "256",
+        "0",
+        "1",
+        "+9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cef38b98473p34",
+        "+cbbd7471545a1b417493a423336880e01986304c857be2189f190861386710d1p-207",
+        "+a6e7631374d21cb86f0d4ep8",
+        "+a6e7631374d21cb86f0d4ep8",
+        "+e5956b035addc903eb53a26e869677907a407d57406b2119d94f2eb58e11b2bep1",
+        "+a026cf88bed7e25d06037p-260",
+        "+96c0ac2b6b497175217898p-518",
+        "+db8d71a6c8fcc5e9db938c11f7249475c68051f695af594e8ce4f8831e7f9cc1p-261",
+        "0"
+      ],
+      "text": "chgblk THETA-ZERO-BODY 256 0 1 +9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cef38b98473p34 +cbbd7471545a1b417493a423336880e01986304c857be2189f190861386710d1p-207 +a6e7631374d21cb86f0d4ep8 +a6e7631374d21cb86f0d4ep8 +e5956b035addc903eb53a26e869677907a407d57406b2119d94f2eb58e11b2bep1 +a026cf88bed7e25d06037p-260 +96c0ac2b6b497175217898p-518 +db8d71a6c8fcc5e9db938c11f7249475c68051f695af594e8ce4f8831e7f9cc1p-261 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 802,
+      "fields": [
+        "chgblk",
+        "THETA-ZERO-BODY",
+        "256",
+        "1",
+        "0",
+        "-",
+        "-",
+        "+8000000000000000000000000000000000000000000000000080000000000001p399",
+        "+8000000000000000000000000000000000000000000000000080000000000001p399",
+        "Z+",
+        "Z+",
+        "Z+",
+        "Z+",
+        "0"
+      ],
+      "text": "chgblk THETA-ZERO-BODY 256 1 0 - - +8000000000000000000000000000000000000000000000000080000000000001p399 +8000000000000000000000000000000000000000000000000080000000000001p399 Z+ Z+ Z+ Z+ 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 805,
+      "fields": [
+        "chgcount",
+        "THETA-ZERO-BODY",
+        "256",
+        "0",
+        "0"
+      ],
+      "text": "chgcount THETA-ZERO-BODY 256 0 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 820,
+      "fields": [
+        "chg",
+        "G-FIXED-MEMBER",
+        "256",
+        "ok",
+        "448",
+        "-",
+        "-"
+      ],
+      "text": "chg G-FIXED-MEMBER 256 ok 448 - -"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 822,
+      "fields": [
+        "chgblk",
+        "G-FIXED-MEMBER",
+        "256",
+        "0",
+        "1",
+        "+9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3ce5255e0337p34",
+        "+cbbd7471545a1b417493a423336880e01986304c857be2189f19078f03509cf3p-207",
+        "+a6e7631374d21cb86f0d4ep8",
+        "+a6e7631374d21cb86f0d4ep8",
+        "+e5956b035addc903eb53a26e869677907a407d57406b2119d94f2eb58e11b2bep1",
+        "+a026cf88bed7e25d06037p-260",
+        "+96c0ac2b6b497175217898p-518",
+        "+db8d71a6c8fcc5e9db938c11f7249475c68051f695af594e8ce4f8831e7f9cc1p-261",
+        "0"
+      ],
+      "text": "chgblk G-FIXED-MEMBER 256 0 1 +9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3ce5255e0337p34 +cbbd7471545a1b417493a423336880e01986304c857be2189f19078f03509cf3p-207 +a6e7631374d21cb86f0d4ep8 +a6e7631374d21cb86f0d4ep8 +e5956b035addc903eb53a26e869677907a407d57406b2119d94f2eb58e11b2bep1 +a026cf88bed7e25d06037p-260 +96c0ac2b6b497175217898p-518 +db8d71a6c8fcc5e9db938c11f7249475c68051f695af594e8ce4f8831e7f9cc1p-261 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 825,
+      "fields": [
+        "chgcount",
+        "G-FIXED-MEMBER",
+        "256",
+        "0",
+        "0"
+      ],
+      "text": "chgcount G-FIXED-MEMBER 256 0 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 838,
+      "fields": [
+        "chg",
+        "THETA-STUB",
+        "256",
+        "ok",
+        "448",
+        "-",
+        "-"
+      ],
+      "text": "chg THETA-STUB 256 ok 448 - -"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 840,
+      "fields": [
+        "chgblk",
+        "THETA-STUB",
+        "256",
+        "0",
+        "1",
+        "+c000000000000000000000000000000000000000000000000000000000000146p2",
+        "+de00000000000000000000000000000000000000000000000000000000000179p-241",
+        "+94p6",
+        "+94p6",
+        "+e555555555555555555555555555555555555555555555555555555555555556p3",
+        "+8p-256",
+        "+8p-513",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-258",
+        "0"
+      ],
+      "text": "chgblk THETA-STUB 256 0 1 +c000000000000000000000000000000000000000000000000000000000000146p2 +de00000000000000000000000000000000000000000000000000000000000179p-241 +94p6 +94p6 +e555555555555555555555555555555555555555555555555555555555555556p3 +8p-256 +8p-513 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-258 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 841,
+      "fields": [
+        "chgblk",
+        "THETA-STUB",
+        "256",
+        "1",
+        "0",
+        "-",
+        "-",
+        "+800000000000000000000000000000000000000000000000000000000000003p252",
+        "+800000000000000000000000000000000000000000000000000000000000003p252",
+        "Z+",
+        "Z+",
+        "Z+",
+        "Z+",
+        "0"
+      ],
+      "text": "chgblk THETA-STUB 256 1 0 - - +800000000000000000000000000000000000000000000000000000000000003p252 +800000000000000000000000000000000000000000000000000000000000003p252 Z+ Z+ Z+ Z+ 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 843,
+      "fields": [
+        "chgcount",
+        "THETA-STUB",
+        "256",
+        "0",
+        "0"
+      ],
+      "text": "chgcount THETA-STUB 256 0 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 1843,
+      "fields": [
+        "chg",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "256",
+        "ok",
+        "448",
+        "-",
+        "-"
+      ],
+      "text": "chg RF-LARGE-CHAIN-n00100-AX 256 ok 448 - -"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 1845,
+      "fields": [
+        "chgblk",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "256",
+        "0",
+        "1",
+        "+c25ddc9e5b10ed5538c18c8abc41900e651ccd8249bdd1d5acb88ee828cecba2p33",
+        "+e90933c80242504ae184740d01010717c69d77edcfbf1f36a7903eeb6c2718fep-206",
+        "+997733e6a312af1afd3d1p10",
+        "+997733e6a312af1afd3d1p10",
+        "+d53955b0a561e527da2aa02471e3afd55e248d522caad41de771bd6ed2f8179ap13",
+        "+a4dae122bced5659e7dp-251",
+        "+a4dae122bced5659e7dp-491",
+        "+a2e8559fed23bb5342462e06eaa27d91e208b3b5424f44e3a03a6bdd0abdd9a2p-236",
+        "1"
+      ],
+      "text": "chgblk RF-LARGE-CHAIN-n00100-AX 256 0 1 +c25ddc9e5b10ed5538c18c8abc41900e651ccd8249bdd1d5acb88ee828cecba2p33 +e90933c80242504ae184740d01010717c69d77edcfbf1f36a7903eeb6c2718fep-206 +997733e6a312af1afd3d1p10 +997733e6a312af1afd3d1p10 +d53955b0a561e527da2aa02471e3afd55e248d522caad41de771bd6ed2f8179ap13 +a4dae122bced5659e7dp-251 +a4dae122bced5659e7dp-491 +a2e8559fed23bb5342462e06eaa27d91e208b3b5424f44e3a03a6bdd0abdd9a2p-236 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 1847,
+      "fields": [
+        "chgcount",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "256",
+        "1",
+        "0"
+      ],
+      "text": "chgcount RF-LARGE-CHAIN-n00100-AX 256 1 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 1853,
+      "fields": [
+        "chg",
+        "RF-LARGE-TREE-n00100-AX",
+        "256",
+        "ok",
+        "448",
+        "-",
+        "-"
+      ],
+      "text": "chg RF-LARGE-TREE-n00100-AX 256 ok 448 - -"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 1855,
+      "fields": [
+        "chgblk",
+        "RF-LARGE-TREE-n00100-AX",
+        "256",
+        "0",
+        "1",
+        "+e15ff78caef2420e1988de44a5c29c694c138e6ce25d3b4e6b364c32787e6c48p35",
+        "+e8795fa8f2459c393682c35208923176c212c9aa44c31548222b278c52412beap-204",
+        "+84082ec8ffa96c233d2338p10",
+        "+84082ec8ffa96c233d2338p10",
+        "+bdce1487646b81241a6ddf0d2fb102c30d25e2b3695b5eb353f4a52de810df65p13",
+        "+8436caaf2c251850faba00ffffffffffffffffffffffffffffffeef78371b28p-248",
+        "+fd9eb72a6457f8d85f79bd4ab43e3aad765f4509c99259a6b615d788905bc86ap-478",
+        "+9f4c03f746176bc1c2881a9001e34cc0d18da3344cf312dbc83261cde363bab5p-222",
+        "1"
+      ],
+      "text": "chgblk RF-LARGE-TREE-n00100-AX 256 0 1 +e15ff78caef2420e1988de44a5c29c694c138e6ce25d3b4e6b364c32787e6c48p35 +e8795fa8f2459c393682c35208923176c212c9aa44c31548222b278c52412beap-204 +84082ec8ffa96c233d2338p10 +84082ec8ffa96c233d2338p10 +bdce1487646b81241a6ddf0d2fb102c30d25e2b3695b5eb353f4a52de810df65p13 +8436caaf2c251850faba00ffffffffffffffffffffffffffffffeef78371b28p-248 +fd9eb72a6457f8d85f79bd4ab43e3aad765f4509c99259a6b615d788905bc86ap-478 +9f4c03f746176bc1c2881a9001e34cc0d18da3344cf312dbc83261cde363bab5p-222 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "line": 1857,
+      "fields": [
+        "chgcount",
+        "RF-LARGE-TREE-n00100-AX",
+        "256",
+        "1",
+        "0"
+      ],
+      "text": "chgcount RF-LARGE-TREE-n00100-AX 256 1 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 679,
+      "fields": [
+        "scale",
+        "PRESCRIBED",
+        "256",
+        "state",
+        "0"
+      ],
+      "text": "scale PRESCRIBED 256 state 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 683,
+      "fields": [
+        "ebody",
+        "PRESCRIBED",
+        "256",
+        "0",
+        "4120facb09949713",
+        "40e2318280966d4e",
+        "4120facb09949713",
+        "4140facb09949713",
+        "25c0facb09949713",
+        "25e0facb09949713"
+      ],
+      "text": "ebody PRESCRIBED 256 0 4120facb09949713 40e2318280966d4e 4120facb09949713 4140facb09949713 25c0facb09949713 25e0facb09949713"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 684,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "21",
+        "+c860514ac0dc9abd129723f2af5e2c55fc8p18"
+      ],
+      "text": "erow PRESCRIBED 256 21 +c860514ac0dc9abd129723f2af5e2c55fc8p18"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 685,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "22",
+        "+ec999293c0186bb2df84f47ff8cc44a2a54p13"
+      ],
+      "text": "erow PRESCRIBED 256 22 +ec999293c0186bb2df84f47ff8cc44a2a54p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 686,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "23",
+        "+ec999293c0186bb2df84f47ff8cc44a2a54p13"
+      ],
+      "text": "erow PRESCRIBED 256 23 +ec999293c0186bb2df84f47ff8cc44a2a54p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 687,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "24",
+        "+9f86e1e331359fd665952c650ec0476034p11"
+      ],
+      "text": "erow PRESCRIBED 256 24 +9f86e1e331359fd665952c650ec0476034p11"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 688,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "25",
+        "+8793a5e680570e0b3fcb07802aed792d4a8p14"
+      ],
+      "text": "erow PRESCRIBED 256 25 +8793a5e680570e0b3fcb07802aed792d4a8p14"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 689,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "26",
+        "+8793a5e680570e0b3fcb07802aed792d4a8p14"
+      ],
+      "text": "erow PRESCRIBED 256 26 +8793a5e680570e0b3fcb07802aed792d4a8p14"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 690,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "27",
+        "+c860514ac0dc9abd129723f2af5e2c55fc8p18"
+      ],
+      "text": "erow PRESCRIBED 256 27 +c860514ac0dc9abd129723f2af5e2c55fc8p18"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 691,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "28",
+        "+ec999293c0186bb2df84f47ff8cc44a2a54p13"
+      ],
+      "text": "erow PRESCRIBED 256 28 +ec999293c0186bb2df84f47ff8cc44a2a54p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 692,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "29",
+        "+ec999293c0186bb2df84f47ff8cc44a2a54p13"
+      ],
+      "text": "erow PRESCRIBED 256 29 +ec999293c0186bb2df84f47ff8cc44a2a54p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 693,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "30",
+        "+9f86e1e331359fd665952c650ec0476034p11"
+      ],
+      "text": "erow PRESCRIBED 256 30 +9f86e1e331359fd665952c650ec0476034p11"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 694,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "31",
+        "+ca0bd95a7f82bb4f3f73d9ff9bbd96eab58p13"
+      ],
+      "text": "erow PRESCRIBED 256 31 +ca0bd95a7f82bb4f3f73d9ff9bbd96eab58p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 695,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "32",
+        "+ca0bd95a7f82bb4f3f73d9ff9bbd96eab58p13"
+      ],
+      "text": "erow PRESCRIBED 256 32 +ca0bd95a7f82bb4f3f73d9ff9bbd96eab58p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 696,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "33",
+        "+815570fab8fe19a5850958af283b1fbf6a4p19"
+      ],
+      "text": "erow PRESCRIBED 256 33 +815570fab8fe19a5850958af283b1fbf6a4p19"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 697,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "34",
+        "+d01cea3d774ed8933d78849a52bca7903e4p13"
+      ],
+      "text": "erow PRESCRIBED 256 34 +d01cea3d774ed8933d78849a52bca7903e4p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 698,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "35",
+        "+d01cea3d774ed8933d78849a52bca7903e4p13"
+      ],
+      "text": "erow PRESCRIBED 256 35 +d01cea3d774ed8933d78849a52bca7903e4p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 699,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "36",
+        "+cc430e44c3bfec0263cafffa1809335648p10"
+      ],
+      "text": "erow PRESCRIBED 256 36 +cc430e44c3bfec0263cafffa1809335648p10"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 700,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "37",
+        "+bf7edd607783ed423d8e4ffa7688a020e38p13"
+      ],
+      "text": "erow PRESCRIBED 256 37 +bf7edd607783ed423d8e4ffa7688a020e38p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 701,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "38",
+        "+bf7edd607783ed423d8e4ffa7688a020e38p13"
+      ],
+      "text": "erow PRESCRIBED 256 38 +bf7edd607783ed423d8e4ffa7688a020e38p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 702,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "39",
+        "+815570fab8fe19a5850958af283b1fbf6a4p19"
+      ],
+      "text": "erow PRESCRIBED 256 39 +815570fab8fe19a5850958af283b1fbf6a4p19"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 703,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "40",
+        "+d01cea3d774ed8933d78849a52bca7903e4p13"
+      ],
+      "text": "erow PRESCRIBED 256 40 +d01cea3d774ed8933d78849a52bca7903e4p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 704,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "41",
+        "+d01cea3d774ed8933d78849a52bca7903e4p13"
+      ],
+      "text": "erow PRESCRIBED 256 41 +d01cea3d774ed8933d78849a52bca7903e4p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 705,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "42",
+        "+cc430e44c3bfec0263cafffa1809335648p10"
+      ],
+      "text": "erow PRESCRIBED 256 42 +cc430e44c3bfec0263cafffa1809335648p10"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 706,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "43",
+        "+e0baf71a7719c3e43d62b93a2ef0aeff99p13"
+      ],
+      "text": "erow PRESCRIBED 256 43 +e0baf71a7719c3e43d62b93a2ef0aeff99p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 707,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "44",
+        "+e0baf71a7719c3e43d62b93a2ef0aeff99p13"
+      ],
+      "text": "erow PRESCRIBED 256 44 +e0baf71a7719c3e43d62b93a2ef0aeff99p13"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 708,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "45",
+        "+d729ea73fcde2178408f733aaeeaf0a026d4p18"
+      ],
+      "text": "erow PRESCRIBED 256 45 +d729ea73fcde2178408f733aaeeaf0a026d4p18"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 709,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "46",
+        "+d729ea73fcde2178408f733aaeeaf0a026d4p18"
+      ],
+      "text": "erow PRESCRIBED 256 46 +d729ea73fcde2178408f733aaeeaf0a026d4p18"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 710,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "47",
+        "+d729ea73fcde2178408f733aaeeaf0a026d4p18"
+      ],
+      "text": "erow PRESCRIBED 256 47 +d729ea73fcde2178408f733aaeeaf0a026d4p18"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 711,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "48",
+        "+918c1404b36a6808a6245a467bd97da34dcp15"
+      ],
+      "text": "erow PRESCRIBED 256 48 +918c1404b36a6808a6245a467bd97da34dcp15"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 712,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "49",
+        "+918c1404b36a6808a6245a467bd97da34dcp15"
+      ],
+      "text": "erow PRESCRIBED 256 49 +918c1404b36a6808a6245a467bd97da34dcp15"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 713,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "50",
+        "+918c1404b36a6808a6245a467bd97da34dcp15"
+      ],
+      "text": "erow PRESCRIBED 256 50 +918c1404b36a6808a6245a467bd97da34dcp15"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 714,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "51",
+        "+87d6584ca4b8906a1ef51cd3fad104fbec32p19"
+      ],
+      "text": "erow PRESCRIBED 256 51 +87d6584ca4b8906a1ef51cd3fad104fbec32p19"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 715,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "52",
+        "+87d6584ca4b8906a1ef51cd3fad104fbec32p19"
+      ],
+      "text": "erow PRESCRIBED 256 52 +87d6584ca4b8906a1ef51cd3fad104fbec32p19"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 716,
+      "fields": [
+        "erow",
+        "PRESCRIBED",
+        "256",
+        "53",
+        "+87d6584ca4b8906a1ef51cd3fad104fbec32p19"
+      ],
+      "text": "erow PRESCRIBED 256 53 +87d6584ca4b8906a1ef51cd3fad104fbec32p19"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1408,
+      "fields": [
+        "scale",
+        "CHARGE-SLENDER",
+        "256",
+        "state",
+        "0"
+      ],
+      "text": "scale CHARGE-SLENDER 256 state 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1412,
+      "fields": [
+        "ebody",
+        "CHARGE-SLENDER",
+        "256",
+        "0",
+        "4b15555555555556",
+        "4b20000000000001",
+        "4b20000000000001",
+        "4b20000000000001",
+        "2fc0000000000001",
+        "2fc0000000000001"
+      ],
+      "text": "ebody CHARGE-SLENDER 256 0 4b15555555555556 4b20000000000001 4b20000000000001 4b20000000000001 2fc0000000000001 2fc0000000000001"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1413,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "14",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp178"
+      ],
+      "text": "erow CHARGE-SLENDER 256 14 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp178"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1414,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "15",
+        "+ep2"
+      ],
+      "text": "erow CHARGE-SLENDER 256 15 +ep2"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1415,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "16",
+        "+ep2"
+      ],
+      "text": "erow CHARGE-SLENDER 256 16 +ep2"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1416,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "17",
+        "+8p179"
+      ],
+      "text": "erow CHARGE-SLENDER 256 17 +8p179"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1417,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "18",
+        "+cp1"
+      ],
+      "text": "erow CHARGE-SLENDER 256 18 +cp1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1418,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "19",
+        "+cp1"
+      ],
+      "text": "erow CHARGE-SLENDER 256 19 +cp1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1419,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "20",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp178"
+      ],
+      "text": "erow CHARGE-SLENDER 256 20 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp178"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1420,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "21",
+        "+ep2"
+      ],
+      "text": "erow CHARGE-SLENDER 256 21 +ep2"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1421,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "22",
+        "+ep2"
+      ],
+      "text": "erow CHARGE-SLENDER 256 22 +ep2"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1422,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "23",
+        "+8p179"
+      ],
+      "text": "erow CHARGE-SLENDER 256 23 +8p179"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1423,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "24",
+        "+8p2"
+      ],
+      "text": "erow CHARGE-SLENDER 256 24 +8p2"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1424,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "25",
+        "+8p2"
+      ],
+      "text": "erow CHARGE-SLENDER 256 25 +8p2"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1425,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "26",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac6aaaaaaaaaaaaaaaaaabp178"
+      ],
+      "text": "erow CHARGE-SLENDER 256 26 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac6aaaaaaaaaaaaaaaaaabp178"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1426,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "27",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac6aaaaaaaaaaaaaaaaaabp178"
+      ],
+      "text": "erow CHARGE-SLENDER 256 27 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac6aaaaaaaaaaaaaaaaaabp178"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1427,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "28",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac6aaaaaaaaaaaaaaaaaabp178"
+      ],
+      "text": "erow CHARGE-SLENDER 256 28 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac6aaaaaaaaaaaaaaaaaabp178"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1428,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "29",
+        "+800000000000000000000000000000000000000000006p179"
+      ],
+      "text": "erow CHARGE-SLENDER 256 29 +800000000000000000000000000000000000000000006p179"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1429,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "30",
+        "+800000000000000000000000000000000000000000006p179"
+      ],
+      "text": "erow CHARGE-SLENDER 256 30 +800000000000000000000000000000000000000000006p179"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1430,
+      "fields": [
+        "erow",
+        "CHARGE-SLENDER",
+        "256",
+        "31",
+        "+800000000000000000000000000000000000000000006p179"
+      ],
+      "text": "erow CHARGE-SLENDER 256 31 +800000000000000000000000000000000000000000006p179"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1580,
+      "fields": [
+        "scale",
+        "HH-SLENDER-m40",
+        "256",
+        "state",
+        "0"
+      ],
+      "text": "scale HH-SLENDER-m40 256 state 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1584,
+      "fields": [
+        "ebody",
+        "HH-SLENDER-m40",
+        "256",
+        "0",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "text": "ebody HH-SLENDER-m40 256 0 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1585,
+      "fields": [
+        "ebody",
+        "HH-SLENDER-m40",
+        "256",
+        "1",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "text": "ebody HH-SLENDER-m40 256 1 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1586,
+      "fields": [
+        "ebody",
+        "HH-SLENDER-m40",
+        "256",
+        "2",
+        "4b15555555555556",
+        "4b20000000000001",
+        "4b20000000000001",
+        "4b20000000000001",
+        "2fc0000000000001",
+        "2fc0000000000001"
+      ],
+      "text": "ebody HH-SLENDER-m40 256 2 4b15555555555556 4b20000000000001 4b20000000000001 4b20000000000001 2fc0000000000001 2fc0000000000001"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1607,
+      "fields": [
+        "scale",
+        "THETA-ZERO-BODY",
+        "256",
+        "state",
+        "0"
+      ],
+      "text": "scale THETA-ZERO-BODY 256 state 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1611,
+      "fields": [
+        "ebody",
+        "THETA-ZERO-BODY",
+        "256",
+        "0",
+        "40c2fdc58edd143c",
+        "40bcb2ad6069d92e",
+        "40c2fdc58edd143c",
+        "40d2fdc58edd143c",
+        "2562fdc58edd143c",
+        "2572fdc58edd143c"
+      ],
+      "text": "ebody THETA-ZERO-BODY 256 0 40c2fdc58edd143c 40bcb2ad6069d92e 40c2fdc58edd143c 40d2fdc58edd143c 2562fdc58edd143c 2572fdc58edd143c"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1612,
+      "fields": [
+        "ebody",
+        "THETA-ZERO-BODY",
+        "256",
+        "1",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "text": "ebody THETA-ZERO-BODY 256 1 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1631,
+      "fields": [
+        "scale",
+        "G-FIXED-MEMBER",
+        "256",
+        "state",
+        "0"
+      ],
+      "text": "scale G-FIXED-MEMBER 256 state 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1635,
+      "fields": [
+        "ebody",
+        "G-FIXED-MEMBER",
+        "256",
+        "0",
+        "40c2fdc58edd143c",
+        "40bcb2ad6069d92e",
+        "40c2fdc58edd143c",
+        "40d2fdc58edd143c",
+        "2562fdc58edd143c",
+        "2572fdc58edd143c"
+      ],
+      "text": "ebody G-FIXED-MEMBER 256 0 40c2fdc58edd143c 40bcb2ad6069d92e 40c2fdc58edd143c 40d2fdc58edd143c 2562fdc58edd143c 2572fdc58edd143c"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1636,
+      "fields": [
+        "ebody",
+        "G-FIXED-MEMBER",
+        "256",
+        "1",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "text": "ebody G-FIXED-MEMBER 256 1 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1654,
+      "fields": [
+        "scale",
+        "THETA-STUB",
+        "256",
+        "state",
+        "0"
+      ],
+      "text": "scale THETA-STUB 256 state 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 1658,
+      "fields": [
+        "ebody",
+        "THETA-STUB",
+        "256",
+        "0",
+        "402caaaaaaaaaaab",
+        "401a000000000000",
+        "402caaaaaaaaaaab",
+        "403445389127503d",
+        "24ccaaaaaaaaaaab",
+        "24d445389127503d"
+      ],
+      "text": "ebody THETA-STUB 256 0 402caaaaaaaaaaab 401a000000000000 402caaaaaaaaaaab 403445389127503d 24ccaaaaaaaaaaab 24d445389127503d"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 2982,
+      "fields": [
+        "scale",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "256",
+        "state",
+        "0"
+      ],
+      "text": "scale RF-LARGE-CHAIN-n00100-AX 256 state 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 2986,
+      "fields": [
+        "ebody",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "256",
+        "0",
+        "416a54a245fa43e5",
+        "410ef3108c27212e",
+        "416a54a245fa43e5",
+        "41eedb2e2a014790",
+        "260a54a245fa43e5",
+        "268edb2e2a014790"
+      ],
+      "text": "ebody RF-LARGE-CHAIN-n00100-AX 256 0 416a54a245fa43e5 410ef3108c27212e 416a54a245fa43e5 41eedb2e2a014790 260a54a245fa43e5 268edb2e2a014790"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 3022,
+      "fields": [
+        "scale",
+        "RF-LARGE-TREE-n00100-AX",
+        "256",
+        "state",
+        "0"
+      ],
+      "text": "scale RF-LARGE-TREE-n00100-AX 256 state 0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "line": 3026,
+      "fields": [
+        "ebody",
+        "RF-LARGE-TREE-n00100-AX",
+        "256",
+        "0",
+        "41606034be5d591c",
+        "410345d0a0000001",
+        "41606034be5d591c",
+        "41d332b4c5e7fb77",
+        "26006034be5d591c",
+        "267332b4c5e7fb77"
+      ],
+      "text": "ebody RF-LARGE-TREE-n00100-AX 256 0 41606034be5d591c 410345d0a0000001 41606034be5d591c 41d332b4c5e7fb77 26006034be5d591c 267332b4c5e7fb77"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 325,
+      "fields": [
+        "bnd",
+        "PRESCRIBED",
+        "256",
+        "9",
+        "1",
+        "+a00000000000000000000000000000000000000000000000000000000000000dp-252",
+        "c1b9ecbc31b5fbd7bb0d15b31433a7b552f80516c3ab76e00a8c3659bccb20d7"
+      ],
+      "text": "bnd PRESCRIBED 256 9 1 +a00000000000000000000000000000000000000000000000000000000000000dp-252 c1b9ecbc31b5fbd7bb0d15b31433a7b552f80516c3ab76e00a8c3659bccb20d7"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 326,
+      "fields": [
+        "blk",
+        "PRESCRIBED",
+        "256",
+        "0",
+        "9",
+        "1",
+        "+ba5877dbed6d11e1efe0ea91815c44bc98fb5f5b686d9db748f177605c4605b7p1",
+        "+ba5877dbed6d11e1efe0ea91815c44bc98fb5f5b686d9db748f177605c4605b7p1",
+        "+d85f477d97f78156004100000000000000000000000000000000000000000001p2",
+        "+c4e0000000000000000000000000000000000000000000000000000000000012p-248",
+        "+ba5877dbed6d11e1efe0ea91815c44bc98fb5f5b686d9db748f177605c4606d6p1",
+        "0",
+        "exact",
+        "2000000000000000000",
+        "afd8679c85416d2cb3"
+      ],
+      "text": "blk PRESCRIBED 256 0 9 1 +ba5877dbed6d11e1efe0ea91815c44bc98fb5f5b686d9db748f177605c4605b7p1 +ba5877dbed6d11e1efe0ea91815c44bc98fb5f5b686d9db748f177605c4605b7p1 +d85f477d97f78156004100000000000000000000000000000000000000000001p2 +c4e0000000000000000000000000000000000000000000000000000000000012p-248 +ba5877dbed6d11e1efe0ea91815c44bc98fb5f5b686d9db748f177605c4606d6p1 0 exact 2000000000000000000 afd8679c85416d2cb3"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 327,
+      "fields": [
+        "shf",
+        "PRESCRIBED",
+        "256",
+        "0",
+        "+afd8679c85416d2cb2ffffffffffffffffffffffffffffffffffffffffffffffp-3",
+        "1",
+        "+d515bbd6e1c2eccb85c3c924924924924924924924924924924924924924924bp2",
+        "+ec4acb3a530feab41088p-254",
+        "+afd8679c85416d2cb2fffffffffffffffffffffffffffffffffffffffffffdccp-3",
+        "+8bc259e4f211cd6973e8afed2105338d72bc87848e52364976b519884534860ap4"
+      ],
+      "text": "shf PRESCRIBED 256 0 +afd8679c85416d2cb2ffffffffffffffffffffffffffffffffffffffffffffffp-3 1 +d515bbd6e1c2eccb85c3c924924924924924924924924924924924924924924bp2 +ec4acb3a530feab41088p-254 +afd8679c85416d2cb2fffffffffffffffffffffffffffffffffffffffffffdccp-3 +8bc259e4f211cd6973e8afed2105338d72bc87848e52364976b519884534860ap4"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 328,
+      "fields": [
+        "shiftcount",
+        "PRESCRIBED",
+        "256",
+        "1"
+      ],
+      "text": "shiftcount PRESCRIBED 256 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 559,
+      "fields": [
+        "bnd",
+        "CHARGE-SLENDER",
+        "256",
+        "6",
+        "1",
+        "+e00000000000000000000000000000000000000000000000000000000000000dp-253",
+        "a7baa5dca13bbfc42e7ea5ed1b18717f9543e9ba440b880b94f0ddc82cc9c881"
+      ],
+      "text": "bnd CHARGE-SLENDER 256 6 1 +e00000000000000000000000000000000000000000000000000000000000000dp-253 a7baa5dca13bbfc42e7ea5ed1b18717f9543e9ba440b880b94f0ddc82cc9c881"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 560,
+      "fields": [
+        "blk",
+        "CHARGE-SLENDER",
+        "256",
+        "0",
+        "6",
+        "1",
+        "+cp2",
+        "+c000000000000000000000000000000000000000000000000000000000000001p2",
+        "+9p2",
+        "+bd0000000000000000000000000000000000000000000000000000000000000dp-248",
+        "+c00000000000000000000000000000000000000000000000000000000000011ep2",
+        "0",
+        "exact",
+        "6",
+        "1"
+      ],
+      "text": "blk CHARGE-SLENDER 256 0 6 1 +cp2 +c000000000000000000000000000000000000000000000000000000000000001p2 +9p2 +bd0000000000000000000000000000000000000000000000000000000000000dp-248 +c00000000000000000000000000000000000000000000000000000000000011ep2 0 exact 6 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 561,
+      "fields": [
+        "shf",
+        "CHARGE-SLENDER",
+        "256",
+        "0",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaap-4",
+        "1",
+        "+8d55555555555555555555555555555555555555555555555555555555555556p2",
+        "+baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-254",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa88cp-4",
+        "+90000000000000000000000000000000000000000000000000000000000001cap5"
+      ],
+      "text": "shf CHARGE-SLENDER 256 0 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaap-4 1 +8d55555555555555555555555555555555555555555555555555555555555556p2 +baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-254 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa88cp-4 +90000000000000000000000000000000000000000000000000000000000001cap5"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 562,
+      "fields": [
+        "shiftcount",
+        "CHARGE-SLENDER",
+        "256",
+        "1"
+      ],
+      "text": "shiftcount CHARGE-SLENDER 256 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 643,
+      "fields": [
+        "bnd",
+        "HH-SLENDER-m40",
+        "256",
+        "18",
+        "3",
+        "+9800000000000000000000000000000000000000000000000000000000000017p-251",
+        "4da4cbc20751bcd0a51c198a5ac04caaa21c9ad3b47f6a5b256fa903d3c9edab"
+      ],
+      "text": "bnd HH-SLENDER-m40 256 18 3 +9800000000000000000000000000000000000000000000000000000000000017p-251 4da4cbc20751bcd0a51c198a5ac04caaa21c9ad3b47f6a5b256fa903d3c9edab"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 644,
+      "fields": [
+        "blk",
+        "HH-SLENDER-m40",
+        "256",
+        "0",
+        "4",
+        "0",
+        "+f15beeeff7d330b077520cef470e537ed1e9d64e0c4f8b113c1f90b20444cc1ap-3",
+        "+d68a9b7ff8bbb9806a100b7f5b9af4e281b36928ee7f980f51e32b469ede2413p35",
+        "+b8094c96f5e43f1e9a97f72371a5c68de0530ab49709a5d9faa8043f0da1f0ddp2",
+        "+b7268edab0ec880714a1f932d88e8e915e6af66d1893a6c81e275e75aa18de12p-213",
+        "+d68a9b7ff8bbb9806a100b7f5b9af4e281b36928ee7f980f51e334de75355f99p35",
+        "1",
+        "exact",
+        "10000000000000000000000000000000000000000000000000000000000000000",
+        "131785a67b5a7499f5703d85ed5ee21ac81abf33ac794ac01d017f33"
+      ],
+      "text": "blk HH-SLENDER-m40 256 0 4 0 +f15beeeff7d330b077520cef470e537ed1e9d64e0c4f8b113c1f90b20444cc1ap-3 +d68a9b7ff8bbb9806a100b7f5b9af4e281b36928ee7f980f51e32b469ede2413p35 +b8094c96f5e43f1e9a97f72371a5c68de0530ab49709a5d9faa8043f0da1f0ddp2 +b7268edab0ec880714a1f932d88e8e915e6af66d1893a6c81e275e75aa18de12p-213 +d68a9b7ff8bbb9806a100b7f5b9af4e281b36928ee7f980f51e334de75355f99p35 1 exact 10000000000000000000000000000000000000000000000000000000000000000 131785a67b5a7499f5703d85ed5ee21ac81abf33ac794ac01d017f33"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 645,
+      "fields": [
+        "blk",
+        "HH-SLENDER-m40",
+        "256",
+        "1",
+        "8",
+        "0",
+        "+9555555555555555555555555555555555555555555555555555555555555554p6",
+        "+955555555555555555555555555555555555555555555555555555555555555ap6",
+        "+9000000000000000000000000000000000000000000000000000000000000001p1",
+        "+c780000000000000000000000000000000000000000000000000000000000027p-244",
+        "+95555555555555555555555555555555555555555555555555555555555563e7p6",
+        "0",
+        "exact",
+        "e0",
+        "3"
+      ],
+      "text": "blk HH-SLENDER-m40 256 1 8 0 +9555555555555555555555555555555555555555555555555555555555555554p6 +955555555555555555555555555555555555555555555555555555555555555ap6 +9000000000000000000000000000000000000000000000000000000000000001p1 +c780000000000000000000000000000000000000000000000000000000000027p-244 +95555555555555555555555555555555555555555555555555555555555563e7p6 0 exact e0 3"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 646,
+      "fields": [
+        "blk",
+        "HH-SLENDER-m40",
+        "256",
+        "2",
+        "6",
+        "1",
+        "+dc71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71p1",
+        "+c000000000000000000000000000000000000000000000000000000000000001p2",
+        "+9p2",
+        "+8040000000000000000000000000000000000000000000000000000000000015p-246",
+        "+c000000000000000000000000000000000000000000000000000000000000304p2",
+        "0",
+        "exact",
+        "6",
+        "1"
+      ],
+      "text": "blk HH-SLENDER-m40 256 2 6 1 +dc71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71p1 +c000000000000000000000000000000000000000000000000000000000000001p2 +9p2 +8040000000000000000000000000000000000000000000000000000000000015p-246 +c000000000000000000000000000000000000000000000000000000000000304p2 0 exact 6 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 647,
+      "fields": [
+        "shf",
+        "HH-SLENDER-m40",
+        "256",
+        "0",
+        "+87c3b666fb66cb63431e274697f80ef75613888be6ecbe39b1d1c1642266b2d1p-1",
+        "3",
+        "-",
+        "-",
+        "-",
+        "-"
+      ],
+      "text": "shf HH-SLENDER-m40 256 0 +87c3b666fb66cb63431e274697f80ef75613888be6ecbe39b1d1c1642266b2d1p-1 3 - - - -"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 648,
+      "fields": [
+        "shf",
+        "HH-SLENDER-m40",
+        "256",
+        "1",
+        "+db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6fp-8",
+        "1",
+        "+8f92492492492492492492492492492492492492492492492492492492492493p1",
+        "+9f24924924924924924924924924924924924924924924924924924924924925p-255",
+        "+db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6af91p-8",
+        "+e000000000000000000000000000000000000000000000000000000000002cc7p8"
+      ],
+      "text": "shf HH-SLENDER-m40 256 1 +db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6fp-8 1 +8f92492492492492492492492492492492492492492492492492492492492493p1 +9f24924924924924924924924924924924924924924924924924924924924925p-255 +db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6af91p-8 +e000000000000000000000000000000000000000000000000000000000002cc7p8"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 649,
+      "fields": [
+        "shf",
+        "HH-SLENDER-m40",
+        "256",
+        "2",
+        "+94a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5p-3",
+        "1",
+        "+8b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5cp2",
+        "+b6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b6p-254",
+        "+94a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5291f8p-3",
+        "+a55555555555555555555555555555555555555555555555555555555555585p4"
+      ],
+      "text": "shf HH-SLENDER-m40 256 2 +94a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5p-3 1 +8b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5cp2 +b6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b6p-254 +94a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5291f8p-3 +a55555555555555555555555555555555555555555555555555555555555585p4"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 650,
+      "fields": [
+        "shiftcount",
+        "HH-SLENDER-m40",
+        "256",
+        "3"
+      ],
+      "text": "shiftcount HH-SLENDER-m40 256 3"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 667,
+      "fields": [
+        "bnd",
+        "THETA-ZERO-BODY",
+        "256",
+        "13",
+        "2",
+        "+e000000000000000000000000000000000000000000000000000000000000019p-252",
+        "379c2dff3cb8e6cfecdf833e80513f1ad173a0441f612c5de91a85b361601510"
+      ],
+      "text": "bnd THETA-ZERO-BODY 256 13 2 +e000000000000000000000000000000000000000000000000000000000000019p-252 379c2dff3cb8e6cfecdf833e80513f1ad173a0441f612c5de91a85b361601510"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 668,
+      "fields": [
+        "blk",
+        "THETA-ZERO-BODY",
+        "256",
+        "0",
+        "7",
+        "1",
+        "+9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cd7b63956e6ep34",
+        "+9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cd7b63956e6fp34",
+        "+903f84fe654fab8eaad6p2",
+        "+9a12d89d88a646ba2984f3d90213c528a0e5f6a4d3bb2fb465e84ed4dd9f4524p-215",
+        "+9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cef38b98473p34",
+        "0",
+        "exact",
+        "57ec33ce4b5dace4b8410f000000000000000000",
+        "1201ae0a4b15db16edccfb8b4777b477"
+      ],
+      "text": "blk THETA-ZERO-BODY 256 0 7 1 +9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cd7b63956e6ep34 +9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cd7b63956e6fp34 +903f84fe654fab8eaad6p2 +9a12d89d88a646ba2984f3d90213c528a0e5f6a4d3bb2fb465e84ed4dd9f4524p-215 +9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cef38b98473p34 0 exact 57ec33ce4b5dace4b8410f000000000000000000 1201ae0a4b15db16edccfb8b4777b477"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 669,
+      "fields": [
+        "blk",
+        "THETA-ZERO-BODY",
+        "256",
+        "1",
+        "6",
+        "0",
+        "+dc71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71p1",
+        "+c000000000000000000000000000000000000000000000000000000000000001p2",
+        "+9p2",
+        "+bd00000000000000000000000000000000000000000000000000000000000017p-247",
+        "+c000000000000000000000000000000000000000000000000000000000000239p2",
+        "0",
+        "exact",
+        "6",
+        "1"
+      ],
+      "text": "blk THETA-ZERO-BODY 256 1 6 0 +dc71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71p1 +c000000000000000000000000000000000000000000000000000000000000001p2 +9p2 +bd00000000000000000000000000000000000000000000000000000000000017p-247 +c000000000000000000000000000000000000000000000000000000000000239p2 0 exact 6 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 670,
+      "fields": [
+        "shf",
+        "THETA-ZERO-BODY",
+        "256",
+        "0",
+        "+d1b71758cd41c07620456f65e60fccfb58c5d99fd4868d65002dfd0beb317dd9p-36",
+        "1",
+        "+903f84fe6208cf3147a0f8fe277eea426867c0cc129ce89980ade5ca6bff480dp2",
+        "+a4dae122b65f9d9f2165f1fc4efdd484d0cf81982539d133015bcb94d7fe9018p-254",
+        "+d1b71758cd41c07620456f65e60fccfb58c5d99fd4868d65002df8f0f7d6407dp-36",
+        "+ea600000174b0bd22a2da23c3e070806862b88976d6cf532750db8cf9cc1da01p36"
+      ],
+      "text": "shf THETA-ZERO-BODY 256 0 +d1b71758cd41c07620456f65e60fccfb58c5d99fd4868d65002dfd0beb317dd9p-36 1 +903f84fe6208cf3147a0f8fe277eea426867c0cc129ce89980ade5ca6bff480dp2 +a4dae122b65f9d9f2165f1fc4efdd484d0cf81982539d133015bcb94d7fe9018p-254 +d1b71758cd41c07620456f65e60fccfb58c5d99fd4868d65002df8f0f7d6407dp-36 +ea600000174b0bd22a2da23c3e070806862b88976d6cf532750db8cf9cc1da01p36"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 671,
+      "fields": [
+        "shf",
+        "THETA-ZERO-BODY",
+        "256",
+        "1",
+        "+94a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5p-3",
+        "1",
+        "+8b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5cp2",
+        "+b6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b6p-254",
+        "+94a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5292a6p-3",
+        "+a55555555555555555555555555555555555555555555555555555555555578ep4"
+      ],
+      "text": "shf THETA-ZERO-BODY 256 1 +94a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5p-3 1 +8b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5cp2 +b6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b5ad6b6p-254 +94a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5294a5292a6p-3 +a55555555555555555555555555555555555555555555555555555555555578ep4"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 672,
+      "fields": [
+        "shiftcount",
+        "THETA-ZERO-BODY",
+        "256",
+        "1"
+      ],
+      "text": "shiftcount THETA-ZERO-BODY 256 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 685,
+      "fields": [
+        "bnd",
+        "G-FIXED-MEMBER",
+        "256",
+        "7",
+        "1",
+        "+8000000000000000000000000000000000000000000000000000000000000009p-252",
+        "32749dda56f963515719a1a8280da7a3ef03f016c008dc1404cd9160537d3fa7"
+      ],
+      "text": "bnd G-FIXED-MEMBER 256 7 1 +8000000000000000000000000000000000000000000000000000000000000009p-252 32749dda56f963515719a1a8280da7a3ef03f016c008dc1404cd9160537d3fa7"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 686,
+      "fields": [
+        "blk",
+        "G-FIXED-MEMBER",
+        "256",
+        "0",
+        "7",
+        "1",
+        "+9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cd7b63956e6ep34",
+        "+9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cd7b63956e6fp34",
+        "+903f84fe654fab8eaad6p2",
+        "+b01589d89c2bbe8b9d2a3b4126f205e54a2b63058443a43be22e10f3466ce145p-216",
+        "+9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3ce5255e0337p34",
+        "0",
+        "exact",
+        "57ec33ce4b5dace4b8410f000000000000000000",
+        "1201ae0a4b15db16edccfb8b4777b477"
+      ],
+      "text": "blk G-FIXED-MEMBER 256 0 7 1 +9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cd7b63956e6ep34 +9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cd7b63956e6fp34 +903f84fe654fab8eaad6p2 +b01589d89c2bbe8b9d2a3b4126f205e54a2b63058443a43be22e10f3466ce145p-216 +9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3ce5255e0337p34 0 exact 57ec33ce4b5dace4b8410f000000000000000000 1201ae0a4b15db16edccfb8b4777b477"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 687,
+      "fields": [
+        "shf",
+        "G-FIXED-MEMBER",
+        "256",
+        "0",
+        "+d1b71758cd41c07620456f65e60fccfb58c5d99fd4868d65002dfd0beb317dd9p-36",
+        "1",
+        "+903f84fe6208cf3147a0f8fe277eea426867c0cc129ce89980ade5ca6bff480dp2",
+        "+a4dae122b65f9d9f2165f1fc4efdd484d0cf81982539d133015bcb94d7fe9018p-254",
+        "+d1b71758cd41c07620456f65e60fccfb58c5d99fd4868d65002dfaa1b6653ba3p-36",
+        "+ea600000174b0bd22a2da23c3e070806862b88976d6cf532750db6ebfb999eccp36"
+      ],
+      "text": "shf G-FIXED-MEMBER 256 0 +d1b71758cd41c07620456f65e60fccfb58c5d99fd4868d65002dfd0beb317dd9p-36 1 +903f84fe6208cf3147a0f8fe277eea426867c0cc129ce89980ade5ca6bff480dp2 +a4dae122b65f9d9f2165f1fc4efdd484d0cf81982539d133015bcb94d7fe9018p-254 +d1b71758cd41c07620456f65e60fccfb58c5d99fd4868d65002dfaa1b6653ba3p-36 +ea600000174b0bd22a2da23c3e070806862b88976d6cf532750db6ebfb999eccp36"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 688,
+      "fields": [
+        "shiftcount",
+        "G-FIXED-MEMBER",
+        "256",
+        "1"
+      ],
+      "text": "shiftcount G-FIXED-MEMBER 256 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 697,
+      "fields": [
+        "bnd",
+        "THETA-STUB",
+        "256",
+        "7",
+        "2",
+        "+8000000000000000000000000000000000000000000000000000000000000009p-252",
+        "f85a685d157f0138f3560cf5e650310b707592fecad31739213836530062be02"
+      ],
+      "text": "bnd THETA-STUB 256 7 2 +8000000000000000000000000000000000000000000000000000000000000009p-252 f85a685d157f0138f3560cf5e650310b707592fecad31739213836530062be02"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 698,
+      "fields": [
+        "blk",
+        "THETA-STUB",
+        "256",
+        "0",
+        "6",
+        "1",
+        "+cp2",
+        "+c000000000000000000000000000000000000000000000000000000000000001p2",
+        "+9p2",
+        "+d800000000000000000000000000000000000000000000000000000000000011p-248",
+        "+c000000000000000000000000000000000000000000000000000000000000146p2",
+        "0",
+        "exact",
+        "6",
+        "1"
+      ],
+      "text": "blk THETA-STUB 256 0 6 1 +cp2 +c000000000000000000000000000000000000000000000000000000000000001p2 +9p2 +d800000000000000000000000000000000000000000000000000000000000011p-248 +c000000000000000000000000000000000000000000000000000000000000146p2 0 exact 6 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 699,
+      "fields": [
+        "blk",
+        "THETA-STUB",
+        "256",
+        "1",
+        "1",
+        "0",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-2",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-2",
+        "+cp1",
+        "+800000000000000000000000000000000000000000000000000000000000000ap-252",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab7p-2",
+        "0",
+        "exact",
+        "1",
+        "3"
+      ],
+      "text": "blk THETA-STUB 256 1 1 0 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-2 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-2 +cp1 +800000000000000000000000000000000000000000000000000000000000000ap-252 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab7p-2 0 exact 1 3"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 700,
+      "fields": [
+        "shf",
+        "THETA-STUB",
+        "256",
+        "0",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaap-4",
+        "1",
+        "+8d55555555555555555555555555555555555555555555555555555555555556p2",
+        "+baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-254",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa845p-4",
+        "+9000000000000000000000000000000000000000000000000000000000000206p5"
+      ],
+      "text": "shf THETA-STUB 256 0 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaap-4 1 +8d55555555555555555555555555555555555555555555555555555555555556p2 +baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-254 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa845p-4 +9000000000000000000000000000000000000000000000000000000000000206p5"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 701,
+      "fields": [
+        "shf",
+        "THETA-STUB",
+        "256",
+        "1",
+        "+bfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp0",
+        "1",
+        "+c000000000000000000000000000000000000000000000000000000000000001p0",
+        "+c000000000000000000000000000000000000000000000000000000000000001p-255",
+        "+bffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1p0",
+        "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab9p-1"
+      ],
+      "text": "shf THETA-STUB 256 1 +bfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp0 1 +c000000000000000000000000000000000000000000000000000000000000001p0 +c000000000000000000000000000000000000000000000000000000000000001p-255 +bffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1p0 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab9p-1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 702,
+      "fields": [
+        "shiftcount",
+        "THETA-STUB",
+        "256",
+        "1"
+      ],
+      "text": "shiftcount THETA-STUB 256 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 1501,
+      "fields": [
+        "bnd",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "256",
+        "600",
+        "1",
+        "+96400000000000000000000000000000000000000000000000000000000002c2p-246",
+        "bcc383ea18c5cd0a3ba7f1a38d783c7663fca4aa3ef806da7303995f7526db24"
+      ],
+      "text": "bnd RF-LARGE-CHAIN-n00100-AX 256 600 1 +96400000000000000000000000000000000000000000000000000000000002c2p-246 bcc383ea18c5cd0a3ba7f1a38d783c7663fca4aa3ef806da7303995f7526db24"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 1502,
+      "fields": [
+        "blk",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "256",
+        "0",
+        "600",
+        "1",
+        "+f8ca1026daf6f2589a9157bbd23f70b643fbe854d944e3a0dd152c8fece757aap27",
+        "+9b765eee712143652010e30dcdbdb3dc4681ddd4c9240c7d7ef1589665c3af16p344",
+        "+971df90a828439d269d400000000000000000000000000000000000000000001p3",
+        "+d7718a3dd0414999b019ef26a9a5ba974596cbaa30bf6a18508bdf42425ee05cp101",
+        "-",
+        "1",
+        "upper",
+        "1f194204db5ede4b13522af77a47ee16c87f7d0a9b289c741ba2a591fd9cec826db1c412d792b6841e51fe33ad1d8165d16556f88c69745ab5555b68684534b458a610952f209e1af24ef3af2a25f4915a4de77ad8ebd99f1eb6029b7ed6a8ffc1966b280b1b3cf064552aea92963a2110e12df2261d3ad87755e3d33f977d043f1ae8d6000000000000000000000000000000000000000000000000000000000000000",
+        "1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffac6ee5686ed9b736764ef4eca63f114a57581cbd5dd07582031074858ffafca338f1e3d"
+      ],
+      "text": "blk RF-LARGE-CHAIN-n00100-AX 256 0 600 1 +f8ca1026daf6f2589a9157bbd23f70b643fbe854d944e3a0dd152c8fece757aap27 +9b765eee712143652010e30dcdbdb3dc4681ddd4c9240c7d7ef1589665c3af16p344 +971df90a828439d269d400000000000000000000000000000000000000000001p3 +d7718a3dd0414999b019ef26a9a5ba974596cbaa30bf6a18508bdf42425ee05cp101 - 1 upper 1f194204db5ede4b13522af77a47ee16c87f7d0a9b289c741ba2a591fd9cec826db1c412d792b6841e51fe33ad1d8165d16556f88c69745ab5555b68684534b458a610952f209e1af24ef3af2a25f4915a4de77ad8ebd99f1eb6029b7ed6a8ffc1966b280b1b3cf064552aea92963a2110e12df2261d3ad87755e3d33f977d043f1ae8d6000000000000000000000000000000000000000000000000000000000000000 1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffac6ee5686ed9b736764ef4eca63f114a57581cbd5dd07582031074858ffafca338f1e3d"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 1503,
+      "fields": [
+        "shf",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "256",
+        "0",
+        "+83b5b80ddac590ddc533b929b29f5660ee9316e8753b8902efce78aca121e7f4p-29",
+        "1",
+        "+971df90ac45f15ebd681bfa37b6182b698be07843ffd9b1a6a03a1c544a7c90ap3",
+        "+dbce818197bae84074a9bc88eb311b593582a67c45b3a45e2b11dbf440c61d4dp-254",
+        "+83b5b80ddac590ddc533b929b29f5660ee9316e8753b8902efce75e6a87f52a5p-29",
+        "+c25ddc9e5b10ed5538c18c8abc41900e651ccd8249bdd1d5acb88ee828cecba2p33"
+      ],
+      "text": "shf RF-LARGE-CHAIN-n00100-AX 256 0 +83b5b80ddac590ddc533b929b29f5660ee9316e8753b8902efce78aca121e7f4p-29 1 +971df90ac45f15ebd681bfa37b6182b698be07843ffd9b1a6a03a1c544a7c90ap3 +dbce818197bae84074a9bc88eb311b593582a67c45b3a45e2b11dbf440c61d4dp-254 +83b5b80ddac590ddc533b929b29f5660ee9316e8753b8902efce75e6a87f52a5p-29 +c25ddc9e5b10ed5538c18c8abc41900e651ccd8249bdd1d5acb88ee828cecba2p33"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 1504,
+      "fields": [
+        "shiftcount",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "256",
+        "1"
+      ],
+      "text": "shiftcount RF-LARGE-CHAIN-n00100-AX 256 1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 1509,
+      "fields": [
+        "bnd",
+        "RF-LARGE-TREE-n00100-AX",
+        "256",
+        "600",
+        "1",
+        "+96400000000000000000000000000000000000000000000000000000000002c2p-246",
+        "39eae45b3c9bfb2d8f8c58f32c0991e978d1cbc0ac7e84ac48918c12b1fb8a29"
+      ],
+      "text": "bnd RF-LARGE-TREE-n00100-AX 256 600 1 +96400000000000000000000000000000000000000000000000000000000002c2p-246 39eae45b3c9bfb2d8f8c58f32c0991e978d1cbc0ac7e84ac48918c12b1fb8a29"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 1510,
+      "fields": [
+        "blk",
+        "RF-LARGE-TREE-n00100-AX",
+        "256",
+        "0",
+        "600",
+        "1",
+        "+903d6b3b513ee29862431d9c930be9392672ea83203bab1377d0c8c21dcfee1ap30",
+        "+a0cadc2cf79daf80048304dfc999c136c6e2813f7b822e2432b2ec995e2f9b8cp181",
+        "+fe26c5c038988fca9ab600000000000000000000000000000000000000000003p2",
+        "+bb61393894a60c9efc853d3e9028818ea2d6716e7656053b54538ef352b09cap-62",
+        "+a0cadc2cf79daf83b20d01f79f07ceafaeb0c52ed6bdcfe404ff380c2651b1dep181",
+        "1",
+        "upper",
+        "1207ad676a27dc530c4863b392617d2724ce5d50640775626efa191843eb577867aa4b167a2fbf41542c016fd90fb56eecedc723c57230a70b8181e7f1b46666d69bfee9c5708e43f521a8a528f6259992f79cc86f63aa2a4b86336281d687cc1ab6e3c23e3c8921ebb2d5dc1fd02786b42b5ab4ace140b35b2a9c97364cf1259283d18f40000000000000000000000000000000000000000000000000000000000000000",
+        "3fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0f0420a812dd004fe19457c7167eca36b0421696493b0890c4dd619692b8779148808bdf"
+      ],
+      "text": "blk RF-LARGE-TREE-n00100-AX 256 0 600 1 +903d6b3b513ee29862431d9c930be9392672ea83203bab1377d0c8c21dcfee1ap30 +a0cadc2cf79daf80048304dfc999c136c6e2813f7b822e2432b2ec995e2f9b8cp181 +fe26c5c038988fca9ab600000000000000000000000000000000000000000003p2 +bb61393894a60c9efc853d3e9028818ea2d6716e7656053b54538ef352b09cap-62 +a0cadc2cf79daf83b20d01f79f07ceafaeb0c52ed6bdcfe404ff380c2651b1dep181 1 upper 1207ad676a27dc530c4863b392617d2724ce5d50640775626efa191843eb577867aa4b167a2fbf41542c016fd90fb56eecedc723c57230a70b8181e7f1b46666d69bfee9c5708e43f521a8a528f6259992f79cc86f63aa2a4b86336281d687cc1ab6e3c23e3c8921ebb2d5dc1fd02786b42b5ab4ace140b35b2a9c97364cf1259283d18f40000000000000000000000000000000000000000000000000000000000000000 3fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0f0420a812dd004fe19457c7167eca36b0421696493b0890c4dd619692b8779148808bdf"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 1511,
+      "fields": [
+        "shf",
+        "RF-LARGE-TREE-n00100-AX",
+        "256",
+        "0",
+        "+e32d53a0de85e63471fc7bf45449b9a10de2f2b855b5c077eebbe8c5386f1253p-32",
+        "1",
+        "+fe26c5c00a735ace248a7a23aafe75ced8a916bbaacc72dd4df85afc512c2bf7p2",
+        "+f1c98e76c5a34c4d06dd0ce5c701c205d5db232f790e86a3d5251fc408a20b9dp-254",
+        "+e32d53a0de85e63471fc7bf45449b9a10de2f2b855b5c077eebbd61c2916d9b3p-32",
+        "+e15ff78caef2420e1988de44a5c29c694c138e6ce25d3b4e6b364c32787e6c48p35"
+      ],
+      "text": "shf RF-LARGE-TREE-n00100-AX 256 0 +e32d53a0de85e63471fc7bf45449b9a10de2f2b855b5c077eebbe8c5386f1253p-32 1 +fe26c5c00a735ace248a7a23aafe75ced8a916bbaacc72dd4df85afc512c2bf7p2 +f1c98e76c5a34c4d06dd0ce5c701c205d5db232f790e86a3d5251fc408a20b9dp-254 +e32d53a0de85e63471fc7bf45449b9a10de2f2b855b5c077eebbd61c2916d9b3p-32 +e15ff78caef2420e1988de44a5c29c694c138e6ce25d3b4e6b364c32787e6c48p35"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "line": 1512,
+      "fields": [
+        "shiftcount",
+        "RF-LARGE-TREE-n00100-AX",
+        "256",
+        "1"
+      ],
+      "text": "shiftcount RF-LARGE-TREE-n00100-AX 256 1"
+    }
+  ],
+  "model_inputs": [
+    {
+      "name": "PRESCRIBED",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "line": 1633,
+      "file_sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e",
+      "block_sha256": "58d6197a8d24f1daf8d465187a838fd95de2edf93ec802abeafd11300db223ef",
+      "seed_lines": []
+    },
+    {
+      "name": "CHARGE-SLENDER",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "line": 1,
+      "file_sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b",
+      "block_sha256": "762480a7af43c599c2d48ca6edbacd11098b5ab1380ab736b5c428cc22e0f4d0",
+      "seed_lines": []
+    },
+    {
+      "name": "G-FIXED-MEMBER",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "line": 2248,
+      "file_sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b",
+      "block_sha256": "0398602e9b6de8d349ab8b2ba3fdca843757a72287f401eaff93c683c7d4c4f1",
+      "seed_lines": []
+    },
+    {
+      "name": "HH-SLENDER-m40",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "line": 1689,
+      "file_sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b",
+      "block_sha256": "c1e35dec15dd754ceb4d85f61821f7bb4a42ab6971870607fe71b836a0807399",
+      "seed_lines": []
+    },
+    {
+      "name": "RF-LARGE-CHAIN-n00100-AX",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "line": 9674,
+      "file_sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b",
+      "block_sha256": "45261e38c5c7e1c08350034dba563fc3b54264ecb7fc187210f4fff0c386f19c",
+      "seed_lines": []
+    },
+    {
+      "name": "RF-LARGE-TREE-n00100-AX",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "line": 16330,
+      "file_sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b",
+      "block_sha256": "84f16f92aec78368f45a796f0c1f37517e650c21b4e09e1e7a2ae906b9bdd042",
+      "seed_lines": []
+    },
+    {
+      "name": "THETA-STUB",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "line": 2364,
+      "file_sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b",
+      "block_sha256": "a26cb7ff8dbd1115818b67efeb6bc93dfd5a3f046f1e57ed089f6a711c76d044",
+      "seed_lines": []
+    },
+    {
+      "name": "THETA-ZERO-BODY",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "line": 2144,
+      "file_sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b",
+      "block_sha256": "a05f82845ca546d7107f014f092e9b05ad4c941aec23bac02da21770b51eface",
+      "seed_lines": []
+    }
+  ],
+  "fixed_corpus_checks": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e",
+      "matches_existing_manifest": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b",
+      "matches_existing_manifest": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "matches_existing_manifest": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "matches_existing_manifest": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "matches_existing_manifest": true
+    }
+  ],
+  "reviewer_input": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/protected_06/REVIEW.md",
+    "sha256": "00803c2ad00128d825583b2c3eba06329c1c991a2ffd3686cadef8e1be461a7f",
+    "consulted_excerpt": "**P06-1 \u2014 R7-M5 mapping remains open.** Its patch changes verify_state's E input\nfor prescribed DOFs. The proposed e_charge... filter checks residual/W/a_s/charge/\nW_plus digests and later ratios, but does not directly assert r.e_rows against\naccepted E rows. A relevant ratio assertion may discriminate; the advertised\nper-row E assertion is not present there. Identify the actual intended existing\nassertion or compare that verifier's r.e_rows/resolution to the fixed SCALE\ncorpus in a minimal separately reviewed diagnostic. Do not compute expected E\nby calling the same production path. No production bug or retirement is claimed.",
+    "origin": "sealed reviewer working-tree packet; not accepted instruction"
+  }
+}

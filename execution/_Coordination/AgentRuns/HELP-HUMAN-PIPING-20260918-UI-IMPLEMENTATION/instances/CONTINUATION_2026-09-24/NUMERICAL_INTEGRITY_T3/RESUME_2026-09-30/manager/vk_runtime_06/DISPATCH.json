@@ -1,0 +1,14 @@
+{
+  "mechanism": "collaboration.followup_task",
+  "parent": "/root/t3_recovery_manager",
+  "existing_child": "/root/t3_recovery_manager/i22_a1",
+  "dispatch_start_utc": "2026-10-01 21:10:14 UTC",
+  "hard_end_utc": "2026-10-01 21:35:14 UTC",
+  "followup_recorded_after_send_utc": "2026-10-01T21:10:53.780960+00:00",
+  "grant": "098fbd4df23db6eaf844b0741fde70c182fef063",
+  "scope": "originalP31\u2013P53 only; P31missingCLASS after boundnormalrun permitsP32 thenSTOP",
+  "parallel_I21": "source arithmetic only; fixed21:27:07end",
+  "new_children": 0,
+  "child_actual_continuation_utc": "2026-10-01 21:10:54 UTC",
+  "child_preserved_deadline": true
+}

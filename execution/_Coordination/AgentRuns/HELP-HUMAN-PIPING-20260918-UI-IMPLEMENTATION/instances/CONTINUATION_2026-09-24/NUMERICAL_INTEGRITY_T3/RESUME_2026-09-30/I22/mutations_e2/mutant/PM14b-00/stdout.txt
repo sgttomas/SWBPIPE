@@ -1,0 +1,18 @@
+
+running 1 test
+test structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity stdout ----
+
+thread 'structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity' (24754119) panicked at src/structural/retained/../../../tests/retained_k4/publication_tests.rs:1061:9:
+assertion failed: solve.publication_radius(i, meta, &solve.prep.identity, 128).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.01s
+

@@ -1,0 +1,14 @@
+# Source12 manager return
+
+I21 sealedfour-leafsourcepacket15:14:54 before15:27:46. Manager verified47payloads, readcompleteH_LEAVES/RETURN, rehashed40originalinstalledHTML+decoded sources, andindependentlyrecomputedexplicitintegerformatupper/consequences. NoRust/floatformat/model/runtime was executed; these remain sourceproofproposals forsameRV30review.
+
+Childseal024339a4e87285bb001c0fe44fe3a4051c0e89165cf0cd38b54d01a2dd42f87c; H_LEAVES63ce58a4b2524c072ebb218a169216c6b4339e802433dad8c017f3d9a8bb3f8e; RETURN ecc1a588cba9d6aa90e9d4a6a47d55e3278ce3af3655be1240ec93b90fb9647c.
+
+Proposednarrowresults: initializedbyteslicewrite/flush+droppedOS/staticerrors add0registeredhelper/activeold; defaultfinitef64Debug helpersstack-only, D64<=32788 expliciti16exponentoverapprox, sixleaferrorbound196808 anddestinationgrowthseparatelycharged. These are nottypical/measuredformatlengths orfullruntimeclaims.
+
+Persistentdirectstartup/source identities arestdout1024+oneMutexchild andoptionalmainthread stackoverflowregistryMutex+oneBTreeleaf<usize,ThreadInfo>+nameBox≤4. Conservative1028+2*M_mutex+L_info names distinctallocations; exactprivateM_mutex/L_info bytes remainunbound. N2privateThreadhandle/TLSlayout exclusion retained; no inferredC/Rustlayout, kernel-tree substitution,612baseline orallowance.
+
+Managerhash/arithmeticreviewdoesnotindependentlycertifyeverybackendzeroheapclaim; ROOT/RV30mustreviewexactfour-leafproof. ExistingH-I0/C0/plannedinputs/finalsource-targetbasis andcompleteEmax/admission/W1F2a remainopen. Source10/11sealsunchanged, noH/VRcontractrewrite.
+
+I21idle; nohostjob/probe/tool/allocator/observer/permission/Gitindex/source/API/estimate/record mutation. Noautomaticnexttranche. G4runtime separate andindividuallygated.
+

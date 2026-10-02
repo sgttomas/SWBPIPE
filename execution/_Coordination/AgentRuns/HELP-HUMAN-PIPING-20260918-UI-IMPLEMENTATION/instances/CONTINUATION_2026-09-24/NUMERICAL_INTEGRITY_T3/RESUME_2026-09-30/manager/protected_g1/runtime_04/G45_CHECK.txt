@@ -1,0 +1,4 @@
+PASS G45 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "625f3fcaf501b8b69177db489b530fb2f21fb525f28c3504480db9731640a465"}
+filter structural::retained::bound::tests::kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal
+aliases [('RV23', 'RV23-M6b-refusal-not-marked-on-its-block')]

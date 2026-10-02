@@ -1,0 +1,19 @@
+{
+  "actor": "ROOT HELP_HUMAN Type0 Agent0",
+  "mechanism": "collaboration.spawn_agent",
+  "parent": "/root",
+  "child": "/root/rv30_k6c_kernel",
+  "role": "TASK Type2 independent reviewer",
+  "fork_turns": "none",
+  "brief_commit": "1c306f90f9aaaee1505034b625d83f262eb556b9",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV30_K6C_KERNEL.md",
+  "brief_sha256": "3c4430eb9c3d9e23128bf1d79de880abfbf44cc5af0f7493621e9eaf9ab90902",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "ledger_records_commit": "3da066517e7a089828cbe269e542371108906883",
+  "actual_spawn_confirmed": true,
+  "first_sampled_start_utc": "2026-10-01T09:40:33Z",
+  "boundary_utc": "2026-10-01T10:10:33Z",
+  "scope": "Conditional kernel allocation identity/phase/capacity review; no complete E_max acceptance, Rust, tools, Git/index writes or delegation",
+  "enforcement": "prompt fence on shared host, not OS containment",
+  "return": "K6C projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/kernel_01 to ROOT"
+}

@@ -1,0 +1,24 @@
+
+thread 'structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero' (25987637) panicked at src/structural/retained/../../../tests/retained_k4/ledger_tests.rs:107:9:
+assertion `left == right` failed: the 2^-2148 quantum
+  left: -2147
+ right: -2148
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.02 real         0.01 user         0.00 sys
+             6078464  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 728  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   9  involuntary context switches
+           219843329  instructions retired
+            60834468  cycles elapsed
+             2539904  peak memory footprint

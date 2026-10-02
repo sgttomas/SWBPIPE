@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
+@@ -1214,7 +1214,7 @@
+     work.record(&ctx_w);
+     let sum_work = sum.work();
+     let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
+-    stages.close_stopped(&result, current, total);
++
+     VerifySpent {
+         result,
+         work,

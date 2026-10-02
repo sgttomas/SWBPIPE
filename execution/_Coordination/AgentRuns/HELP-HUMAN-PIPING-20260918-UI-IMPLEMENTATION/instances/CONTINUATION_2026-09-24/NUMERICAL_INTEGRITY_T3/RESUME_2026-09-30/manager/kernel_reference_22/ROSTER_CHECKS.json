@@ -1,0 +1,76 @@
+{
+  "verified_utc": "2026-10-01T22:57:25.645635+00:00",
+  "roster_sha256": "c160e3611911dce17cadf9ffe7436b97c74c68b3a3c3b657f1969cb2aef2a5cf",
+  "unique_required_cases": 193,
+  "family_counts": {
+    "RF-CHAIN": 30,
+    "RF-SKEW": 36,
+    "RF-WEAK": 9,
+    "RF-LARGE": 12,
+    "RF-INVARIANCE": 25,
+    "RF-RANGE": 32,
+    "RF-ZERO": 4,
+    "RF-FINITE": 6,
+    "RF-MECH": 1,
+    "RF-CANCEL": 38
+  },
+  "fixed24_overlap": 12,
+  "outside_fixed24": 181,
+  "storage_sources_verified": [
+    {
+      "path": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_chain.json",
+      "sha256": "ec7a1bf2e47a186990a8c47e70a5bc6246453251d7796a66b0b2257549ec068b",
+      "source": "Original API13 pinned storage metadata; not a new solver execution"
+    },
+    {
+      "path": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_skew.json",
+      "sha256": "55e756148f293b6ff3fe0b7dbdc337af944bc2a5f9bbe345e2a8922ae669203b",
+      "source": "Original API13 pinned storage metadata; not a new solver execution"
+    },
+    {
+      "path": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_weak.json",
+      "sha256": "60e8da91026778fa59f90776c1f7256db4d3b4ce49a359a8164fc6fb96a30037",
+      "source": "Original API13 pinned storage metadata; not a new solver execution"
+    },
+    {
+      "path": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+      "sha256": "a03f0a3079c4c9dc465319f402f9fde7f940240e26807000528d584b10611437",
+      "source": "Original API13 pinned storage metadata; not a new solver execution"
+    },
+    {
+      "path": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_invariance.json",
+      "sha256": "3d66739b7e517538d3a8595653ff42bf5d27d9726f7d6ffb38a01e8367620705",
+      "source": "Original API13 pinned storage metadata; not a new solver execution"
+    },
+    {
+      "path": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+      "sha256": "6c3717bed7b95833fc3403cfa7410bb70e79d9278e2942b87d043454aa95f185",
+      "source": "Original API13 pinned storage metadata; not a new solver execution"
+    },
+    {
+      "path": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_zero.json",
+      "sha256": "2eaeed8a8ac999634350c39429151f8a62c54a8520ac4bafc8ca840371022a7a",
+      "source": "Original API13 pinned storage metadata; not a new solver execution"
+    },
+    {
+      "path": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_finite.json",
+      "sha256": "a416a6742496bac0007dad03dc615e0a0c0d8389e74280c7ea8df5720e2bbf88",
+      "source": "Original API13 pinned storage metadata; not a new solver execution"
+    },
+    {
+      "path": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "sha256": "22e5cade8dc0034aa89e6ecdc073f5ba33f9b1afc191c9a7876108920a6ed6a8",
+      "source": "Original API13 pinned storage metadata; not a new solver execution"
+    },
+    {
+      "path": "<wt>/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_cancel.json",
+      "sha256": "4ddab57b4b64e53dfda60a81df2f4e439deef16493f17cd4fed96f2a5b1737ee",
+      "source": "Original API13 pinned storage metadata; not a new solver execution"
+    }
+  ],
+  "attempt_storage_pair_checks": 390,
+  "exact_z_h_match_all_pinned_attempts": true,
+  "B_b_exact_absent": true,
+  "policy": "Reference193 uses tagged B_upper=N and b_upper=f only at proved-monotone placements; no graph-derived exact counts or SD skyline substitution. CLI24 retains exact policy.",
+  "limits": "Fixed metadata/hash checks only; no author arithmetic or source/count/graph/solver execution, observed heap input or current-artifact qualification."
+}

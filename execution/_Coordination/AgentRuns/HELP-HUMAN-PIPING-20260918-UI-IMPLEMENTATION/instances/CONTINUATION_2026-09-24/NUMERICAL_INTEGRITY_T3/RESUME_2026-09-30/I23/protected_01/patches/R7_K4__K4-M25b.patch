@@ -1,0 +1,12 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -455,7 +455,8 @@
+         return true;
+     }
+     let small = f64::from_bits(0x0230_0000_0000_0000); // 2^-988
+-    !(s_star < small || value.abs() < threshold(s_star))
++    let _ = small;
++    !(value.abs() < threshold(s_star))
+ }
+ 
+ // ------------------------------------------------------------ directed ratios

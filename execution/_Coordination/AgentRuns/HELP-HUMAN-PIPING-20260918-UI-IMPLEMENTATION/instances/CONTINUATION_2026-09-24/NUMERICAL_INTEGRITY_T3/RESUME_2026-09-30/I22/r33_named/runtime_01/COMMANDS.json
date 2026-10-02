@@ -1,0 +1,463 @@
+{
+  "task": "/root/t3_recovery_manager/i22_a1",
+  "role": "TASK Type2 no child",
+  "grant": {
+    "commit": "a7f98c5845967442857260f7c8c349ab923f4853",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_R33_NAMED_RUNTIME.md",
+    "sha256": "463057e1dee91d8fd96a39cb3d0312014dfc6e75142fc1e460c6ab700194df1b"
+  },
+  "sequencing_disposition": {
+    "commit": "c86c1bb86bb63e46b02499e8f8e3ad37b9eba8b2",
+    "sha256": "15cf229c3422f0c61b24d33bf2bba3e66d045344d7e1d4c8a88f94968fcd324e"
+  },
+  "start_utc": "2026-10-01T17:30:06Z",
+  "end_utc": "2026-10-01T17:45:06Z",
+  "completed_utc": "2026-10-01T17:34:23.618Z",
+  "releases": [
+    {
+      "id": "BASELINE",
+      "at": "2026-10-01T17:30:13Z",
+      "by": "manager"
+    },
+    {
+      "id": "D2",
+      "at": "2026-10-01T17:33:03Z",
+      "by": "manager"
+    }
+  ],
+  "applied_tool_patch": [
+    {
+      "id": "D2",
+      "tool": "apply_patch",
+      "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i23/r33_e_row/D2/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n         #[cfg(test)]\n         seed::apply(&mut ctx, &mut u)?;\n+        for v in u.iter_mut() {\n+            *v = Wide::<L>::from_f64(super::recover::publish_value(v).value().unwrap_or(0.0))?;\n+        }\n         let base = t3 - lme(&ctx) - sum.work().limb_multiply_equivalents();\n*** End Patch",
+      "result": {},
+      "pre": {
+        "chunk_id": "cbace1",
+        "wall_time_seconds": 0.000006917,
+        "exit_code": 0,
+        "original_token_count": 159,
+        "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i23/r33_e_row/D2/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\nd35edfbd16a3d963b475134cd4b8b8d96efaadedc5e2d9a8c713da2dd42ac93f  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D2.patch\n"
+      },
+      "post": {
+        "chunk_id": "99cd46",
+        "wall_time_seconds": 0.00000625,
+        "exit_code": 0,
+        "original_token_count": 66,
+        "output": "80fe217b2ba601f7dc6e98e232c824ff864fd5ddbfa94d4cef275ed50a69c2f4  <wt>/scratch/i23/r33_e_row/D2/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "kind": "build",
+      "id": "BASELINE",
+      "index": null,
+      "name": "build",
+      "filter": null,
+      "argv": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/r33_e_row/BASELINE/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/r33_e_row/BASELINE",
+        "--lib",
+        "--no-run"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE \"$HOME/.cargo/bin/cargo\" 'test' '--offline' '--locked' '-j' '4' '--manifest-path' '<wt>/scratch/i23/r33_e_row/BASELINE/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml' '--target-dir' '<wt>/a1-diagnostic-target/r33_e_row/BASELINE' '--lib' '--no-run' > '<wt>/scratch/i23/r33_e_row/logs/BASELINE/build.stdout' 2> '<wt>/scratch/i23/r33_e_row/logs/BASELINE/build.stderr'",
+      "workdir": "<wt>/scratch/i23/r33_e_row/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r33_e_row/logs/BASELINE/build",
+      "launch_utc": "2026-10-01T17:31:16.149Z",
+      "guard_before": {
+        "chunk_id": "ec0556",
+        "wall_time_seconds": 0.000006917,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:54:57 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "0ecb3b",
+        "wall_time_seconds": 1.000989709,
+        "session_id": 18397,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "306108",
+        "wall_time_seconds": 0.000010458,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T17:31:43.722Z",
+      "evidence": "BASELINE/build/EVIDENCE.json",
+      "stdout": "BASELINE/build/stdout.txt",
+      "stderr": "BASELINE/build/stderr.txt",
+      "raw_fingerprint": "BASELINE/build/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "list",
+      "id": "BASELINE",
+      "index": 0,
+      "name": "list_01",
+      "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--list",
+        "--exact",
+        "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--list' '--exact' 'structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale' > '<wt>/scratch/i23/r33_e_row/logs/BASELINE/list_01.stdout' 2> '<wt>/scratch/i23/r33_e_row/logs/BASELINE/list_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r33_e_row/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r33_e_row/logs/BASELINE/list_01",
+      "launch_utc": "2026-10-01T17:31:43.793Z",
+      "guard_before": {
+        "chunk_id": "715252",
+        "wall_time_seconds": 0.000006667,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:55:24 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "e3d521",
+        "wall_time_seconds": 0.695515375,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "e3d521",
+        "wall_time_seconds": 0.695515375,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T17:31:44.827Z",
+      "evidence": "BASELINE/list_01/EVIDENCE.json",
+      "stdout": "BASELINE/list_01/stdout.txt",
+      "stderr": "BASELINE/list_01/stderr.txt",
+      "raw_fingerprint": "BASELINE/list_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "baseline",
+      "id": "BASELINE",
+      "index": 0,
+      "name": "baseline_01",
+      "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--exact",
+        "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/r33_e_row/logs/BASELINE/baseline_01.stdout' 2> '<wt>/scratch/i23/r33_e_row/logs/BASELINE/baseline_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r33_e_row/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r33_e_row/logs/BASELINE/baseline_01",
+      "launch_utc": "2026-10-01T17:31:44.902Z",
+      "guard_before": {
+        "chunk_id": "2fb7e1",
+        "wall_time_seconds": 0.000008125,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:55:25 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "cf8c49",
+        "wall_time_seconds": 0.056465625,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "cf8c49",
+        "wall_time_seconds": 0.056465625,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T17:31:45.290Z",
+      "evidence": "BASELINE/baseline_01/EVIDENCE.json",
+      "stdout": "BASELINE/baseline_01/stdout.txt",
+      "stderr": "BASELINE/baseline_01/stderr.txt",
+      "raw_fingerprint": "BASELINE/baseline_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "build",
+      "id": "D2",
+      "index": null,
+      "name": "build",
+      "filter": null,
+      "argv": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/r33_e_row/D2/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/r33_e_row/D2",
+        "--lib",
+        "--no-run"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE \"$HOME/.cargo/bin/cargo\" 'test' '--offline' '--locked' '-j' '4' '--manifest-path' '<wt>/scratch/i23/r33_e_row/D2/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml' '--target-dir' '<wt>/a1-diagnostic-target/r33_e_row/D2' '--lib' '--no-run' > '<wt>/scratch/i23/r33_e_row/logs/D2/build.stdout' 2> '<wt>/scratch/i23/r33_e_row/logs/D2/build.stderr'",
+      "workdir": "<wt>/scratch/i23/r33_e_row/D2/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r33_e_row/logs/D2/build",
+      "launch_utc": "2026-10-01T17:33:45.041Z",
+      "guard_before": {
+        "chunk_id": "293139",
+        "wall_time_seconds": 0.000007333,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:57:26 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "0ccdd8",
+        "wall_time_seconds": 1.002357,
+        "session_id": 26629,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "b2266d",
+        "wall_time_seconds": 0.000009375,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T17:34:04.486Z",
+      "evidence": "D2/build/EVIDENCE.json",
+      "stdout": "D2/build/stdout.txt",
+      "stderr": "D2/build/stderr.txt",
+      "raw_fingerprint": "D2/build/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/D2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "220972c56b692694b827ead08ed4a8a3e54a95dd0b4ce3e7f539dc8a63321e15"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/D2/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "list",
+      "id": "D2",
+      "index": 0,
+      "name": "list_01",
+      "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r33_e_row/D2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--list",
+        "--exact",
+        "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r33_e_row/D2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--list' '--exact' 'structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale' > '<wt>/scratch/i23/r33_e_row/logs/D2/list_01.stdout' 2> '<wt>/scratch/i23/r33_e_row/logs/D2/list_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r33_e_row/D2/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r33_e_row/logs/D2/list_01",
+      "launch_utc": "2026-10-01T17:34:04.558Z",
+      "guard_before": {
+        "chunk_id": "b11abf",
+        "wall_time_seconds": 0.000007459,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:57:45 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "87336c",
+        "wall_time_seconds": 0.690878709,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "87336c",
+        "wall_time_seconds": 0.690878709,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T17:34:05.590Z",
+      "evidence": "D2/list_01/EVIDENCE.json",
+      "stdout": "D2/list_01/stdout.txt",
+      "stderr": "D2/list_01/stderr.txt",
+      "raw_fingerprint": "D2/list_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/D2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "220972c56b692694b827ead08ed4a8a3e54a95dd0b4ce3e7f539dc8a63321e15"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/D2/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "mutant",
+      "id": "D2",
+      "index": 0,
+      "name": "mutant_01",
+      "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r33_e_row/D2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--exact",
+        "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r33_e_row/D2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/r33_e_row/logs/D2/mutant_01.stdout' 2> '<wt>/scratch/i23/r33_e_row/logs/D2/mutant_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r33_e_row/D2/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r33_e_row/logs/D2/mutant_01",
+      "launch_utc": "2026-10-01T17:34:05.667Z",
+      "guard_before": {
+        "chunk_id": "f7e021",
+        "wall_time_seconds": 0.000006792,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:57:46 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "ed97f8",
+        "wall_time_seconds": 0.056394417,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "ed97f8",
+        "wall_time_seconds": 0.056394417,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T17:34:06.054Z",
+      "evidence": "D2/mutant_01/EVIDENCE.json",
+      "stdout": "D2/mutant_01/stdout.txt",
+      "stderr": "D2/mutant_01/stderr.txt",
+      "raw_fingerprint": "D2/mutant_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/D2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "220972c56b692694b827ead08ed4a8a3e54a95dd0b4ce3e7f539dc8a63321e15"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/D2/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    },
+    {
+      "kind": "control",
+      "id": "D2",
+      "index": 0,
+      "name": "control_01",
+      "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+      "argv": [
+        "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "--exact",
+        "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/r33_e_row/logs/D2/control_01.stdout' 2> '<wt>/scratch/i23/r33_e_row/logs/D2/control_01.stderr'",
+      "workdir": "<wt>/scratch/i23/r33_e_row/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+      "log": "<wt>/scratch/i23/r33_e_row/logs/D2/control_01",
+      "launch_utc": "2026-10-01T17:34:14.169Z",
+      "guard_before": {
+        "chunk_id": "03e67c",
+        "wall_time_seconds": 0.000010167,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-15:57:55 /bin/bash <wt>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "286d91",
+        "wall_time_seconds": 0.055053708,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "286d91",
+        "wall_time_seconds": 0.055053708,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T17:34:14.559Z",
+      "evidence": "D2/control_01/EVIDENCE.json",
+      "stdout": "D2/control_01/stdout.txt",
+      "stderr": "D2/control_01/stderr.txt",
+      "raw_fingerprint": "D2/control_01/fingerprint.json",
+      "binary": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7"
+      },
+      "fingerprint": {
+        "path": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+        "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+        "raw_json_preserved": true,
+        "features": "[]",
+        "rustflags": []
+      }
+    }
+  ],
+  "counts": {
+    "builds": 2,
+    "lists": 2,
+    "baselines": 1,
+    "required_numeric_failures": 1,
+    "returned_controls": 1,
+    "test_invocations": 3,
+    "total_commands": 7
+  },
+  "final_process_check": {
+    "utc": "2026-10-01T17:34:23.762Z",
+    "processes": []
+  },
+  "no_owned_job_running": true
+}

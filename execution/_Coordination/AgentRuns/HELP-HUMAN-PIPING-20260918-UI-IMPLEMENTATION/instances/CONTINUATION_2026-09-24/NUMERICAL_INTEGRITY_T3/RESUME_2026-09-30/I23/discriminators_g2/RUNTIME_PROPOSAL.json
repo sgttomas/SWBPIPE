@@ -1,0 +1,541 @@
+{
+  "status": "PROPOSAL_ONLY_NO_RUNTIME_GRANT",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "host_guard": "existing <wt>/guard/memguard.sh must be active before any Rust/solver job; ROOT schedules and transfers ownership",
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "NONE"
+  },
+  "serialization": "one Cargo process for this slice, -j4, no job until ROOT grants a host slot; do not interfere with I22 targets",
+  "baseline_filters": [
+    "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+    "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+    "structural::retained::adaptive::method_tests::i23_r7_g_scope",
+    "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+    "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+    "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale"
+  ],
+  "planned_exact_invocations": 17,
+  "operations": [
+    {
+      "id": "BASELINE",
+      "prepared_state": "immutable40129 production plus reviewed test overlay; fault UNAPPLIED",
+      "source_root": "<wt>/scratch/i23/discriminators_g2/sources/BASELINE",
+      "target": "<wt>/a1-diagnostic-target/g2/BASELINE",
+      "runtime_owner": "ROOT_PENDING_TRANSFER",
+      "compile_proposal": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/discriminators_g2/sources/BASELINE/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/g2/BASELINE",
+        "--lib",
+        "--no-run"
+      ],
+      "exact_test_proposals": [
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+          "expected_selected_tests": 1
+        },
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_data_scope"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+          "expected_selected_tests": 1
+        },
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_g_scope"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_g_scope",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_g_scope",
+          "expected_selected_tests": 1
+        },
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_bound_choice"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+          "expected_selected_tests": 1
+        },
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_required_shift"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+          "expected_selected_tests": 1
+        },
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale",
+          "expected_selected_tests": 1
+        }
+      ],
+      "before_runtime": "baseline must pass all six exact tests"
+    },
+    {
+      "id": "R7-M25",
+      "prepared_state": "immutable40129 production plus reviewed test overlay; fault UNAPPLIED",
+      "source_root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M25",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M25",
+      "runtime_owner": "ROOT_PENDING_TRANSFER",
+      "compile_proposal": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/discriminators_g2/sources/R7-M25/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/g2/R7-M25",
+        "--lib",
+        "--no-run"
+      ],
+      "exact_test_proposals": [
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_data_scope"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+          "expected_selected_tests": 1
+        },
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_g_scope"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_g_scope",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_g_scope",
+          "expected_selected_tests": 1
+        }
+      ],
+      "before_runtime": "ROOT must separately authorize and apply the exact frozen production patch, verify listed source pre/post hashes, then compile in this dedicated target. No fault has yet been applied."
+    },
+    {
+      "id": "R7-M26",
+      "prepared_state": "immutable40129 production plus reviewed test overlay; fault UNAPPLIED",
+      "source_root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M26",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M26",
+      "runtime_owner": "ROOT_PENDING_TRANSFER",
+      "compile_proposal": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/discriminators_g2/sources/R7-M26/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/g2/R7-M26",
+        "--lib",
+        "--no-run"
+      ],
+      "exact_test_proposals": [
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_bound_choice"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+          "expected_selected_tests": 1
+        }
+      ],
+      "before_runtime": "ROOT must separately authorize and apply the exact frozen production patch, verify listed source pre/post hashes, then compile in this dedicated target. No fault has yet been applied."
+    },
+    {
+      "id": "R7-M28",
+      "prepared_state": "immutable40129 production plus reviewed test overlay; fault UNAPPLIED",
+      "source_root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M28",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M28",
+      "runtime_owner": "ROOT_PENDING_TRANSFER",
+      "compile_proposal": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/discriminators_g2/sources/R7-M28/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/g2/R7-M28",
+        "--lib",
+        "--no-run"
+      ],
+      "exact_test_proposals": [
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_required_shift"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+          "expected_selected_tests": 1
+        }
+      ],
+      "before_runtime": "ROOT must separately authorize and apply the exact frozen production patch, verify listed source pre/post hashes, then compile in this dedicated target. No fault has yet been applied."
+    },
+    {
+      "id": "R7-M29",
+      "prepared_state": "immutable40129 production plus reviewed test overlay; fault UNAPPLIED",
+      "source_root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M29",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M29",
+      "runtime_owner": "ROOT_PENDING_TRANSFER",
+      "compile_proposal": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/discriminators_g2/sources/R7-M29/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/g2/R7-M29",
+        "--lib",
+        "--no-run"
+      ],
+      "exact_test_proposals": [
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_data_scope"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+          "expected_selected_tests": 1
+        },
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_bound_choice"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+          "expected_selected_tests": 1
+        },
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_required_shift"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+          "expected_selected_tests": 1
+        }
+      ],
+      "before_runtime": "ROOT must separately authorize and apply the exact frozen production patch, verify listed source pre/post hashes, then compile in this dedicated target. No fault has yet been applied."
+    },
+    {
+      "id": "R7-M3",
+      "prepared_state": "immutable40129 production plus reviewed test overlay; fault UNAPPLIED",
+      "source_root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M3",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M3",
+      "runtime_owner": "ROOT_PENDING_TRANSFER",
+      "compile_proposal": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/discriminators_g2/sources/R7-M3/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/g2/R7-M3",
+        "--lib",
+        "--no-run"
+      ],
+      "exact_test_proposals": [
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+          "expected_selected_tests": 1
+        }
+      ],
+      "before_runtime": "ROOT must separately authorize and apply the exact frozen production patch, verify listed source pre/post hashes, then compile in this dedicated target. No fault has yet been applied."
+    },
+    {
+      "id": "R7-M4",
+      "prepared_state": "immutable40129 production plus reviewed test overlay; fault UNAPPLIED",
+      "source_root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M4",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M4",
+      "runtime_owner": "ROOT_PENDING_TRANSFER",
+      "compile_proposal": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/discriminators_g2/sources/R7-M4/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/g2/R7-M4",
+        "--lib",
+        "--no-run"
+      ],
+      "exact_test_proposals": [
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+          "expected_selected_tests": 1
+        }
+      ],
+      "before_runtime": "ROOT must separately authorize and apply the exact frozen production patch, verify listed source pre/post hashes, then compile in this dedicated target. No fault has yet been applied."
+    },
+    {
+      "id": "R7-M5",
+      "prepared_state": "immutable40129 production plus reviewed test overlay; fault UNAPPLIED",
+      "source_root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M5",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M5",
+      "runtime_owner": "ROOT_PENDING_TRANSFER",
+      "compile_proposal": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/discriminators_g2/sources/R7-M5/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/g2/R7-M5",
+        "--lib",
+        "--no-run"
+      ],
+      "exact_test_proposals": [
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale",
+          "expected_selected_tests": 1
+        }
+      ],
+      "before_runtime": "ROOT must separately authorize and apply the exact frozen production patch, verify listed source pre/post hashes, then compile in this dedicated target. No fault has yet been applied."
+    },
+    {
+      "id": "R7-M9",
+      "prepared_state": "immutable40129 production plus reviewed test overlay; fault UNAPPLIED",
+      "source_root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M9",
+      "target": "<wt>/a1-diagnostic-target/g2/R7-M9",
+      "runtime_owner": "ROOT_PENDING_TRANSFER",
+      "compile_proposal": [
+        "<CARGO>",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "--manifest-path",
+        "<wt>/scratch/i23/discriminators_g2/sources/R7-M9/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--target-dir",
+        "<wt>/a1-diagnostic-target/g2/R7-M9",
+        "--lib",
+        "--no-run"
+      ],
+      "exact_test_proposals": [
+        {
+          "list_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--list",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024"
+          ],
+          "run_argv": [
+            "<PINNED_LIB_TEST_BINARY>",
+            "--exact",
+            "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+            "--test-threads=2",
+            "--nocapture"
+          ],
+          "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+          "expected_selected_tests": 1
+        }
+      ],
+      "before_runtime": "ROOT must separately authorize and apply the exact frozen production patch, verify listed source pre/post hashes, then compile in this dedicated target. No fault has yet been applied."
+    }
+  ],
+  "stop_rules": [
+    "No guard or ungranted slot: do not start.",
+    "Before build, exact source corpus/lock/overlay hashes and containment must match this packet. Drift stops the affected path.",
+    "Baseline compile error or any baseline filter failing, selecting zero/multiple tests, or observing unexpected outcome: stop and report, without source/test/oracle repair.",
+    "Production patches are intentionally unapplied. Never call an overlay-only prepared fault copy a mutant execution.",
+    "For each authorized fault, require exact frozen patch hash and production pre/post hashes before build; preserve the reviewed append-only test bytes.",
+    "A compile/link failure is an invalid experiment, not a kill. No installation/network/toolchain fallback.",
+    "Only the mapped I23 rule/numeric assertion may discriminate; precondition, shape, generic unwrap, record drift, empty filter or certificate failure does not count.",
+    "A surviving required fault or unexpected intended-assertion behavior returns its exact log and gap; no broader search or test weakening.",
+    "Keep all source copies, targets and raw output. Do not delete or overwrite historical archives."
+  ],
+  "acceptance": "Prepared copies are no test result, executing child, accepted mapping, numerical closure or A1 acceptance."
+}

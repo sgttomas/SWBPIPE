@@ -1,0 +1,4 @@
+PASS K4-M9 full116files preparedoverlay+exactfault; protectedtest/lock/patch/basebinary/source-target-log/linkcontainment/emptytarget/guard verified.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "697c2510740834d6d2ad079a5790be0953e8270b4ebf24fdd4f7edfd58571cb0"}
+filter structural::retained::factor::tests::i23_k4_m9_pivot_inequality_uses_requested_precision
+semantic I23:K4M9_REQUESTED_P128: pivot_passes(d=2^-100,c=1,m=1,p=128) == Ok(true); fault yields Ok(false).

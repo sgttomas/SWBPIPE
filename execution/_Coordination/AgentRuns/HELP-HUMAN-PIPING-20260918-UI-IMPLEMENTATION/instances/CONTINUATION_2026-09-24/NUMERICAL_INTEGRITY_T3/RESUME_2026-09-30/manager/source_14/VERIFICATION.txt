@@ -1,0 +1,6 @@
+PASS10 unique child payloads/seal; manager read full RETURN and FINITE_CALLERS.
+PASS6 prior seals and 97 payloads unchanged.
+PASS10 frozen source blobs,10 fixed family inputs,12 exact external raw hashes/bytes. Every Git read explicitly GIT_OPTIONAL_LOCKS=0.
+PASS213case/373group/68977member identities, integer coefficient interval formulas/normal bounds,138 open rows/18cases,24 RF-LARGE no-open-row cardinalities. This is consistency checking, not full independent math/caller acceptance; RV30 review remains required.
+RETURN 8ced7c8b0d2b0aefe7a15c029bb00ec6928500395f9c34838b53dea346ac9eb2
+FINITE_CALLERS 15dc82b83bdbbf87d320b4cf404f6ff085dcbb41f22868661a9332ed2fe044bf

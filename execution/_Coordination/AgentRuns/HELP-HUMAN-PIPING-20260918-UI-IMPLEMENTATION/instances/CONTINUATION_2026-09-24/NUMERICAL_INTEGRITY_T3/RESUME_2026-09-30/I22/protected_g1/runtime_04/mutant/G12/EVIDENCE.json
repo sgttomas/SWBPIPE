@@ -1,0 +1,50 @@
+{
+  "stdout": "\nrunning 1 test\ntest structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member ... FAILED\n\nfailures:\n\n---- structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member stdout ----\n\nthread 'structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member' (25452394) panicked at src/structural/retained/../../../tests/retained_k4/assemble_tests.rs:636:9:\nassertion `left == right` failed: p 128\n  left: \"Z+\"\n right: \"+bde9b7948fea80260900000000000001p-281\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.02s\n\n",
+  "stderr": "   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.61s\n     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)\nerror: test failed, to rerun pass `--lib`\n        8.46 real        13.16 user         0.39 sys\n          1291026432  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              164257  page reclaims\n                 100  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   2  signals received\n                  46  voluntary context switches\n                1399  involuntary context switches\n           206218991  instructions retired\n            73747512  cycles elapsed\n             6341088  peak memory footprint\n",
+  "stdout_sha256": "3fa6f67324ea21f60a11b38a6f718d6c0ffa39c775ac0b753af102e8c4d2a453",
+  "stderr_raw_sha256": "cbdd8a9fc64244dd06989d3d96d0cece3f73db8293cf330ee1646bb3dc82844f",
+  "source_bindings": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs": "ef51530ceb48d8bb7b884b77ed5b05316c23dfb94019a6bf228830119a6d420c"
+  },
+  "test": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+    "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5",
+    "line": 606,
+    "function": "the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member"
+  },
+  "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "binary": {
+    "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "1a4e2da812ed86f2d7f81cfa3428a8c701a2620a2d5768c89f0a00ac065aa8e5"
+  },
+  "features": [
+    {
+      "path": "<RUN_TARGET>/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "metadata": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 8945848500906766827,
+        "path": 10763286916239946207,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/dep-test-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "guard_after": {
+    "exit": 0,
+    "stdout": " 5387     1 03-11:56:27 /bin/bash <HOME>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+  }
+}

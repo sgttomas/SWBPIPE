@@ -1,0 +1,10 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
+@@ -1014,7 +1014,6 @@
+         let (shifts, shift_factorizations) = shifted?;
+         let t5 = spent(&ctx, &ctx_w, &sum);
+         stages.shift = t5 - t4;
+-        current = Stage::Bound;
+         // 7d with A2: a block with data left with no bound after a refusal
+         // stops the attempt with that refusal, before any `uc` rejection
+         // (ROOT's rulings 1 and 2 on I19's plan).

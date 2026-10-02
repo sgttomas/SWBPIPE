@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -415,11 +415,7 @@
+     let two53 = 9_007_199_254_740_992.0_f64;
+     let q = value.abs();
+     let nearest = q / two53;
+-    let rounding = if nearest * two53 < q {
+-        next_up(nearest)
+-    } else {
+-        nearest
+-    };
++    let rounding = nearest;
+     // The three terms span at most 2,100 bits: the sum and its upward
+     // rounding are exact (no refusal is reachable).
+     (|| -> Option<f64> {

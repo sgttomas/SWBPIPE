@@ -1,0 +1,14 @@
+{
+  "mechanism": "collaboration.followup_task",
+  "parent": "/root/t3_recovery_manager",
+  "existing_child": "/root/t3_recovery_manager/i22_a1",
+  "receipt_start_utc": "2026-10-01 23:29:20 UTC",
+  "hard_end_utc": "2026-10-01 23:49:20 UTC",
+  "recorded_after_send_utc": "2026-10-01T23:31:05.860457+00:00",
+  "scope": "originalP37\u2013P47, exact criteria/full scopes/returned controls only",
+  "time_basis": "ROOT native receipt bound includes compact preparation; not reset to child dispatch",
+  "new_children": 0,
+  "I21": "idle; completed kernel handback under independent review",
+  "child_actual_continuation_utc": "2026-10-01 23:31:09 UTC",
+  "child_preserved_hard_end": true
+}

@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling stdout ----
+
+thread 'structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling' (24794501) panicked at src/structural/retained/../../../tests/retained_k4/publication_tests.rs:778:5:
+assertion `left == right` failed
+  left: 4607182418800017408
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
+

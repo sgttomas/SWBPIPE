@@ -1,0 +1,46 @@
+{
+  "agent": "/root/i23_protected_prep",
+  "role": "TASK Type 2 I23",
+  "parent": "/root HELP_HUMAN Agent0",
+  "actual_delegation": "Existing native Codex collaboration descendant; bounded assignment via parent follow-up message. No children.",
+  "actual_start_utc": "2026-10-01T18:14:46Z",
+  "boundary_utc": "2026-10-01T18:21:46Z",
+  "assignment_origin": "Parent native message: seven-minute source-only P09/VK-F01 diagnosis; existing vk_records route, no execution or source/patch/tool/Git/index/delegation work; writes only this packet with raw provenance under _run_records.",
+  "retained_instruction_origins": [
+    {
+      "path": "AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I23_PROTECTED_PREP.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "09ff7d95a7b3273d250b317ee502ba7dc71f46b4d0dfb071d69590840420532f"
+    }
+  ],
+  "instruction_provenance_pointer": "<A1>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/PROVENANCE.json",
+  "new_skills_or_workflows": [],
+  "operations": "Read existing source/records and ordinary metadata; SHA256 verification; construct additive evidence packet only. No Cargo/Rust/test/binary run, source/copy/patch change, Git/index command or delegation.",
+  "containment": "Only this new packet created; source archive, build target, existing runtime/preparation packets untouched. Restrictions are prompt-level on shared filesystem, not OS isolation.",
+  "portable_aliases": {
+    "<wt>": "existing .claude/t3 coordination workspace",
+    "<A1>": "A1 checkout under <wt>",
+    "<ROOT_ASSIGNED_SIBLING_LOG_DIRECTORY>": "prospective runtime log location outside source archive, to be assigned by ROOT; no directory created"
+  },
+  "actual_end_utc": "2026-10-01T18:19:04Z"
+}

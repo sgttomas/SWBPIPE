@@ -1,0 +1,2135 @@
+{
+  "candidate": "0613cb0f871a29123ca8c57b720b5d9a166f840d",
+  "records_from_raw_stdout": 90,
+  "exact_type_value_comparisons": true,
+  "u64_MAX_exact_in_all90_records": true,
+  "source_files_modes_checked": 189,
+  "same_release_binary": {
+    "key": "vk_records",
+    "path": "<wt>/a1-vk-target/release/examples/vk_records",
+    "sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+    "fingerprint_sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+  },
+  "actual_processes": [
+    {
+      "id": "D01_NONE_BEFORE",
+      "fault": "NONE",
+      "launch_utc": "2026-10-01T18:34:13.694Z",
+      "exit": 0,
+      "raw_hashes": {
+        "stdout": "3fad47d8362cafa964e8d7b5670341573ad7b0f9e8d8a8ff0411bb103a877494",
+        "stderr": "dfe297f84b0e35449395835f26be64e303dbb47aa1d36881d0df4e7149955ea8"
+      },
+      "real_seconds": "0.57",
+      "synchronous_completion": true,
+      "exact_UTC_completion": "not separately recorded; completed tool return precedes next launch/final check",
+      "preflight": "{\"guard\": \"5387     1 03-16:57:54 /bin/bash <wt>/guard/memguard.sh\", \"readiness_sha256\": \"1801b11a9633ebf91784f8a515d695fb534ce9631dbdf33a0c959cfb3ec88888\"}\n"
+    },
+    {
+      "id": "D02_F01",
+      "fault": "VK-F01",
+      "launch_utc": "2026-10-01T18:34:53.579Z",
+      "exit": 0,
+      "raw_hashes": {
+        "stdout": "cddfa9eab85278dc7a14c7ce8d76f16ac4d88dc3537396fcc4aafa4576cbc687",
+        "stderr": "d4a18722d99f133a5116ad4f9e769f5a6166b2417a606a76b2b497118c8a4c9e"
+      },
+      "real_seconds": "0.47",
+      "synchronous_completion": true,
+      "exact_UTC_completion": "not separately recorded; completed tool return precedes next launch/final check",
+      "preflight": " 5387     1 03-16:58:34 /bin/bash <wt>/guard/memguard.sh\n\n"
+    },
+    {
+      "id": "D03_NONE_RETURN",
+      "fault": "NONE",
+      "launch_utc": "2026-10-01T18:35:48.208Z",
+      "exit": 0,
+      "raw_hashes": {
+        "stdout": "3fad47d8362cafa964e8d7b5670341573ad7b0f9e8d8a8ff0411bb103a877494",
+        "stderr": "1877593fa1c2f88a1893e3ed0ca7b87bfa922cf2511c0e2ee46450b60c1caa13"
+      },
+      "real_seconds": "0.17",
+      "synchronous_completion": true,
+      "exact_UTC_completion": "not separately recorded; completed tool return precedes next launch/final check",
+      "preflight": " 5387     1 03-16:59:29 /bin/bash <wt>/guard/memguard.sh\n\n"
+    }
+  ],
+  "case_reason_counts": {
+    "torsion_root_Rx_StopRule": 15,
+    "axial_member1_I_Ux_VerificationEstimate": 2,
+    "axial_root_Ux_StopRule": 13
+  },
+  "all_cases": [
+    {
+      "id": "RF-CHAIN-T-n03-r1e-04",
+      "source_sha256": "bd42aaee4ebcf0ea84eb81432aca7a2186144e0348fa07cca8f4f4636efaa2cd",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "406b000000000000"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-06",
+      "source_sha256": "7a0603f63d91516bf2e181c9ea849fbfdcdb58b1b658f0f5a7e8acc313b94c8c",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "400147ae147ae148"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-08",
+      "source_sha256": "20c2148fc4e1ac4419155de43d1ca85a6c257b2eb3040b295c6fd430149ffa5a",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f961e4f765fd8ae"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-10",
+      "source_sha256": "4da1ad2e0aed5564205326c500257574520ee96f5ef02a81e1ee2a3063f5636f",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f2c4fc1df3300de"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-12",
+      "source_sha256": "7ab12bb550088d7ae0e391ed18a942968bd716588fd84dd0a56da4f05f34296d",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3ec21e908ed8f651"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-04",
+      "source_sha256": "eb12d4df05500dddbbf911c1f09a21bdd6d48cd4dca9a377fce8132182103385",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "406b000000000000"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-06",
+      "source_sha256": "c5d89f62551c613a28fde00464b430235d61b11ea6a1dc999ef421ada5ec656d",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "400147ae147ae148"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-08",
+      "source_sha256": "09461e8c8faa03d570a8243c3acbca762b2a8c62b6f7822a1de67aa5aab23b3f",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f961e4f765fd8ae"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-10",
+      "source_sha256": "c0a992e77002a1711e1ffe4ed96609dfe3e6836c6ef8a56e0a8444411e8d5a9d",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f2c4fc1df3300de"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-12",
+      "source_sha256": "524f1f8a0ec69a026794befe18008b942f6410b2843cb80ea745022bd1df707e",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3ec21e908ed8f651"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-04",
+      "source_sha256": "a36bd21e9bcb0a9fc3b0b082fbbf110653733cc3f0696ca0f771363b5a402eef",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "406b000000000000"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-06",
+      "source_sha256": "456edadb3b4ba26556663de813f49a65868645c3a1b9c8c5fa5a4a43c9812997",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "400147ae147ae148"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-08",
+      "source_sha256": "5143b6e75d91f0d940d48fdfde94a8bf9f168af3098b6f56aa2abe7ccac087be",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f961e4f765fd8ae"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-10",
+      "source_sha256": "402f5bcd074b2d8ce8b8a0ec479a94f224da68aa3245fa28692693e30851af1d",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f2c4fc1df3300de"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-12",
+      "source_sha256": "c68448511e021a36856dad31269eedc669a848318d572639e5c65a5ab1ebc08b",
+      "body": 0,
+      "reference_row": [
+        "th.N0.RX",
+        "1.000000000000000000000000000000000000000e-4",
+        "rotation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "r",
+        3,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3ec21e908ed8f651"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-04",
+      "source_sha256": "74a5e5520f5a55f4154fdc0ecad985ac5351cdda20eec33abb54385d76ea8c47",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "40ed268000000000"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": [
+        "N.M1",
+        "5.970000000000000000000000000000000000000e+0",
+        "force",
+        null
+      ],
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-06",
+      "source_sha256": "37478680dd8cc0fc06accf03f27c9e8bf3fc6eb5e5fa8b9071cf83470145fdb9",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "4082a80000000000"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": [
+        "N.M1",
+        "5.970000000000000000000000000000000000000e-2",
+        "force",
+        null
+      ],
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-08",
+      "source_sha256": "4e351f2e44e3afa2657d356ce052319a336bacf15e171e1e830db15e67d9290d",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "4017e147ae147ae1"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-10",
+      "source_sha256": "600d4bbb4099607d7f40b0dafd3fb1f72c74cfb36bec9613a3714e59654a16f6",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3fae90ff97247454"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-12",
+      "source_sha256": "e6a503c6cee82acef946dac5e586536439022f6eb2d5f6a04125306fb12627bd",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f438fffbce4217d"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-04",
+      "source_sha256": "aa6b2cd90e981573faf984283ea7c0e3be70b4b274577dd433682fa3b05b0623",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "40ed268000000000"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-06",
+      "source_sha256": "6b9226826fb691df1e72a6d39fb634a23068b9f1440517ed1e0aa40d31e1b059",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "4082a80000000000"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-08",
+      "source_sha256": "7c78acd8bcaa904f307b3b4bec23c76a00c99dad89b44adac46473c7dc99d4b0",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "4017e147ae147ae1"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-10",
+      "source_sha256": "0ba80dd7f66aabe214db7d3b0610801af51c072ecbc2f200b1a52d8e2228f4e6",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3fae90ff97247454"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-12",
+      "source_sha256": "15ae981a4973f7edbd31c9dfc59a1e822e42a60ff58e79234e65e1b3a9c03a43",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f438fffbce4217d"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-04",
+      "source_sha256": "1cdace706244965e553869afe92f580e3bdc2d51ba70cb8a1f61295d6cec4122",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "40ed268000000000"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-06",
+      "source_sha256": "e7d66e1f08cf860f9d33e228b906173ae00c94077b53aaaaa7d9d1ecdd7e1ead",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "4082a80000000000"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": false,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-08",
+      "source_sha256": "fb66632dbd31116d546475ed425ebc15609f212af856b8cb1bb5dc270b1aa76f",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "4017e147ae147ae1"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-10",
+      "source_sha256": "5d0da594796273232f1abceebb9f0638580a11acbd2d88d7dacd1bfd822141fe",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3fae90ff97247454"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-12",
+      "source_sha256": "8aa490c3e20aa4e8b391230711129acb5a52fac4c7e6d90d0104b64bda616768",
+      "body": 0,
+      "reference_row": [
+        "u.N0.UX",
+        "1.000000000000000000000000000000000000000e-4",
+        "translation",
+        null
+      ],
+      "root_spring": [
+        "S.N0.0",
+        1,
+        0,
+        "t",
+        0,
+        [
+          "3ff0000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "3f438fffbce4217d"
+      ],
+      "root_component_free": true,
+      "root_incident_member": [
+        "M1",
+        1,
+        0,
+        1
+      ],
+      "force_reference": null,
+      "NONE_sequence": [
+        [
+          128,
+          "Candidate",
+          "Accepted"
+        ],
+        [
+          256,
+          "Verification",
+          "Verified"
+        ]
+      ],
+      "F01_sequence": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ],
+      "historical_control_discriminating": true,
+      "complete_NONE_restoration": true
+    }
+  ],
+  "late_control_clarification": {
+    "ref": "67c25766c13f37bfb1e69ad2adcc2d4f059eebfc:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_VK_F01_CONTROL_ADDENDUM.md",
+    "sha256": "e0b073e47360ca24ff273ea6a844df8d515220464dd838c9dd3c21ee10dd37ad",
+    "actual_committed_clarification_received_read_utc": "2026-10-01 18:37:50 UTC",
+    "native_clarification": "Received after D03 completion; original grant covered D03 after normally completed attributable D02. No earlier command authority is relabeled.",
+    "original_D03_launch_utc": "2026-10-01T18:35:48.208Z"
+  },
+  "authority_assessment": "D03 was already planned in original grant after a normal complete attributable D02; actual D02 has only eligible new persistent R7 reasons. Later clarification is preserved and not used retroactively.",
+  "missing_private_values": "No exact failing R7 numeric operands/private radii were printed; do not invent them.",
+  "finished_utc": "2026-10-01T18:52:37.920654+00:00"
+}

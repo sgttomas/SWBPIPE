@@ -1,0 +1,194 @@
+{
+  "process_id": "P47",
+  "phase": "RETURNED_NONE_EXAMPLE",
+  "registered_id": "NONE",
+  "argv": [
+    "<wt>/a1-vk-target/release/examples/vk_records",
+    "RF-MECH",
+    "--show=RF-MECH-LINE122-TORQUE",
+    "--show=RF-MECH-LINE122-PERP",
+    "--show=RF-MECH-LINE122-UNLOADED",
+    "--show=RF-MECH-LINE345-RZ",
+    "--show=RF-MECH-K0",
+    "--show=RF-MECH-DISC-CHAIN100",
+    "--show=RF-MECH-DISC-CHAIN100-SPRING",
+    "--show=RF-MECH-LINE-IN-CHAIN1000"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "NONE"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P47.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P47.stderr",
+  "qualifying_condition": "Exact frozen shown-case projections match after VK-F07; no credit inferred from earlier NONE.",
+  "actual_scope": {
+    "family": "RF-MECH",
+    "case_ids_computed": [
+      "RF-MECH-LINE122-TORQUE",
+      "RF-MECH-LINE122-PERP",
+      "RF-MECH-LINE122-UNLOADED",
+      "RF-MECH-LINE345-RZ",
+      "RF-MECH-K0",
+      "RF-MECH-DISC-CHAIN100",
+      "RF-MECH-DISC-CHAIN100-SPRING",
+      "RF-MECH-LINE-IN-CHAIN1000",
+      "RF-MECH-LINE345-RX-COMPANION"
+    ],
+    "run_case_invocations_planned": 9,
+    "max_members": 1005,
+    "parity_calls_planned": 9,
+    "sparse_parity_invocations_planned": 9,
+    "dense_parity_invocations_planned": 8,
+    "sparse_only_cases": [
+      "RF-MECH-LINE-IN-CHAIN1000"
+    ],
+    "dense_member_ceiling": 105,
+    "shown_case_ids_only": [
+      "RF-MECH-LINE122-TORQUE",
+      "RF-MECH-LINE122-PERP",
+      "RF-MECH-LINE122-UNLOADED",
+      "RF-MECH-LINE345-RZ",
+      "RF-MECH-K0",
+      "RF-MECH-DISC-CHAIN100",
+      "RF-MECH-DISC-CHAIN100-SPRING",
+      "RF-MECH-LINE-IN-CHAIN1000"
+    ],
+    "show_filters_computation": false,
+    "no_dense_at_10000_or_more": true,
+    "full_work_required_even_for_unshown_cases": true
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "record_projections": [
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-LINE122-TORQUE",
+        "outcome": "Refused MechanismWitnessed { body: 0 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    },
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-LINE122-PERP",
+        "outcome": "Refused MechanismWitnessed { body: 0 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    },
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-LINE122-UNLOADED",
+        "outcome": "Refused MechanismWitnessed { body: 0 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    },
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-LINE345-RZ",
+        "outcome": "Refused MechanismWitnessed { body: 0 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    },
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-K0",
+        "outcome": "Refused MechanismWitnessed { body: 0 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    },
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-DISC-CHAIN100",
+        "outcome": "Refused MechanismWitnessed { body: 1 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    },
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-DISC-CHAIN100-SPRING",
+        "outcome": "Refused MechanismWitnessed { body: 1 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    },
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "refreshed_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-LINE-IN-CHAIN1000",
+        "outcome": "Refused MechanismWitnessed { body: 1 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    }
+  ],
+  "returns_or_baseline_for": "VK-F07",
+  "example_no_write": true,
+  "exit_status_not_verdict": true,
+  "mode": "normal release example",
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-vk-target/release/examples/vk_records' 'RF-MECH' '--show=RF-MECH-LINE122-TORQUE' '--show=RF-MECH-LINE122-PERP' '--show=RF-MECH-LINE122-UNLOADED' '--show=RF-MECH-LINE345-RZ' '--show=RF-MECH-K0' '--show=RF-MECH-DISC-CHAIN100' '--show=RF-MECH-DISC-CHAIN100-SPRING' '--show=RF-MECH-LINE-IN-CHAIN1000' > '<wt>/scratch/i23/vk_prep/logs/P47.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P47.stderr'",
+  "binary": {
+    "key": "vk_records",
+    "path": "<wt>/a1-vk-target/release/examples/vk_records",
+    "sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+    "fingerprint_sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+  },
+  "guard_before": " 5387     1 03-22:06:59 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "launch_utc": "2026-10-01T23:43:18.716Z",
+  "tool_initial": {
+    "chunk_id": "80125e",
+    "wall_time_seconds": 0.183688833,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "PASS",
+  "semantic_review": "All8completeMECHshownrecords/frozenbodyrefusalprojections,full9casefamilypinsandall9frozenparityrecordsrestoreandmatchP45;sparse-only1005case preserved.",
+  "raw_hashes": {
+    "stdout_path": "645e350313ea3eb16a9926292235a313f9fa7b9645e146e156423015efc757bd",
+    "stderr_path": "0a604daba2a715b51afe9f58e12adf9d452684b295be280fdc87b11a8a6f8b09"
+  }
+}

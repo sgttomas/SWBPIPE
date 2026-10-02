@@ -1,0 +1,4 @@
+PASS G21 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "64e83486001f853f1f0a0b2d7d4d947476f39e18c4f14994e675506ba2371417"}
+filter structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path
+aliases [('A2_ORIGINAL', 'M4d'), ('RV23', 'I19-M4d-partial-stage-unrecorded-verify-state')]

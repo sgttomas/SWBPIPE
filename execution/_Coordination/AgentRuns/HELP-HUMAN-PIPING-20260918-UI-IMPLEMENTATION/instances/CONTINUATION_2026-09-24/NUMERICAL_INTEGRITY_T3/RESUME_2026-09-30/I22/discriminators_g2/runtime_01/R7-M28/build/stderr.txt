@@ -1,0 +1,30 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/i23/discriminators_g2/sources/R7-M28/projects/chirality-piping/core/solver/frame_kernel)
+warning: unused import: `shift_start`
+  --> src/structural/retained/verify.rs:36:83
+   |
+36 | ..._blocks, gamma_m, shift_run, shift_start,
+   |                                 ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.71s
+  Executable unittests src/lib.rs (<wt>/a1-diagnostic-target/g2/R7-M28/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+        7.73 real        13.24 user         0.38 sys
+          1262895104  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              161923  page reclaims
+                 133  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   2  signals received
+                  23  voluntary context switches
+                1553  involuntary context switches
+           206998901  instructions retired
+            75385510  cycles elapsed
+             6275552  peak memory footprint

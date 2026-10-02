@@ -1,0 +1,16 @@
+{
+  "commit": "443f700ac7fbc94380b79f144f00834ee9b5d972",
+  "archive_sha256": "89088de5bd83133452726603570bfd10469ae40c5bf451e9f7bbef76f2f060c6",
+  "packets": [
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/protected_g3/runtime_04",
+      "payloads": 307,
+      "seal": "a0667d35ac459bca6c60d4b9d5c5dd89ec3e847c53bb5fbb39c9b48ac33e8080"
+    },
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/manager/protected_g3/runtime_04",
+      "payloads": 5,
+      "seal": "c38f3035c3fa2ce3061e92650fbefa80aa4e143f4346861177ddd6941301ebfe"
+    }
+  ]
+}

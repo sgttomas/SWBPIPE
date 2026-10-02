@@ -1,0 +1,35 @@
+{
+  "verified_utc": "2026-10-01T22:10:15.752332+00:00",
+  "child_seal": "d2715e1c2231de4a9aaa2b4b9718ddc15149daadb9fe34b13ffc61dab7fd0823",
+  "child_payloads_verified": 17,
+  "all_exact_plan_commands_environments_exits_raw_copies_match": true,
+  "executions": [
+    {
+      "process": "P34",
+      "launch": "2026-10-01T22:03:34.419Z",
+      "exit": 0
+    },
+    {
+      "process": "D01_NONE_BEFORE",
+      "launch": "2026-10-01T22:04:16.254Z",
+      "exit": 0
+    },
+    {
+      "process": "D02_S1",
+      "launch": "2026-10-01T22:05:17.816Z",
+      "exit": 101
+    },
+    {
+      "process": "D03_NONE_RETURN",
+      "launch": "2026-10-01T22:06:27.225Z",
+      "exit": 0
+    }
+  ],
+  "source_files_reverified": 189,
+  "original_artifacts_fingerprints_dependencies_unchanged": true,
+  "guard": "  PID  PPID     ELAPSED COMMAND\n 5387     1 03-20:33:56 /bin/bash <wt>/guard/memguard.sh\n",
+  "owned_jobs": [],
+  "P35_P53_all38streams_absent": true,
+  "both_children_idle": true,
+  "slot_released": true
+}

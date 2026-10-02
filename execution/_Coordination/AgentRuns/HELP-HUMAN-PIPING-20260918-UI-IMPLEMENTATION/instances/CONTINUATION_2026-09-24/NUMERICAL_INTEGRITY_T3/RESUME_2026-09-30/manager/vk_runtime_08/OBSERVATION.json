@@ -1,0 +1,28 @@
+{
+  "checked_utc": "2026-10-01T22:25:58.730098+00:00",
+  "P35": "REQUIRED_SURVIVOR_UNQUALIFIED",
+  "filter": "rf_chain",
+  "selected": 30,
+  "passes": 2700,
+  "structural_zero": 60,
+  "named_numerical_failures": 0,
+  "raw_stdout": "\nrunning 1 test\nRF-CHAIN: rows 2760: passes 2700, absolute-range passes 0, not covered 0 | structural zeros 60, expected unresolved 0, failures 0\nRF-CHAIN: outcomes {\"selected\": 30}\nRF-CHAIN: controls discriminated 82, non-discriminating 38\ntest rf_chain ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 3.58s\n\n",
+  "streams": [
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/P35.stdout",
+      "sha256": "d95b50cd4d8238164909039865925411735a2c75376f81fc33b350f08e157893",
+      "bytes": 358
+    },
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/P35.stderr",
+      "sha256": "d543f520e961cc04b86ff608ae6cab5fc94c00217c6abe3d23333073b0650799",
+      "bytes": 777
+    }
+  ],
+  "P36_P53_all36streams_absent": true,
+  "limits": "No automatic control, diagnostic, repeat or later execution. No cause or production defect inferred from the survivor alone.",
+  "reported_comparison_control_tallies": [
+    82,
+    38
+  ]
+}

@@ -1,0 +1,443 @@
+{
+  "prepared_copies": 38,
+  "verified_files": 4852,
+  "unique_inodes": 4852,
+  "groups": [
+    {
+      "id": "R15",
+      "source": "<wt>/scratch/i22/protected_g3/R15",
+      "target": "<wt>/a1-protected-target/g3/R15",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R15",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R16",
+      "source": "<wt>/scratch/i22/protected_g3/R16",
+      "target": "<wt>/a1-protected-target/g3/R16",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R16",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R17",
+      "source": "<wt>/scratch/i22/protected_g3/R17",
+      "target": "<wt>/a1-protected-target/g3/R17",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R17",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R18",
+      "source": "<wt>/scratch/i22/protected_g3/R18",
+      "target": "<wt>/a1-protected-target/g3/R18",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R18",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R19",
+      "source": "<wt>/scratch/i22/protected_g3/R19",
+      "target": "<wt>/a1-protected-target/g3/R19",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R19",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R20",
+      "source": "<wt>/scratch/i22/protected_g3/R20",
+      "target": "<wt>/a1-protected-target/g3/R20",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R20",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R21",
+      "source": "<wt>/scratch/i22/protected_g3/R21",
+      "target": "<wt>/a1-protected-target/g3/R21",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R21",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R22",
+      "source": "<wt>/scratch/i22/protected_g3/R22",
+      "target": "<wt>/a1-protected-target/g3/R22",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R22",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R23",
+      "source": "<wt>/scratch/i22/protected_g3/R23",
+      "target": "<wt>/a1-protected-target/g3/R23",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R23",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R24",
+      "source": "<wt>/scratch/i22/protected_g3/R24",
+      "target": "<wt>/a1-protected-target/g3/R24",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R24",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R25",
+      "source": "<wt>/scratch/i22/protected_g3/R25",
+      "target": "<wt>/a1-protected-target/g3/R25",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R25",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R26",
+      "source": "<wt>/scratch/i22/protected_g3/R26",
+      "target": "<wt>/a1-protected-target/g3/R26",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R26",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R27",
+      "source": "<wt>/scratch/i22/protected_g3/R27",
+      "target": "<wt>/a1-protected-target/g3/R27",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R27",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R28",
+      "source": "<wt>/scratch/i22/protected_g3/R28",
+      "target": "<wt>/a1-protected-target/g3/R28",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R28",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R29",
+      "source": "<wt>/scratch/i22/protected_g3/R29",
+      "target": "<wt>/a1-protected-target/g3/R29",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R29",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R30",
+      "source": "<wt>/scratch/i22/protected_g3/R30",
+      "target": "<wt>/a1-protected-target/g3/R30",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R30",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R31",
+      "source": "<wt>/scratch/i22/protected_g3/R31",
+      "target": "<wt>/a1-protected-target/g3/R31",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R31",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R32",
+      "source": "<wt>/scratch/i22/protected_g3/R32",
+      "target": "<wt>/a1-protected-target/g3/R32",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R32",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R33",
+      "source": "<wt>/scratch/i22/protected_g3/R33",
+      "target": "<wt>/a1-protected-target/g3/R33",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R33",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R34",
+      "source": "<wt>/scratch/i22/protected_g3/R34",
+      "target": "<wt>/a1-protected-target/g3/R34",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R34",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R35",
+      "source": "<wt>/scratch/i22/protected_g3/R35",
+      "target": "<wt>/a1-protected-target/g3/R35",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R35",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R36",
+      "source": "<wt>/scratch/i22/protected_g3/R36",
+      "target": "<wt>/a1-protected-target/g3/R36",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R36",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R37",
+      "source": "<wt>/scratch/i22/protected_g3/R37",
+      "target": "<wt>/a1-protected-target/g3/R37",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R37",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R38",
+      "source": "<wt>/scratch/i22/protected_g3/R38",
+      "target": "<wt>/a1-protected-target/g3/R38",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R38",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R39",
+      "source": "<wt>/scratch/i22/protected_g3/R39",
+      "target": "<wt>/a1-protected-target/g3/R39",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R39",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R40",
+      "source": "<wt>/scratch/i22/protected_g3/R40",
+      "target": "<wt>/a1-protected-target/g3/R40",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R40",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R41",
+      "source": "<wt>/scratch/i22/protected_g3/R41",
+      "target": "<wt>/a1-protected-target/g3/R41",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R41",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R42",
+      "source": "<wt>/scratch/i22/protected_g3/R42",
+      "target": "<wt>/a1-protected-target/g3/R42",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R42",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R43",
+      "source": "<wt>/scratch/i22/protected_g3/R43",
+      "target": "<wt>/a1-protected-target/g3/R43",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R43",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R44",
+      "source": "<wt>/scratch/i22/protected_g3/R44",
+      "target": "<wt>/a1-protected-target/g3/R44",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R44",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R45",
+      "source": "<wt>/scratch/i22/protected_g3/R45",
+      "target": "<wt>/a1-protected-target/g3/R45",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R45",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R46",
+      "source": "<wt>/scratch/i22/protected_g3/R46",
+      "target": "<wt>/a1-protected-target/g3/R46",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R46",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R47",
+      "source": "<wt>/scratch/i22/protected_g3/R47",
+      "target": "<wt>/a1-protected-target/g3/R47",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R47",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R48",
+      "source": "<wt>/scratch/i22/protected_g3/R48",
+      "target": "<wt>/a1-protected-target/g3/R48",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R48",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R49",
+      "source": "<wt>/scratch/i22/protected_g3/R49",
+      "target": "<wt>/a1-protected-target/g3/R49",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R49",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R50",
+      "source": "<wt>/scratch/i22/protected_g3/R50",
+      "target": "<wt>/a1-protected-target/g3/R50",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R50",
+      "files": 560,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R51",
+      "source": "<wt>/scratch/i22/protected_g3/R51",
+      "target": "<wt>/a1-protected-target/g3/R51",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R51",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    },
+    {
+      "id": "R52",
+      "source": "<wt>/scratch/i22/protected_g3/R52",
+      "target": "<wt>/a1-protected-target/g3/R52",
+      "logs": "<wt>/scratch/i22/protected_g3/logs/R52",
+      "files": 116,
+      "complete_set_hashes_match": true,
+      "unique_nlink1_no_symlinks": true,
+      "targets_empty": true,
+      "logs_empty_writable": true
+    }
+  ],
+  "baseline_original_files": 116,
+  "baseline_binaries": [
+    {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a",
+      "fingerprint_path": "<wt>/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+    },
+    {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/s11_site_table-c8ba14d9f767e011",
+      "sha256": "ffed9c0f948b771acfd3de71242f38a41dda478839afe7d54de2020f21f9165a",
+      "fingerprint_path": "<wt>/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-c8ba14d9f767e011/test-integration-test-s11_site_table.json",
+      "fingerprint_sha256": "44a3ed71f8bd5520b9ae8e8f1b5d39354371baa4c286422e618b56e9dea1dfb0"
+    }
+  ],
+  "guard": "5387     1 03-14:48:36 /bin/bash <wt>/guard/memguard.sh",
+  "runtime_03_seal_unchanged": "84c361b1bd2590cf4d0c560961955975210681261e5525fe9ca17cc8ef27d44a",
+  "runtime_authority": false
+}

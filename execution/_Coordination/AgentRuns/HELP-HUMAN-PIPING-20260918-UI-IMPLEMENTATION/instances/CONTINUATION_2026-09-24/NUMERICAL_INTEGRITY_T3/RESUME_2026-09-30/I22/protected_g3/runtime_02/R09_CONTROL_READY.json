@@ -1,0 +1,23 @@
+{
+  "resumed_utc": "2026-10-01T15:56:05Z",
+  "original_end_utc": "2026-10-01T16:23:26Z",
+  "prior_seal_verified": "cee82ef1f15fddb6cbb98ec872d35b863a52345724fac832ab753f8792adc3e3",
+  "cwd": "<wt>/scratch/i22/mutations_e1/base/projects/chirality-piping/core/solver/frame_kernel",
+  "complete_original_files_verified": 116,
+  "binary": {
+    "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+  },
+  "fingerprint": {
+    "path": "<wt>/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+    "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+    "features": "[]",
+    "rustflags": []
+  },
+  "logs": "<wt>/scratch/i22/protected_g3/logs/R09",
+  "no_previous_control_log": true,
+  "filter": "structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle",
+  "guard": "5387     1 03-14:20:32 /bin/bash <wt>/guard/memguard.sh",
+  "state": "AWAITING_MANAGER_R09_CONTROL_RELEASE",
+  "R09_mutant": "preserved uncredited; no rerun"
+}

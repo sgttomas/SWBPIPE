@@ -1,0 +1,137 @@
+[
+  {
+    "id": "P51",
+    "basis": "originalVR_TREE100/CHAIN100",
+    "fault": "NONE",
+    "launch_utc": "2026-10-01T23:59:47.323Z",
+    "exit": 0,
+    "verdict": "PASS",
+    "semantic_review": "BothcompleteCHAIN100/TREE100records/frozenprojections,full12casepins+12parityrecords match,nonnull256reports eachdata1/shift1.",
+    "resource_line": "1.40 real         1.38 user         0.01 sys",
+    "raw_hashes": {
+      "stdout_path": "13e65ccbf5f45629649be2b23dca9c1429da704dd399a5445256292e0e43b0d9",
+      "stderr_path": "8bfb0dab3ef4587137ca061f51e7beba6f41c892b4141fd09da4533accdbe464"
+    },
+    "evidence_sha256": "300ceecd8f00eb4b4cfe51c23a5bb4124ad8affa0cd84c3f2d1e9237ca1beb9e"
+  },
+  {
+    "id": "P52",
+    "basis": "originalVR_TREE100/CHAIN100",
+    "fault": "VK-R28",
+    "launch_utc": "2026-10-02T00:01:03.405Z",
+    "exit": 0,
+    "verdict": "QUALIFYING_NAMED_WITNESS_WITH_PASSING_RETURN",
+    "semantic_review": "Bothnonnull256reports data_blocks1/shift_factorizations0 versusbaseline1. CHAIN128Uc/256Charge/512Accepted1024Verified;TREE128Charge/256Accepted512Verified. Actualspecificshift/sequencewitness.",
+    "resource_line": "2.83 real         2.81 user         0.01 sys",
+    "raw_hashes": {
+      "stdout_path": "f1d14a03805ffb7083d5857f202d81673c164748819636c694825e399eb2fab4",
+      "stderr_path": "7a06e5d7830e6c19fc199ed20daee8ff85d9f0aa138505fd57322629f5aaaf7d"
+    },
+    "evidence_sha256": "934998e12fbad8a7109093bef8016d03ae22515c011939669bb364b476246a10"
+  },
+  {
+    "id": "P53",
+    "basis": "originalVR_TREE100/CHAIN100",
+    "fault": "NONE",
+    "launch_utc": "2026-10-02T00:02:28.451Z",
+    "exit": 0,
+    "verdict": "PASS",
+    "semantic_review": "Bothfullrecords/frozenprojections/full12casepins+12parityrestoreP51exactly,nonnull256data1shift1.",
+    "resource_line": "1.40 real         1.38 user         0.01 sys",
+    "raw_hashes": {
+      "stdout_path": "13e65ccbf5f45629649be2b23dca9c1429da704dd399a5445256292e0e43b0d9",
+      "stderr_path": "c443fc6634a9a8fe24d4bcd0f08f7bd29c00afca005aa760285f1719bfa49735"
+    },
+    "evidence_sha256": "68be8fa4e65a297016245df632a82af0c6deaa9a2b36e000f6d49614f62a989a"
+  },
+  {
+    "id": "P48",
+    "basis": "originalVR_TREE100/CHAIN100",
+    "fault": "NONE",
+    "launch_utc": "2026-10-02T00:03:23.595Z",
+    "exit": 0,
+    "verdict": "PASS",
+    "semantic_review": "TREE100fullrecord/frozenprojection/full12casepins+12paritymatchindependentNONE.",
+    "resource_line": "1.44 real         1.38 user         0.01 sys",
+    "raw_hashes": {
+      "stdout_path": "b6f4b8d9bdcfcaa86fda20e2928a37a326a09ddffab977788552e019e5c7e635",
+      "stderr_path": "e59edc84ebe5dc26938b5e5161b8bfcbc1f49c6f9f04aadded826472305ac3be"
+    },
+    "evidence_sha256": "3bd2b38a3a609e74f8fd7a0f72df823476cd2ee9abf567883d9eca2f6cc75844"
+  },
+  {
+    "id": "P49",
+    "basis": "originalVR_TREE100/CHAIN100",
+    "fault": "VK-R02",
+    "launch_utc": "2026-10-02T00:04:20.130Z",
+    "exit": 0,
+    "verdict": "QUALIFYING_NAMED_WITNESS_WITH_PASSING_RETURN",
+    "semantic_review": "OriginalTREE100128/256/512VerificationEstimate member1I/Rybody0Moment rejections replacebaseline128Accepted256Verified;1024Solved/Ceiling. NamedR7/acceptancechange,notunprintedratio/work/certificate. Other3familyCeilings retaineduncredited;scalar remainsdistinct.",
+    "resource_line": "2.82 real         2.79 user         0.02 sys",
+    "raw_hashes": {
+      "stdout_path": "8eb20441ab88ecede77adfe315589aa5160252bab94c6755ad195b8dadb90385",
+      "stderr_path": "b308df29ad4d546062d63085a51cb2af8325d012b68f7526d58e3cb997264d25"
+    },
+    "evidence_sha256": "bdcb3bc624650c6e3f79126f47904e19290630decf3059f814d3f93a14d6e75a"
+  },
+  {
+    "id": "P50",
+    "basis": "originalVR_TREE100/CHAIN100",
+    "fault": "NONE",
+    "launch_utc": "2026-10-02T00:05:39.783Z",
+    "exit": 0,
+    "verdict": "PASS",
+    "semantic_review": "TREE100fullrecord/frozenprojection/full12casepins+12parityrestoreP48exactly.",
+    "resource_line": "1.43 real         1.40 user         0.01 sys",
+    "raw_hashes": {
+      "stdout_path": "b6f4b8d9bdcfcaa86fda20e2928a37a326a09ddffab977788552e019e5c7e635",
+      "stderr_path": "fdee6df03f092eddde31f670a4bdaf15ced95d65dbad40bf60e80ecdf705e379"
+    },
+    "evidence_sha256": "6c35219fbe6e76b62ca58f3f4e576aef29b993aa1e9df8a89ce12a40a0adfe8b"
+  },
+  {
+    "id": "S01",
+    "basis": "separateFKscalar_literal",
+    "fault": "NONE",
+    "launch_utc": "2026-10-02T00:06:28.595Z",
+    "exit": 0,
+    "verdict": "PASS",
+    "semantic_review": "ComplementaryscalarNONE exactly1testPASS alloriginalassertions;distinctfromVRTREE100.",
+    "resource_line": "0.00 real         0.00 user         0.00 sys",
+    "raw_hashes": {
+      "stdout_path": "f8eae8877ff4f64d634916eca6340bc959dd84dfec3ee2741af5c30ac2c04c4d",
+      "stderr_path": "a1e8586e5ab9def651f70c393eaa2a1fc2981bc83a1fa4c4049a6f6f8bf9bcb0"
+    },
+    "evidence_sha256": "3b69c86b5b2c4169b6ecf0e9187fd6b3bba8819efcf8a852ad6f56b715ebb50f"
+  },
+  {
+    "id": "S02",
+    "basis": "separateFKscalar_literal",
+    "fault": "VK-R02",
+    "launch_utc": "2026-10-02T00:06:56.791Z",
+    "exit": 101,
+    "verdict": "QUALIFYING_NAMED_WITNESS_WITH_PASSING_RETURN",
+    "semantic_review": "DistinctFKscalar exactverify_tests.rs45 assertion left[1,8]vsright[4,8] for extent2 reached;1failedtest. Line46/laterunexecutedanduncredited. Complementaryseed-site evidence only,neverP49substitute.",
+    "resource_line": "0.00 real         0.00 user         0.00 sys",
+    "raw_hashes": {
+      "stdout_path": "c16ba96c820d6964399f86c5a96c97244b89609244e3471f3d7d6a5472824949",
+      "stderr_path": "483533f15f47dac96658dd614c7b964edd8542a1c77282f944b0090c177f508a"
+    },
+    "evidence_sha256": "f92200d282d9acf103a189acface1ae794a996ad4ac1526f67bf3289c1ae1209"
+  },
+  {
+    "id": "S03",
+    "basis": "separateFKscalar_literal",
+    "fault": "NONE",
+    "launch_utc": "2026-10-02T00:07:36.124Z",
+    "exit": 0,
+    "verdict": "PASS",
+    "semantic_review": "SeparateFKscalarreturnedNONE exact1PASS/alloriginalassertions restored;noVRsubstitution.",
+    "resource_line": "0.00 real         0.00 user         0.00 sys",
+    "raw_hashes": {
+      "stdout_path": "f8eae8877ff4f64d634916eca6340bc959dd84dfec3ee2741af5c30ac2c04c4d",
+      "stderr_path": "60b99704f05c0d3efb6d57995b603ff59066e8352a0b86c9b1ea4888462a4b45"
+    },
+    "evidence_sha256": "78c51dca1236dbda612387f82840863e74b322677534f2d161c4359f4f908f2b"
+  }
+]

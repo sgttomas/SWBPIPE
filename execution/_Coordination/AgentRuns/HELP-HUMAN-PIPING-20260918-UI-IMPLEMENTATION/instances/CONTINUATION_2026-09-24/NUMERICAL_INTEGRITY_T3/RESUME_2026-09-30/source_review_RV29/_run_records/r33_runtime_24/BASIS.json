@@ -1,0 +1,21 @@
+{
+  "role": "TASK RV29",
+  "parent": "ROOT /root",
+  "start_utc": "2026-10-01T17:38:28Z",
+  "end_utc": "2026-10-01T17:41:26.545365+00:00",
+  "limit_minutes": 15,
+  "child_commit": "f6cdf0dd30341c72a637f4e0f404f51e4f946f94",
+  "manager_final_seal": "f8d50bb9902adf6f5ef0582c7d006b25832c9c825416e4d66aab81f42e71b33a",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "skill": {
+    "origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "retained_selection_origin_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/preparation_01/BASIS.json"
+  },
+  "runtime_by_reviewer": "NONE",
+  "scope": "R33 named N05/p128 diagnostic only; waited for final manager seal",
+  "script": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv29-a1/r33_runtime_24/check.py",
+    "sha256": "2d3e653c82f68353bb92e205e52497b7eb9b3226d6867e9562149e5b5464a234"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "actor": "ROOT",
+  "status": "prospective spelling frozen; no build/run authorization",
+  "source_at_choice": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "archive": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final",
+  "target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-final-target",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final",
+  "VR_CARGO_MANIFEST_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "VR_binary": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-final-target/release/examples/vk_scale",
+  "H_binary": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-final-target/release/k6_observe",
+  "VR_normal_args": [
+    "--case",
+    "<EXACT_ID>",
+    "--heap-cap-bytes",
+    "8053063680"
+  ],
+  "VR_external_only_extra": [
+    "--model-file",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i17/b_models/<EXACT_ID>.json"
+  ],
+  "VR_roster": "existing24RF-LARGE, twelve external model files; never --model-file for embedded",
+  "H_choice": "Existing k0_assembly_16 PLANNED_LAUNCHES exact relative counts/rows paths and max of two pass/prefix variants per legacy model estimate",
+  "other_branches": "Existing512MiB counts-only cap and noop/counts flags remain distinct; no rewrite of old schedules",
+  "basis_limit": "Final candidate SHA, compiler/target/profile/features/allocator, package/library bytes, source type and request-site correspondence plus stable input hashes are still mandatory before relying on numeric facts or execution. Path spelling is a routine ROOT implementation choice, not an empirical overhead allowance.",
+  "byte_lengths": {
+    "archive": 101,
+    "target": 100,
+    "cwd": 101,
+    "VR_CARGO_MANIFEST_DIR": 170,
+    "VR_binary": 126,
+    "H_binary": 119
+  }
+}

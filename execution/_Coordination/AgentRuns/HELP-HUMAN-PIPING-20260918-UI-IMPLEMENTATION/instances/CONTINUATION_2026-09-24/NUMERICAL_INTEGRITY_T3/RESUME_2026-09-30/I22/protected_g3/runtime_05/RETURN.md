@@ -1,0 +1,13 @@
+# G3 runtime_05 stopped return
+
+STOPPED at R46/RV19-D2, a required survivor. Its exact frozen source compiled; the exact original small-row-bound filter selected one test and PASS/exit 0. The required fault was not detected. No kill is credited, and no R46 control, alternate discriminator, retry, repair or later launch occurred. STOP_BINDINGS.json binds the unchanged criterion, source postimages and physical binary.
+
+R33's original untouched control PASS once; its N05 witness remains separately open. R34–R45 completed 12 mapped semantic failures with 12 matching controls PASS. Totals 13 builds, 13 lists, 13 mutant tests (12 qualifying failures + 1 survivor), 13 controls (R33 + 12 returned controls): 52 build/list/test commands, 26 tests. R47–R52 remain prepared/applied/UNRUN: 7 fault-filter calls and 8 controls remain including R46's unrun control. Every later conditional-release advance gate is held pending ROOT disposition.
+
+Resume 2026-10-01T17:12:12Z; unchanged hard end 2026-10-01T17:43:57.000Z; stopped state recorded 2026-10-01T17:24:11.453Z. R46's supported PTY completed exit 0. Current job is null and fresh ps inspection found no cargo/rustc/FK/S11 process. No command reached five minutes. Slot released; strictly runtime-idle. No extension, automatic deadline or per-process hard RSS cap is claimed.
+
+R46 exact adaptive.rs postimage 3151195bd41cd8b6b22a960521954fc2295ec006f2e200ce21312485582fc095; binary ff8dbe80165c3097db94efc4d17dfe58cb04e1ace6ac891b4020146cbab8f337. All 1508 executed-copy source-file hashes, 116 original E1 files, 13 mutant binaries and original lib baseline/raw fingerprints match. Runtime_04's 307-entry seal a0667d35ac459bca6c60d4b9d5c5dd89ec3e847c53bb5fbb39c9b48ac33e8080 verified unchanged.
+
+Every new build used the same individually issued conditional record and unchanged b6313acb… helper/fb78e41a… checker with immediate hard prelaunch assertions. No source was repatched. Installed 1.97.1/auto-install0/offline/locked/-j4/incremental0/testthreads2/empty features and Rust flags/FK_SEEDED_FAULT=NONE, original cd5967f3 control binary/E1 cwd, guard 5387 and PTY/time-l were retained. Exact fingerprint bytes are preserved without JS numeric reserialization.
+
+COMMANDS.json, VERDICTS.json and per-run files retain exact portable commands, session/exit/resource details, source/binary identities, full stdout, portable stderr and raw-log bindings. All original raw files, prepared sources, targets and earlier seals remain preserved. No source/test/corpus/expected-value, maintained path, helper/tool/guard/environment/permission, Git/index, diagnostic or scope change; no child or cleanup. S11/R50 and corrected R52 remain unrun. G3 and V-K closure remain held. SHA256SUMS excludes itself.

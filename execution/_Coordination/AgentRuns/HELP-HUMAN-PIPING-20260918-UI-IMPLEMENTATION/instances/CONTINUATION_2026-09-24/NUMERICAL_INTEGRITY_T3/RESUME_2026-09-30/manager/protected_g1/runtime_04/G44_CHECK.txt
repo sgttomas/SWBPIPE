@@ -1,0 +1,4 @@
+PASS G44 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "ff9bcf4cf32c025b5dcca9379ac83a60f61c9d7064a0886226d97831df9ebab8"}
+filter structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence
+aliases [('RV23', 'RV23-M6-refusal-evidence-not-recorded')]

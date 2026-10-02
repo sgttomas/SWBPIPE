@@ -1,0 +1,82 @@
+{
+  "process_id": "P31",
+  "phase": "FAULT_TEST",
+  "registered_id": "VK-F17",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "--exact",
+    "rf_cancel",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "VK-F17"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P31.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P31.stderr",
+  "qualifying_condition": "Explicit CLASS failure on original not-covered rows only. The 51 rows are46+2+3 in these families; rf_zero has0 and is not the selected class witness. If publication is withheld before CLASS, no class kill.",
+  "actual_scope": {
+    "route": "whole existing lane family, one run_case per case; final record comparison retained",
+    "family": "RF-CANCEL",
+    "cases": 38,
+    "max_members": 2,
+    "parity_calls": 0
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "test_source": {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+    "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+  },
+  "registered_kind": "class",
+  "registered_target": "the 51 not-covered rows' class",
+  "qualification": "The3 RF-WEAK prescribed not-covered rows remain the accepted separately pinned InputDerived exception; do not relabel them as class failures. The original51-row correspondence and exception remain intact.",
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=VK-F17 '<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5' '--exact' 'rf_cancel' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P31.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P31.stderr'",
+  "binary": {
+    "key": "lane",
+    "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+    "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+  },
+  "guard_before": "{\"readiness_sha256\": \"c99f874d822173a05f190c1806feaa6ea80dcb441b28db295f30b3c78502af9f\", \"guard\": \"5387     1 03-19:35:34 /bin/bash <wt>/guard/memguard.sh\"}\n",
+  "launch_utc": "2026-10-01T21:11:53.451Z",
+  "tool_initial": {
+    "chunk_id": "47db89",
+    "wall_time_seconds": 1.000286333,
+    "session_id": 68926,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "1d833d",
+    "wall_time_seconds": 1.2042e-05,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "UNQUALIFIED_MISSING_CLASS",
+  "semantic_review": "P31 F17 exactly1rf_cancel failure atlane.rs75;38not-selectedCeilings+3FLOORlines,zeroCLASS. RequiredCLASS absent; prospective alternative not observed/credited. Normalboundcompletion permits onlyP32return thenstop per098fbd4.",
+  "completed_utc": "2026-10-01T21:12:53.131Z",
+  "raw_hashes": {
+    "stdout": "893a13ba22d2ee6bb817fb26107b1b292e2a2519e5b8b38c80abcd1e6af6f054",
+    "stderr": "c120fe4606318fec7cc3ce601d822cb4cfc8f3111e20728acba1d613368b74a7"
+  },
+  "hard_end": "2026-10-01T21:35:14Z"
+}

@@ -1,0 +1,4 @@
+PASS9child payloads, 9 prior seals/ 122 payloads, 12 frozen source blobs;2originalHTML/decoded pages; exactitoa archive+2installedmembers;3immediate serde pages. No extraction/source/library execution.
+PASS literal/Option length and hash/error-owner arithmetic consistency. Full LEAVES/RETURN read. This is source-binding/record consistency, not independent completion of remaining private/pool or fatal-path proof; review required.
+RETURN 43719c1efe43849408b1be2a1da0c2061d8221716685f748e5eed788be55e30e
+LEAVES 19e303e31961007359e10ce5c9861d02e7680e96a8868ced1dc1e3d65bc7c88b

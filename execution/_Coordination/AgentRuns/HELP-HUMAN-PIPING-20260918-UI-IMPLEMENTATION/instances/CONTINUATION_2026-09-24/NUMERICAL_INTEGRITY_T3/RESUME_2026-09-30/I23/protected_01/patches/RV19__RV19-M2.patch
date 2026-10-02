@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
+@@ -1043,7 +1043,7 @@
+                 n.sr2 = wmax(&n.sr2, &sr2_row[a]);
+                 n.sid = wmax(&n.sid, &delta[a].abs().mul_pow2(-scale[a])?);
+             }
+-            n.sas = wmax(&n.sas_one, &n.sas_inf);
++            n.sas = n.sas_inf;
+             norms.push(n);
+         }
+         // θ_c (item 9) on the blocks with data.

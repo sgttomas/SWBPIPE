@@ -1,0 +1,43 @@
+{
+  "stdout": "\nrunning 1 test\ntest structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence ... FAILED\n\nfailures:\n\n---- structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence stdout ----\n\nthread 'structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence' (24785099) panicked at src/structural/retained/../../../tests/retained_k4/publication_tests.rs:671:9:\nassertion `left == right` failed\n  left: 6\n right: 4\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s\n\n",
+  "stderr": "warning: unused variable: `before`\n    --> src/structural/retained/adaptive.rs:2812:9\n     |\n2812 |         before: SumWork,\n     |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_before`\n     |\n     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default\n\nwarning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s\n     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)\nerror: test failed, to rerun pass `--lib`\n        0.02 real         0.01 user         0.00 sys\n            22364160  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                3113  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   1  signals received\n                   1  voluntary context switches\n                 105  involuntary context switches\n           152598178  instructions retired\n            53955674  cycles elapsed\n             6160840  peak memory footprint\n",
+  "stdout_sha256": "bf13acea6fd17ba35757b00840614bab03143b421778c757c200d8680997f903",
+  "stderr_raw_sha256": "9e9516503d9ad5f03f4dceb28bf6fb37c0b82d194bca421d48b5c6cc69289aeb",
+  "source_sha256": "0e76fe7ac19799b44506f377612db7c2af932119186309767cfdd94f296b72e8",
+  "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+  "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "binary": {
+    "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "df4b9bc29e5a181579565ca6c5ea2dc10d522323823a974e2dc95cc9ec5829cb"
+  },
+  "features": [
+    {
+      "path": "<RUN_TARGET>/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "metadata": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 8945848500906766827,
+        "path": 10763286916239946207,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/dep-test-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "guard_after": {
+    "exit": 0,
+    "stdout": " 5387     1 03-08:10:13 /bin/bash <HOME>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+  }
+}

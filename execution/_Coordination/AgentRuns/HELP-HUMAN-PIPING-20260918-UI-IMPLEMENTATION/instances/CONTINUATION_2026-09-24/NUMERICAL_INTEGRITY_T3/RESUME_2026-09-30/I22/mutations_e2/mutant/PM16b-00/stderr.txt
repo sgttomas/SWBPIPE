@@ -1,0 +1,31 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+warning: unused variable: `before`
+    --> src/structural/retained/adaptive.rs:2812:9
+     |
+2812 |         before: SumWork,
+     |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_before`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.90s
+     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+error: test failed, to rerun pass `--lib`
+        8.79 real        13.63 user         0.36 sys
+          1253982208  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              161375  page reclaims
+                 118  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   2  signals received
+                 126  voluntary context switches
+                1379  involuntary context switches
+           206540524  instructions retired
+            73095436  cycles elapsed
+             6226376  peak memory footprint

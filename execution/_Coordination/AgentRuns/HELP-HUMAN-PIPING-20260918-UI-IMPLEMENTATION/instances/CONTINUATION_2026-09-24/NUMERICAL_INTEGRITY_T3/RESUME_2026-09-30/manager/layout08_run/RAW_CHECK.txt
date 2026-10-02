@@ -1,0 +1,71 @@
+{
+  "raw_sha256": "98191c9031e5468a24587ea77b24c63bca09fc16da25c1ca23ec2bf08981fe66",
+  "rows": [
+    {
+      "label": "geometry_u32_usize",
+      "bytes": [
+        612,
+        756,
+        756,
+        1140,
+        612
+      ],
+      "calls": [
+        3,
+        4,
+        4,
+        6,
+        6
+      ],
+      "leaf": 144,
+      "internal": 240
+    },
+    {
+      "label": "tracker_rule_body_kind",
+      "bytes": [
+        612,
+        1684,
+        1684,
+        3924,
+        612
+      ],
+      "calls": [
+        6,
+        7,
+        7,
+        9,
+        9
+      ],
+      "leaf": 1072,
+      "internal": 1168
+    },
+    {
+      "label": "holding_rule_body_kind",
+      "bytes": [
+        612,
+        716,
+        716,
+        1020,
+        612
+      ],
+      "calls": [
+        9,
+        10,
+        10,
+        12,
+        12
+      ],
+      "leaf": 104,
+      "internal": 200
+    }
+  ],
+  "layouts": [
+    "LAYOUT NotAssessed_u32_SpringKind size=8 align=4",
+    "LAYOUT Dof size=8 align=4",
+    "LAYOUT Resolution_u32_u64_u64 size=24 align=8",
+    "LAYOUT Theta_u32_f64 size=16 align=8",
+    "LAYOUT Certified_u32_u64 size=16 align=8"
+  ],
+  "full_output_pass_marker": true
+}
+Raw counters recomputed; actual exit/build/source/config/isolation review still required before binding. No private node alignment inferred.

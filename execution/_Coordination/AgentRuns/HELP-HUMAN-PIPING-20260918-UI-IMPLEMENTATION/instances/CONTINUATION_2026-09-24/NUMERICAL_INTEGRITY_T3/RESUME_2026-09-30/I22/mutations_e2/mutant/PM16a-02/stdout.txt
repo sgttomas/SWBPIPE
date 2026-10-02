@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence stdout ----
+
+thread 'structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence' (24781387) panicked at src/structural/retained/../../../tests/retained_k4/publication_tests.rs:670:9:
+assertion `left == right` failed
+  left: Err(Exponent)
+ right: Err(Budget(Case))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
+

@@ -1,0 +1,4 @@
+PASS G12 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs": "ef51530ceb48d8bb7b884b77ed5b05316c23dfb94019a6bf228830119a6d420c"}
+filter structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member
+aliases [('R7_K4', 'D16a')]

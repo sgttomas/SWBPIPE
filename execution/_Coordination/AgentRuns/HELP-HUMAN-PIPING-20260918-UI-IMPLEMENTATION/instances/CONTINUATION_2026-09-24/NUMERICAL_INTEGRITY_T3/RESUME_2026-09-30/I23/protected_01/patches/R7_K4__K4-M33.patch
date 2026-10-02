@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -988,7 +988,7 @@
+             let Ok(k) = self.prescribed.binary_search_by_key(&dof.global(), |t| t.0) else {
+                 continue;
+             };
+-            *value = exact_publication(&self.prescribed[k].1);
++            let _ = exact_publication(&self.prescribed[k].1);
+         }
+     }
+ 

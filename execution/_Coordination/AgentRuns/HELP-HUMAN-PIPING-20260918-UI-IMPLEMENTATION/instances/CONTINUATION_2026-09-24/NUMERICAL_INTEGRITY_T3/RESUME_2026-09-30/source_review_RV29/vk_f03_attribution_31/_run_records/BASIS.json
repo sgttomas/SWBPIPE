@@ -1,0 +1,23 @@
+{
+  "role": "TASK RV29",
+  "parent": "ROOT /root",
+  "start_utc": "2026-10-01T19:45:38Z",
+  "completed_utc": "2026-10-01T19:52:44.544171+00:00",
+  "limit_minutes": 15,
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "author_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_a1/f03_attribution_02",
+  "author_seal": "3f71c4dd6070792e64e8e810194f1f53e343c998aa66a8b03cccf2dc4bd0e9d9",
+  "author_attribution_sha256": "8734879180055b6acc1a9820b581517a7112f253c08912187413add5c8f50bf9",
+  "runtime_review_reused": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/vk_mid_30",
+    "seal": "ff7facbe04cd8ba9f118fa064a8a8bfdaa9bc0b819510f4ffbc241a9e1afbb3b"
+  },
+  "skill": {
+    "origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "retained_selection_origin_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/preparation_01/BASIS.json"
+  },
+  "scope": "Independent source/math consequence and conditional schedule opinion only",
+  "runtime_by_reviewer": "NONE",
+  "write_fence": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/vk_f03_attribution_31"
+}

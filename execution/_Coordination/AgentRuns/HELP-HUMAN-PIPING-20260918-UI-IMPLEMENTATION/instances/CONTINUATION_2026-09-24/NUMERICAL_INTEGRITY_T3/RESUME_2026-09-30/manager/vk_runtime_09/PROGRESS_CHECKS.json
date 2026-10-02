@@ -1,0 +1,249 @@
+{
+  "checked_utc": "2026-10-01T23:46:12.068235+00:00",
+  "P37_exact_unknown_panic": true,
+  "P38_actual_adapter_return_pass": true,
+  "P39_full_shown_records_equal_frozen": true,
+  "P39_full_family_pins_pass": true,
+  "P40_F05_named_sequence_loss": [
+    {
+      "id": "RF-RANGE-THIN-A",
+      "actual": [
+        {
+          "precision": 128,
+          "role": "Candidate",
+          "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })"
+        },
+        {
+          "precision": 256,
+          "role": "Verification",
+          "outcome": "Solved"
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-THIN-B",
+      "actual": [
+        {
+          "precision": 128,
+          "role": "Candidate",
+          "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })"
+        },
+        {
+          "precision": 256,
+          "role": "Verification",
+          "outcome": "Solved"
+        }
+      ]
+    }
+  ],
+  "P40_initial256Verification_preserved": true,
+  "P40_no_generic_Ceiling_credit": true,
+  "P41_return": "PASS full shown records and family pins",
+  "raw_hashes": {
+    "P37.stdout": "d52685121ddbee4336c9d929f2530dac9f4423c4251e695deb471793f04bd098",
+    "P37.stderr": "ad700ec90f8655126b325bd2cec46e1e521633bece834e30f7c356b28f58f5bc",
+    "P38.stdout": "117c3a7db58fa7773f4e458aea6a89f8259e13ac275d596b325fe7333fe06dfa",
+    "P38.stderr": "45b2de36f5200fd64b7bc4a0f7e398b3ba7058da7ab433eb06f180946ba1d6a7",
+    "P39.stdout": "b6baaed09ceb1b9333e73bc4b7dd1b4e7f1f5af004e7cd9c19ca101a773d5d83",
+    "P39.stderr": "68eed616465387b7c95743e95f120c0f9f10149c1b62ed84378995ecc4d5b86c",
+    "P40.stdout": "dbcfb9650ed49057b651a4e78e79e22a60e9f26839be915a4141906912a780a4",
+    "P40.stderr": "e03af137dffd0ea0fc771cd67008ba71ecd48b524f421af0f73e0be4438f12e8",
+    "P41.stdout": "b6baaed09ceb1b9333e73bc4b7dd1b4e7f1f5af004e7cd9c19ca101a773d5d83",
+    "P41.stderr": "ef4c427887f78f368a97d96d3f70c4158c5d8a32f7d36e38cbf517c9686bdb7f",
+    "P42.stdout": "b6baaed09ceb1b9333e73bc4b7dd1b4e7f1f5af004e7cd9c19ca101a773d5d83",
+    "P42.stderr": "974872848d19dc87b7f9a46860f2fcc2ce911e8c43df95e27558ce738bb8d685",
+    "P43.stdout": "8ea837d2c5302c086091b3db8e69771cf1799c1717681a6a1cbef4d7ab8ec765",
+    "P43.stderr": "356867549c8f150a2ec06953e63ded3e0315bcb97992645ec9cb377384dbf1a4",
+    "P44.stdout": "b6baaed09ceb1b9333e73bc4b7dd1b4e7f1f5af004e7cd9c19ca101a773d5d83",
+    "P44.stderr": "8865b69db5fe023ed868f4a285115c5a21e147406ea6c3acb82911224e754728",
+    "P45.stdout": "645e350313ea3eb16a9926292235a313f9fa7b9645e146e156423015efc757bd",
+    "P45.stderr": "81d737a30de066c22a186c126158acc7d4f2ec13ea717c0072151cb37ba8f470",
+    "P46.stdout": "8e402aa763b1871ae35a150997e17efada466e8f6d1ab2871d8c94a1d501899b",
+    "P46.stderr": "32e555f80f6ac4ca09fc7806fc308d52f407bab9c11b6d5070341e2bd084243f",
+    "P47.stdout": "645e350313ea3eb16a9926292235a313f9fa7b9645e146e156423015efc757bd",
+    "P47.stderr": "0a604daba2a715b51afe9f58e12adf9d452684b295be280fdc87b11a8a6f8b09"
+  },
+  "P41_full_restore": true,
+  "P42_full_restore": true,
+  "P43_F06_exact_p128_R7_verdict_loss": [
+    {
+      "id": "RF-RANGE-THIN-A",
+      "selected_precision": 512,
+      "verification_precision": 1024,
+      "attempts": [
+        {
+          "precision": 128,
+          "role": "Candidate",
+          "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation, predicate: PublicRelative })"
+        },
+        {
+          "precision": 256,
+          "role": "VerificationThenCandidate",
+          "outcome": "Rejected(PublicationEnclosure { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force, predicate: AbsoluteBound })"
+        },
+        {
+          "precision": 512,
+          "role": "VerificationThenCandidate",
+          "outcome": "Accepted"
+        },
+        {
+          "precision": 1024,
+          "role": "Verification",
+          "outcome": "Verified"
+        }
+      ]
+    },
+    {
+      "id": "RF-RANGE-THIN-B",
+      "selected_precision": 512,
+      "verification_precision": 1024,
+      "attempts": [
+        {
+          "precision": 128,
+          "role": "Candidate",
+          "outcome": "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation, predicate: PublicRelative })"
+        },
+        {
+          "precision": 256,
+          "role": "VerificationThenCandidate",
+          "outcome": "Rejected(PublicationEnclosure { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force, predicate: AbsoluteBound })"
+        },
+        {
+          "precision": 512,
+          "role": "VerificationThenCandidate",
+          "outcome": "Accepted"
+        },
+        {
+          "precision": 1024,
+          "role": "Verification",
+          "outcome": "Verified"
+        }
+      ]
+    }
+  ],
+  "P43_qualifier": "Only registered exact p128 StopRule-loss arm; not generic certificate/F17 credit or erroneous p128 selection.",
+  "P43_all_printed_failure_lines": [
+    "RF-RANGE: FAILURE RF-RANGE-THIN-A: on the expected-unresolved list, but Selected at 512",
+    "RF-RANGE: FAILURE RF-RANGE-THIN-B: on the expected-unresolved list, but Selected at 512"
+  ],
+  "updated_utc": "2026-10-01T23:40:14.792692+00:00",
+  "P44_full_restore": true,
+  "P45_P47_full_shown_records_and_family_restored": true,
+  "P46_F07_all8_exact_immediate_refusal_losses": [
+    {
+      "id": "RF-MECH-LINE122-TORQUE",
+      "required_baseline_body": 0,
+      "baseline": "Refused MechanismWitnessed { body: 0 } []",
+      "fault": "Unresolved Ceiling [NumericallyUnresolved]",
+      "pivot_dof": 3,
+      "attempt_precisions": [
+        128,
+        256,
+        512
+      ]
+    },
+    {
+      "id": "RF-MECH-LINE122-PERP",
+      "required_baseline_body": 0,
+      "baseline": "Refused MechanismWitnessed { body: 0 } []",
+      "fault": "Unresolved Ceiling [NumericallyUnresolved]",
+      "pivot_dof": 3,
+      "attempt_precisions": [
+        128,
+        256,
+        512
+      ]
+    },
+    {
+      "id": "RF-MECH-LINE122-UNLOADED",
+      "required_baseline_body": 0,
+      "baseline": "Refused MechanismWitnessed { body: 0 } []",
+      "fault": "Unresolved Ceiling [NumericallyUnresolved]",
+      "pivot_dof": 3,
+      "attempt_precisions": [
+        128,
+        256,
+        512
+      ]
+    },
+    {
+      "id": "RF-MECH-LINE345-RZ",
+      "required_baseline_body": 0,
+      "baseline": "Refused MechanismWitnessed { body: 0 } []",
+      "fault": "Unresolved Ceiling [NumericallyUnresolved]",
+      "pivot_dof": 3,
+      "attempt_precisions": [
+        128,
+        256,
+        512
+      ]
+    },
+    {
+      "id": "RF-MECH-K0",
+      "required_baseline_body": 0,
+      "baseline": "Refused MechanismWitnessed { body: 0 } []",
+      "fault": "Unresolved Ceiling [NumericallyUnresolved]",
+      "pivot_dof": 3,
+      "attempt_precisions": [
+        128,
+        256,
+        512
+      ]
+    },
+    {
+      "id": "RF-MECH-DISC-CHAIN100",
+      "required_baseline_body": 1,
+      "baseline": "Refused MechanismWitnessed { body: 1 } []",
+      "fault": "Unresolved Ceiling [NumericallyUnresolved, NumericallyUnresolved]",
+      "pivot_dof": 611,
+      "attempt_precisions": [
+        128,
+        256,
+        512
+      ]
+    },
+    {
+      "id": "RF-MECH-DISC-CHAIN100-SPRING",
+      "required_baseline_body": 1,
+      "baseline": "Refused MechanismWitnessed { body: 1 } []",
+      "fault": "Unresolved Ceiling [NumericallyUnresolved, NumericallyUnresolved]",
+      "pivot_dof": 611,
+      "attempt_precisions": [
+        128,
+        256,
+        512
+      ]
+    },
+    {
+      "id": "RF-MECH-LINE-IN-CHAIN1000",
+      "required_baseline_body": 1,
+      "baseline": "Refused MechanismWitnessed { body: 1 } []",
+      "fault": "Unresolved Ceiling [NumericallyUnresolved, NumericallyUnresolved]",
+      "pivot_dof": 6009,
+      "attempt_precisions": [
+        128,
+        256,
+        512
+      ]
+    }
+  ],
+  "P46_qualification": "Loss of each named immediate body/empty-attempt signature linked to reviewed pre-scan override; not generic Pivot or Ceiling credit.",
+  "MECH_parity": {
+    "P45": {
+      "all9_equal_frozen": true,
+      "dense8_sparse9": true,
+      "large_case_sparse_only": true
+    },
+    "P46": {
+      "all9_equal_frozen": true,
+      "dense8_sparse9": true,
+      "large_case_sparse_only": true
+    },
+    "P47": {
+      "all9_equal_frozen": true,
+      "dense8_sparse9": true,
+      "large_case_sparse_only": true
+    }
+  },
+  "all_authorized_streams_present": true
+}

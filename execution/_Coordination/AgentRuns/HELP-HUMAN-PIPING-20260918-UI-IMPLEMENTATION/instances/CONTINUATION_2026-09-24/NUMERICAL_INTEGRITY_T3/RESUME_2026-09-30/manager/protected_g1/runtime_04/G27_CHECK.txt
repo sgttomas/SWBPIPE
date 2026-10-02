@@ -1,0 +1,4 @@
+PASS G27 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "cf762120f705c4c4e9d669f59c4335c15908ddd39977e5d7803978a6ab64ce3b"}
+filter structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64
+aliases [('R7_K4', 'R7-M2')]

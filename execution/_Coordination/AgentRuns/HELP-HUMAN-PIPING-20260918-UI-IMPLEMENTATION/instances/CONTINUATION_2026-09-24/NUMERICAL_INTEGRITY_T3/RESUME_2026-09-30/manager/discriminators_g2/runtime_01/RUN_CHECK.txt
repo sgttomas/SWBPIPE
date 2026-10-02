@@ -1,0 +1,3 @@
+PASS:54 actualcommands=9builds/17single-testlists/6passingbaselines/11namedsemanticfaultfailures/11samefiltercontrols; sequential before15:14:27, no5min interval, explicitNONE/guards.
+PASS:all9builds followedseparate managerrelease; rawstdout/stderr/9actualbinaries/originalfingerprintbytes(emptyfeaturesflags) andall1044finalsource/test/lockfiles matchfrozenoverlay+faults.
+11stderr failures contain exactly mapped I23assertionclasses; no coverage/setup/compiler credit. Semantic reviews read separately. No runtime or source mutation bymanager.

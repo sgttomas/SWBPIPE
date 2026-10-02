@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024' (25788094) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1996:13:
+assertion `left == right` failed: I23:NO_EARLY_PHI:512
+  left: Some([[1.4088407314736535e-132, 1.4088407314736535e-132]])
+ right: None
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.00 real         0.00 user         0.00 sys
+             5816320  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 713  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  12  involuntary context switches
+            40743154  instructions retired
+            16717613  cycles elapsed
+             1769832  peak memory footprint

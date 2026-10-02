@@ -1,0 +1,26 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
+@@ -276,6 +276,23 @@
+         zc[k] = sum.round(ctx)?;
+     }
+     let (ez, _) = normalize(ctx, sum, &zc)?;
++    let (ex, ey, ez) = {
++        let d = [xj[0] - xi[0], xj[1] - xi[1], xj[2] - xi[2]];
++        let n = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt();
++        let fx = [d[0] / n, d[1] / n, d[2] / n];
++        let y = m.y_reference;
++        let pr = y[0] * fx[0] + y[1] * fx[1] + y[2] * fx[2];
++        let c = [y[0] - pr * fx[0], y[1] - pr * fx[1], y[2] - pr * fx[2]];
++        let cn = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
++        let fy = [c[0] / cn, c[1] / cn, c[2] / cn];
++        let fz = [fx[1] * fy[2] - fx[2] * fy[1], fx[2] * fy[0] - fx[0] * fy[2], fx[0] * fy[1] - fx[1] * fy[0]];
++        let _ = (ex, ey, ez);
++        (
++            [lift::<L>(fx[0])?, lift::<L>(fx[1])?, lift::<L>(fx[2])?],
++            [lift::<L>(fy[0])?, lift::<L>(fy[1])?, lift::<L>(fy[2])?],
++            [lift::<L>(fz[0])?, lift::<L>(fz[1])?, lift::<L>(fz[2])?],
++        )
++    };
+     let inv_length = ctx.div(&Wide::<L>::ONE, &length)?;
+     // 3. The section terms over L.
+     let e = lift::<L>(m.elastic_modulus)?;

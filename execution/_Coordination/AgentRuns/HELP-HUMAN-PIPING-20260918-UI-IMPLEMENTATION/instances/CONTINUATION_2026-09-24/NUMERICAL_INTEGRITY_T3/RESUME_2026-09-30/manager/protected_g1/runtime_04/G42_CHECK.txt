@@ -1,0 +1,4 @@
+PASS G42 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "e9d0e6f413ad3ad631cbd3d0abbd1da0dda479c94484f89cb55f30df510a6baa"}
+filter structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without
+aliases [('RV23', 'RV23-M4a-precedence-swapped-in-certificates')]

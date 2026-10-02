@@ -1,0 +1,60 @@
+{
+  "entries": [
+    {
+      "runtime_id": "R09",
+      "registration": "K4-M2",
+      "filter": "structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up",
+      "fixed_terms": [
+        "w:+8p0",
+        "w:+8p-128",
+        "w:+8p-428"
+      ],
+      "precision": 128,
+      "required_helper_assertion": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+        "line": 102,
+        "expected_token": "+80000000000000000000000000000001p0",
+        "corrected_predicted_actual_token": "+8p0"
+      },
+      "qualification": "Only this exact original numeric assertion with the bound row/terms/precision and original upper expectation can qualify. A predicted token is not observed evidence.",
+      "excluded": [
+        "selector/oracle-identity/setup assertion",
+        "refusal",
+        "earlier original-loop failure",
+        "unrelated panic",
+        "compile/link error",
+        "zero/multiple filter matches"
+      ]
+    },
+    {
+      "runtime_id": "R10",
+      "registration": "K4-M3",
+      "filter": "structural::retained::wide_sum::tests::i23_r10_positive_tail_targeted_line2_rounds_nearest",
+      "fixed_terms": [
+        "w:+8p0",
+        "w:+8p-128",
+        "w:+8p-133"
+      ],
+      "precision": 128,
+      "required_helper_assertion": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+        "line": 102,
+        "expected_token": "+80000000000000000000000000000001p0",
+        "corrected_predicted_actual_token": "Z+"
+      },
+      "qualification": "Only this exact original numeric assertion with the bound row/terms/precision and original upper expectation can qualify. A predicted token is not observed evidence.",
+      "excluded": [
+        "selector/oracle-identity/setup assertion",
+        "refusal",
+        "earlier original-loop failure",
+        "unrelated panic",
+        "compile/link error",
+        "zero/multiple filter matches"
+      ]
+    }
+  ],
+  "old_baseline_expected_tokens_unchanged": true,
+  "fresh_one_test_baselines_required": true,
+  "same_filter_untouched_returned_controls_required": true,
+  "runtime_release": "No run before this addendum receives same-RV29 backcheck and ROOT separately grants exact postimage/runtime."
+}

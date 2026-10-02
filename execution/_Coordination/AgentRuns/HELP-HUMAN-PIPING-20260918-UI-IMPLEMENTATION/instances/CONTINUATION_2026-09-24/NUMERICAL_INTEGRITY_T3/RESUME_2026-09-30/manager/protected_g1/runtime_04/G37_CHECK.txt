@@ -1,0 +1,4 @@
+PASS G37 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "884feb9024eaee440c4987e065ff9a7069a570a50647d9af18fb8d2be24b0b32"}
+filter structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only
+aliases [('R7_K4', 'K4-M10')]

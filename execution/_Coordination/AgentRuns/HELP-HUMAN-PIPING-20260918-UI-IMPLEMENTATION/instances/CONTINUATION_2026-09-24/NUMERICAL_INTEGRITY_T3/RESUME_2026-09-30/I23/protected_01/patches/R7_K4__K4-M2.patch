@@ -1,0 +1,13 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs
+@@ -540,7 +540,9 @@
+         let (negative, magnitude, used) = self.net();
+         let anchor = i64::try_from(self.anchor).map_err(|_| SumRefusal::Exponent)?;
+         self.work.rounded_limbs += used as u64;
+-        Ok(context.from_integer(negative, &magnitude[..used.max(1)], anchor)?)
++        let top = used.max(1);
++        let start = top.saturating_sub(L + 1);
++        Ok(context.from_integer(negative, &magnitude[start..top], anchor + 64 * start as i64)?)
+     }
+ }
+ 

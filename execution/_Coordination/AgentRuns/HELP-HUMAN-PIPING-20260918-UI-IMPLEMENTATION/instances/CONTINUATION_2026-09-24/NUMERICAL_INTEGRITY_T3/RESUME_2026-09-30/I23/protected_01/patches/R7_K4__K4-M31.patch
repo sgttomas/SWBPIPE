@@ -1,0 +1,13 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
+@@ -101,7 +101,10 @@
+             return Ok(Self::netted(&entries));
+         }
+         let mut entries: Vec<(usize, ExactAccumulator, bool)> = Vec::new();
++        let mut folded = 0.0f64;
+         for load in source.loads() {
++            folded += load.value;
++            let _ = folded;
+             let dof = load.dof.global();
+             let index = match entries.binary_search_by_key(&dof, |e| e.0) {
+                 Ok(k) => k,

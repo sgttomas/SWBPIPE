@@ -1,0 +1,15 @@
+{
+  "start": "2026-10-01 23:11:20 UTC",
+  "deadline": "2026-10-01 23:16:20 UTC",
+  "completed_utc": "2026-10-01T23:14:22.987353+00:00",
+  "verdict": "VK_S2_NONZERO_REACTION_VALUE_QUALIFIED",
+  "P35_credit": false,
+  "P36_actual_return_closed": true,
+  "expired_P36_release_operative": false,
+  "P37_plus_credit": false,
+  "R02_gap_waived": false,
+  "final_VK_A1_acceptance": false,
+  "source40_seal": "6cbbd7d36b7d345839cef5e7c2cf49716a2df263b04d403f04e66f0de4b13f12",
+  "skill_origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+  "skill_sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca"
+}

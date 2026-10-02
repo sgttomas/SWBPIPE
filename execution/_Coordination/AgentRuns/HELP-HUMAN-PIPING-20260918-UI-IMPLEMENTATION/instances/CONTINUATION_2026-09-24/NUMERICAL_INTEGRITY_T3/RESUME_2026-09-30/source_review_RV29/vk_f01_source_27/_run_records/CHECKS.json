@@ -1,0 +1,114 @@
+{
+  "proposal_seal": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/vk_f01_diagnosis_15",
+    "seal": "17713e48665aeba0adcf0f68cc157b05067b20cffd350b21f6819794745d0e47",
+    "payloads": 7
+  },
+  "stopped_packet_seals": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_01",
+      "seal": "f660d7a252dd7c41c62a2d0c5db86970627e826383db2649cb6b9fff803b346b",
+      "payloads": 52
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/manager/vk_runtime_01",
+      "seal": "4bf834e0fc7d6ccd8f5ca6d658b3bc408b36bb2329183a6b1558ffb89f0e1e11",
+      "payloads": 8
+    }
+  ],
+  "source_archive": "942572ede4c15aca87b4660c7d570343e14e679e",
+  "complete_files_verified": 189,
+  "release_artifact": {
+    "key": "vk_records",
+    "path": "<wt>/a1-vk-target/release/examples/vk_records",
+    "sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+    "fingerprint_sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+  },
+  "actual_Cargo_profile": {
+    "opt_level": "3",
+    "debuginfo": 0,
+    "debug_assertions": false,
+    "overflow_checks": false,
+    "test": false
+  },
+  "actual_Cargo_features": [
+    "seeded-faults"
+  ],
+  "fresh_process_order": [
+    "NONE",
+    "VK-F01",
+    "NONE"
+  ],
+  "exact_show_roster": [
+    "RF-CHAIN-T-n03-r1e-04",
+    "RF-CHAIN-T-n03-r1e-06",
+    "RF-CHAIN-T-n03-r1e-08",
+    "RF-CHAIN-T-n03-r1e-10",
+    "RF-CHAIN-T-n03-r1e-12",
+    "RF-CHAIN-T-n05-r1e-04",
+    "RF-CHAIN-T-n05-r1e-06",
+    "RF-CHAIN-T-n05-r1e-08",
+    "RF-CHAIN-T-n05-r1e-10",
+    "RF-CHAIN-T-n05-r1e-12",
+    "RF-CHAIN-T-n10-r1e-04",
+    "RF-CHAIN-T-n10-r1e-06",
+    "RF-CHAIN-T-n10-r1e-08",
+    "RF-CHAIN-T-n10-r1e-10",
+    "RF-CHAIN-T-n10-r1e-12",
+    "RF-CHAIN-A-n03-r1e-04",
+    "RF-CHAIN-A-n03-r1e-06",
+    "RF-CHAIN-A-n03-r1e-08",
+    "RF-CHAIN-A-n03-r1e-10",
+    "RF-CHAIN-A-n03-r1e-12",
+    "RF-CHAIN-A-n05-r1e-04",
+    "RF-CHAIN-A-n05-r1e-06",
+    "RF-CHAIN-A-n05-r1e-08",
+    "RF-CHAIN-A-n05-r1e-10",
+    "RF-CHAIN-A-n05-r1e-12",
+    "RF-CHAIN-A-n10-r1e-04",
+    "RF-CHAIN-A-n10-r1e-06",
+    "RF-CHAIN-A-n10-r1e-08",
+    "RF-CHAIN-A-n10-r1e-10",
+    "RF-CHAIN-A-n10-r1e-12"
+  ],
+  "roster_size": 30,
+  "whole_family_computation": true,
+  "max_members": 10,
+  "parity_calls": 0,
+  "no_write": true,
+  "frozen_control_totals": {
+    "expected_unresolved": 0,
+    "fail": 0,
+    "not_covered": 0,
+    "pass": 2700,
+    "pass_absolute_range": 0,
+    "rows": 2760,
+    "structural_zero": 60
+  },
+  "negative_controls": {
+    "discriminated": 82,
+    "non_discriminating": 38
+  },
+  "case_row_locators_exact": true,
+  "P09": {
+    "status": "STOP_UNQUALIFIED",
+    "profile": "debug test harness",
+    "binary_sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+    "reasons_absent": true,
+    "reported_ceiling_cases": 30,
+    "control_P10": "UNRUN"
+  },
+  "runtime_by_reviewer": "NONE",
+  "finished_checks_utc": "2026-10-01T18:24:57.434745+00:00"
+}

@@ -1,0 +1,47 @@
+{
+  "start_utc": "2026-10-01T19:13:34Z",
+  "end_utc": "2026-10-01T19:23:34.000Z",
+  "source_files_checked": 189,
+  "source_manifest_sha256": "1209dd30446f2b09344590d33ad7bc05a46aecb3e9b07c5edd674bcb3c189a60",
+  "proposal_sha256": "c81479c05af2f87ab413151c3d143a4bf67a4c10c7a8d870bdfbdbab747d585c",
+  "basis_seals": [
+    "69dd47110c7264f078f45c87d8f26769aab89f505e1d6f19f35e0aec4d4c1c46",
+    "41dc4f44718e683631dd4460d43c54a864f5922fdf8d9410ec75c9ea8b2b3a2c"
+  ],
+  "binary": {
+    "key": "vk_records",
+    "path": "<wt>/a1-vk-target/release/examples/vk_records",
+    "sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+    "fingerprint_sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+  },
+  "dependency_fingerprints": [
+    {
+      "path": "<wt>/a1-vk-target/release/.fingerprint/open_pipe_stress_frame_kernel-2986612637137eef/lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "fa1936ccb5617c096e536e2c7a74d79170a79362e50127868681f939b3d44a11",
+      "features": "[\"mutation-controls\"]"
+    },
+    {
+      "path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-746b6873c6bcede9/lib-piping_numerical_robustness.json",
+      "sha256": "b756ef2d9c5ae7c5dc3adab0b416eeb0ba5d6d3a572c5affb530cb32d9582a5e",
+      "features": "[\"seeded-faults\"]"
+    },
+    {
+      "path": "<wt>/a1-vk-target/release/.fingerprint/open_pipe_stress_sparse_direct-f9901e17afef369c/lib-open_pipe_stress_sparse_direct.json",
+      "sha256": "6d42cb94aeed88282cc014beb28d6f697b17a9842b52381bfa27573d5f4a7261",
+      "features": "[]"
+    }
+  ],
+  "logs": "<wt>/scratch/i23/vk_prep/logs/f03_diagnostic_01",
+  "guard": "5387     1 03-17:38:01 /bin/bash <wt>/guard/memguard.sh"
+}

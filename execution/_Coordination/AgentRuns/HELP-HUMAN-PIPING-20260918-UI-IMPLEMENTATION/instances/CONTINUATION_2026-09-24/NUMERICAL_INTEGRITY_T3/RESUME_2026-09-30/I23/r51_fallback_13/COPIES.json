@@ -1,0 +1,33 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "copies": [
+    {
+      "name": "BASELINE",
+      "source_root": "<wt>/scratch/i23/r51_fallback/BASELINE",
+      "target": "<wt>/a1-diagnostic-target/r51_fallback/BASELINE",
+      "logs": "<wt>/scratch/i23/r51_fallback/logs/BASELINE",
+      "manifest": "<wt>/scratch/i23/r51_fallback/BASELINE/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "files": 116,
+      "only_changed_path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "overlay_postimage": "581d275d8186c0dba031957eebcd4f11907d712fc893777b76779720f46f59df",
+      "production_fault_applied": false,
+      "target_empty": true,
+      "logs_empty": true,
+      "contingency": "Stays unrun if original R51 reaches its qualifying named witness."
+    },
+    {
+      "name": "M12",
+      "source_root": "<wt>/scratch/i23/r51_fallback/M12",
+      "target": "<wt>/a1-diagnostic-target/r51_fallback/M12",
+      "logs": "<wt>/scratch/i23/r51_fallback/logs/M12",
+      "manifest": "<wt>/scratch/i23/r51_fallback/M12/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "files": 116,
+      "only_changed_path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "overlay_postimage": "581d275d8186c0dba031957eebcd4f11907d712fc893777b76779720f46f59df",
+      "production_fault_applied": false,
+      "target_empty": true,
+      "logs_empty": true,
+      "contingency": "Stays unrun if original R51 reaches its qualifying named witness."
+    }
+  ]
+}

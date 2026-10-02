@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit ... FAILED
+
+failures:
+
+---- structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit stdout ----
+
+thread 'structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit' (25442730) panicked at src/structural/retained/../../../tests/retained_k4/assemble_tests.rs:107:17:
+assertion `left == right` failed: M-AX p 128 entry (0, 0)
+  left: "+8e500b30ba6e2p29"
+ right: "+8e500b30ba6e21872ccep29"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.04s
+

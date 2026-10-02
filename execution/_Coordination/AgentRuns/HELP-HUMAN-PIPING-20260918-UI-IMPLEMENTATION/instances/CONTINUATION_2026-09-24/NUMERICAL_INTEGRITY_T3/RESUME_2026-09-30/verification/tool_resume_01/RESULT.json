@@ -1,0 +1,61 @@
+{
+  "actor": "ROOT",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "start_utc": "2026-10-01T13:07:02Z",
+  "completed_observed_utc": "2026-10-01T13:08:22Z",
+  "operation": "Existing apply_patch, exact frozen G01 hunks; no system-patch retry/environment/tool change",
+  "baseline_exit": 0,
+  "mutant_exit": 101,
+  "control_exit": 0,
+  "semantic": "verify_tests.rs:13 phi(1) differs at frozen 2^-438 assertion after injected 2^-950",
+  "source_postimage": "053e9d2fe628707e29e38f04733736386fc1ad2490e96bc7b09ef16bc161bf3e",
+  "baseline_binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+  "mutant_binary_sha256": "82e2b9322e9945b533ebb35c76b4493e1b777d3b26c22fc47892ae06decdd80a",
+  "fingerprints": [
+    {
+      "path": "<wt>/a1-protected-target/g1/G01/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "features": "[]",
+      "rustflags": []
+    }
+  ],
+  "originals": [
+    {
+      "name": "PRECHECK.json",
+      "raw_sha256": "2cc8ce7ae2f3296ce4ff8992fabfab726d48e590c3e09c33e865cd09ae9d32c7",
+      "portable_sha256": "2cc8ce7ae2f3296ce4ff8992fabfab726d48e590c3e09c33e865cd09ae9d32c7"
+    },
+    {
+      "name": "baseline.stdout",
+      "raw_sha256": "679a7315977c5739cc04dbdfa98165ecc83ec605cf254346134d30a7273def09",
+      "portable_sha256": "679a7315977c5739cc04dbdfa98165ecc83ec605cf254346134d30a7273def09"
+    },
+    {
+      "name": "baseline.stderr",
+      "raw_sha256": "1c47518fb4b3f80cb82358fc8c2a1136c6439ca8a346e0f83d4e1c79dc080038",
+      "portable_sha256": "1c47518fb4b3f80cb82358fc8c2a1136c6439ca8a346e0f83d4e1c79dc080038"
+    },
+    {
+      "name": "G01.stdout",
+      "raw_sha256": "013fbeea28ab87d0d04eea31e8184f679402bfddfe8082ee1207b3f1a0cab5f5",
+      "portable_sha256": "013fbeea28ab87d0d04eea31e8184f679402bfddfe8082ee1207b3f1a0cab5f5"
+    },
+    {
+      "name": "G01.stderr",
+      "raw_sha256": "abbb644e8c9f695234a3fe6af562f4444def533301bdfb4df4aef03c00674b27",
+      "portable_sha256": "50a4840701ec92a93ac0404e9b48a4152d26b5437d8b3b91d40a83375fb85c01"
+    },
+    {
+      "name": "control.stdout",
+      "raw_sha256": "679a7315977c5739cc04dbdfa98165ecc83ec605cf254346134d30a7273def09",
+      "portable_sha256": "679a7315977c5739cc04dbdfa98165ecc83ec605cf254346134d30a7273def09"
+    },
+    {
+      "name": "control.stderr",
+      "raw_sha256": "5f639b4b5e7523573d483be6c87462feb1b035af1711c569e39d3fc2a1ac1a71",
+      "portable_sha256": "5f639b4b5e7523573d483be6c87462feb1b035af1711c569e39d3fc2a1ac1a71"
+    }
+  ],
+  "guard_pid": 5387,
+  "mutant_PTY": 12217
+}

@@ -1,0 +1,10 @@
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ actual-G05/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -1424,6 +1424,7 @@
+     work.record(&ctx_q);
+     work.record(&ctx16);
+     work.record(&ctx64);
++    work.record(&ctx);
+     let sum_work = sum.work();
+     let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
+     stages.close_stopped(&result, current, total);

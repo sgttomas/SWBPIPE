@@ -1,0 +1,62 @@
+{
+  "started_utc": "2026-10-01T16:08:54Z",
+  "input": {
+    "seal": "d099ae512ef5c7523ba491e0244480aa7a32a39efe2fc0ca44839c1994d43499",
+    "verified_payloads": 13
+  },
+  "prior_r09": {
+    "seal": "e06c7f1777114494b6a58edc5f34784b82c2e62b73efcaab88fd86a582d8afbe",
+    "verified_payloads": 12
+  },
+  "source_commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "prefixes": {
+    "original_sha256": "94ee29a25bee27b2a21f31212a49a1ac7c6cee72796aa95a13158ab5bc0dcbc8",
+    "original_plus_r09_sha256": "77126d20c418901ce6d36ec83a831557494f6240a1696957c84ccdb42381c47a",
+    "combined_sha256": "039a43e1fe0f9bc51fec0e99e5aaf59b468acd32fce80631c0df1c797c43ba8a",
+    "unchanged_r09": true,
+    "exact_append_only": true
+  },
+  "copies": [
+    {
+      "name": "BASELINE",
+      "files_verified": 116,
+      "only_change": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "locks_original": true,
+      "target_and_logs_empty": true,
+      "no_symlink_or_hardlink_alias": true
+    },
+    {
+      "name": "K4-M2",
+      "files_verified": 116,
+      "only_change": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "locks_original": true,
+      "target_and_logs_empty": true,
+      "no_symlink_or_hardlink_alias": true
+    },
+    {
+      "name": "K4-M3",
+      "files_verified": 116,
+      "only_change": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "locks_original": true,
+      "target_and_logs_empty": true,
+      "no_symlink_or_hardlink_alias": true
+    }
+  ],
+  "fault_and_vector_bindings": [
+    {
+      "runtime_id": "R09",
+      "patch_sha256": "a718338ef292bf41f7522133131dcc7fdb4a2d1a7b0c192404da3dd4ebf19763",
+      "exact_postimage_sha256": "e671336b0dc5dc2eb71825f667bb4fe1926cf93c2f9c4d3f3e5f1518c051752e",
+      "corpus_line": 6,
+      "corpus_line_sha256": "1d31357f7aa231c78cd27c4df17781141d835895cee05f588cb0b3b80603502a"
+    },
+    {
+      "runtime_id": "R10",
+      "patch_sha256": "0584b6798761b6bc8681aaa789962fe41fd552ba5fa68a506c9d81b4918d7d3f",
+      "exact_postimage_sha256": "e76bcc7baf9395e588b7b6f2af42b02f45438ee86c03283637126ef09581e7d2",
+      "corpus_line": 2,
+      "corpus_line_sha256": "aef4e424e4c40009f57bc010680a828b5252ba83209dd5c0710b3b963fd29590"
+    }
+  ],
+  "finished_checks_utc": "2026-10-01T16:15:13.186728+00:00"
+}

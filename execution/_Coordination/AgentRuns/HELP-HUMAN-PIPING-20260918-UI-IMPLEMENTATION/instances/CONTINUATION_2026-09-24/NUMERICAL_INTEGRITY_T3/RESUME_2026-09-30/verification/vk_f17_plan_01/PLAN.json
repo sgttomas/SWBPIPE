@@ -1,0 +1,517 @@
+{
+  "status": "PROPOSAL_ONLY_NO_RUNTIME_AUTHORIZATION_NO_CLASS_CREDIT",
+  "prepared_start_utc": "2026-10-01 20:39:33 UTC",
+  "preparation_end_limit_utc": "2026-10-01 20:44:33 UTC",
+  "proposed_runtime_max_seconds": 600,
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "archive_basis": "942572ede4c15aca87b4660c7d570343e14e679e",
+  "archive": "<wt>/scratch/i23/vk_prep/archive",
+  "source_manifest": "I23/vk_prep_05/SOURCE_MANIFEST.json",
+  "source_manifest_sha256": "1209dd30446f2b09344590d33ad7bc05a46aecb3e9b07c5edd674bcb3c189a60",
+  "binary_sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+  "original_F03_plan": {
+    "path": "verification/vk_f03_plan_01/_run_records/COMMAND_PROPOSAL.json",
+    "sha256": "c81479c05af2f87ab413151c3d143a4bf67a4c10c7a8d870bdfbdbab747d585c"
+  },
+  "independent_source_review": {
+    "path": "source_review_RV29/vk_f17_gap_35",
+    "seal_sha256": "852ef66311a13c2c919c7dbada988b001956ece78c457cd3221e78071a4f2ef6",
+    "review_sha256": "1827914fb5d5679c6be754e314e3a9d280110c780b569fb4633baa0b6225d624",
+    "prospective_sha256": "065b3975f02a74f8070e65659f9dd2e857556a162c7a657b23dc8c1925452209"
+  },
+  "case_source": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+  "case_source_sha256": "bcc795a4d4b4b88a89b421a09f6ec78a97b69a8d4b136be49b57a5e13d084ce0",
+  "cases": [
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+      "k4src_sha256": "0c73a94b78857e23a90870ac3bd8cac46a7e3a6f02bf3efcb821ec3f4aa101ba",
+      "not_covered": [],
+      "source_line_sha256": "834f95cf61ad5aba5e09fd9e45d515f0299bbc3da3d485cd5ae395d962f6745a"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-08",
+      "k4src_sha256": "37bbb983a3320ca12ed5483c15039ad04497e73f0bbd49653956c451e3b78a7d",
+      "not_covered": [],
+      "source_line_sha256": "b6e415da78d2003845993bc892b9809d3d08136eedcd35bc7a2f2fe6803d56b8"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-12",
+      "k4src_sha256": "31ca2b1aaba7944ca24d738d2e23cf8011d09bb1031a7ab4ed680260a5b92448",
+      "not_covered": [],
+      "source_line_sha256": "21132570f94df9ce1fe1aab77c24cdb3dc0b5ec7691115cdacf01cdea04c22b3"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-04",
+      "k4src_sha256": "71f3aa312539ce3e3b87ddb7db298e0a9079628c2a25f75c7c721b3bd415fa41",
+      "not_covered": [],
+      "source_line_sha256": "f304c57ee152efed0098c55c59faa8d0e2cf9e5db6a759c945c0e74887ca4114"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-08",
+      "k4src_sha256": "79b7995553c054b695e7c8a5a10c2d526d6ff82fa0043a019e9d746eaadfbab9",
+      "not_covered": [],
+      "source_line_sha256": "2a662ba23b631fac811b4871fcb741699ce7caff7fb2dcb1b8885e79a9288675"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-12",
+      "k4src_sha256": "85d99feff2a0c6aa87e47bac061b83f1d99ea140a2a87c63a99a41a275a05a4f",
+      "not_covered": [],
+      "source_line_sha256": "3af8d273beaf21bc322ca56457b306e81f9a40fd72454df6ec760971c0c7a8a2"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-04",
+      "k4src_sha256": "e1c09f93549f65897f47968f160d33be50284030bad712fa9fc7876ef90c21ad",
+      "not_covered": [],
+      "source_line_sha256": "dd3ef4361954c65a27cf7e618dbe1e4cb04ee58779ea8ee35c7f57e2b608a202"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-08",
+      "k4src_sha256": "8a995f9cc6c2e7e02611d3fb357eeba7e095f6ec34200dd8f14278bd663ebcb4",
+      "not_covered": [],
+      "source_line_sha256": "b8849ad3f7c4972737059fb34f665229c0c2ef5de972c6375c734ee2cf36e16f"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-12",
+      "k4src_sha256": "db303b972343444ea94937ff82fe8d574924b8963ba29772a377aeda7b3b45c0",
+      "not_covered": [],
+      "source_line_sha256": "d045fba45cf85b1f57503e2790f3c81450ebfd6cd86a1e9b310f70cbe2b3c5ed"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-04",
+      "k4src_sha256": "8674c535edeb5dd3f1feb3a3ac9e9b1d1ab3d372a29f412daf5a057e35c29bbd",
+      "not_covered": [],
+      "source_line_sha256": "e82face1045e078e89487d603d698f34a5d30e02fa525b70d6c1521161540ad2"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-08",
+      "k4src_sha256": "e7f77221a911807e56dd1c5fb5f850335135e146cf0e768e0c20075b809035b0",
+      "not_covered": [],
+      "source_line_sha256": "c9ccd4d1e45cbeb2bc09c79611faaf167c75743dca55266adfc0b16d86c72f99"
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-12",
+      "k4src_sha256": "94745a991c6aea08d4825816bdb4183478281b96ed0737a72788b4791b4c3474",
+      "not_covered": [],
+      "source_line_sha256": "cdd3d349a0cbeee59cc32004ba626bd9d74ff4191bb520c4f31a41103b58dd48"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-04",
+      "k4src_sha256": "d3f86863226af6edb22e57676ccd77383014fe007da76f97e1cbefdd03737133",
+      "not_covered": [],
+      "source_line_sha256": "a01fc0810f8f0331b64177d5bd435ae99414503972cf7aaa3d44dce405b37f99"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-08",
+      "k4src_sha256": "5559ecb2ca28e769716c910cba56338e261c3242cfcc78835d19911ed5744f37",
+      "not_covered": [],
+      "source_line_sha256": "b6624d60e01729075da4bffb61e59e11348ec36b7212a324b2af60e56bb61f82"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+      "k4src_sha256": "ebda5315c8f0d899435275b96a9a1bc60b7e4da810ccc355d1e72ad82794cb86",
+      "not_covered": [
+        "tw.M1"
+      ],
+      "source_line_sha256": "94889861f741634232f1df31680ad440205a7b78cdb3fdd1a9a0e49a03912a89"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-04",
+      "k4src_sha256": "83cc99e1dff014d40c319d30f815bcc6feb9b030e18f8e43e4a53b1f6e2e9499",
+      "not_covered": [],
+      "source_line_sha256": "40466960bb6b5d4b6099b8118ca96226fe94c78569f8a0460577a9a38c172e90"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-08",
+      "k4src_sha256": "b7944a1d950dccbe7c85c88dd303e95cfd046b8aa73d2062b92e7694c3a11f51",
+      "not_covered": [],
+      "source_line_sha256": "8e5e61c0aa804fbedd5aad7429b158ba53e16cc6b819ad43d411c0cd8e88ff6f"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+      "k4src_sha256": "d88160052d29cb77e468efc217a7235bf15227e7b836f5cfca51384503fd7543",
+      "not_covered": [
+        "tw.M1"
+      ],
+      "source_line_sha256": "20d561c5a1b7bb68d82b51b5f25f432b42b41a9a098fec7f95d45b3e684f3037"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-04",
+      "k4src_sha256": "05341f93cbc9241b018746e1b215c836d0d7f6d4a5042c7d27a6b14c8d9f2e54",
+      "not_covered": [],
+      "source_line_sha256": "1b03f32e3706607f9c772c7f26978f7b28b1c84b20e04acee4b93e78d9cff014"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-08",
+      "k4src_sha256": "945678dbf351e1ddc5ff96828ee307e5748ece3821d02e570d35586f11c5a22e",
+      "not_covered": [],
+      "source_line_sha256": "a9bc25c41c2b19659c3247a22f3b6266282564a6c9f4b5ee0b7be6c85fc83044"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-12",
+      "k4src_sha256": "9d0cf2eacacc4b8d56f8a85a43db4ec519d52d910a3b7b15c6f64c6597269010",
+      "not_covered": [],
+      "source_line_sha256": "cf952a0ade975c40fe57b3e697c87d01232c1a9e3781ef3916322487d447fe46"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-04",
+      "k4src_sha256": "22b9cd389fcf355037e1dbd6c1d05d7b27454a3d319a2f7d68138ce47640905d",
+      "not_covered": [],
+      "source_line_sha256": "aaca35fbc3a132849cf990575490b561922f2b5c5fbf595ce93e991ce8e5094c"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-08",
+      "k4src_sha256": "dba188943790611f04a7dcf31e02966c6174c27fc382ff673d8a2378c7d6a5cc",
+      "not_covered": [],
+      "source_line_sha256": "3eb08d4fbf9b2d90f70b0a0a5ce2c23f9c7016d0ef2a1a44075758a24ce4d6c3"
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-12",
+      "k4src_sha256": "9985ee16c30768b5b69816a4efdc6c15100d0038e4f0a9ed9f4add4ebc43d938",
+      "not_covered": [],
+      "source_line_sha256": "9c88d652c5624a71824e63acf8ba2bd19350b4ed46de39fa83067f109f8ab334"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-04",
+      "k4src_sha256": "0bbf793729842479459a45f67264a731bd36d41e2ae791c3f02d63e3b8b2c7ef",
+      "not_covered": [],
+      "source_line_sha256": "244ef845ce4d85a020caaee18a547775368bf57952f1743e5e12676ce65196a3"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-08",
+      "k4src_sha256": "155669ec0e5328a2ac09bba0e6c723287a41cf1c8ed5f43fe83e2b5e19bf7399",
+      "not_covered": [],
+      "source_line_sha256": "54a2aedf5f9535f35616375afaff96d4ae43629dab05b1c6bdbe563fa9ee43bd"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-12",
+      "k4src_sha256": "141a2ec56cacb3b9b0b04b9f735168610c4400297d5502dbf1d973c0b5537544",
+      "not_covered": [],
+      "source_line_sha256": "3ae2d1b3d8f6445718d0f288c216f824ce4b56830fe408577b5407c554a7ceaf"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-04",
+      "k4src_sha256": "8e7f16b6434fafac6ba77efc672feecef198abdcab21509ad4a272688ac10fa9",
+      "not_covered": [],
+      "source_line_sha256": "d2d512c1a57e68c6ee1133a61a12ee6988202d20ece005e54531610475eeb8b6"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-08",
+      "k4src_sha256": "94c37042da994853ad7ca85577c705fb34be7e002abed98aa6825b67115c15a4",
+      "not_covered": [],
+      "source_line_sha256": "0127043e0cac6f77d47e7cffd06ec279876f04bd99d00d7ab8cd51eaaf4b8499"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-12",
+      "k4src_sha256": "3e7ac36cd75165bc0261a3903edd138c1fe20991be90a17f690feb35d6018f92",
+      "not_covered": [],
+      "source_line_sha256": "8741dc638bf5c02ccfd103a8650ed67aba86df7b1ce70ea29e2ff66517aa60d6"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-04",
+      "k4src_sha256": "75eba8bb1ae60dbafbe99040165c3f8376839b5b6ebb106e3d4b2755fea9fe53",
+      "not_covered": [],
+      "source_line_sha256": "6f8b734a808479e08d4fcb9fa0e4a4e13386c2bb6a7b38c191981c1d2e5f0622"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-08",
+      "k4src_sha256": "82faf51eb1e499c2d8646bcfa1ed2ce9d80d67d0174e92087d3673082883c2e1",
+      "not_covered": [],
+      "source_line_sha256": "68aa50a6359356eb502d80cf5d5b1aabf9e8522fd17604d4ee4ea45098185f31"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-12",
+      "k4src_sha256": "15165afa0d127bea4d00eeecdc52b7ef1c28049d3c266459d852465de90cd94b",
+      "not_covered": [],
+      "source_line_sha256": "9a6e8877e04a90361b8507809ee10331e7f700235504b926db0662547ad9c8db"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+      "k4src_sha256": "410f41dc2e87486136e06bacd70c76fcca5a90c7fb2f6bd69811e33a6a99f11f",
+      "not_covered": [],
+      "source_line_sha256": "ba960483c957dbcd8afcc3d969451e56a232f9dba5683011931d9973bf350086"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+      "k4src_sha256": "ec57f90411c0345a4ddbd05174e0efb1fcf642fd1822e8841b03a2e8ca437bf9",
+      "not_covered": [],
+      "source_line_sha256": "de23e384572eaa168b1bb96433c44475ed8bf308749ac35bbeda1b89282482c9"
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+      "k4src_sha256": "fb24537663ce2d2bc371fdf8d7a02b1c05dd3dcf50d0656fd945acb756a1733a",
+      "not_covered": [],
+      "source_line_sha256": "7806ca611bc32e1d248e64b8880be3a30ff6966b359d5fd97e610826a22bb7a6"
+    }
+  ],
+  "control_pins": {
+    "RF-SKEW": {
+      "records": 36,
+      "report": {
+        "expected_unresolved": 0,
+        "fail": 0,
+        "not_covered": 2,
+        "pass": 982,
+        "pass_absolute_range": 0,
+        "rows": 1080,
+        "structural_zero": 96
+      },
+      "controls_discriminated": 105,
+      "controls_non_discriminating": 33,
+      "full_records_source": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_skew.json",
+      "full_records_sha256": "dfcc0eb54a0347268b018d02f3aa1596bb8de05fd46881cea6286a22e142c0fe"
+    }
+  },
+  "processes_in_proposed_order": [
+    {
+      "proposal_id": "D01_NONE_BEFORE",
+      "argv": [
+        "<wt>/a1-vk-target/release/examples/vk_records",
+        "RF-SKEW",
+        "--show=RF-SKEW-T-PIN-AX-345-r1e-04",
+        "--show=RF-SKEW-T-PIN-AX-345-r1e-08",
+        "--show=RF-SKEW-T-PIN-AX-345-r1e-12",
+        "--show=RF-SKEW-T-PIN-AX-122-r1e-04",
+        "--show=RF-SKEW-T-PIN-AX-122-r1e-08",
+        "--show=RF-SKEW-T-PIN-AX-122-r1e-12",
+        "--show=RF-SKEW-T-PIN-OFF-345-r1e-04",
+        "--show=RF-SKEW-T-PIN-OFF-345-r1e-08",
+        "--show=RF-SKEW-T-PIN-OFF-345-r1e-12",
+        "--show=RF-SKEW-T-PIN-OFF-122-r1e-04",
+        "--show=RF-SKEW-T-PIN-OFF-122-r1e-08",
+        "--show=RF-SKEW-T-PIN-OFF-122-r1e-12",
+        "--show=RF-SKEW-T-CANT-AX-345-r1e-04",
+        "--show=RF-SKEW-T-CANT-AX-345-r1e-08",
+        "--show=RF-SKEW-T-CANT-AX-345-r1e-12",
+        "--show=RF-SKEW-T-CANT-AX-122-r1e-04",
+        "--show=RF-SKEW-T-CANT-AX-122-r1e-08",
+        "--show=RF-SKEW-T-CANT-AX-122-r1e-12",
+        "--show=RF-SKEW-T-CANT-OFF-345-r1e-04",
+        "--show=RF-SKEW-T-CANT-OFF-345-r1e-08",
+        "--show=RF-SKEW-T-CANT-OFF-345-r1e-12",
+        "--show=RF-SKEW-T-CANT-OFF-122-r1e-04",
+        "--show=RF-SKEW-T-CANT-OFF-122-r1e-08",
+        "--show=RF-SKEW-T-CANT-OFF-122-r1e-12",
+        "--show=RF-SKEW-A-CANT-AX-345-r1e-04",
+        "--show=RF-SKEW-A-CANT-AX-345-r1e-08",
+        "--show=RF-SKEW-A-CANT-AX-345-r1e-12",
+        "--show=RF-SKEW-A-CANT-AX-122-r1e-04",
+        "--show=RF-SKEW-A-CANT-AX-122-r1e-08",
+        "--show=RF-SKEW-A-CANT-AX-122-r1e-12",
+        "--show=RF-SKEW-A-CANT-OFF-345-r1e-04",
+        "--show=RF-SKEW-A-CANT-OFF-345-r1e-08",
+        "--show=RF-SKEW-A-CANT-OFF-345-r1e-12",
+        "--show=RF-SKEW-A-CANT-OFF-122-r1e-04",
+        "--show=RF-SKEW-A-CANT-OFF-122-r1e-08",
+        "--show=RF-SKEW-A-CANT-OFF-122-r1e-12"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "CARGO_NET_OFFLINE": "true",
+        "GIT_OPTIONAL_LOCKS": "0",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "unset_environment": [
+        "RUSTFLAGS",
+        "CARGO_ENCODED_RUSTFLAGS",
+        "RUSTC_WRAPPER",
+        "RUSTC_WORKSPACE_WRAPPER"
+      ],
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "fresh_process_required": true,
+      "stdout": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D01_NONE_BEFORE.stdout",
+      "stderr": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D01_NONE_BEFORE.stderr",
+      "executed": false
+    },
+    {
+      "proposal_id": "D02_F17",
+      "argv": [
+        "<wt>/a1-vk-target/release/examples/vk_records",
+        "RF-SKEW",
+        "--show=RF-SKEW-T-PIN-AX-345-r1e-04",
+        "--show=RF-SKEW-T-PIN-AX-345-r1e-08",
+        "--show=RF-SKEW-T-PIN-AX-345-r1e-12",
+        "--show=RF-SKEW-T-PIN-AX-122-r1e-04",
+        "--show=RF-SKEW-T-PIN-AX-122-r1e-08",
+        "--show=RF-SKEW-T-PIN-AX-122-r1e-12",
+        "--show=RF-SKEW-T-PIN-OFF-345-r1e-04",
+        "--show=RF-SKEW-T-PIN-OFF-345-r1e-08",
+        "--show=RF-SKEW-T-PIN-OFF-345-r1e-12",
+        "--show=RF-SKEW-T-PIN-OFF-122-r1e-04",
+        "--show=RF-SKEW-T-PIN-OFF-122-r1e-08",
+        "--show=RF-SKEW-T-PIN-OFF-122-r1e-12",
+        "--show=RF-SKEW-T-CANT-AX-345-r1e-04",
+        "--show=RF-SKEW-T-CANT-AX-345-r1e-08",
+        "--show=RF-SKEW-T-CANT-AX-345-r1e-12",
+        "--show=RF-SKEW-T-CANT-AX-122-r1e-04",
+        "--show=RF-SKEW-T-CANT-AX-122-r1e-08",
+        "--show=RF-SKEW-T-CANT-AX-122-r1e-12",
+        "--show=RF-SKEW-T-CANT-OFF-345-r1e-04",
+        "--show=RF-SKEW-T-CANT-OFF-345-r1e-08",
+        "--show=RF-SKEW-T-CANT-OFF-345-r1e-12",
+        "--show=RF-SKEW-T-CANT-OFF-122-r1e-04",
+        "--show=RF-SKEW-T-CANT-OFF-122-r1e-08",
+        "--show=RF-SKEW-T-CANT-OFF-122-r1e-12",
+        "--show=RF-SKEW-A-CANT-AX-345-r1e-04",
+        "--show=RF-SKEW-A-CANT-AX-345-r1e-08",
+        "--show=RF-SKEW-A-CANT-AX-345-r1e-12",
+        "--show=RF-SKEW-A-CANT-AX-122-r1e-04",
+        "--show=RF-SKEW-A-CANT-AX-122-r1e-08",
+        "--show=RF-SKEW-A-CANT-AX-122-r1e-12",
+        "--show=RF-SKEW-A-CANT-OFF-345-r1e-04",
+        "--show=RF-SKEW-A-CANT-OFF-345-r1e-08",
+        "--show=RF-SKEW-A-CANT-OFF-345-r1e-12",
+        "--show=RF-SKEW-A-CANT-OFF-122-r1e-04",
+        "--show=RF-SKEW-A-CANT-OFF-122-r1e-08",
+        "--show=RF-SKEW-A-CANT-OFF-122-r1e-12"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "CARGO_NET_OFFLINE": "true",
+        "GIT_OPTIONAL_LOCKS": "0",
+        "FK_SEEDED_FAULT": "VK-F17"
+      },
+      "unset_environment": [
+        "RUSTFLAGS",
+        "CARGO_ENCODED_RUSTFLAGS",
+        "RUSTC_WRAPPER",
+        "RUSTC_WORKSPACE_WRAPPER"
+      ],
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "fresh_process_required": true,
+      "stdout": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D02_F17.stdout",
+      "stderr": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D02_F17.stderr",
+      "executed": false
+    },
+    {
+      "proposal_id": "D03_NONE_RETURN",
+      "argv": [
+        "<wt>/a1-vk-target/release/examples/vk_records",
+        "RF-SKEW",
+        "--show=RF-SKEW-T-PIN-AX-345-r1e-04",
+        "--show=RF-SKEW-T-PIN-AX-345-r1e-08",
+        "--show=RF-SKEW-T-PIN-AX-345-r1e-12",
+        "--show=RF-SKEW-T-PIN-AX-122-r1e-04",
+        "--show=RF-SKEW-T-PIN-AX-122-r1e-08",
+        "--show=RF-SKEW-T-PIN-AX-122-r1e-12",
+        "--show=RF-SKEW-T-PIN-OFF-345-r1e-04",
+        "--show=RF-SKEW-T-PIN-OFF-345-r1e-08",
+        "--show=RF-SKEW-T-PIN-OFF-345-r1e-12",
+        "--show=RF-SKEW-T-PIN-OFF-122-r1e-04",
+        "--show=RF-SKEW-T-PIN-OFF-122-r1e-08",
+        "--show=RF-SKEW-T-PIN-OFF-122-r1e-12",
+        "--show=RF-SKEW-T-CANT-AX-345-r1e-04",
+        "--show=RF-SKEW-T-CANT-AX-345-r1e-08",
+        "--show=RF-SKEW-T-CANT-AX-345-r1e-12",
+        "--show=RF-SKEW-T-CANT-AX-122-r1e-04",
+        "--show=RF-SKEW-T-CANT-AX-122-r1e-08",
+        "--show=RF-SKEW-T-CANT-AX-122-r1e-12",
+        "--show=RF-SKEW-T-CANT-OFF-345-r1e-04",
+        "--show=RF-SKEW-T-CANT-OFF-345-r1e-08",
+        "--show=RF-SKEW-T-CANT-OFF-345-r1e-12",
+        "--show=RF-SKEW-T-CANT-OFF-122-r1e-04",
+        "--show=RF-SKEW-T-CANT-OFF-122-r1e-08",
+        "--show=RF-SKEW-T-CANT-OFF-122-r1e-12",
+        "--show=RF-SKEW-A-CANT-AX-345-r1e-04",
+        "--show=RF-SKEW-A-CANT-AX-345-r1e-08",
+        "--show=RF-SKEW-A-CANT-AX-345-r1e-12",
+        "--show=RF-SKEW-A-CANT-AX-122-r1e-04",
+        "--show=RF-SKEW-A-CANT-AX-122-r1e-08",
+        "--show=RF-SKEW-A-CANT-AX-122-r1e-12",
+        "--show=RF-SKEW-A-CANT-OFF-345-r1e-04",
+        "--show=RF-SKEW-A-CANT-OFF-345-r1e-08",
+        "--show=RF-SKEW-A-CANT-OFF-345-r1e-12",
+        "--show=RF-SKEW-A-CANT-OFF-122-r1e-04",
+        "--show=RF-SKEW-A-CANT-OFF-122-r1e-08",
+        "--show=RF-SKEW-A-CANT-OFF-122-r1e-12"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_TEST_THREADS": "2",
+        "CARGO_NET_OFFLINE": "true",
+        "GIT_OPTIONAL_LOCKS": "0",
+        "FK_SEEDED_FAULT": "NONE"
+      },
+      "unset_environment": [
+        "RUSTFLAGS",
+        "CARGO_ENCODED_RUSTFLAGS",
+        "RUSTC_WRAPPER",
+        "RUSTC_WORKSPACE_WRAPPER"
+      ],
+      "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+      "fresh_process_required": true,
+      "stdout": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D03_NONE_RETURN.stdout",
+      "stderr": "<wt>/scratch/i23/vk_prep/logs/f17_diagnostic_01/D03_NONE_RETURN.stderr",
+      "executed": false
+    }
+  ],
+  "fingerprint": {
+    "path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+    "sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+  },
+  "guard": {
+    "pid": 5387,
+    "path": "<wt>/guard/memguard.sh",
+    "sha256": "ee11ea1f43f0892dd0396bfe5c68e133084c90c87abbf757ce0be723e0ca7b79",
+    "must_reverify_immediately_before_every_process": true
+  },
+  "protected_comparison": [
+    {
+      "case_id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+      "k4src_sha256": "ebda5315c8f0d899435275b96a9a1bc60b7e4da810ccc355d1e72ad82794cb86",
+      "external_row": "tw.M1",
+      "external_kind": "twist",
+      "kernel_quantity": {
+        "EndAction": {
+          "member": 1,
+          "end": "J",
+          "component": "Rx"
+        }
+      },
+      "body": 0,
+      "kernel_kind": "Moment",
+      "source_row": [
+        "tw.M1",
+        "9.996355832465656448409099415080867170527e-17",
+        "twist",
+        null
+      ]
+    },
+    {
+      "case_id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+      "k4src_sha256": "d88160052d29cb77e468efc217a7235bf15227e7b836f5cfca51384503fd7543",
+      "external_row": "tw.M1",
+      "external_kind": "twist",
+      "kernel_quantity": {
+        "EndAction": {
+          "member": 1,
+          "end": "J",
+          "component": "Rx"
+        }
+      },
+      "body": 0,
+      "kernel_kind": "Moment",
+      "source_row": [
+        "tw.M1",
+        "9.996355832465656448409099415080867170527e-17",
+        "twist",
+        null
+      ]
+    }
+  ],
+  "rules": [
+    "New explicit ROOT runtime release and immediate full 189-file source/archive, artifact/fingerprint, environment, guard and unused sibling log-path binding required; no runtime is authorized by this plan.",
+    "Three fresh processes sequentially. No build, --write, parity, source edit or criterion change. No I22 dispatch during preparation.",
+    "D01 and D03 must each match the complete frozen RF-SKEW report, controls and all 36 complete records, and each other. Preserve original bytes/hashes; Python standard JSON exact integers, including u64::MAX; do not use JS number reserialization.",
+    "Preserve every attempted precision, role, outcome, rejection reason and case/source identity for all 36 cases; no selective credit. Compare quantity/body/kind to the two protected tw.M1 targets without assuming these will be the refusal sites.",
+    "Records cannot expose the draft row or private H/radius. This diagnostic gives no CLASS credit; enum, generic Ceiling, certificate refusal, work drift or FLOOR do not substitute the registered CLASS witness. P29 remains unqualified; P30 debug return is pending and not included.",
+    "After complete normally finished and identity-bound D02, execute only planned D03 even if interpretation is mixed or nonqualifying. Failed initial control, incomplete/unsupported output, identity/guard failure or 10-minute overrun stops execution. No automatic original-schedule continuation."
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "process_id": "P04",
+  "phase": "INITIAL_NONE_TEST",
+  "registered_id": "NONE",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "--exact",
+    "rf_finite",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "NONE"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P04.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P04.stderr",
+  "qualifying_condition": "Exactly one test runs and passes; refreshed-record/numerical assertions all hold.",
+  "actual_scope": {
+    "route": "whole existing lane family, one run_case per case; final record comparison retained",
+    "family": "RF-FINITE",
+    "cases": 6,
+    "max_members": 10,
+    "parity_calls": 0
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "baseline_binding_for": {
+    "target": "lane",
+    "filter": "rf_finite"
+  },
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5' '--exact' 'rf_finite' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P04.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P04.stderr'",
+  "binary": {
+    "key": "lane",
+    "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+    "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+  },
+  "guard_before": " 5387     1 03-16:33:08 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "launch_utc": "2026-10-01T18:09:27.549Z",
+  "tool_initial": {
+    "chunk_id": "368f05",
+    "wall_time_seconds": 1.001382375,
+    "session_id": 71061,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "3dfd04",
+    "wall_time_seconds": 6.958e-06,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "PASS",
+  "semantic_review": "Exactly one rf_finite baseline passed;748 rows pass/6 selected,no failures, exact records match.",
+  "completed_utc": "2026-10-01T18:09:52.097Z",
+  "raw_hashes": {
+    "stdout": "f50e5dafcec4e315472d623578df57044de16c35f0598cf447ca9e5d08add3d5",
+    "stderr": "f3ce830ac1feaa12c244c4a3d3028f2891497680815f5eb64cc718ac7afb8bef"
+  },
+  "runtime_authority": {
+    "schedule_release_sha256": "9e90f91e6edb3758da382d0039f4001779d6566b832f21eef413151414a3d552",
+    "released_utc": "2026-10-01T18:07:10Z",
+    "deadline_utc": "2026-10-01T18:38:50Z"
+  }
+}

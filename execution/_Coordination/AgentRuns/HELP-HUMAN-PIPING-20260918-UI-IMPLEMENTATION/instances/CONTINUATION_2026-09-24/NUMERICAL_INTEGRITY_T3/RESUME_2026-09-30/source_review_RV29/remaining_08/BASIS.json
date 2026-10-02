@@ -1,0 +1,109 @@
+{
+  "role": "TASK /root/rv29_a1_source",
+  "parent": "/root",
+  "assignment": "30-minute source-only remaining mappings and G01 retry backcheck, plus ROOT supplied exact M37 correction within same checkpoint.",
+  "start_utc": "2026-10-01T13:09:43Z",
+  "deadline_utc": "2026-10-01T13:39:43Z",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "original_instruction_skill_origins_preserved": [
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0",
+      "bytes": 3126,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV29_A1_SOURCE.md",
+      "sha256": "47a595116c567303dcdce7caa39066e50460c742dcbee18c88728e396df1c578",
+      "bytes": 2188,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "COORD@74b2f8f9704fec67cce2608d48ae9c1d60c96170:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/PLAN.md",
+      "sha256": "671726095845d99f6bfa893a5ebe9d308840c78fabfd2655541e66371ae6a129",
+      "bytes": 6258,
+      "kind": "instruction_or_brief"
+    },
+    {
+      "origin": "APP_WORKTREE/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+      "bytes": 1411,
+      "kind": "active_skill"
+    }
+  ],
+  "original_basis_reference": "../preparation_01/BASIS.json",
+  "seals_rechecked": [
+    {
+      "path": "I23/protected_01",
+      "seal": "026823c7ad17e0415f679c37ef5dd854a05086e963e82c2aa3bd752b083e497e",
+      "payload_count": 147
+    },
+    {
+      "path": "source_review_RV29/protected_06",
+      "seal": "c58a74059025803e0a3dfb251dd53d3b0ba8f580351c24e5af09a337915625b4",
+      "payload_count": 9
+    },
+    {
+      "path": "I23/m37_correction_03",
+      "seal": "2a5363a2b1ee1a6600f04decf34fd8acf6b7265b6934716922d49a964ee9b705",
+      "payload_count": 7
+    }
+  ],
+  "other_inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/INVENTORY.json",
+      "sha256": "7e06062f358db39e7d869fee3500c8d46cbd637ccf403f394b50a5e54ec9f0a8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/SHA256SUMS",
+      "sha256": "026823c7ad17e0415f679c37ef5dd854a05086e963e82c2aa3bd752b083e497e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/protected_06/READY_SUBSET.json",
+      "sha256": "c6e68130f490e666a3a008ca3846ba4e80d000b0613e73a8ad8e119555d45d5d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/protected_06/REVIEW.md",
+      "sha256": "00803c2ad00128d825583b2c3eba06329c1c991a2ffd3686cadef8e1be461a7f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/runtime_07/SHA256SUMS",
+      "sha256": "abf0c03a6142d6924db0ff901f719441c5db640b2c76b6278de54838a7ccbdf5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/runtime_07/unit_erratum_01/SHA256SUMS",
+      "sha256": "f8eab7f648c45f1b330f9e692c9845f81c46418380599c18bccba4b96418645d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/m37_correction_03/PATCH_MAP.json",
+      "sha256": "b2e781467a93d8031f78efe69a06f4aa9a63c3f73b217b6ba3e40519f0c34dd5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/m37_correction_03/SOURCE_WARRANTS.json",
+      "sha256": "ccf8f233306d4d383892b5230278519ed0c19e89b4a7cd3355038002eeed3451"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/tool_resume_01/COMMANDS_ADDENDUM.json",
+      "sha256": "0902f63cba53115802cdca52e33683c895e518784ba443c788f7bb65184dfb1e"
+    }
+  ],
+  "source_blob_receipts": "SOURCE_RECEIPTS.json"
+}

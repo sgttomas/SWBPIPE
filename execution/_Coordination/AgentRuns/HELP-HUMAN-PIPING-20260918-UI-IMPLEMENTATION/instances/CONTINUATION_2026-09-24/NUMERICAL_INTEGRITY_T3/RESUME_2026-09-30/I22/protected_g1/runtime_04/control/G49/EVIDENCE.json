@@ -1,0 +1,50 @@
+{
+  "stdout": "\nrunning 1 test\ntest structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 390 filtered out; finished in 6.94s\n\n",
+  "stderr": "        6.95 real         6.90 user         0.03 sys\n             5570560  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                 466  page reclaims\n                 232  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                 249  involuntary context switches\n         84980011724  instructions retired\n         19942680519  cycles elapsed\n             1884520  peak memory footprint\n",
+  "stdout_sha256": "e08f0cebbe71a6c91a3dcda3493fd9f3c936d18ba3a955144c00aa5c1419bbf1",
+  "stderr_raw_sha256": "8e2a0626f6e77b8f155a1f11b7c03176636d221a5256ad49b0dc2999342e0ee4",
+  "source_bindings": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100"
+  },
+  "test": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+    "sha256": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9",
+    "line": 660,
+    "function": "kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence"
+  },
+  "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "binary": {
+    "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970"
+  },
+  "features": [
+    {
+      "path": "<RUN_TARGET>/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "metadata": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 8945848500906766827,
+        "path": 10763286916239946207,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/dep-test-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "guard_after": {
+    "exit": 0,
+    "stdout": " 5387     1 03-12:54:26 /bin/bash <HOME>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+  }
+}

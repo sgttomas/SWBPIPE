@@ -1,0 +1,124 @@
+{
+  "start": "2026-10-01T14:44:27Z",
+  "end": "2026-10-01T15:14:27Z",
+  "baseline": "6_PASS",
+  "variants": [
+    {
+      "id": "R7-M25",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:2009 I23:DATA_SCOPE:THETA-STUB: actual [true,true] versus fixed [true,false]. Exact data-scope assertion after successful real verifier setup; no setup/shape/certificate credit."
+        },
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_g_scope",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:2021 I23:G_SCOPE: actual g_max=301 versus fixed 0 for G-FIXED-MEMBER. Exact g-scope assertion after successful real verifier setup; no incidental assertion credit."
+        }
+      ]
+    },
+    {
+      "id": "R7-M26",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:2043 I23:B_CHOICE:CHARGE-SLENDER:0 compares actual inflated B (...p18) with the fixed CHARGE B token (...11ep2). Successful verifier setup and corpus/shape checks precede the exact named bound equality; no incidental failure credit."
+        }
+      ]
+    },
+    {
+      "id": "R7-M28",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:2063 I23:REQUIRED_SHIFT:RF-LARGE-CHAIN-n00100-AX: 0 versus fixed 1 shift factorization after successful verifier and fixed BOUNDS preconditions. This is the named scheduled-shift assertion; no setup, shape or certificate credit."
+        }
+      ]
+    },
+    {
+      "id": "R7-M29",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:2009 I23:DATA_SCOPE:THETA-STUB: actual [true,true] versus fixed [true,false], discriminating the block-to-body data expansion. Successful verifier setup; named assertion only."
+        },
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:2043 I23:B_CHOICE:HH-SLENDER-m40:2: global substituted B (...p35) differs from block 2 fixed CHARGE token (...0304p2). Successful verifier/shape/corpus checks precede the named bound assertion."
+        },
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:2063 I23:REQUIRED_SHIFT:RF-LARGE-CHAIN-n00100-AX: 0 versus fixed 1 actual shift factorization after successful verifier and fixed BOUNDS preconditions. Named shift criterion, independent of earlier separate data/B filter failures."
+        }
+      ]
+    },
+    {
+      "id": "R7-M3",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:1996 I23:NO_EARLY_PHI:256: actual positive Some([[Phi,Phi]]) versus None. Successful arithmetic precondition precedes the named precision rule. This is direct floor evidence before publication admission."
+        }
+      ]
+    },
+    {
+      "id": "R7-M4",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:1994 I23:PHI_AT_CEILING: actual None versus independently fixed Some([[2^-438,2^-438]]) at verification 1024. Earlier 256/512 no-floor assertions and arithmetic preconditions pass. Direct named rule failure."
+        }
+      ]
+    },
+    {
+      "id": "R7-M5",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:2091 I23:R7M5_E_ROW:22: actual E row22 (...p12) differs from fixed SCALE token (...p13). All fixture preconditions and exact 33-row coverage checks passed; row21 equality passed before row22. The named numerical E equality qualifies, not the coverage guard."
+        }
+      ]
+    },
+    {
+      "id": "R7-M9",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:1996 I23:NO_EARLY_PHI:512: actual positive Some([[Phi,Phi]]) versus None. Verification256 no-floor check passed; arithmetic preconditions pass. Named direct R7 floor rule at512, no publication/certificate masking."
+        }
+      ]
+    }
+  ],
+  "completed_utc": "2026-10-01T15:01:43.799Z",
+  "status": "COMPLETE",
+  "owned_job_running": false
+}

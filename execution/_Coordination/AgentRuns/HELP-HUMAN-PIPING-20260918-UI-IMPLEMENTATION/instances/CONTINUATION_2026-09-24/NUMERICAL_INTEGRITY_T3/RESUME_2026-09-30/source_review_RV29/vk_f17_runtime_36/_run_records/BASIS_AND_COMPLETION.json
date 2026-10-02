@@ -1,0 +1,16 @@
+{
+  "review_start_utc": "2026-10-01 20:56:04 UTC",
+  "review_deadline_utc": "2026-10-01 21:06:04 UTC",
+  "completed_utc": "2026-10-01T21:03:45.304666+00:00",
+  "diagnostic_candidate": "0158df21a13de7df138f0f7274339ab0a71dac81",
+  "source35_seal": "852ef66311a13c2c919c7dbada988b001956ece78c457cd3221e78071a4f2ef6",
+  "reviewed_owner_proposal_num_commit": "16a65a7ef3153276367ecd3d86d02dc12061cc39",
+  "reviewed_owner_proposal_sha256": "8306bf5f2577333387cccc8235b4c2687e088477b3ba4ba45fb115d15bf104f2",
+  "skill_origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+  "skill_sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+  "p30_actual_return_closed": true,
+  "p29_class_credit": false,
+  "owner_decision_pending": true,
+  "runtime_or_amendment_granted": false,
+  "operational_note": "P30 packet inventory was flat; an initial read guessed an extra P30 component and failed before correction to observed EVIDENCE.json. No evidence bytes changed."
+}

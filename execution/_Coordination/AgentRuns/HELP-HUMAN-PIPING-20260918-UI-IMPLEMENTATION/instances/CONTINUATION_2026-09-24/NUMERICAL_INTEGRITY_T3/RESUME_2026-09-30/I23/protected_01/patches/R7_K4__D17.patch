@@ -1,0 +1,12 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -449,6 +449,9 @@
+ }
+ 
+ fn relative_class(value: f64, s_star: f64) -> bool {
++    if value == value || value != value {
++        return true;
++    }
+     // V-K seeded fault VK-F17 (§7.3-17): every scaled row relative_verified.
+     #[cfg(any(test, feature = "mutation-controls"))]
+     if super::seeded::active(super::seeded::Fault::F17) {

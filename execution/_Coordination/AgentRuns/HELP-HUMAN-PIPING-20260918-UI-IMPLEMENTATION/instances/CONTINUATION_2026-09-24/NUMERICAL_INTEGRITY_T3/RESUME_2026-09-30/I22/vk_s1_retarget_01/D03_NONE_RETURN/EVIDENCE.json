@@ -1,0 +1,65 @@
+{
+  "process_id": "D03_NONE_RETURN",
+  "phase": "NONE_TEST",
+  "registered_id": "NONE",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "--exact",
+    "rf_skew",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "NONE",
+    "CARGO_NET_OFFLINE": "true",
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/s1_retarget_01/D03_NONE_RETURN.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/s1_retarget_01/D03_NONE_RETURN.stderr",
+  "qualifying_condition": "Exactly one original test passes, full report/control/not-covered/outcome/stored records restored.",
+  "actual_scope": {
+    "family": "RF-SKEW",
+    "cases": 36,
+    "max_members": 1,
+    "parity_calls": 0,
+    "route": "whole original lane family and full frozen records"
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "returns_for": "VK-S1",
+  "unset_environment": [
+    "RUSTFLAGS",
+    "CARGO_ENCODED_RUSTFLAGS",
+    "RUSTC_WRAPPER",
+    "RUSTC_WORKSPACE_WRAPPER"
+  ],
+  "cmd": "/usr/bin/time -l env -u 'RUSTFLAGS' -u 'CARGO_ENCODED_RUSTFLAGS' -u 'RUSTC_WRAPPER' -u 'RUSTC_WORKSPACE_WRAPPER' RUSTUP_TOOLCHAIN='1.97.1' RUSTUP_AUTO_INSTALL='0' CARGO_INCREMENTAL='0' RUST_TEST_THREADS='2' FK_SEEDED_FAULT='NONE' CARGO_NET_OFFLINE='true' GIT_OPTIONAL_LOCKS='0' '<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5' '--exact' 'rf_skew' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/s1_retarget_01/D03_NONE_RETURN.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/s1_retarget_01/D03_NONE_RETURN.stderr'",
+  "guard_before": " 5387     1 03-20:30:08 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "launch_utc": "2026-10-01T22:06:27.225Z",
+  "tool_initial": {
+    "chunk_id": "6f592b",
+    "wall_time_seconds": 1.002370791,
+    "session_id": 75142,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "bc62db",
+    "wall_time_seconds": 8.042e-06,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "PASS",
+  "semantic_review": "D03 exactly1rf_skew NONEPASS:36selected982pass96zeros2notcovered105/33controls/fullclassandstoredrecords restored.",
+  "raw_hashes": {
+    "stdout_path": "3a42c3f41829af3c73f44e8e3cf14c7c6bd9b56ba8458eff8c96a98f095ceb8c",
+    "stderr_path": "a13e2670331cbbbab7632bd0c43ca48e01bb966284daa7ec26ab5d6c0397c5f4"
+  }
+}

@@ -1,0 +1,20 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
+@@ -48,7 +48,7 @@
+ use std::cmp::Ordering as CmpOrdering;
+ 
+ /// The bits of 2^-438 (item 6a).
+-pub const PHI_SCALE_BITS: u64 = 0x2490_0000_0000_0000;
++pub const PHI_SCALE_BITS: u64 = 0x0490_0000_0000_0000;
+ 
+ /// How each stage of `formation_scale` is rounded.
+ #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+@@ -364,7 +364,7 @@
+ /// product (decided exactly, as `absolute_bound` decides b).
+ pub fn phi_512(e_hat: f64) -> f64 {
+     let scale = f64::from_bits(PHI_SCALE_BITS);
+-    let back = f64::from_bits(0x5B50_0000_0000_0000); // 2^438
++    let back = f64::from_bits(0x7B50_0000_0000_0000); // 2^950
+     let nearest = e_hat * scale;
+     if nearest * back < e_hat {
+         next_up(nearest)

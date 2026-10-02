@@ -1,0 +1,75 @@
+{
+  "prior_R09_warrant_packet": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_far_tail_09/SOURCE_WARRANTS.json",
+    "sha256": "16a584608d8a33083ee7ce29c4066f7f4ddcdbbfb9423218ea4771bde9f524ae",
+    "unchanged_seal": "e06c7f1777114494b6a58edc5f34784b82c2e62b73efcaab88fd86a582d8afbe"
+  },
+  "shared_helper": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+    "sha256": "94ee29a25bee27b2a21f31212a49a1ac7c6cee72796aa95a13158ab5bc0dcbc8",
+    "lines": [
+      82,
+      119
+    ],
+    "text": "    }\n}\n\nfn run_targeted<const L: usize>(p: u32, terms: &[&str], expect: &str) -> bool\nwhere\n    Wide<L>: SupportedWidth,\n{\n    let mut c = ctx::<L>(p);\n    let mut sum = ExactWideSum::new();\n    let mut refused = None;\n    for t in terms {\n        if let Err(r) = add_term(&mut sum, &mut c, t) {\n            refused = Some(r);\n            break;\n        }\n    }\n    let got = match refused {\n        Some(r) => r,\n        None => match sum.round(&mut c) {\n            Ok(v) => {\n                assert_eq!(tok(&v), expect, \"p {p} terms {terms:?}\");\n                if expect == \"Z+\" {\n                    assert!(!v.is_sign_negative(), \"exact zero must be +0\");\n                }\n                return true;\n            }\n            Err(r) => r,\n        },\n    };\n    let expected = match expect {\n        \"refuse:span\" => SumRefusal::Span,\n        \"refuse:exponent\" => SumRefusal::Exponent,\n        other => panic!(\"p {p} terms {terms:?}: refused {got:?}, expected {other}\"),\n    };\n    assert_eq!(got, expected, \"p {p} terms {terms:?}\");\n    false\n}\n\n"
+  },
+  "frozen_rows": [
+    {
+      "runtime_id": "R09",
+      "registration": "K4-M2",
+      "line_number_one_based": 6,
+      "line_text": "sum 4 128 3 w:+8p0 w:+8p-128 w:+8p-428 = +80000000000000000000000000000001p0",
+      "line_with_newline_sha256": "1d31357f7aa231c78cd27c4df17781141d835895cee05f588cb0b3b80603502a",
+      "width_limbs": 4,
+      "precision": 128,
+      "term_count": 3,
+      "terms": [
+        "w:+8p0",
+        "w:+8p-128",
+        "w:+8p-428"
+      ],
+      "expected_token": "+80000000000000000000000000000001p0"
+    },
+    {
+      "runtime_id": "R10",
+      "registration": "K4-M3",
+      "line_number_one_based": 2,
+      "line_text": "sum 4 128 3 w:+8p0 w:+8p-128 w:+8p-133 = +80000000000000000000000000000001p0",
+      "line_with_newline_sha256": "aef4e424e4c40009f57bc010680a828b5252ba83209dd5c0710b3b963fd29590",
+      "width_limbs": 4,
+      "precision": 128,
+      "term_count": 3,
+      "terms": [
+        "w:+8p0",
+        "w:+8p-128",
+        "w:+8p-133"
+      ],
+      "expected_token": "+80000000000000000000000000000001p0"
+    }
+  ],
+  "token_parser": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
+    "sha256": "db546b9c509954389e6107aeb9cdb81c338d4b0f7aba7a41d8b45fb723b4643e",
+    "lines": [
+      270,
+      320
+    ]
+  },
+  "production_rounding": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+    "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+    "lines": [
+      508,
+      549
+    ]
+  },
+  "generator_halfway_cases": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+    "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7",
+    "lines": [
+      250,
+      306
+    ]
+  },
+  "earlier_R10_failure": "Parent-reported earlier original-loop assertion; no existing result was rewritten or credited."
+}

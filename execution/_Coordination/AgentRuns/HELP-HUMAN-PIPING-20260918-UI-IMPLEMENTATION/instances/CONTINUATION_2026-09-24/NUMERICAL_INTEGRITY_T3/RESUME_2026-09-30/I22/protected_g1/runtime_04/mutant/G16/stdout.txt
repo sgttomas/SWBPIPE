@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s ... FAILED
+
+failures:
+
+---- structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s stdout ----
+
+thread 'structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s' (25468036) panicked at src/structural/retained/../../../tests/retained_k4/bound_tests.rs:468:5:
+assertion `left == right` failed
+  left: Some(+8000000000000000000000000000000000000000000000000000000000000815p2)
+ right: Some(+ffe13f11a8c8dc14a9a022990c221e0868c12bd913d2599e368a26aeabc9bd0ap-2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.12s
+

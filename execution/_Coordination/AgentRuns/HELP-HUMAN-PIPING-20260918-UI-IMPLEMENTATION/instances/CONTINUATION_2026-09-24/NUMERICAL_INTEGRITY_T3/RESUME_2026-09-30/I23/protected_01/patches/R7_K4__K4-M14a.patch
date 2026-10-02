@@ -1,0 +1,12 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2123,7 +2123,8 @@
+             }
+         };
+         let magnitude_of = |index: usize, meta: &QuantityMeta| -> Wide<M> {
+-            let q2 = &verification[index];
++            let q2c = candidate[index].widen::<M>();
++            let q2 = &q2c;
+             let s_star = &scales[meta.body as usize][meta.kind.index()];
+             if q2.abs().cmp_value(s_star) == CmpOrdering::Greater {
+                 q2.abs()

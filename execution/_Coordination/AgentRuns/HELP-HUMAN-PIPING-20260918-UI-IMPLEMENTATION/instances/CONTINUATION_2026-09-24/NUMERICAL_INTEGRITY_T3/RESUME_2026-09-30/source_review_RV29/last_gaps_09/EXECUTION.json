@@ -1,0 +1,18 @@
+{
+  "start_utc": "2026-10-01T13:40:27Z",
+  "completed_utc": "2026-10-01T13:47:44.947434+00:00",
+  "deadline_utc": "2026-10-01T13:55:27Z",
+  "read_only_operations": "GIT_OPTIONAL_LOCKS=0 git show/diff/rev-parse; immutable source/log reads, physical binary hashing; existing VENV Python -B standard-library arithmetic.",
+  "writes": "Only additive source_review_RV29/last_gaps_09.",
+  "Rust_or_test_execution": 0,
+  "maintained_edits": 0,
+  "patch_authorship_or_installation": 0,
+  "Git_index_mutations": 0,
+  "delegation": 0,
+  "checker_notes": [
+    "A first Python command had an and16 spacing typo and did not execute.",
+    "An exact-excerpt check identified the real namespace citation issue; corrected actual source is separately bound.",
+    "Initial model-block hashing included a trailing newline; packet defines its model-to-end block without that newline. Both boundaries were inspected and the declared hash verified, with no input changes."
+  ],
+  "no_runtime_retry_or_changed_expectation": true
+}

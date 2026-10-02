@@ -1,0 +1,24 @@
+
+thread 'structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld' (26153700) panicked at src/structural/retained/../../../tests/retained_k4/combine_tests.rs:567:5:
+assertion `left == right` failed
+  left: Some(0.5)
+ right: Some(1.5)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.08 real         0.07 user         0.00 sys
+             8994816  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 906  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   7  involuntary context switches
+           995674456  instructions retired
+           235500344  cycles elapsed
+             2769280  peak memory footprint

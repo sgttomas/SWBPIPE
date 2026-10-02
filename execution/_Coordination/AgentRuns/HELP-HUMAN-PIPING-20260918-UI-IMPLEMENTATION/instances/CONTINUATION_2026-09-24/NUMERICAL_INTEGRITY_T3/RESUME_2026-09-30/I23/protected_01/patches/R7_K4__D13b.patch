@@ -1,0 +1,17 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
+@@ -110,10 +110,10 @@
+                     k
+                 }
+             };
+-            entries[index]
+-                .1
+-                .add(load.value)
+-                .map_err(LedgerRefusal::Accumulator)?;
++            let folded = entries[index].1.round().unwrap_or(0.0) + load.value;
++            let mut acc = ExactAccumulator::new();
++            acc.add(folded).map_err(LedgerRefusal::Accumulator)?;
++            entries[index].1 = acc;
+             entries[index].2 |= load.value != 0.0;
+         }
+         Ok(Self::netted(&entries))

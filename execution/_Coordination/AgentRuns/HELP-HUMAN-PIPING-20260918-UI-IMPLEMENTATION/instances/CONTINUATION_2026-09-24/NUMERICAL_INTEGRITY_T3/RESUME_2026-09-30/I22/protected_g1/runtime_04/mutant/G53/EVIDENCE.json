@@ -1,0 +1,50 @@
+{
+  "stdout": "\nrunning 1 test\ntest structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence ... FAILED\n\nfailures:\n\n---- structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence stdout ----\nRV23-1 (S): total 114530 LME, step 19: 0 stops in flight, 4011 after the results kept both\n\nthread 'structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence' (25714021) panicked at src/structural/retained/../../../tests/retained_k4/bound_tests.rs:763:5:\n0 4011\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 6.96s\n\n",
+  "stderr": "   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.59s\n     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)\nerror: test failed, to rerun pass `--lib`\n       15.39 real        20.25 user         0.41 sys\n          1313030144  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              166257  page reclaims\n                  99  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   2  signals received\n                  28  voluntary context switches\n                1643  involuntary context switches\n           207349224  instructions retired\n            72878527  cycles elapsed\n             6210040  peak memory footprint\n",
+  "stdout_sha256": "58f6ea8a54e022b0e2782835c6ad7b1ca8b681ec638521d3879a30e243d0182c",
+  "stderr_raw_sha256": "a78229e38024cafe84466fcdf891ec0a5f03cdc4b8be0a388aafbc9204b11b8e",
+  "source_bindings": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "24f2ab03a9b924cdfef7741dd237a9c659603ae48b2aac57baf5da67867ca68f"
+  },
+  "test": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+    "sha256": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9",
+    "line": 660,
+    "function": "kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence"
+  },
+  "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "binary": {
+    "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "cbcf5fdaf37d61e05ef020607b7a6cdb7f9c78db4a669b6703c02a36ce1297c5"
+  },
+  "features": [
+    {
+      "path": "<RUN_TARGET>/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "metadata": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 8945848500906766827,
+        "path": 10763286916239946207,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/dep-test-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "guard_after": {
+    "exit": 0,
+    "stdout": " 5387     1 03-13:01:18 /bin/bash <HOME>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+  }
+}

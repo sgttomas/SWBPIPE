@@ -1,0 +1,69 @@
+{
+  "kind": "mutant",
+  "id": "R7-M25",
+  "index": 0,
+  "name": "mutant_01",
+  "filter": "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+  "argv": [
+    "<wt>/a1-diagnostic-target/g2/R7-M25/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "--exact",
+    "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/g2/R7-M25/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::adaptive::method_tests::i23_r7_data_scope' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/discriminators_g2/runtime_01/logs/R7-M25/mutant_01.stdout' 2> '<wt>/scratch/i23/discriminators_g2/runtime_01/logs/R7-M25/mutant_01.stderr'",
+  "workdir": "<wt>/scratch/i23/discriminators_g2/sources/R7-M25/projects/chirality-piping/core/solver/frame_kernel",
+  "log": "<wt>/scratch/i23/discriminators_g2/runtime_01/logs/R7-M25/mutant_01",
+  "launch_utc": "2026-10-01T14:50:45.496Z",
+  "guard_before": {
+    "chunk_id": "79aa0a",
+    "wall_time_seconds": 6e-06,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-13:14:26 /bin/bash <wt>/guard/memguard.sh\n"
+  },
+  "tool_initial": {
+    "chunk_id": "013bd8",
+    "wall_time_seconds": 0.052935875,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "013bd8",
+    "wall_time_seconds": 0.052935875,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "info": {
+    "stdout": "\nrunning 1 test\ntest structural::retained::adaptive::method_tests::i23_r7_data_scope ... FAILED\n\nfailures:\n\nfailures:\n    structural::retained::adaptive::method_tests::i23_r7_data_scope\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 396 filtered out; finished in 0.17s\n\n",
+    "stderr": "\nthread 'structural::retained::adaptive::method_tests::i23_r7_data_scope' (25754930) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2009:9:\nassertion `left == right` failed: I23:DATA_SCOPE:THETA-STUB\n  left: [true, true]\n right: [true, false]\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n        0.17 real         0.16 user         0.00 sys\n            18563072  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                1489  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                  11  involuntary context switches\n          1849634459  instructions retired\n           489729673  cycles elapsed\n             9978240  peak memory footprint\n",
+    "stdout_sha256": "78510b56e568e5429872b7438020c250200ccba99de899fdb591b45b65509e03",
+    "stderr_raw_sha256": "c7f06be65ef89e0c548efeb2c38195d59ea27f25d5a7cc6b7e2a3aecab67076c",
+    "source_id": "R7-M25",
+    "source_manifest_sha256": "17e2ec926c1b59db4f2a7bf5da752b9bab5df3f6cbb0e3d2ef6ad2febda8221e",
+    "complete_source_hashes_match": true,
+    "affected_images": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+        "after_sha256": "ae156ed748a50c1a72e5e4f38d521e97e2d26a8e1f78c2bb230f6d691731e74f"
+      }
+    ],
+    "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+    "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "binary": {
+      "path": "<wt>/a1-diagnostic-target/g2/R7-M25/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "870258a57e9e5ee8481dbe8c68141761ea2af610253b71b6201d0eecf39e1d5a"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-diagnostic-target/g2/R7-M25/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    },
+    "guard_after": "5387     1 03-13:14:26 /bin/bash <wt>/guard/memguard.sh"
+  }
+}

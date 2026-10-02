@@ -1,0 +1,27 @@
+   Compiling zmij v1.0.23
+   Compiling serde_core v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `release` profile [optimized] target(s) in 12.74s
+       12.79 real        41.33 user         1.53 sys
+           601374720  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              252208  page reclaims
+               11802  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                  22  signals received
+                1195  voluntary context switches
+               41585  involuntary context switches
+           444190615  instructions retired
+           239579815  cycles elapsed
+            10093144  peak memory footprint

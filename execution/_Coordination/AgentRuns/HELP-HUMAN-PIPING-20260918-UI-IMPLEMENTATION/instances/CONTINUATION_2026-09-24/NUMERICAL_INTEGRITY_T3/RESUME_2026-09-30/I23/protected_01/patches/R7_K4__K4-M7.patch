@@ -1,0 +1,17 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs
+@@ -270,12 +270,12 @@
+             std::cmp::Ordering::Less => (
+                 true,
+                 subtract(&self.negative, &self.positive),
+-                QUANTUM_EXPONENT,
++                QUANTUM_EXPONENT + 1,
+             ),
+             _ => (
+                 false,
+                 subtract(&self.positive, &self.negative),
+-                QUANTUM_EXPONENT,
++                QUANTUM_EXPONENT + 1,
+             ),
+         }
+     }

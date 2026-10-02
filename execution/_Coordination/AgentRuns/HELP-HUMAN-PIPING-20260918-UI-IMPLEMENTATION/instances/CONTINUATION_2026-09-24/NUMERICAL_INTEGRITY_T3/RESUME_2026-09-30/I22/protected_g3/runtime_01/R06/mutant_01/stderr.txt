@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order' (25920879) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1522:5:
+assertion `left == right` failed
+  left: None
+ right: Some(StopRule { index: 0 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.00 real         0.00 user         0.00 sys
+             6160384  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 733  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   9  involuntary context switches
+            44714339  instructions retired
+            18109560  cycles elapsed
+             1769808  peak memory footprint

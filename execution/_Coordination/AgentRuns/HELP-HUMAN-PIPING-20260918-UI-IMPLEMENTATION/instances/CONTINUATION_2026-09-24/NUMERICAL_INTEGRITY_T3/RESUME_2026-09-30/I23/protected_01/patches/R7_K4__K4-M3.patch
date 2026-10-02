@@ -1,0 +1,18 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs
+@@ -540,7 +540,14 @@
+         let (negative, magnitude, used) = self.net();
+         let anchor = i64::try_from(self.anchor).map_err(|_| SumRefusal::Exponent)?;
+         self.work.rounded_limbs += used as u64;
+-        Ok(context.from_integer(negative, &magnitude[..used.max(1)], anchor)?)
++        let top = used.max(1);
++        let mut window = magnitude;
++        let bits = top * 64 - window[top - 1].leading_zeros() as usize;
++        let cut = bits.saturating_sub(context.precision() as usize);
++        for i in 0..cut {
++            window[i / 64] &= !(1u64 << (i % 64));
++        }
++        Ok(context.from_integer(negative, &window[..top], anchor)?)
+     }
+ }
+ 

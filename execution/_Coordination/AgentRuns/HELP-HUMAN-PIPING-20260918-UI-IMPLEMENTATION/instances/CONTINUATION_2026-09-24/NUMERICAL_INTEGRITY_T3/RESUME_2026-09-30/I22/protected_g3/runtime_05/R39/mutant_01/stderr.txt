@@ -1,0 +1,22 @@
+
+thread 'structural::retained::recover::tests::a_recovered_action_is_one_exact_expansion_where_a_sequential_fold_loses_a_term' (26227456) panicked at src/structural/retained/../../../tests/retained_k4/recover_tests.rs:254:5:
+assertion failed: n != 0.0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.00 real         0.00 user         0.00 sys
+             6111232  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 730  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  10  involuntary context switches
+            58499652  instructions retired
+            21558917  cycles elapsed
+             1835368  peak memory footprint

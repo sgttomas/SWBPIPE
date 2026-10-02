@@ -1,0 +1,136 @@
+{
+  "packet_commit": "f1fb2a6d90ecc939083f9145cc1c47d5981eb0db",
+  "packet_archive_sha256": "8597ab001fff869817f0b86fff8454849db5a75d8d5b4239f74e065fcd81c783",
+  "seals": [
+    {
+      "path": "I22/discriminators_g2/runtime_01",
+      "seal": "206533c3b6344bc71562914d17b0dc7e72f5f0fbc42dc8c111ed22a2dcf57429",
+      "payloads": 221,
+      "committed_exact": true
+    },
+    {
+      "path": "manager/discriminators_g2/runtime_01",
+      "seal": "e31ecda6e95980f1271f0d1ac06cc56e4d987dbd0358d07530f17528d1607ac7",
+      "payloads": 15,
+      "committed_exact": true
+    }
+  ],
+  "all221_child_payloads_committed": true,
+  "build_evidence_files_committed": 36,
+  "prior_seals": [
+    {
+      "path": "I23/discriminators_02",
+      "seal": "7bee1eb4f29d29baa52bbfd391dc9f0e60ef965ed9a1def596bf96a6f100bc93"
+    },
+    {
+      "path": "I23/discriminators_g2",
+      "seal": "97076c043e99328ef7aa3cd68088e468bc35431e26b375fa03262d3fcabd8d26"
+    },
+    {
+      "path": "source_review_RV29/runtime_07",
+      "seal": "abf0c03a6142d6924db0ff901f719441c5db640b2c76b6278de54838a7ccbdf5"
+    },
+    {
+      "path": "source_review_RV29/runtime_07/unit_erratum_01",
+      "seal": "f8eab7f648c45f1b330f9e692c9845f81c46418380599c18bccba4b96418645d"
+    }
+  ],
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "overlay_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+  "overlay_added_lines": 147,
+  "overlay_new_tests": 6,
+  "immutable_archive_sha256": "25c4d1299803d4b60770ea9cc7487564f4e40c6bc93400c2bb607d5241a0aa95",
+  "copies": [
+    {
+      "id": "BASELINE",
+      "root": "<wt>/scratch/i23/discriminators_g2/sources/BASELINE",
+      "files": 116,
+      "fault_postimages": {},
+      "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+      "original_prefix_preserved": true
+    },
+    {
+      "id": "R7-M25",
+      "root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M25",
+      "files": 116,
+      "fault_postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "ae156ed748a50c1a72e5e4f38d521e97e2d26a8e1f78c2bb230f6d691731e74f"
+      },
+      "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+      "original_prefix_preserved": true
+    },
+    {
+      "id": "R7-M26",
+      "root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M26",
+      "files": 116,
+      "fault_postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "00777717a1feb597fcf3d892b26d813556c6e97c2bd72ad723a9c29e40215726"
+      },
+      "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+      "original_prefix_preserved": true
+    },
+    {
+      "id": "R7-M28",
+      "root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M28",
+      "files": 116,
+      "fault_postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "8b3f7924d028722ef51768a3b3e3ca536d70a4aa9c119b18a23430ccab74d818"
+      },
+      "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+      "original_prefix_preserved": true
+    },
+    {
+      "id": "R7-M29",
+      "root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M29",
+      "files": 116,
+      "fault_postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "aae902fffd368e34d19d1240fb51f07ab154dea43dcfa4bbbca3f1604161df78"
+      },
+      "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+      "original_prefix_preserved": true
+    },
+    {
+      "id": "R7-M3",
+      "root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M3",
+      "files": 116,
+      "fault_postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "b1175ee9162cf042719a37f47652f04adb8835097cafd1b10981a13725f70e92"
+      },
+      "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+      "original_prefix_preserved": true
+    },
+    {
+      "id": "R7-M4",
+      "root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M4",
+      "files": 116,
+      "fault_postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "057c16c1e84856f46fc729208eec91bd7f5368e974c0d6df8279daaf6d375a42"
+      },
+      "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+      "original_prefix_preserved": true
+    },
+    {
+      "id": "R7-M5",
+      "root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M5",
+      "files": 116,
+      "fault_postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "fdae9488f827106e1594bfd359a9429c9c73cda1ace901a64add0f35c8380347"
+      },
+      "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+      "original_prefix_preserved": true
+    },
+    {
+      "id": "R7-M9",
+      "root": "<wt>/scratch/i23/discriminators_g2/sources/R7-M9",
+      "files": 116,
+      "fault_postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "ff2fa8979e7909d45fcfb914ca91730ba8269621f44381913a14a93b8a86ab73"
+      },
+      "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+      "original_prefix_preserved": true
+    }
+  ],
+  "distinct_single_link_inodes": 1044,
+  "unchanged_corpora_locks_and_original_test_prefix": true,
+  "unrelated_G4_access": false
+}

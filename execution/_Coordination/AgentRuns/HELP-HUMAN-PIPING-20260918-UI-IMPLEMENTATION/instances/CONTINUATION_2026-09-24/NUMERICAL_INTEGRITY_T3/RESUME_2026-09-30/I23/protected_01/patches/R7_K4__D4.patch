@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
+@@ -301,7 +301,7 @@
+         let iy = ctx.mul(&inv_length, &ey[k])?;
+         let iz = ctx.mul(&inv_length, &ez[k])?;
+         b[0][k] = ex[k].neg();
+-        b[0][6 + k] = ex[k];
++        b[0][6 + k] = ex[k].neg();
+         b[1][3 + k] = ex[k].neg();
+         b[1][9 + k] = ex[k];
+         for (row, rotation) in [(2usize, 3usize), (3, 9)] {

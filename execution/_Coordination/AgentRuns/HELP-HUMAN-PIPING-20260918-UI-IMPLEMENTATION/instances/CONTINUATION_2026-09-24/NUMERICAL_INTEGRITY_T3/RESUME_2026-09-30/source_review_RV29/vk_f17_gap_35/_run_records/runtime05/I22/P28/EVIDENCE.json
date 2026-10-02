@@ -1,0 +1,73 @@
+{
+  "process_id": "P28",
+  "phase": "RETURNED_NONE_TEST",
+  "registered_id": "NONE",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "--exact",
+    "rf_weak",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "NONE"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P28.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P28.stderr",
+  "qualifying_condition": "Exactly one test passes after VK-F17 trial; do not infer return from initial baseline.",
+  "actual_scope": {
+    "route": "whole existing lane family, one run_case per case; final record comparison retained",
+    "family": "RF-WEAK",
+    "cases": 9,
+    "max_members": 5,
+    "parity_calls": 0
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "returns_for": "VK-F17",
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5' '--exact' 'rf_weak' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P28.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P28.stderr'",
+  "binary": {
+    "key": "lane",
+    "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+    "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+  },
+  "guard_before": " 5387     1 03-18:52:28 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "launch_utc": "2026-10-01T20:28:47.853Z",
+  "tool_initial": {
+    "chunk_id": "232a0e",
+    "wall_time_seconds": 0.627129916,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "PASS",
+  "semantic_review": "P28 originalrf_weak NONE returnedcontrol exactly1PASS:9selected/46notcovered/3prescribed InputDerived exceptions and exact storedrecords restored.",
+  "completed_utc": "2026-10-01T20:29:24.255Z",
+  "raw_hashes": {
+    "stdout": "5309c5987040cc91cd4d1ea4de8371accda909d4ee67ad82d927089d15555167",
+    "stderr": "7b1ad6abb8316bcff843d6a516edf2bca9d4051b0ccb47a9286594c5750c84c8"
+  },
+  "runtime_authority": {
+    "at": "2026-10-01T20:28:02Z",
+    "sha256": "b45ba8378aad3fbceb62024261f58249c03c1b8257fc5fefeed8661c22c604b1"
+  },
+  "hard_end": "2026-10-01T20:52:22.000Z"
+}

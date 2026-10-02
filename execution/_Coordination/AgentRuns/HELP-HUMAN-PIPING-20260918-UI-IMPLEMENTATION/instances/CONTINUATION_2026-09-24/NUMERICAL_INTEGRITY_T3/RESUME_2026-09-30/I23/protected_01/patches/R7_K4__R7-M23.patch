@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2229,7 +2229,7 @@
+                 return Ok(false);
+             }
+         }
+-        if let Some(member) = r.g_violation {
++        if let Some(member) = None::<u32> {
+             rejection = Some(Rejection::GValidity { member });
+             return Ok(false);
+         }

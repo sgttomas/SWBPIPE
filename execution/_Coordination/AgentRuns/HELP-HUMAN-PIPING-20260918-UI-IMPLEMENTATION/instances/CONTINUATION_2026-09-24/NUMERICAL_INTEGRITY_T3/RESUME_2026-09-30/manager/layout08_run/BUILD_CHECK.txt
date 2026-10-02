@@ -1,0 +1,3 @@
+PASS:postrun228-file exact archive equality; executable hash and actualCargo metadata fulltoolchain identity verified.10 actual verbosecompiler invocations release/aarch64, no activatedtest/features.
+PASS:tool-confirmed finalexit0, oneCargo/one diagnostic/no repair/retry; portable log exactly equals raw via declared prefix-only substitution. Three raw rows independently checked separately.
+Source-isolation reviewed main/hook/unchangedallocator path retained; sameRV30 runtime backcheck remains required before use. Private node alignment UNBOUND.

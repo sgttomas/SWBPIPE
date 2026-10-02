@@ -1,0 +1,22 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/i22/protected_g1/G01/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.84s
+     Running unittests src/lib.rs (<wt>/a1-protected-target/g1/G01/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+error: test failed, to rerun pass `--lib`
+        9.99 real        13.63 user         0.75 sys
+          1251672064  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              154185  page reclaims
+               10442  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   2  signals received
+                 832  voluntary context switches
+               11321  involuntary context switches
+           285598268  instructions retired
+           134019444  cycles elapsed
+             6406648  peak memory footprint

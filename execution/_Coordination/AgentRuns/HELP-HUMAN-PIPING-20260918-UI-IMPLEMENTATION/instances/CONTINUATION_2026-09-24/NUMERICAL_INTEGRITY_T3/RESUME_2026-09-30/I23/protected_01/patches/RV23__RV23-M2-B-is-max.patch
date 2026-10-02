@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
+@@ -1154,7 +1154,7 @@
+     Wide<L>: SupportedWidth,
+ {
+     match (uc, s) {
+-        (Some(a), Some(b)) => Some(if b.cmp_value(a) == CmpOrdering::Less {
++        (Some(a), Some(b)) => Some(if b.cmp_value(a) == CmpOrdering::Greater {
+             *b
+         } else {
+             *a

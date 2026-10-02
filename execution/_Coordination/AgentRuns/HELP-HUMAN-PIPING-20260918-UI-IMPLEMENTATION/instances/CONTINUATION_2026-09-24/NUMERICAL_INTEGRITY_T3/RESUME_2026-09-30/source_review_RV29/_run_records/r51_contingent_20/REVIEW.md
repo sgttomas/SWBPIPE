@@ -1,0 +1,15 @@
+# RV29 — contingent R51 source preparation
+
+Disposition: SOURCE READY as a contingency, with the additive citation corrections below. No semantic/source-preparation blocker found. Original R51 still runs unchanged; if it reaches its named qualifying result, this diagnostic stays unrun. This review grants no runtime and claims no observed failure.
+
+Verified all11 payloads under18524393605895c8892a384eb7a7bcd952960f5e7a239a4e1241545218537d73. The exact append-only test selects e_unit(|name|name=="LOADONLY-y345", &[128]) and requires coverage1. That model occurs zero times in original models.txt and once in models5a3.txt. Original dispatch is scale_at<4,4>(128,192). The original fixed SCALE line1973 remains state3/corrections3, with all later g/A-bar/E/body checks preserved. No other case or precision is eligible.
+
+The unchanged frozen R7-M12 patch still computes bounded_fallback but ignores chosen and selects its None arm, yielding the existing typed AttemptStop::ResidualGate. Historical PLAN_A3_5A3 R7-M12 and the original frozen R51 manifest bind LOADONLY-y345's loss of bounded fallback. Thus the specifically named typed failure is the registered availability discriminator; a generic setup/refusal/certificate failure is not. No global_dof index is invented. An ordinary correction-count or E/body mismatch cannot substitute.
+
+Two citation errors are corrected only in CITATION_ERRATUM.json, preserving every old seal. The proposal/return/inherited manifest cite scale_tests.rs121, but121 is shared.unwrap(); the named solved.unwrap_or_else formatting case,precision,typed error is actual line122. Its exact bytes and full source hash daf0d44c… are recorded. The historical selected_text spans585–612, not585–611; R7-M12 itself is at611, with the extra612 row being R7-M13. Both source identities and the quoted historical text are genuine and unchanged. These corrections do not change the criterion or oracle.
+
+All232 files across two fresh116-file copies were independently checked: complete sets, original sources/corpora/locks/tests, exact overlay581d275d…, independent single-link files and contained paths. Targets and sibling logs are empty, production fault unapplied. In-memory exact patch reconstruction confirms unchanged ae0e46f8… fault produces ea4014ea… adaptive.rs postimage. No disk patch or runtime occurred.
+
+If needed later, ROOT must separately grant this reviewed contingency, exact postimage/build and slot/guard. Fresh exactly-one-test baseline with coverage1 and fixed3 corrections, the specific named ResidualGate fault, and same-filter untouched returned control remain required. An initial read-only excerpt-bound check detected the citation end-line discrepancy; no experiment or source repair followed. No runtime04 evidence was consulted to assume original R51 failed. This is ROOT's contingent preparation, not a finding that the original run fails.
+
+No Rust, solver, tests, maintained/source/oracle/expectation edits, Git/index writes or delegation. Only this additive review folder was written. Numerical runtime qualification, G3 closure and A1 acceptance remain separate.

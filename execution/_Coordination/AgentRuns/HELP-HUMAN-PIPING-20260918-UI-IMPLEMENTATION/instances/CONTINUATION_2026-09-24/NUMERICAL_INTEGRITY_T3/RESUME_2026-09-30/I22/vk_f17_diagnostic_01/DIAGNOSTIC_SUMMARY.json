@@ -1,0 +1,22 @@
+{
+  "cases": 36,
+  "candidate_rejections": 108,
+  "all_predicates": "PublicRelative",
+  "all_new_gate_rejections_after_R7_acceptance": true,
+  "prior_R7_rejection_prefix": false,
+  "other_terminal_or_budget_or_malformed_reason": false,
+  "final_verification_precision": 1024,
+  "selected_fault_cases": 0,
+  "CLASS_credit": false,
+  "complete_controls_restored": true,
+  "reason_case_counts": {
+    "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 0, component: Rz }), body: 0, kind: Rotation, predicate: PublicRelative })": 9,
+    "Rejected(PublicationEnclosure { quantity: EndAction { member: 1, end: I, component: Uy }, body: 0, kind: Force, predicate: PublicRelative })": 6,
+    "Rejected(PublicationEnclosure { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force, predicate: PublicRelative })": 6,
+    "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })": 3,
+    "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 0, component: Uz }), body: 0, kind: Translation, predicate: PublicRelative })": 6,
+    "Rejected(PublicationEnclosure { quantity: EndAction { member: 1, end: I, component: Rx }, body: 0, kind: Moment, predicate: PublicRelative })": 3,
+    "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Rx }), body: 0, kind: Rotation, predicate: PublicRelative })": 3
+  },
+  "protected_quantities_equal_rejection": false
+}

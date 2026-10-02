@@ -1,0 +1,87 @@
+{
+  "receipt_start_utc": "2026-10-01 23:01:19 UTC",
+  "hard_end_utc": "2026-10-01 23:16:19 UTC",
+  "verified_utc": "2026-10-01T23:01:57.770509+00:00",
+  "grant": "31fa111715f84070c9330faf71d47a0410f6bf08",
+  "grant_sha256": "33232ef446495f025d2e4a17b7b0a88e4355ed05b815f1adacc45f5784c2f50a",
+  "plan_seal": "b84614ba3c846af85f9931659cf965510d7eac58a3129ec7e5b231be379d7b7d",
+  "plan_sha256": "1c0f517b73b2bc394bec83c7c134a4e0984880e8b75fb62dd6015425d1ee1957",
+  "review40_seal": "6cbbd7d36b7d345839cef5e7c2cf49716a2df263b04d403f04e66f0de4b13f12",
+  "plan_review_payloads_verified": true,
+  "source_files": 189,
+  "inventory_exact": true,
+  "all_plan_source_bindings_match": true,
+  "bindings": [
+    {
+      "key": "parity",
+      "path": "<wt>/a1-vk-target/debug/deps/parity-ce8cf2272dfb2c0a",
+      "sha256": "646e4276acbba7cdb039ca9a1f93eb161977570f9adb6fd8657d32cec9ac6b65",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-ce8cf2272dfb2c0a/test-integration-test-parity.json",
+      "fingerprint_sha256": "11cd0f0a4405b01e12154ed660ac34700cec0b09dad3775ea397f2f8b1e46bb1"
+    },
+    {
+      "key": "lane",
+      "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+      "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+      "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+    },
+    {
+      "key": "adapter",
+      "path": "<wt>/a1-vk-target/debug/deps/adapter-9707c21df3a9f00d",
+      "sha256": "dfd771acb65db91b7358f9c101b3c175dc8dd11594be4d9ab45b610a420d7b1f",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-9707c21df3a9f00d/test-integration-test-adapter.json",
+      "fingerprint_sha256": "3db748e52330d5605951c5d28588eb1d681d8270bc7fa5fac04320a144db59f2"
+    },
+    {
+      "path": "<wt>/a1-vk-target/debug/.fingerprint/open_pipe_stress_frame_kernel-585b62c046a4ab70/lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "62648b9d47b487ab172c8c7d33023fefc7e6ec36e0587a2dcb56813bdf4df21f",
+      "features": "[\"mutation-controls\"]"
+    },
+    {
+      "path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-56408c87e609fc36/lib-piping_numerical_robustness.json",
+      "sha256": "6f2fed930fdc2c9916cafa17fd9362b87a750c9f0d86bb6f884aef7eb60207e0",
+      "features": "[\"seeded-faults\"]"
+    },
+    {
+      "path": "<wt>/a1-vk-target/debug/.fingerprint/open_pipe_stress_sparse_direct-366e95824ced84f8/lib-open_pipe_stress_sparse_direct.json",
+      "sha256": "eb16b2c193703575cdfb4c99fdbf54fcbef0e666461e722f7d5088e569f13dde",
+      "features": "[]"
+    }
+  ],
+  "all8_streams_unused": true,
+  "guard": "  PID  PPID     ELAPSED COMMAND\n 5387     1 03-21:25:38 /bin/bash <wt>/guard/memguard.sh\n",
+  "host": "Apple M5 Max\n137438953472\n",
+  "owned_jobs": [],
+  "release": "OriginalP36 then exact RF-FINITE NONE/S2/NONE, per-call immediate checks, named nonzero reaction VALUE only; return after normal bound fault then stop."
+}

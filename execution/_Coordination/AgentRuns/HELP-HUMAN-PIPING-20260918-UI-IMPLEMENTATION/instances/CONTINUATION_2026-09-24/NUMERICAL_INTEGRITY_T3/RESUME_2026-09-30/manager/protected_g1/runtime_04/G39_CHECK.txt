@@ -1,0 +1,4 @@
+PASS G39 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "5ba3554b130637105ca0da7c6932737b0b2427b29972d55841958f2bce9ce4a1"}
+filter structural::retained::adaptive::tests::the_predicate_is_decided_exactly_at_its_boundary
+aliases [('R7_K4', 'K4-M14b')]

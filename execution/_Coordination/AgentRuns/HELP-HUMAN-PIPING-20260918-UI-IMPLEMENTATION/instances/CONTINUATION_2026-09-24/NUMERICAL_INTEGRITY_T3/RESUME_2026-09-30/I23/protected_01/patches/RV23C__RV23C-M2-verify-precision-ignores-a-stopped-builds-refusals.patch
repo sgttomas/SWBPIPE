@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -3868,7 +3868,7 @@
+             // RV23-1: a stopped shared build's Uc_c refusals reach the record
+             // before its stop propagates.
+             if vs.is_err() {
+-                record.bound_refusals = vs_refusals;
++                let _ = vs_refusals;
+             }
+             let vs = vs?;
+             // Amendment A2: the shared build's Uc_c refusals, per block.

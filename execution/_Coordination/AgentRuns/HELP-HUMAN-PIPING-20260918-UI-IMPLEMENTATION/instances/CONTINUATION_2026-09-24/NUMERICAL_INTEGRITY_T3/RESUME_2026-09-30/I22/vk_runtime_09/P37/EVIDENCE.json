@@ -1,0 +1,69 @@
+{
+  "process_id": "P37",
+  "phase": "UNKNOWN_SANITY",
+  "registered_id": "VK-UNKNOWN",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/adapter-9707c21df3a9f00d",
+    "--exact",
+    "permuting_every_list_changes_no_canonical_byte",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "VK-UNKNOWN"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P37.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P37.stderr",
+  "qualifying_condition": "Fresh seeded-feature process must panic exactly FK_SEEDED_FAULT: unknown fault id at PrimitiveSource::new seeded site. Compiler/zero-test/unrelated panic invalid.",
+  "actual_scope": {
+    "route": "all201 embedded cases through PrimitiveSource::new(original/reversed) and canonical encoding; no solve_case",
+    "cases": 201,
+    "source_constructions_planned": 402,
+    "retained_solves": 0,
+    "parity_calls": 0,
+    "max_members": 1005
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "qualification": "The process normally stops at the first seeded-site panic, so201 is selected loop scope, not a claim201 cases execute.",
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=VK-UNKNOWN '<wt>/a1-vk-target/debug/deps/adapter-9707c21df3a9f00d' '--exact' 'permuting_every_list_changes_no_canonical_byte' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P37.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P37.stderr'",
+  "binary": {
+    "key": "adapter",
+    "path": "<wt>/a1-vk-target/debug/deps/adapter-9707c21df3a9f00d",
+    "sha256": "dfd771acb65db91b7358f9c101b3c175dc8dd11594be4d9ab45b610a420d7b1f",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-9707c21df3a9f00d/test-integration-test-adapter.json",
+    "fingerprint_sha256": "3db748e52330d5605951c5d28588eb1d681d8270bc7fa5fac04320a144db59f2"
+  },
+  "guard_before": "5387     1 03-21:55:46 /bin/bash <wt>/guard/memguard.sh\n",
+  "launch_utc": "2026-10-01T23:32:05.473Z",
+  "tool_initial": {
+    "chunk_id": "b57ecb",
+    "wall_time_seconds": 8.917e-06,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "QUALIFYING_WITNESS_WITH_PASSING_RETURN",
+  "semantic_review": "Exactly1test fails at seeded.rs81:17 with exact FK_SEEDED_FAULT: unknown fault id VK-UNKNOWN, registered seeded-site sanity. No unrelatedpanic.",
+  "raw_hashes": {
+    "stdout_path": "d52685121ddbee4336c9d929f2530dac9f4423c4251e695deb471793f04bd098",
+    "stderr_path": "ad700ec90f8655126b325bd2cec46e1e521633bece834e30f7c356b28f58f5bc"
+  },
+  "returned_control": "P38"
+}

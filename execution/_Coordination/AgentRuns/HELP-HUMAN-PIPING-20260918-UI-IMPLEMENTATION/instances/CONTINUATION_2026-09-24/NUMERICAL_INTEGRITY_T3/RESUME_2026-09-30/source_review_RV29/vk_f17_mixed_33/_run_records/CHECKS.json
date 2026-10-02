@@ -1,0 +1,216 @@
+{
+  "sealed_child": "7d9fe7f809d523da323d8bea2b52acda9d4deb33221be8b29986b914b3cb06c3",
+  "sealed_manager": "f26c0566dc0a3ec6960ebe8cb785244d3894373a612d84074d5727a57739d76c",
+  "original_case_file_sha256": "58228206b15c7dd571ad716940d1055ac20542e5dd1e7f03851aaf1d59a07ff1",
+  "original_not_covered": 46,
+  "selected_original_comparison_rows": 10,
+  "explicit_CLASS_lines": 13,
+  "distinct_case_quantity_pairs": 12,
+  "CLASS_witnesses": [
+    {
+      "case": "RF-WEAK-W-3D-rho1e-08",
+      "original_comparison_row": "tw.C",
+      "published_quantity": "EndAction { member: 3, end: J, component: Rx }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "00a44743ab987a474b8bc49fc559e0b93aadde9029ccff69f904572fd7990a64"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "ext.A01",
+      "published_quantity": "EndAction { member: 1, end: J, component: Ux }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "ext.A12",
+      "published_quantity": "EndAction { member: 2, end: J, component: Ux }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "T.C",
+      "published_quantity": "EndAction { member: 3, end: J, component: Rx }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "Mb.C.i",
+      "published_quantity": "EndAction { member: 3, end: I, component: Ry }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "Mb.C.i",
+      "published_quantity": "EndAction { member: 3, end: I, component: Rz }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "Mb.C.mid",
+      "published_quantity": "StationAction { station: 3, component: Ry }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "Mb.C.mid",
+      "published_quantity": "StationAction { station: 3, component: Rz }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "Mb.C.j",
+      "published_quantity": "EndAction { member: 3, end: J, component: Ry }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "Mb.C.j",
+      "published_quantity": "EndAction { member: 3, end: J, component: Rz }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "tw.C",
+      "published_quantity": "EndAction { member: 3, end: J, component: Rx }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "ext.B21",
+      "published_quantity": "EndAction { member: 4, end: J, component: Ux }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "original_comparison_row": "ext.B10",
+      "published_quantity": "EndAction { member: 5, end: J, component: Ux }",
+      "observed_class": "RelativeVerified",
+      "expected_membership": "AbsoluteVerified or Unpublishable; not InputDerived",
+      "source_sha256": "f35bc0849a1db0aa103d9c08f116bc27d501e4d09b48e104666bd543ed0227bb"
+    }
+  ],
+  "withheld_cases": [
+    "RF-WEAK-W-AX-rho1e-04",
+    "RF-WEAK-W-AX-rho1e-08",
+    "RF-WEAK-W-AX-rho1e-12",
+    "RF-WEAK-W-L-r1e-04",
+    "RF-WEAK-W-L-r1e-08",
+    "RF-WEAK-W-L-r1e-12"
+  ],
+  "withheld_not_covered_rows": [
+    "u.N3.UX",
+    "u.N3.UY",
+    "u.N3.UZ",
+    "u.N4.UX",
+    "u.N4.UY",
+    "u.N4.UZ",
+    "u.N5.UX",
+    "u.N5.UY",
+    "u.N5.UZ",
+    "R.N5.UX",
+    "R.N5.UY",
+    "R.N5.UZ",
+    "R.N5.RX",
+    "R.N5.RY",
+    "R.N5.RZ",
+    "N.C",
+    "T.C",
+    "Mb.C.i",
+    "Mb.C.mid",
+    "Mb.C.j",
+    "tw.C",
+    "ext.C",
+    "N.B1",
+    "T.B1",
+    "Mb.B1.i",
+    "Mb.B1.mid",
+    "Mb.B1.j",
+    "tw.B1",
+    "ext.B1",
+    "N.B2",
+    "T.B2",
+    "Mb.B2.i",
+    "Mb.B2.mid",
+    "Mb.B2.j",
+    "tw.B2",
+    "ext.B2"
+  ],
+  "InputDerived_exceptions": [
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N5.UX",
+      "node": 5,
+      "component": 0,
+      "source_constraint": true,
+      "published_under_P27": false,
+      "later_exception_assertion_reached": false
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N5.UY",
+      "node": 5,
+      "component": 1,
+      "source_constraint": true,
+      "published_under_P27": false,
+      "later_exception_assertion_reached": false
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N5.UZ",
+      "node": 5,
+      "component": 2,
+      "source_constraint": true,
+      "published_under_P27": false,
+      "later_exception_assertion_reached": false
+    }
+  ],
+  "P27_binary": {
+    "key": "lane",
+    "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+    "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+  },
+  "P27_raw_hashes": {
+    "stdout": "d03de9afadbcb9cc591f201f9965f4551c2f0d7d735720cb02a91c3c91670db4",
+    "stderr": "33f95ee61bc18488c3431159da8e8e14b37c09b37774c2dad8f17215ec1f2f14"
+  },
+  "P27_launch": "2026-10-01T20:17:48.335Z",
+  "P27_completion": "2026-10-01T20:19:19.157Z",
+  "P28": "UNRUN_REQUIRED_FOR_CLOSURE",
+  "source_files": 189,
+  "no_cause_claim_for_ceiling": true
+}

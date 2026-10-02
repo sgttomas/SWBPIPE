@@ -1,0 +1,4 @@
+PASS G40 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "50c4532216015b3e03a61ad0ef7eae759541d50adf0978e9a1c838b41cd37979"}
+filter structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s
+aliases [('RV23', 'RV23-M1-unavailable-as-0')]

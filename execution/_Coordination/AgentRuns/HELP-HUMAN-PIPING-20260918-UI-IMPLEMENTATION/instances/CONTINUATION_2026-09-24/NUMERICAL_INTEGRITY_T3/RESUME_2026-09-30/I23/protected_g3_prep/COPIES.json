@@ -1,0 +1,1521 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "root_manifest_sha256": "5194a1b926f01b1bc4372ec6771a76a75e2d80fbeb000a3b93855268113837f6",
+  "scope_counts": {
+    "FK": 51,
+    "full_core_static_S11": 1
+  },
+  "copies": [
+    {
+      "runtime_id": "R01",
+      "group": "R7_K4",
+      "id": "R7-M7",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R01",
+      "target_root": "<wt>/a1-protected-target/g3/R01",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R01",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R01/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed SCALE A-bar tokens/digest at the actual assemble_bounded call, not aggregate record drift.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R02",
+      "group": "R7_K4",
+      "id": "R7-M13",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R02",
+      "target_root": "<wt>/a1-protected-target/g3/R02",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R02",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R02/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed SCALE TWO-SPAN correction count (1), through build_shared/solve_case_at before publication.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R03",
+      "group": "R7_K4",
+      "id": "R7-M15",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R03",
+      "target_root": "<wt>/a1-protected-target/g3/R03",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R03",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R03/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed SEEDED-COMMON/SEEDED-SOFT r-hat residual tokens, or explicitly pinned SEEDED-COMMON estimate > 0.25; removed SEED changes verifier residual.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R04",
+      "group": "R7_K4",
+      "id": "K4-M36",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R04",
+      "target_root": "<wt>/a1-protected-target/g3/R04",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R04",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R04/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::scale_tests::blocks_are_the_free_free_components_and_data_follows_7a"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "BLOCK-PRESC with-prescription data flags must be [true,true], without must be [true,false].",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R05",
+      "group": "R7_K4",
+      "id": "K4-M38",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R05",
+      "target_root": "<wt>/a1-protected-target/g3/R05",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R05",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R05/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed SCALE ebody upward resolution bits, not nearest resolution.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R06",
+      "group": "R7_K4",
+      "id": "K4-M39",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R06",
+      "target_root": "<wt>/a1-protected-target/g3/R06",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R06",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R06/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Above the fixed epsilon*M - V boundary requires StopRule index0; synthetic report e_rows=None cannot replace nonzero published e_hat.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R07",
+      "group": "R7_K4",
+      "id": "K4-M40",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R07",
+      "target_root": "<wt>/a1-protected-target/g3/R07",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R07",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R07/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed PRESCRIBED r-hat/delta/W tokens in verification_in, reached with prescribed terms present in the accepted corpus.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R08",
+      "group": "R7_K4",
+      "id": "K4-M1",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R08",
+      "target_root": "<wt>/a1-protected-target/g3/R08",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R08",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R08/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::wide_sum::tests::rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Exact 1+2^-127+2^-128-2^-400 rounds to 1+2^-127, not separately rounded positive/negative fold.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R09",
+      "group": "R7_K4",
+      "id": "K4-M2",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R09",
+      "target_root": "<wt>/a1-protected-target/g3/R09",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R09",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R09/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "sum_targeted line6: 1+2^-128+2^-428 at p128 rounds up; retaining only top L+1 limbs removes sticky tail and produces tie-to-even 1.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R10",
+      "group": "R7_K4",
+      "id": "K4-M3",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R10",
+      "target_root": "<wt>/a1-protected-target/g3/R10",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R10",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R10/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "sum_targeted line2: 1+2^-128+2^-133 at p128 rounds up rather than truncating to1.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R11",
+      "group": "R7_K4",
+      "id": "K4-M4",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R11",
+      "target_root": "<wt>/a1-protected-target/g3/R11",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R11",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R11/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::wide_sum::tests::zero_negation_absolute_value_and_reuse"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Exact cancelled and empty sums are positive zero, not negative zero.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R12",
+      "group": "R7_K4",
+      "id": "K4-M5",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R12",
+      "target_root": "<wt>/a1-protected-target/g3/R12",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R12",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R12/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::wide_sum::tests::a_refused_span_adds_nothing"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Adding 2^-8128 to1 returns SumRefusal::Span, not Ok; existing value stays1.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R13",
+      "group": "R7_K4",
+      "id": "K4-M7",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R13",
+      "target_root": "<wt>/a1-protected-target/g3/R13",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R13",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R13/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "ExactAccumulator accessor exponent is fixed -2148, not -2147.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R14",
+      "group": "R7_K4",
+      "id": "K4-M8",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R14",
+      "target_root": "<wt>/a1-protected-target/g3/R14",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R14",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R14/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Direct reduced_rhs equals 1+2^-127: preserve ledger 2^-128+2^-400 until coupled term1 joins; early p128/binary64/top128 rounding loses the tail.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R15",
+      "group": "R7_K4",
+      "id": "D13",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R15",
+      "target_root": "<wt>/a1-protected-target/g3/R15",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R15",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R15/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Direct reduced_rhs equals 1+2^-127: preserve ledger 2^-128+2^-400 until coupled term1 joins; early p128/binary64/top128 rounding loses the tail.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R16",
+      "group": "R7_K4",
+      "id": "D13b",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R16",
+      "target_root": "<wt>/a1-protected-target/g3/R16",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R16",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R16/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Direct reduced_rhs equals 1+2^-127: preserve ledger 2^-128+2^-400 until coupled term1 joins; early p128/binary64/top128 rounding loses the tail.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R17",
+      "group": "R7_K4",
+      "id": "K4-M12",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R17",
+      "target_root": "<wt>/a1-protected-target/g3/R17",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R17",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R17/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed correction count and E-row tokens after solve_case_at using exact residual expansion; only specific numeric/correction mismatch counts.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R18",
+      "group": "R7_K4",
+      "id": "K4-M13",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R18",
+      "target_root": "<wt>/a1-protected-target/g3/R18",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R18",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R18/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed SCALE A-bar/E rows at p>128 must reflect same-p build_shared formation, not retained128 coefficients.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R19",
+      "group": "R7_K4",
+      "id": "K4-M15",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R19",
+      "target_root": "<wt>/a1-protected-target/g3/R19",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R19",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R19/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Second underflow straddle must pass: tr=2^-1075 and extent2^-60 yield rotational scale2^-1015 and allowance2^-1079; uncoupled rotation2^-1020 yields2^-1084 and wrongly rejects delta2^-1080.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R20",
+      "group": "R7_K4",
+      "id": "K4-M16",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R20",
+      "target_root": "<wt>/a1-protected-target/g3/R20",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R20",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R20/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Perturbed Reaction row requires (Ok(false),Some(index)) just like each other kind; reaction omission returns no failure.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R21",
+      "group": "R7_K4",
+      "id": "K4-M18",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R21",
+      "target_root": "<wt>/a1-protected-target/g3/R21",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R21",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R21/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::tests::a_sums_rounding_charges_the_limbs_it_rounds"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Wide net rounding must add 17..20 rounded limbs; omitted charge gives0.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R22",
+      "group": "R7_K4",
+      "id": "K4-M20",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R22",
+      "target_root": "<wt>/a1-protected-target/g3/R22",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R22",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R22/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "After unchanged unlimited baseline, needed-1 must produce Case budget; invocation needed-1 must produce Invocation budget.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R23",
+      "group": "R7_K4",
+      "id": "K4-M21",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R23",
+      "target_root": "<wt>/a1-protected-target/g3/R23",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R23",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R23/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Named N02/N03-RZ/N04 must be Refused MechanismWitnessed with no geometry attempts, not numerically escalated after bypassing geometry.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R24",
+      "group": "R7_K4",
+      "id": "D7",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R24",
+      "target_root": "<wt>/a1-protected-target/g3/R24",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R24",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R24/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Named N02/N03-RZ/N04 must be Refused MechanismWitnessed with no geometry attempts, not numerically escalated after bypassing geometry.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R25",
+      "group": "R7_K4",
+      "id": "K4-M22",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R25",
+      "target_root": "<wt>/a1-protected-target/g3/R25",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R25",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R25/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "rigid_mode_check bound lhs<=64*2^-p*A for exact rigid motion; named member/row/motion numeric inequality.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R26",
+      "group": "R7_K4",
+      "id": "D4",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R26",
+      "target_root": "<wt>/a1-protected-target/g3/R26",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R26",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R26/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "rigid_mode_check bound lhs<=64*2^-p*A for exact rigid motion; named member/row/motion numeric inequality.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R27",
+      "group": "R7_K4",
+      "id": "K4-M23",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R27",
+      "target_root": "<wt>/a1-protected-target/g3/R27",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R27",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R27/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed DIRECTIONAL-SPAN formation K entry tokens at exact precision; binary64-normalized directions differ.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R28",
+      "group": "R7_K4",
+      "id": "K4-M25a",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R28",
+      "target_root": "<wt>/a1-protected-target/g3/R28",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R28",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R28/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "absolute_bound(minimum subnormal)>0 and equals minsubnormal; nearest mutant returns0.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R29",
+      "group": "R7_K4",
+      "id": "K4-M26",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R29",
+      "target_root": "<wt>/a1-protected-target/g3/R29",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R29",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R29/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::factor::tests::the_span_decision_is_exact"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "a,b,c with exact determinant2^-104 span space; binary64 determinant loses it.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R30",
+      "group": "R7_K4",
+      "id": "K4-M27",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R30",
+      "target_root": "<wt>/a1-protected-target/g3/R30",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R30",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R30/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Final same-source doubled quarter station st.1.4 must be1.5 (2*0.75); substituting1-t gives0.5.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R31",
+      "group": "R7_K4",
+      "id": "K4-M28",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R31",
+      "target_root": "<wt>/a1-protected-target/g3/R31",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R31",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R31/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::factor::tests::the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_direct_does"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Exact four sparse_direct graph orders; descending-index tie breaks change a pinned order.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R32",
+      "group": "R7_K4",
+      "id": "K4-M33",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R32",
+      "target_root": "<wt>/a1-protected-target/g3/R32",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R32",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R32/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Published input-derived u.2.1 is fixed 0x3ff0000000000001, not the p-rounded tie at1.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R33",
+      "group": "R7_K4",
+      "id": "D2",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R33",
+      "target_root": "<wt>/a1-protected-target/g3/R33",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R33",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R33/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed E-row tokens from the solved retained u on N05/N06 at p128/256; mutating u to binary64 before recover changes the same stored u consumed here.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R34",
+      "group": "R7_K4",
+      "id": "D3",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R34",
+      "target_root": "<wt>/a1-protected-target/g3/R34",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R34",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R34/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::assemble::tests::the_reduced_rhs_enters_prescribed_columns_exactly_and_rounds_once"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "PRESCRIBED reduced rhs equals separately formed exact -sum(K_ic*u_c); omitted prescribed columns violate row equality.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R35",
+      "group": "R7_K4",
+      "id": "D5",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R35",
+      "target_root": "<wt>/a1-protected-target/g3/R35",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R35",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R35/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::tests::a_ceiling_case_is_unresolved_with_its_attempts"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "SKEW-K1E-300 records exactly candidate precisions[128,256,512]; loop capped at1 records only128. No selected publication prerequisite.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R36",
+      "group": "R7_K4",
+      "id": "D6",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R36",
+      "target_root": "<wt>/a1-protected-target/g3/R36",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R36",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R36/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed above-boundary row must reject StopRule index0; screen-only acceptance returnsNone.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R37",
+      "group": "R7_K4",
+      "id": "D10",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R37",
+      "target_root": "<wt>/a1-protected-target/g3/R37",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R37",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R37/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed BOUNDS per-model L/D encoding includes actual order_free mapping; list order must not replace RCM.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R38",
+      "group": "R7_K4",
+      "id": "D14",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R38",
+      "target_root": "<wt>/a1-protected-target/g3/R38",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R38",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R38/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::ledger::tests::canonical_encodings_equal_the_generators_independent_bytes"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed cled B1-C canonical bytes encode net1e-8; sequential binary64 product fold yields zero. No operand solving/publication.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R39",
+      "group": "R7_K4",
+      "id": "D16b",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R39",
+      "target_root": "<wt>/a1-protected-target/g3/R39",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R39",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R39/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::recover::tests::a_recovered_action_is_one_exact_expansion_where_a_sequential_fold_loses_a_term"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Direct recover axial action remains nonzero and within1e-12 of -(EA/L)*(2/3)*2^-200; code-order fold loses term.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R40",
+      "group": "R7_K4",
+      "id": "D20",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R40",
+      "target_root": "<wt>/a1-protected-target/g3/R40",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R40",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R40/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "threshold(1) equals fixed FLOOR_RATIO_BITS, not rounded1e9*2^-64.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R41",
+      "group": "R7_K4",
+      "id": "D25",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R41",
+      "target_root": "<wt>/a1-protected-target/g3/R41",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R41",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R41/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::classification_tests::stress_scales_and_intensified_factors_match_bit_for_bit"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed kint corpus numeric bits retain sqrt2 factor; substituting1 changes them.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R42",
+      "group": "RV19",
+      "id": "RV19-1R",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R42",
+      "target_root": "<wt>/a1-protected-target/g3/R42",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R42",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R42/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Candidate overflow membership determines first straddle StopRule index1 and opposite straddleNone; skip-all or verifier membership flips required verdict.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R43",
+      "group": "RV19",
+      "id": "RV19-D4",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R43",
+      "target_root": "<wt>/a1-protected-target/g3/R43",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R43",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R43/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Candidate overflow membership determines first straddle StopRule index1 and opposite straddleNone; skip-all or verifier membership flips required verdict.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R44",
+      "group": "RV19",
+      "id": "A1R",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R44",
+      "target_root": "<wt>/a1-protected-target/g3/R44",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R44",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R44/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R45",
+      "group": "RV19",
+      "id": "RV19-D1",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R45",
+      "target_root": "<wt>/a1-protected-target/g3/R45",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R45",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R45/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R46",
+      "group": "RV19",
+      "id": "RV19-D2",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R46",
+      "target_root": "<wt>/a1-protected-target/g3/R46",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R46",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R46/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R47",
+      "group": "RV19",
+      "id": "RV19-D3",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R47",
+      "target_root": "<wt>/a1-protected-target/g3/R47",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R47",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R47/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "A+C have identical station/stiffness/layout ids but different spring membership; require immediate OperandsDiffer and empty attempts at that named combination.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R48",
+      "group": "RV19",
+      "id": "RV19-M2",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R48",
+      "target_root": "<wt>/a1-protected-target/g3/R48",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R48",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R48/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::method_tests::the_sas_norm_is_the_larger_of_the_one_and_infinity_norms"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Transposed-entry perturbation creates one-norm > infinity-norm; r.norms.sas must equal larger, with found>0 control.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R49",
+      "group": "RV19",
+      "id": "RV19-M6",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R49",
+      "target_root": "<wt>/a1-protected-target/g3/R49",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R49",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R49/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Fixed SCALE GROUP-DIR/GROUP-DIR-X E-row tokens include directional contributors in support E.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R50",
+      "group": "R7_K4",
+      "id": "K4-M31",
+      "source_scope": "projects/chirality-piping/core",
+      "source_root": "<wt>/scratch/i22/protected_g3/R50",
+      "target_root": "<wt>/a1-protected-target/g3/R50",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R50",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R50/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 560,
+      "total_bytes": 34737211,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "site_table_is_exactly_the_accumulations_of_the_scanned_files"
+      ],
+      "cargo_target": "--test s11_site_table",
+      "qualifying_semantic_assertion": "Registered static-policy exact site ledger.rs/from_source count0 becomes1 by newly inserted folded += load.value; named exact-site mismatch required.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/s11_site_table-c8ba14d9f767e011",
+        "sha256": "ffed9c0f948b771acfd3de71242f38a41dda478839afe7d54de2020f21f9165a"
+      }
+    },
+    {
+      "runtime_id": "R51",
+      "group": "R7_K4",
+      "id": "R7-M12",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R51",
+      "target_root": "<wt>/a1-protected-target/g3/R51",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R51",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R51/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "LOADONLY-y345 p128 must form the fixed SCALE state with3 corrections; specifically reported ResidualGate instead of that state is the registered loss of bounded fallback. No certificate is called on this direct solve path.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    },
+    {
+      "runtime_id": "R52",
+      "group": "R7_K4",
+      "id": "K4-M37",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R52",
+      "target_root": "<wt>/a1-protected-target/g3/R52",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R52",
+      "manifest_path": "<wt>/scratch/i22/protected_g3/R52/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "file_count": 116,
+      "total_bytes": 22831431,
+      "full_original_file_set_and_hash_equality": true,
+      "production_fault_applied": false,
+      "test_overlay_applied": false,
+      "empty_target": true,
+      "empty_logs": true,
+      "no_symlink_ancestors": true,
+      "all_files_nlink1": true,
+      "all_new_file_inodes_unique": true,
+      "filters": [
+        "structural::retained::adaptive::classification_tests::item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else",
+        "structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling"
+      ],
+      "cargo_target": "--lib",
+      "qualifying_semantic_assertion": "Pure classification binding Force class at296; valid accepted p512 draft Force scale bits at982. Compiler, Shape, other certificate error or Accepted precondition panic never counts.",
+      "baseline_binding_copied_without_runtime_credit": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      }
+    }
+  ],
+  "state": "ALL_UNMUTATED_IMMUTABLE40129",
+  "runtime_ownership": "ROOT_PENDING_EXPLICIT_TRANSFER; G1 remains sole A1 runtime"
+}

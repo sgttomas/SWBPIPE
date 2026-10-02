@@ -1,0 +1,239 @@
+{
+  "process_id": "P39",
+  "phase": "INITIAL_NONE_EXAMPLE",
+  "registered_id": "NONE",
+  "argv": [
+    "<wt>/a1-vk-target/release/examples/vk_records",
+    "RF-RANGE",
+    "--show=RF-RANGE-THIN-A",
+    "--show=RF-RANGE-THIN-B"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "NONE"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P39.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P39.stderr",
+  "qualifying_condition": "Exact frozen shown-case projections match and no unexpected family failure; exit0 alone is insufficient.",
+  "actual_scope": {
+    "family": "RF-RANGE",
+    "case_ids_computed": [
+      "RF-RANGE-CHAIN-L-240",
+      "RF-RANGE-CHAIN-L+240",
+      "RF-RANGE-CHAIN-E-1000",
+      "RF-RANGE-CHAIN-E+960",
+      "RF-RANGE-CHAIN-F-960",
+      "RF-RANGE-CHAIN-F+960",
+      "RF-RANGE-CHAIN-LEF-small",
+      "RF-RANGE-CHAIN-LEF-large",
+      "RF-RANGE-CHAIN-SIM-a",
+      "RF-RANGE-CHAIN-SIM-b",
+      "RF-RANGE-SKEW-L-240",
+      "RF-RANGE-SKEW-L+240",
+      "RF-RANGE-SKEW-E-1000",
+      "RF-RANGE-SKEW-E+960",
+      "RF-RANGE-SKEW-F-960",
+      "RF-RANGE-SKEW-F+960",
+      "RF-RANGE-SKEW-LEF-small",
+      "RF-RANGE-SKEW-LEF-large",
+      "RF-RANGE-SKEW-SIM-a",
+      "RF-RANGE-SKEW-SIM-b",
+      "RF-RANGE-CONT-L-240",
+      "RF-RANGE-CONT-L+240",
+      "RF-RANGE-CONT-E-1000",
+      "RF-RANGE-CONT-E+960",
+      "RF-RANGE-CONT-F-960",
+      "RF-RANGE-CONT-F+960",
+      "RF-RANGE-CONT-LEF-small",
+      "RF-RANGE-CONT-LEF-large",
+      "RF-RANGE-CONT-SIM-a",
+      "RF-RANGE-CONT-SIM-b",
+      "RF-RANGE-THIN-A",
+      "RF-RANGE-THIN-B"
+    ],
+    "run_case_invocations_planned": 32,
+    "max_members": 10,
+    "parity_calls_planned": 0,
+    "sparse_parity_invocations_planned": 0,
+    "dense_parity_invocations_planned": 0,
+    "sparse_only_cases": [],
+    "dense_member_ceiling": null,
+    "shown_case_ids_only": [
+      "RF-RANGE-THIN-A",
+      "RF-RANGE-THIN-B"
+    ],
+    "show_filters_computation": false,
+    "no_dense_at_10000_or_more": true,
+    "full_work_required_even_for_unshown_cases": true
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "record_projections": [
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+      "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+      "expected_projection": {
+        "id": "RF-RANGE-THIN-A",
+        "outcome": "Unresolved Ceiling [Restrained]",
+        "selected_precision": null,
+        "attempts": [
+          {
+            "precision": 128,
+            "role": "Candidate",
+            "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+            "gate": "Coalesced",
+            "residual_basis": 192,
+            "verification": null
+          },
+          {
+            "precision": 256,
+            "role": "VerificationThenCandidate",
+            "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+            "gate": "Coalesced",
+            "residual_basis": 320,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          },
+          {
+            "precision": 512,
+            "role": "VerificationThenCandidate",
+            "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+            "gate": "Coalesced",
+            "residual_basis": 576,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          },
+          {
+            "precision": 1024,
+            "role": "Verification",
+            "outcome": "Solved",
+            "gate": "Coalesced",
+            "residual_basis": 1024,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          }
+        ]
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    },
+    {
+      "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+      "refreshed_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+      "expected_projection": {
+        "id": "RF-RANGE-THIN-B",
+        "outcome": "Unresolved Ceiling [Restrained]",
+        "selected_precision": null,
+        "attempts": [
+          {
+            "precision": 128,
+            "role": "Candidate",
+            "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+            "gate": "Coalesced",
+            "residual_basis": 192,
+            "verification": null
+          },
+          {
+            "precision": 256,
+            "role": "VerificationThenCandidate",
+            "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+            "gate": "Coalesced",
+            "residual_basis": 320,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          },
+          {
+            "precision": 512,
+            "role": "VerificationThenCandidate",
+            "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+            "gate": "Coalesced",
+            "residual_basis": 576,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          },
+          {
+            "precision": 1024,
+            "role": "Verification",
+            "outcome": "Solved",
+            "gate": "Coalesced",
+            "residual_basis": 1024,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          }
+        ]
+      },
+      "selected_precision_normalization": "Selected record integer is literal; absent selected_precision for refused/unresolved normalizes to null, corroborated by outcome text."
+    }
+  ],
+  "returns_or_baseline_for": "VK-F05",
+  "example_no_write": true,
+  "exit_status_not_verdict": true,
+  "mode": "normal release example",
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-vk-target/release/examples/vk_records' 'RF-RANGE' '--show=RF-RANGE-THIN-A' '--show=RF-RANGE-THIN-B' > '<wt>/scratch/i23/vk_prep/logs/P39.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P39.stderr'",
+  "binary": {
+    "key": "vk_records",
+    "path": "<wt>/a1-vk-target/release/examples/vk_records",
+    "sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+    "fingerprint_sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+  },
+  "guard_before": " 5387     1 03-21:56:53 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "launch_utc": "2026-10-01T23:33:12.684Z",
+  "tool_initial": {
+    "chunk_id": "47a98d",
+    "wall_time_seconds": 0.054529333,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "PASS",
+  "semantic_review": "Both completeTHINrecords matchfrozenobservations andeveryfrozenprojection;full32casefamily report/controlpins match.",
+  "raw_hashes": {
+    "stdout_path": "b6baaed09ceb1b9333e73bc4b7dd1b4e7f1f5af004e7cd9c19ca101a773d5d83",
+    "stderr_path": "68eed616465387b7c95743e95f120c0f9f10149c1b62ed84378995ecc4d5b86c"
+  }
+}

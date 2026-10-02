@@ -1,0 +1,50 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "entries": [
+    {
+      "id": "K4-M11",
+      "patch_sha256": "74cc984b92142cc5ca271f3efc3789b3a82f1755de6b770ef0c115b0a919d99e",
+      "postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "7641875d7236cff9f7f47562e70830de04909f39cf2a0b77c4d3b287ec461864"
+      },
+      "overlay_disjoint": true
+    },
+    {
+      "id": "K4-M32",
+      "patch_sha256": "e46e4d4938e00b3102a265631c8e0a5c33fc62a970bc4887a1560e46e1cb114a",
+      "postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "e6b478a51708afc4e1ed67f7a761623d443fb88ae1411de9efdc4f9012677f27"
+      },
+      "overlay_disjoint": true
+    },
+    {
+      "id": "K4-M9",
+      "patch_sha256": "ac2a904d11b4da0a3b56864b1e71628c979f80e6c71929633de1637057829c78",
+      "postimages": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "697c2510740834d6d2ad079a5790be0953e8270b4ebf24fdd4f7edfd58571cb0"
+      },
+      "overlay_disjoint": true
+    }
+  ],
+  "baseline_coverage": [
+    {
+      "id": "K4-M11",
+      "exact_filter": "structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis",
+      "passes_in_existing_full_baseline": 1,
+      "new_filtered_baseline_required": false
+    },
+    {
+      "id": "K4-M32",
+      "exact_filter": "structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm",
+      "passes_in_existing_full_baseline": 0,
+      "new_filtered_baseline_required": true
+    },
+    {
+      "id": "K4-M9",
+      "exact_filter": "structural::retained::factor::tests::i23_k4_m9_pivot_inequality_uses_requested_precision",
+      "passes_in_existing_full_baseline": 0,
+      "new_filtered_baseline_required": true
+    }
+  ],
+  "M11_limitation": "Reuse only for exact unoverlaid original-source test/profile; still no evidence that mutant reaches tuple."
+}

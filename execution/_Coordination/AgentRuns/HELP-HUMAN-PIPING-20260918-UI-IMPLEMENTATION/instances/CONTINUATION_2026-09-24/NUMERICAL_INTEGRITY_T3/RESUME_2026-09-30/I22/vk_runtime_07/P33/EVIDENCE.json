@@ -1,0 +1,82 @@
+{
+  "process_id": "P33",
+  "phase": "FAULT_TEST",
+  "registered_id": "VK-S1",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "--exact",
+    "rf_finite",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "VK-S1"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P33.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P33.stderr",
+  "qualifying_condition": "Named directional-spring numerical predicate failure caused by omitting division by n dot n.",
+  "actual_scope": {
+    "route": "whole existing lane family, one run_case per case; final record comparison retained",
+    "family": "RF-FINITE",
+    "cases": 6,
+    "max_members": 10,
+    "parity_calls": 0
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "test_source": {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+    "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+  },
+  "registered_kind": "value",
+  "registered_target": "the directional-spring cases",
+  "qualification": null,
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=VK-S1 '<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5' '--exact' 'rf_finite' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P33.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P33.stderr'",
+  "binary": {
+    "key": "lane",
+    "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+    "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+  },
+  "guard_before": "5387     1 03-20:03:37 /bin/bash <wt>/guard/memguard.sh\n",
+  "launch_utc": "2026-10-01T21:39:56.874Z",
+  "tool_initial": {
+    "chunk_id": "dd2a63",
+    "wall_time_seconds": 1.00050625,
+    "session_id": 42784,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "873aba",
+    "wall_time_seconds": 2.0291e-05,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "STOP_REQUIRED_SURVIVOR",
+  "semantic_review": "VK-S1 exactrf_finite test passed1/exit0:748rowsPASS,6selected,6/6controls,zero failures and originalstoredrecord equality. Required named directional-spring numerical predicate absent. ImmediateSTOP,noP34orlater/no retry/diagnostic.",
+  "completed_utc": "2026-10-01T21:41:00.104Z",
+  "raw_hashes": {
+    "stdout": "f50e5dafcec4e315472d623578df57044de16c35f0598cf447ca9e5d08add3d5",
+    "stderr": "3b76204d0efe91ebfebba8d842d3eceea9650c0838339d9e6d8d789ae06ddcbf"
+  },
+  "hard_end": "2026-10-01T22:03:32Z"
+}

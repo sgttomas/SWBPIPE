@@ -1,0 +1,63 @@
+{
+  "start_utc": "2026-10-01T16:34:56Z",
+  "end_utc": "2026-10-01T16:49:56Z",
+  "seals": [
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_r10_tail_10/SHA256SUMS",
+      "sha256": "d099ae512ef5c7523ba491e0244480aa7a32a39efe2fc0ca44839c1994d43499",
+      "entries": 13
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_r10_tail_correction_11/SHA256SUMS",
+      "sha256": "ccd9999efc3b599301edf460d004ae7ab5e73901e978cddb8283a5cf4e53705d",
+      "entries": 6
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/tail_correction_16/SHA256SUMS",
+      "sha256": "5f023a439f24a30a1cd0b8fa23f0b563b801cd34ac3dcc3a32903022fce65eaa",
+      "entries": 3
+    }
+  ],
+  "copies": [
+    {
+      "id": "BASELINE",
+      "source": "<wt>/scratch/i23/r09_r10_tail/BASELINE",
+      "target": "<wt>/a1-diagnostic-target/r09_r10_tail/BASELINE",
+      "logs": "<wt>/scratch/i23/r09_r10_tail/logs/BASELINE",
+      "files": 116,
+      "complete_hashes_match": true,
+      "unique_nlink1_no_symlink": true,
+      "target_logs_empty": true
+    },
+    {
+      "id": "K4-M2",
+      "source": "<wt>/scratch/i23/r09_r10_tail/K4-M2",
+      "target": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M2",
+      "logs": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M2",
+      "files": 116,
+      "complete_hashes_match": true,
+      "unique_nlink1_no_symlink": true,
+      "target_logs_empty": true
+    },
+    {
+      "id": "K4-M3",
+      "source": "<wt>/scratch/i23/r09_r10_tail/K4-M3",
+      "target": "<wt>/a1-diagnostic-target/r09_r10_tail/K4-M3",
+      "logs": "<wt>/scratch/i23/r09_r10_tail/logs/K4-M3",
+      "files": 116,
+      "complete_hashes_match": true,
+      "unique_nlink1_no_symlink": true,
+      "target_logs_empty": true
+    }
+  ],
+  "total_files": 348,
+  "source_manifest_sha256": "21f77fc369fb055977937ef16a8cf0b13f14684530fe51423dd65d0adc078ad1",
+  "combined_overlay_sha256": "039a43e1fe0f9bc51fec0e99e5aaf59b468acd32fce80631c0df1c797c43ba8a",
+  "corrected_predictions": {
+    "R09": "+8p0",
+    "R10": "Z+"
+  },
+  "unchanged_expected_upper": "+80000000000000000000000000000001p0",
+  "guard": "5387     1 03-15:00:02 /bin/bash <wt>/guard/memguard.sh",
+  "Rust_started": false
+}
