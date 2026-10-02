@@ -1,0 +1,18 @@
+{
+  "native_parent": "/root",
+  "native_task": "/root/i26_uc_witness",
+  "mechanism": "Existing direct native TASK follow-up",
+  "receipt_utc": "2026-10-02T05:01:23Z",
+  "new_runtime_cutoff_utc": "2026-10-02T05:16:23Z",
+  "hard_return_deadline_utc": "2026-10-02T05:21:23Z",
+  "brief_ruling_commit": "096b57e95be52ce1506b30e342ec8c6e89344b8f",
+  "ordinary_artifact_correspondence": "Accepted by ROOT as supplied in explicit dispatch; existing plan held status remains historical.",
+  "exclusive_slot": "ROOT confirmed no compiler/solver process and reserved quiet acquisition slot; I27D not granted.",
+  "setup_completed_utc": "2026-10-02T05:03:27.748952+00:00",
+  "runtime_product_calls": 0,
+  "write_scope": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/input_qualification_04",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c-measurements-01"
+  ],
+  "no_retry": true
+}

@@ -1,0 +1,19 @@
+{
+  "command": [
+    "git",
+    "archive",
+    "81c03849033f3ce745668f581f446530789397b8",
+    "projects/chirality-piping/core",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+  "frozen_base": "81c03849033f3ce745668f581f446530789397b8",
+  "archive": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-runtime-04/frozen-core-vr.tar",
+  "archive_sha256": "5accdf8ffec9e030e168c2430b5dc4ad594f206aff6df4e9f0a3ade8b459590d",
+  "source_directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-runtime-04/archive",
+  "source_files": 632,
+  "target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target",
+  "scratch_and_target_absent_before_creation": true,
+  "no_overlay": true,
+  "critical_plan_sources_match": true
+}

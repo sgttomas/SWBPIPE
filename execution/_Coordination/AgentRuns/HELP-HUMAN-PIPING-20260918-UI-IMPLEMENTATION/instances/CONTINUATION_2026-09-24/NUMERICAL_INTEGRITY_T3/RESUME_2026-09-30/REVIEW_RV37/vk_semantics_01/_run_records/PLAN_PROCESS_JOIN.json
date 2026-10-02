@@ -1,0 +1,306 @@
+{
+  "processes": [
+    {
+      "packet": "vk_runtime_04",
+      "route": "VK-UNKNOWN-adapter",
+      "stage": "NONE_before",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:15:56.136753+00:00",
+      "end": "2026-10-02T04:15:56.243788+00:00"
+    },
+    {
+      "packet": "vk_runtime_04",
+      "route": "VK-F10-permuting_every_list_changes_no_canonical_byte",
+      "stage": "NONE_after",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:15:29.103497+00:00",
+      "end": "2026-10-02T04:15:29.211062+00:00"
+    },
+    {
+      "packet": "vk_runtime_04",
+      "route": "VK-UNKNOWN-adapter",
+      "stage": "fault",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:15:56.296391+00:00",
+      "end": "2026-10-02T04:15:56.378947+00:00"
+    },
+    {
+      "packet": "vk_runtime_04",
+      "route": "VK-F10-permuting_every_list_changes_no_canonical_byte",
+      "stage": "NONE_before",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:15:27.903511+00:00",
+      "end": "2026-10-02T04:15:28.912881+00:00"
+    },
+    {
+      "packet": "vk_runtime_04",
+      "route": "VK-UNKNOWN-adapter",
+      "stage": "NONE_after",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:16:52.096139+00:00",
+      "end": "2026-10-02T04:16:52.202202+00:00"
+    },
+    {
+      "packet": "vk_runtime_04",
+      "route": "VK-F10-permuting_every_list_changes_no_canonical_byte",
+      "stage": "fault",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:15:28.966508+00:00",
+      "end": "2026-10-02T04:15:29.049286+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F02-rf_chain",
+      "stage": "NONE_after",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:30:52.273596+00:00",
+      "end": "2026-10-02T04:30:55.847813+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F02-rf_chain",
+      "stage": "fault",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:30:48.514694+00:00",
+      "end": "2026-10-02T04:30:52.211741+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F02-rf_chain",
+      "stage": "NONE_before",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:30:44.164354+00:00",
+      "end": "2026-10-02T04:30:48.457036+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F17-rf_weak",
+      "stage": "NONE_after",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:32:57.277421+00:00",
+      "end": "2026-10-02T04:32:58.011523+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F17-rf_weak",
+      "stage": "fault",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:32:55.592198+00:00",
+      "end": "2026-10-02T04:32:57.219200+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F17-rf_weak",
+      "stage": "NONE_before",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:32:54.803938+00:00",
+      "end": "2026-10-02T04:32:55.537389+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-S2-rf_finite",
+      "stage": "NONE_after",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:33:37.791667+00:00",
+      "end": "2026-10-02T04:33:38.965834+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-S2-rf_finite",
+      "stage": "fault",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:33:36.559113+00:00",
+      "end": "2026-10-02T04:33:37.730719+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-S2-rf_finite",
+      "stage": "NONE_before",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:33:35.328574+00:00",
+      "end": "2026-10-02T04:33:36.502232+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-S1-rf_skew",
+      "stage": "NONE_after",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:33:14.041219+00:00",
+      "end": "2026-10-02T04:33:15.355505+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-S1-rf_skew",
+      "stage": "fault",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:33:12.681748+00:00",
+      "end": "2026-10-02T04:33:13.983548+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-S1-rf_skew",
+      "stage": "NONE_before",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:33:11.313734+00:00",
+      "end": "2026-10-02T04:33:12.628186+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F13-rf_cancel",
+      "stage": "NONE_after",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:32:27.233675+00:00",
+      "end": "2026-10-02T04:32:28.872726+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F13-rf_cancel",
+      "stage": "fault",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:32:25.636821+00:00",
+      "end": "2026-10-02T04:32:27.173245+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F13-rf_cancel",
+      "stage": "NONE_before",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:32:23.942783+00:00",
+      "end": "2026-10-02T04:32:25.583802+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F04-rf_skew",
+      "stage": "NONE_after",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:31:07.301256+00:00",
+      "end": "2026-10-02T04:31:08.617381+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F04-rf_skew",
+      "stage": "fault",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:31:05.927267+00:00",
+      "end": "2026-10-02T04:31:07.239963+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F04-rf_skew",
+      "stage": "NONE_before",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:31:04.558005+00:00",
+      "end": "2026-10-02T04:31:05.872407+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F04-rf_invariance",
+      "stage": "NONE_after",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:31:27.612384+00:00",
+      "end": "2026-10-02T04:31:39.291745+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F04-rf_invariance",
+      "stage": "fault",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:31:26.556896+00:00",
+      "end": "2026-10-02T04:31:27.555021+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F04-rf_invariance",
+      "stage": "NONE_before",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:31:14.825404+00:00",
+      "end": "2026-10-02T04:31:26.495869+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F08-rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis",
+      "stage": "NONE_after",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:32:08.357627+00:00",
+      "end": "2026-10-02T04:32:19.242412+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F08-rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis",
+      "stage": "fault",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:32:08.255260+00:00",
+      "end": "2026-10-02T04:32:08.309943+00:00"
+    },
+    {
+      "packet": "vk_runtime_05",
+      "route": "VK-F08-rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis",
+      "stage": "NONE_before",
+      "argv_tail_equal": true,
+      "environment_equal": true,
+      "unset_equal": true,
+      "start": "2026-10-02T04:31:56.844144+00:00",
+      "end": "2026-10-02T04:32:08.204140+00:00"
+    }
+  ],
+  "strictly_sequential": true,
+  "duplicate_start_times": false
+}

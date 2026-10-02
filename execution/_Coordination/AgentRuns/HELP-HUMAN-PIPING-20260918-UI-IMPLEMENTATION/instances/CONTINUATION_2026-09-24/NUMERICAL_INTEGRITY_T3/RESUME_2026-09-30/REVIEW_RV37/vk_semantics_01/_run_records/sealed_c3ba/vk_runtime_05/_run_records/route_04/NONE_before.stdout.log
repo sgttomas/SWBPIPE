@@ -1,0 +1,18 @@
+
+running 1 test
+RF-LARGE-CHAIN-n00010-AX: sparse Passed dense Some("Passed") delta Some((true, 0.00026094085797555896))
+RF-LARGE-CHAIN-n00010-ROT: sparse Passed dense Some("Passed") delta Some((true, 0.03820034152276524))
+RF-LARGE-TREE-n00010-AX: sparse Passed dense Some("Passed") delta Some((true, 0.00630702766467845))
+RF-LARGE-TREE-n00010-ROT: sparse Passed dense Some("Passed") delta Some((true, 0.005227033029933681))
+RF-LARGE-CONT-n00010-AX: sparse Passed dense Some("Passed") delta Some((true, 1.901512327101089e-7))
+RF-LARGE-CONT-n00010-ROT: sparse Passed dense Some("Passed") delta Some((true, 1.0741256124506697e-5))
+RF-LARGE-CHAIN-n00100-AX: sparse Sensitive dense Some("Sensitive") delta Some((false, 2.233387772482559))
+RF-LARGE-CHAIN-n00100-ROT: sparse Sensitive dense Some("Sensitive") delta Some((false, 344.8670229204612))
+RF-LARGE-TREE-n00100-AX: sparse Sensitive dense Some("Sensitive") delta Some((false, 14.319897703190744))
+RF-LARGE-TREE-n00100-ROT: sparse Sensitive dense Some("Sensitive") delta Some((false, 11.164786596598626))
+RF-LARGE-CONT-n00100-AX: sparse Passed dense Some("Passed") delta Some((true, 4.7582915453598174e-7))
+RF-LARGE-CONT-n00100-ROT: sparse Passed dense Some("Passed") delta Some((true, 4.039333669930846e-5))
+test rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 10.92s
+

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--quiet",
+    "81c03849033f3ce745668f581f446530789397b8",
+    "--",
+    "projects/chirality-piping/core",
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "",
+  "maintained_edits": false
+}

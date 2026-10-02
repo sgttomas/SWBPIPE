@@ -1,0 +1,6 @@
+{
+  "criterion": "RF-LARGE-CHAIN-n00010-AX bitwise K(0,6)",
+  "assertion": "assertion `left == right` failed: RF-LARGE-CHAIN-n00010-AX: bitwise K\n  left: Some(Some(\"(0, 6): pattern Some(0.0), dense -3.9793506945470715e8\"))\n right: Some(None)\n",
+  "later_assertions": "unexecuted and uncredited",
+  "matches_historical_exact_assertion": true
+}

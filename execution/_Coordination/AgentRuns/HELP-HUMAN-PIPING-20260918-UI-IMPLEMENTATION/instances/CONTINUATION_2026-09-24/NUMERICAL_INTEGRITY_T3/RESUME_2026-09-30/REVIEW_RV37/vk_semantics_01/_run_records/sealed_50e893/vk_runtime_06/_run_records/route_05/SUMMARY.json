@@ -1,0 +1,14 @@
+{
+  "route": "VK-F07-records-RF-MECH",
+  "complete": true,
+  "control_exits": [
+    0,
+    0
+  ],
+  "fault_exit": 0,
+  "exit_not_semantic_verdict": true,
+  "criterion": "Loss of each named MechanismWitnessed immediate refusal/body with empty attempts; distinguish it from source error, random numerical failure or generic record drift.",
+  "accepted_limits": "All8 named MechanismWitnessed/body/empty-attempt signatures lost; full9case and9sparse/8dense parity scope",
+  "end_utc": "2026-10-02T04:47:53.396139+00:00",
+  "full_original_scope": true
+}

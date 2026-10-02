@@ -1,0 +1,13 @@
+{
+  "route": "VK-S2-rf_finite",
+  "complete": true,
+  "control_exits": [
+    0,
+    0
+  ],
+  "fault_exit": 101,
+  "criterion": "Actual named NONZERO-REACTION numerical VALUE predicate failure on original case/key/reference caused by S2 sign reversal. No generic unavailability/CLASS/work/record substitute.",
+  "accepted_limits": "36named nonzero constrained-reaction predicates; original zero-reference P35zero-credit; expired P36prep not authority",
+  "normal_tests_complete": true,
+  "end_utc": "2026-10-02T04:33:38.965834+00:00"
+}

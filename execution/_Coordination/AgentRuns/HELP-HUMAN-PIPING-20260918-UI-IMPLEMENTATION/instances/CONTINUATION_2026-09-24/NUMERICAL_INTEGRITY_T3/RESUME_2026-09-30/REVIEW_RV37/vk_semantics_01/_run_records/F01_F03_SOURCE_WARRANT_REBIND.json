@@ -1,0 +1,62 @@
+[
+  {
+    "warrant": "vk_f01_runtime_28",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+    "sha256_matches": true,
+    "ranges_match": true
+  },
+  {
+    "warrant": "vk_f01_runtime_28",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+    "sha256_matches": true,
+    "ranges_match": true
+  },
+  {
+    "warrant": "vk_f01_runtime_28",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "sha256_matches": true,
+    "ranges_match": true
+  },
+  {
+    "warrant": "vk_f01_runtime_28",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs",
+    "sha256_matches": true,
+    "ranges_match": true
+  },
+  {
+    "warrant": "vk_f01_runtime_28",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+    "sha256_matches": false,
+    "ranges_match": false
+  },
+  {
+    "warrant": "vk_f01_runtime_28",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+    "sha256_matches": true,
+    "ranges_match": true
+  },
+  {
+    "warrant": "vk_f03_attribution_31",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+    "sha256_matches": true,
+    "ranges_match": true
+  },
+  {
+    "warrant": "vk_f03_attribution_31",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+    "sha256_matches": true,
+    "ranges_match": true
+  },
+  {
+    "warrant": "vk_f03_attribution_31",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "sha256_matches": true,
+    "ranges_match": true
+  },
+  {
+    "warrant": "vk_f03_attribution_31",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/PLAN_CHECKPOINT0.md",
+    "sha256_matches": true,
+    "ranges_match": true
+  }
+]

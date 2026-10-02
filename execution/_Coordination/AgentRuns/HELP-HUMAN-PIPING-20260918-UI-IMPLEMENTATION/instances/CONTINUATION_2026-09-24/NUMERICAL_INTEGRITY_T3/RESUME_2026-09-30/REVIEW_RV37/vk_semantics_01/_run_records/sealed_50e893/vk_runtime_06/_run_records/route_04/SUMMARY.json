@@ -1,0 +1,14 @@
+{
+  "route": "VK-F06-records-RF-RANGE",
+  "complete": true,
+  "control_exits": [
+    0,
+    0
+  ],
+  "fault_exit": 0,
+  "exit_not_semantic_verdict": true,
+  "criterion": "Erroneous THIN selection at128, OR exact loss of required p128 Rejected(StopRule Displacement node1 Uy Translation) after forced R7 acceptance. A replacement PublicationEnclosure verdict demonstrates loss of that specific required R7 verdict only when the exact record identifies it; certificate withholding alone is not a kill.",
+  "accepted_limits": "Both exact p128StopRule verdicts lost as registered; actual selection512, not128; no F17 substitution",
+  "end_utc": "2026-10-02T04:47:32.625734+00:00",
+  "full_original_scope": true
+}

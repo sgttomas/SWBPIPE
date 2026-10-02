@@ -1,0 +1,329 @@
+{
+  "critical_inputs": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+      "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/adapter.rs",
+      "sha256": "53d8a3b2046b2bb55c26fef7d4d1a9f2e1f255a08ddb7a231f2e827538cba66d",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/parity.rs",
+      "sha256": "622ccacd0e9fde5c732b6f60fe68f1a445b6386abc569cbd8d9e2cc9cfb7b0f0",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_records.rs",
+      "sha256": "a7117146b03200b17fef7a614b5a617dc24801c89fe8ccce82a6694c4ffc5cc3",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_seeded_faults.py",
+      "sha256": "e800ccb6a90e7584513594ae2f42b305dabdbc295a7df19a1b3082ab429ab6bd",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+      "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/compare.rs",
+      "sha256": "54843240c5f1f3cb2894e67f05bfae84a31ef8d3e96b3d7b1895591b163680e4",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs",
+      "sha256": "6f52fcb93d7d0c355139ca584a9abd0b3c1c59dd5a6f140340a0ec0282b5841c",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/parity.rs",
+      "sha256": "525e6993e37df919535004dc418439a6b919036b7ca4fe588d51a514a393fe01",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/floor.rs",
+      "sha256": "882f0047fb9e3474703b7fb2fa723ffc4544066a3b0919a3cd5e42b68742f9aa",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+      "sha256": "ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/SHA256SUMS",
+      "sha256": "fc129e2a0d19ec68d0e7a2f75981912b5318b18517a88fbcf4d02417e771a34f",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/absolute_range_rows.json",
+      "sha256": "938fe3effff65e6feb1423d19bf251ba3ee4c7d24d6acfabd9a3a86d8be5703b",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/engine_vectors.jsonl",
+      "sha256": "e4379c6e63497d86555c20df62ddf499b816cd157f4782059c380f783395a21e",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/expected_unresolved.json",
+      "sha256": "2e5d0975a90c69e5d198d61760cc7734d42615461710da1fe226f60b4a46f2c9",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/gen_vk_cases.py",
+      "sha256": "091388cffff0410b39856d2dce77502033063ace9a3321587e0be76a6bf99f78",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+      "sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/not_covered.json",
+      "sha256": "8a475e45cc6d887610cd44059d7c2b1baf6aabf3c87539ed483f6c51f90795c5",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_cancel.jsonl",
+      "sha256": "b8011780a15a498dad4065dc23d6dbe3464cce82251dbbebc2dc7fce7fb3f2f5",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_chain.jsonl",
+      "sha256": "0006e7a5ca4cf4d96c9284a5b09622902c3a71c07f24607924127062f10a1757",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_finite.jsonl",
+      "sha256": "92a6ea403f4bb33efdfa43078386cc0befdb272b2ccf9d8fa2f7d1f231b1de98",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_invariance.jsonl",
+      "sha256": "81094b99ebcf6054b925221c54b7ec5022348b69c4a36029715da7ea4328f082",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_large.jsonl",
+      "sha256": "16357afa5efeaaac3ab5798bb6f632104bec1e2dfada288f5b0936bfe6188759",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_mech.jsonl",
+      "sha256": "8f0d8723b44c95216fa72fae47ad452025f9c280f1874a46f0f680bd840c3079",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "sha256": "ae74938cdfc12a398f51728fee5304cf68e70acedd5df1b433e1f353db8a5a88",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "sha256": "bcc795a4d4b4b88a89b421a09f6ec78a97b69a8d4b136be49b57a5e13d084ce0",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_weak.jsonl",
+      "sha256": "58228206b15c7dd571ad716940d1055ac20542e5dd1e7f03851aaf1d59a07ff1",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_zero.jsonl",
+      "sha256": "f38dc7b506bf966f834b2ec2f90a5b01f32d719c41f64b57eeda0555a5c9ca4b",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/harness/SHA256SUMS",
+      "sha256": "e43c6448540b48f639bd78bf736371fa84212a92756851a9224dfd301a156bf1",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/harness/harness_matrix.jsonl",
+      "sha256": "9924d34c1ca9d68c07546fa1afbc001e97c0c70aa249c6b6289ca76dc8d6216e",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/SHA256SUMS",
+      "sha256": "fef6433b0fea6d42305e797b777f06e5c835d67531c185b9e02a8455bfae170f",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/invariance.json",
+      "sha256": "de9314c28b80aefbe1d0daf694317bd4a5c623490eaeb8c18c6ea0771a6e808b",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/parity.json",
+      "sha256": "da3f982ebf2eb3f49f02f35fe5d06b312d68e9db58cc03a1baebbb69f3f5978e",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_cancel.json",
+      "sha256": "6d6216fa75dadf38dec1bd5bed2668056b06d7dfaf6c98387dc083673b553ab2",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_chain.json",
+      "sha256": "8feb6901d48639b184d5d93a9814ea27d8b97ae862ea2293f90ed962288e2572",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_finite.json",
+      "sha256": "b09de0e89254035fef5f1b2670be57f3da34e2e6352ff389b72d126388cd9ba9",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_invariance.json",
+      "sha256": "bc7fa0dda49b5b3c5d6d39b180a593941304d7f93e2d5fce0e98ee2a6086a8a1",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+      "sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+      "sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_skew.json",
+      "sha256": "dfcc0eb54a0347268b018d02f3aa1596bb8de05fd46881cea6286a22e142c0fe",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_weak.json",
+      "sha256": "6001e4248410dc926b12ee2ab4e3504cfd43970412638bd7681090e11b67c88f",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_zero.json",
+      "sha256": "8599b0e051c22bf3a102b49b52d43074e5386801a23774590d1f1007b9f8fd93",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/seeded/SHA256SUMS",
+      "sha256": "1173ce7528b872407f0771eb350dc17f3dccc58b21c0566fb34f55854a032daa",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/seeded/evidence.json",
+      "sha256": "1f9ea7959ca1940d94373ae19f8009f11d36e594f2dcd302a7a19796eff9ac43",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/seeded/kill_matrix.jsonl",
+      "sha256": "b040f53baa138d6e0debff0bcd2b2c8b18b649fe3210ade4d0cc6fcabd064cca",
+      "plan_hash_matches": true,
+      "a1_equal": true,
+      "working_equal": true
+    }
+  ],
+  "whole_FK_equal": true,
+  "whole_sparse_equal": true,
+  "frozen_to_head_scope_diff": ""
+}

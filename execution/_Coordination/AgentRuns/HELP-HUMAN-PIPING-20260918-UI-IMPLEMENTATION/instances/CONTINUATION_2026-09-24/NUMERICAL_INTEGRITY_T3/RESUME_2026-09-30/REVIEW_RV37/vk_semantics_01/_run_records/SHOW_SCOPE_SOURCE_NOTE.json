@@ -1,0 +1,10 @@
+{
+  "source": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_records.rs",
+  "sha256": "a7117146b03200b17fef7a614b5a617dc24801c89fe8ccce82a6694c4ffc5cc3",
+  "family_loop_line": 31,
+  "full_case_run_loop_line": 46,
+  "show_only_print_line": 69,
+  "parity_full_case_loop_line": 82,
+  "dense_threshold": 105,
+  "interpretation": "show selects JSON printing only; full non-large family always computes and parity applies to all RF-LARGE/RF-MECH cases. No changed filter or short scope accepted."
+}

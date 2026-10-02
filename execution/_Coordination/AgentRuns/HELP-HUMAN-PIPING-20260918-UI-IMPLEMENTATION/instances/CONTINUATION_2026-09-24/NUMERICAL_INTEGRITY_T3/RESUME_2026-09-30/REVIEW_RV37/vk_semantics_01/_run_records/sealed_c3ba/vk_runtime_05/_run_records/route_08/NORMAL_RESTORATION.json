@@ -1,0 +1,16 @@
+{
+  "normal_report_or_parity_lines_before": [
+    "RF-FINITE: rows 748: passes 748, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0",
+    "RF-FINITE: outcomes {\"selected\": 6}",
+    "RF-FINITE: controls discriminated 6, non-discriminating 6"
+  ],
+  "normal_report_or_parity_lines_after": [
+    "RF-FINITE: rows 748: passes 748, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0",
+    "RF-FINITE: outcomes {\"selected\": 6}",
+    "RF-FINITE: controls discriminated 6, non-discriminating 6"
+  ],
+  "exact_report_or_parity_line_restoration": true,
+  "both_complete_original_tests_passed": true,
+  "sensitive_statuses_preserved": false,
+  "not_a_claim_all_parity_classes_are_Passed": false
+}

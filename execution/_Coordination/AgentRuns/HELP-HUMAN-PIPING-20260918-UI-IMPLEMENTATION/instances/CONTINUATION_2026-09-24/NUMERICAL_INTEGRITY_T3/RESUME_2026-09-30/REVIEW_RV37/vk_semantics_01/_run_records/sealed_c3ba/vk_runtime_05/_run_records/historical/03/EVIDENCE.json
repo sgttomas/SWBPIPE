@@ -1,0 +1,79 @@
+{
+  "process_id": "P19",
+  "phase": "FAULT_TEST",
+  "registered_id": "VK-F04",
+  "argv": [
+    "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "--exact",
+    "rf_invariance",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_TEST_THREADS": "2",
+    "FK_SEEDED_FAULT": "VK-F04"
+  },
+  "fresh_process": true,
+  "cwd": "<wt>/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "stdout_path": "<wt>/scratch/i23/vk_prep/logs/P19.stdout",
+  "stderr_path": "<wt>/scratch/i23/vk_prep/logs/P19.stderr",
+  "qualifying_condition": "Named wrong-transform numerical predicate failure; unrelated source/geometry/selection failure is not the registered value kill.",
+  "actual_scope": {
+    "route": "whole existing lane family, one run_case per case; final record comparison retained",
+    "family": "RF-INVARIANCE",
+    "cases": 25,
+    "max_members": 100,
+    "parity_calls": 0
+  },
+  "status": "COMPLETED",
+  "runtime_authorized": true,
+  "test_source": {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+    "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+  },
+  "registered_kind": "value",
+  "registered_target": "RF-SKEW, RF-INVARIANCE-ROT, RF-LARGE-ROT, RF-WEAK-W-L (NC-WRONG-TRANSFORM)",
+  "qualification": null,
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=VK-F04 '<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5' '--exact' 'rf_invariance' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/vk_prep/logs/P19.stdout' 2> '<wt>/scratch/i23/vk_prep/logs/P19.stderr'",
+  "binary": {
+    "key": "lane",
+    "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+    "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "cargo_features": [
+      "seeded-faults"
+    ],
+    "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+    "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+  },
+  "guard_before": " 5387     1 03-18:23:35 /bin/bash <wt>/guard/memguard.sh\n\n",
+  "launch_utc": "2026-10-01T19:59:54.770Z",
+  "tool_initial": {
+    "chunk_id": "613db3",
+    "wall_time_seconds": 0.881326334,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "verdict": "STOP_MIXED_RESULT",
+  "semantic_review": "P19 exactly one rf_invariance failure:360 named numerical predicates across6 selected ROT-Q3/Q9 cases (PINTOR61+61,LFRAME26+26,CONT493+93), plus19 Unresolved Arithmetic(DivisionByZero) cases. Required rotated value witness visible, but19 unavailability outcomes are not value credit and unexpected mixed result stops beforeP20; no diagnostic or cherry-pick.",
+  "completed_utc": "2026-10-01T20:01:14.243Z",
+  "raw_hashes": {
+    "stdout": "edac09a43095ceabd895fd61d6b1b3e4a2790fae8f63ca947e78068f5eb86c9f",
+    "stderr": "5356f27de11ae55e07dfa4092edf0ee11db2f9334c4e5e4cf2d03381e9539256"
+  },
+  "runtime_authority": {
+    "at": "2026-10-01T19:56:14Z",
+    "sha256": "99b79751f788f480ca53220280401272b81e92b979d37e8a80550dd623ff084d"
+  },
+  "hard_end": "2026-10-01T20:30:30.000Z"
+}

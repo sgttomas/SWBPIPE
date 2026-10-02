@@ -1,0 +1,29 @@
+{
+  "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+  "current_sha256": "7bdb36bf6fd260e1193648f9b404c9c1212e98aaf2e52c02fe556129ca6b50d3",
+  "whole_file_changed": true,
+  "source_diff": "Metadata-capture optional argument and described loaders; original parse_case calls parse_case_capture(line, None). No changed original Model::resolve or Model::source_parts bytes.",
+  "mapped_ranges": [
+    {
+      "original_start": 389,
+      "original_end": 402,
+      "exact_text_unique": true,
+      "current_start": 443,
+      "current_end": 456
+    },
+    {
+      "original_start": 439,
+      "original_end": 449,
+      "exact_text_unique": true,
+      "current_start": 493,
+      "current_end": 503
+    },
+    {
+      "original_start": 470,
+      "original_end": 517,
+      "exact_text_unique": true,
+      "current_start": 524,
+      "current_end": 571
+    }
+  ]
+}

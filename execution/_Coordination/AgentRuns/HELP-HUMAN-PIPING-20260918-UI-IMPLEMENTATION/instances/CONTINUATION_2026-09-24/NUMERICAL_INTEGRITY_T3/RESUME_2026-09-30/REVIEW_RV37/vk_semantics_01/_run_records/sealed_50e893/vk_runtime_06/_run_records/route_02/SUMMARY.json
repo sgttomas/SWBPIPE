@@ -1,0 +1,14 @@
+{
+  "route": "VK-F03-records-RF-CHAIN",
+  "complete": true,
+  "control_exits": [
+    0,
+    0
+  ],
+  "fault_exit": 0,
+  "exit_not_semantic_verdict": true,
+  "criterion": "66root-minimum/material-decrease source warrant plus actual sequences; P13zero-credit and P15supersededunrun",
+  "accepted_limits": "66root-minimum/material-decrease source warrant plus actual sequences; P13zero-credit and P15supersededunrun",
+  "end_utc": "2026-10-02T04:47:16.341117+00:00",
+  "full_original_scope": true
+}

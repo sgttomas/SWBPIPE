@@ -1,0 +1,1042 @@
+{
+  "meaning": "separately approved F17 case-level relative-certificate prevention after R7; ZERO CLASS and no unreached protected-row credit",
+  "sequences": [
+    {
+      "id": "RF-CANCEL-F-G1e5-GnG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-GGn",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-nGG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-GnG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-GGn",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-nGG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-GnG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-GGn",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-nGG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GGn",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-nGG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG-INPLANE",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GGn",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-nGG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG-INPLANE",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-GnG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-GGn",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-nGG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-GnG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-GGn",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-nGG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-GnG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-GGn",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-nGG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GGn",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-nGG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG-ORTHO",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG-INPLANE",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GGn",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-nGG",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG-INPLANE",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          256,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          512,
+          "VerificationThenCandidate",
+          "Rejected(PublicationEnclosure { quantity: Displacement(Dof { node: 1, component: Ux }), body: 0, kind: Translation, predicate: PublicRelative })"
+        ],
+        [
+          1024,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    }
+  ],
+  "all_original_fields_match_accepted_historical_fault": true,
+  "no_new_oracle_or_criterion": true,
+  "parity_records_preserved": 0,
+  "raw_report_lines": [
+    "RF-CANCEL: rows 1444: passes 0, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 1444",
+    "RF-CANCEL: outcomes {\"unresolved None\": 38}",
+    "RF-CANCEL: controls discriminated 90, non-discriminating 62, undiscriminated [], unexpectedly failing []",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e5-GnG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e5-GGn: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e5-nGG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e6-GnG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e6-GGn: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e6-nGG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e7-GnG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e7-GGn: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e7-nGG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e8-GnG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e8-GGn: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e8-nGG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e8-GnG-ORTHO: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e8-GnG-INPLANE: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e80-GnG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e80-GGn: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e80-nGG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e80-GnG-ORTHO: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE FLOOR RF-CANCEL-F-G1e80-GnG-ORTHO: [] committed [\"u.N1.UY\"]",
+    "RF-CANCEL: FAILURE RF-CANCEL-F-G1e80-GnG-INPLANE: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE FLOOR RF-CANCEL-F-G1e80-GnG-INPLANE: [] committed [\"Mb.M2.mid\"]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e5-GnG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e5-GGn: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e5-nGG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e6-GnG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e6-GGn: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e6-nGG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e7-GnG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e7-GGn: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e7-nGG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e8-GnG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e8-GGn: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e8-nGG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e8-GnG-ORTHO: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e8-GnG-INPLANE: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e80-GnG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e80-GGn: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e80-nGG: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e80-GnG-ORTHO: not selected: Unresolved Ceiling [Restrained]",
+    "RF-CANCEL: FAILURE FLOOR RF-CANCEL-M-G1e80-GnG-ORTHO: [] committed [\"u.N1.UY\"]",
+    "RF-CANCEL: FAILURE RF-CANCEL-M-G1e80-GnG-INPLANE: not selected: Unresolved Ceiling [Restrained]"
+  ]
+}

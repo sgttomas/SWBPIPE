@@ -1,0 +1,16 @@
+{
+  "normal_report_or_parity_lines_before": [
+    "RF-CANCEL: rows 1444: passes 1441, absolute-range passes 0, not covered 3 | structural zeros 0, expected unresolved 0, failures 0",
+    "RF-CANCEL: outcomes {\"selected\": 38}",
+    "RF-CANCEL: controls discriminated 90, non-discriminating 62"
+  ],
+  "normal_report_or_parity_lines_after": [
+    "RF-CANCEL: rows 1444: passes 1441, absolute-range passes 0, not covered 3 | structural zeros 0, expected unresolved 0, failures 0",
+    "RF-CANCEL: outcomes {\"selected\": 38}",
+    "RF-CANCEL: controls discriminated 90, non-discriminating 62"
+  ],
+  "exact_report_or_parity_line_restoration": true,
+  "both_complete_original_tests_passed": true,
+  "sensitive_statuses_preserved": false,
+  "not_a_claim_all_parity_classes_are_Passed": false
+}

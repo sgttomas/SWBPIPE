@@ -1,0 +1,223 @@
+{
+  "protected_comparisons": [
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N3.UX"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N3.UY"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N3.UZ"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N4.UX"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N4.UY"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N4.UZ"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N5.UX"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N5.UY"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N5.UZ"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "R.N5.UX"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "R.N5.UY"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "R.N5.UZ"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "R.N5.RX"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "R.N5.RY"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "R.N5.RZ"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "N.C"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "T.C"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "Mb.C.i"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "Mb.C.mid"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "Mb.C.j"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "tw.C"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "ext.C"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "N.B1"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "T.B1"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "Mb.B1.i"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "Mb.B1.mid"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "Mb.B1.j"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "tw.B1"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "ext.B1"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "N.B2"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "T.B2"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "Mb.B2.i"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "Mb.B2.mid"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "Mb.B2.j"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "tw.B2"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "ext.B2"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-08",
+      "row": "tw.C"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "row": "ext.A01"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "row": "ext.A12"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "row": "T.C"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "row": "Mb.C.i"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "row": "Mb.C.mid"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "row": "Mb.C.j"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "row": "tw.C"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "row": "ext.B21"
+    },
+    {
+      "case": "RF-WEAK-W-3D-rho1e-12",
+      "row": "ext.B10"
+    },
+    {
+      "case": "RF-SKEW-T-CANT-AX-345-r1e-12",
+      "row": "tw.M1"
+    },
+    {
+      "case": "RF-SKEW-T-CANT-AX-122-r1e-12",
+      "row": "tw.M1"
+    },
+    {
+      "case": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+      "row": "u.N1.UY"
+    },
+    {
+      "case": "RF-CANCEL-F-G1e80-GnG-INPLANE",
+      "row": "Mb.M2.mid"
+    },
+    {
+      "case": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+      "row": "u.N1.UY"
+    }
+  ],
+  "count": 51,
+  "prescribed_input_derived_exceptions": [
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N5.UX"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N5.UY"
+    },
+    {
+      "case": "RF-WEAK-W-AX-rho1e-12",
+      "row": "u.N5.UZ"
+    }
+  ]
+}

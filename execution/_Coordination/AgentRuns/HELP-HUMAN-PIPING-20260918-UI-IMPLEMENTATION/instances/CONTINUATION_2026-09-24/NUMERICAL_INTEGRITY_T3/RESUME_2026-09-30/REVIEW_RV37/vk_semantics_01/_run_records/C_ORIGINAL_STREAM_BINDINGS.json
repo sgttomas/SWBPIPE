@@ -1,0 +1,164 @@
+[
+  {
+    "route": "VK-F01-records-RF-CHAIN",
+    "role": "fault",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_f01_diagnostic_01/D02_F01/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F01-records-RF-CHAIN",
+    "role": "NONE",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_f01_diagnostic_01/D01_NONE_BEFORE/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F03-records-RF-CHAIN",
+    "role": "fault",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_f03_diagnostic_01/D02_F03/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F03-records-RF-CHAIN",
+    "role": "NONE",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_f03_diagnostic_01/D01_NONE_BEFORE/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F05-records-RF-RANGE",
+    "role": "fault",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_09/P40/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F05-records-RF-RANGE",
+    "role": "NONE",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_09/P39/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F06-records-RF-RANGE",
+    "role": "fault",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_09/P43/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F06-records-RF-RANGE",
+    "role": "NONE",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_09/P42/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F07-records-RF-MECH",
+    "role": "fault",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_09/P46/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F07-records-RF-MECH",
+    "role": "NONE",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_09/P45/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F17-records-RF-SKEW",
+    "role": "fault",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_f17_diagnostic_01/D02_F17/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F17-records-RF-SKEW",
+    "role": "NONE",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_f17_diagnostic_01/D01_NONE_BEFORE/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F17-records-RF-CANCEL",
+    "role": "fault",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_f17_cancel_diagnostic_01/D02_F17/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-F17-records-RF-CANCEL",
+    "role": "NONE",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_f17_cancel_diagnostic_01/D01_NONE_BEFORE/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-R02-records-RF-LARGE",
+    "role": "fault",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_10/P49/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-R02-records-RF-LARGE",
+    "role": "NONE",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_10/P48/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-R28-records-RF-LARGE",
+    "role": "fault",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_10/P52/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  },
+  {
+    "route": "VK-R28-records-RF-LARGE",
+    "role": "NONE",
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_10/P51/EVIDENCE.json",
+    "hash_equal": true,
+    "copy_equal": true,
+    "stdout_copy_equal": true,
+    "stderr_copy_equal": true
+  }
+]

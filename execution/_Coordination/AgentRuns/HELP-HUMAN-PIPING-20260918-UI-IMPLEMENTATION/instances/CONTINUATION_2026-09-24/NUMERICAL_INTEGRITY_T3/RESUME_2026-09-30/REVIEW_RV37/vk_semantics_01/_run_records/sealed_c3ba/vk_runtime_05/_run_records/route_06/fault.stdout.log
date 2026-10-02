@@ -1,0 +1,34 @@
+
+running 1 test
+RF-WEAK: rows 618: passes 239, absolute-range passes 0, not covered 10 | structural zeros 0, expected unresolved 0, failures 369
+RF-WEAK: outcomes {"selected": 3, "unresolved": 6}
+RF-WEAK: controls discriminated 23, non-discriminating 13
+RF-WEAK: FAILURE RF-WEAK-W-AX-rho1e-04: not selected: Unresolved Ceiling [Restrained]
+RF-WEAK: FAILURE RF-WEAK-W-AX-rho1e-08: not selected: Unresolved Ceiling [Restrained]
+RF-WEAK: FAILURE RF-WEAK-W-AX-rho1e-12: not selected: Unresolved Ceiling [Restrained]
+RF-WEAK: FAILURE FLOOR RF-WEAK-W-AX-rho1e-12: not covered [], committed ["u.N3.UX", "u.N3.UY", "u.N3.UZ", "u.N4.UX", "u.N4.UY", "u.N4.UZ", "u.N5.UX", "u.N5.UY", "u.N5.UZ", "R.N5.UX", "R.N5.UY", "R.N5.UZ", "R.N5.RX", "R.N5.RY", "R.N5.RZ", "N.C", "T.C", "Mb.C.i", "Mb.C.mid", "Mb.C.j", "tw.C", "ext.C", "N.B1", "T.B1", "Mb.B1.i", "Mb.B1.mid", "Mb.B1.j", "tw.B1", "ext.B1", "N.B2", "T.B2", "Mb.B2.i", "Mb.B2.mid", "Mb.B2.j", "tw.B2", "ext.B2"]
+RF-WEAK: FAILURE RF-WEAK-W-L-r1e-04: not selected: Unresolved Ceiling [Restrained]
+RF-WEAK: FAILURE RF-WEAK-W-L-r1e-08: not selected: Unresolved Ceiling [Restrained]
+RF-WEAK: FAILURE RF-WEAK-W-L-r1e-12: not selected: Unresolved Ceiling [Restrained]
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-08: tw.C (EndAction { member: 3, end: J, component: Rx } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: ext.A01 (EndAction { member: 1, end: J, component: Ux } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: ext.A12 (EndAction { member: 2, end: J, component: Ux } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: T.C (EndAction { member: 3, end: J, component: Rx } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: Mb.C.i (EndAction { member: 3, end: I, component: Ry } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: Mb.C.i (EndAction { member: 3, end: I, component: Rz } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: Mb.C.mid (StationAction { station: 3, component: Ry } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: Mb.C.mid (StationAction { station: 3, component: Rz } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: Mb.C.j (EndAction { member: 3, end: J, component: Ry } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: Mb.C.j (EndAction { member: 3, end: J, component: Rz } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: tw.C (EndAction { member: 3, end: J, component: Rx } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: ext.B21 (EndAction { member: 4, end: J, component: Ux } is Some(RelativeVerified))
+RF-WEAK: FAILURE CLASS RF-WEAK-W-3D-rho1e-12: ext.B10 (EndAction { member: 5, end: J, component: Ux } is Some(RelativeVerified))
+test rf_weak ... FAILED
+
+failures:
+
+failures:
+    rf_weak
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.62s
+

@@ -1,0 +1,48 @@
+{
+  "fault_ids": [
+    "VK-F01",
+    "VK-F02",
+    "VK-F03",
+    "VK-F04",
+    "VK-F05",
+    "VK-F06",
+    "VK-F07",
+    "VK-F08",
+    "VK-F10",
+    "VK-F13",
+    "VK-F17",
+    "VK-R02",
+    "VK-R28",
+    "VK-S1",
+    "VK-S2"
+  ],
+  "registered_count": 15,
+  "total_processes": 57,
+  "normal_processes": 38,
+  "unknown_fault_processes": 1,
+  "registered_fault_processes": 18,
+  "routes": 19,
+  "all_unique_starts": true,
+  "all_blocks_sequential": true,
+  "blocks": [
+    {
+      "packet": "vk_runtime_04",
+      "all_launches_after_receipt": true,
+      "all_completions_before_hard_return": true,
+      "process_count": 6
+    },
+    {
+      "packet": "vk_runtime_05",
+      "all_launches_after_receipt": true,
+      "all_completions_before_hard_return": true,
+      "process_count": 24
+    },
+    {
+      "packet": "vk_runtime_06",
+      "all_launches_after_receipt": true,
+      "all_completions_before_hard_return": true,
+      "process_count": 27
+    }
+  ],
+  "mechanical_D_executed_by_review": false
+}

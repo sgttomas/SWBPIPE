@@ -1,0 +1,181 @@
+{
+  "meaning": "all8 named immediate mechanism/body/empty-attempt signatures lost; full9case parity scope retained",
+  "sequences": [
+    {
+      "id": "RF-MECH-LINE122-TORQUE",
+      "outcome": "Unresolved Ceiling [NumericallyUnresolved]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ],
+        [
+          256,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ],
+        [
+          512,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ]
+      ]
+    },
+    {
+      "id": "RF-MECH-LINE122-PERP",
+      "outcome": "Unresolved Ceiling [NumericallyUnresolved]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ],
+        [
+          256,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ],
+        [
+          512,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ]
+      ]
+    },
+    {
+      "id": "RF-MECH-LINE122-UNLOADED",
+      "outcome": "Unresolved Ceiling [NumericallyUnresolved]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ],
+        [
+          256,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ],
+        [
+          512,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ]
+      ]
+    },
+    {
+      "id": "RF-MECH-LINE345-RZ",
+      "outcome": "Unresolved Ceiling [NumericallyUnresolved]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ],
+        [
+          256,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ],
+        [
+          512,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ]
+      ]
+    },
+    {
+      "id": "RF-MECH-K0",
+      "outcome": "Unresolved Ceiling [NumericallyUnresolved]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ],
+        [
+          256,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ],
+        [
+          512,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 3 }))"
+        ]
+      ]
+    },
+    {
+      "id": "RF-MECH-DISC-CHAIN100",
+      "outcome": "Unresolved Ceiling [NumericallyUnresolved, NumericallyUnresolved]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 611 }))"
+        ],
+        [
+          256,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 611 }))"
+        ],
+        [
+          512,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 611 }))"
+        ]
+      ]
+    },
+    {
+      "id": "RF-MECH-DISC-CHAIN100-SPRING",
+      "outcome": "Unresolved Ceiling [NumericallyUnresolved, NumericallyUnresolved]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 611 }))"
+        ],
+        [
+          256,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 611 }))"
+        ],
+        [
+          512,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 611 }))"
+        ]
+      ]
+    },
+    {
+      "id": "RF-MECH-LINE-IN-CHAIN1000",
+      "outcome": "Unresolved Ceiling [NumericallyUnresolved, NumericallyUnresolved]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 6009 }))"
+        ],
+        [
+          256,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 6009 }))"
+        ],
+        [
+          512,
+          "Candidate",
+          "Failed(Stop(Pivot { global_dof: 6009 }))"
+        ]
+      ]
+    }
+  ],
+  "all_original_fields_match_accepted_historical_fault": true,
+  "no_new_oracle_or_criterion": true,
+  "parity_records_preserved": 9,
+  "raw_report_lines": [
+    "RF-MECH: rows 26: passes 26, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0",
+    "RF-MECH: outcomes {\"selected Some(128)\": 1, \"unresolved None\": 8}",
+    "RF-MECH: controls discriminated 26, non-discriminating 0, undiscriminated [], unexpectedly failing []"
+  ]
+}

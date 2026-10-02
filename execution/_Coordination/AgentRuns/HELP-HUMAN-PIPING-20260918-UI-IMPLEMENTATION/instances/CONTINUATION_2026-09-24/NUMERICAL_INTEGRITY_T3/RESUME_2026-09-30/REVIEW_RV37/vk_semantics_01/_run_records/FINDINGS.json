@@ -1,0 +1,13 @@
+[
+  {
+    "id": "RV37-N1",
+    "priority": 3,
+    "blocking": false,
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I27/vk_runtime_05/RETURN.md",
+    "line": 12,
+    "trigger": "13 printed CLASS quantity lines described as13 comparisons.",
+    "impact": "Actual unique protected case/key count is10; three bending comparisons expose two components.",
+    "evidence": "I27/vk_runtime_05/_run_records/route_06/fault.stdout.log; PREDICATE_CASE_ROW_JOIN.json",
+    "remediation": "Preserve sealed author bytes. Add canonical closure wording: 13 quantity-level CLASS mismatch lines across10 distinct protected comparisons. No rerun."
+  }
+]

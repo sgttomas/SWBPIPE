@@ -1,0 +1,187 @@
+{
+  "example": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-runtime-04/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness#piping_numerical_robustness@0.1.0",
+    "manifest_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-runtime-04/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "vk_records",
+      "src_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-runtime-04/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_records.rs",
+      "edition": "2021",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "features": [
+      "seeded-faults"
+    ],
+    "filenames": [
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/examples/vk_records"
+    ],
+    "executable": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/examples/vk_records",
+    "fresh": false,
+    "sha256": "69b6aa320e4fbab9e9ae99e8620c0aa448c073d2ca4c2a435c6efad5e5e29348",
+    "source_sha256": "a7117146b03200b17fef7a614b5a617dc24801c89fe8ccce82a6694c4ffc5cc3"
+  },
+  "FK": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-runtime-04/archive/projects/chirality-piping/core/solver/frame_kernel#open_pipe_stress_frame_kernel@0.1.0",
+    "manifest_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-runtime-04/archive/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+    "target": {
+      "kind": [
+        "lib"
+      ],
+      "crate_types": [
+        "lib"
+      ],
+      "name": "open_pipe_stress_frame_kernel",
+      "src_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i27-vk-runtime-04/archive/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "edition": "2021",
+      "doc": true,
+      "doctest": true,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "features": [
+      "mutation-controls"
+    ],
+    "filenames": [
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/deps/libopen_pipe_stress_frame_kernel-34e06b2da0d38ada.rlib",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/deps/libopen_pipe_stress_frame_kernel-34e06b2da0d38ada.rmeta"
+    ],
+    "executable": null,
+    "fresh": false
+  },
+  "fingerprints": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/zmij-c53ccb9c6ae9b811/lib-zmij.json",
+      "sha256": "3ed2bec807b243366c7c00501f5433321515f15460a4ff713390b9c9aa868ebf",
+      "retained": "fingerprints/zmij-c53ccb9c6ae9b811/lib-zmij.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/serde_core-c518f8ca729e38f7/build-script-build-script-build.json",
+      "sha256": "c93cf31b5cdabadc6ab0d8ded30e965ede7abf24378288359175772735205d47",
+      "retained": "fingerprints/serde_core-c518f8ca729e38f7/build-script-build-script-build.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/open_pipe_stress_linear_supports-47f20bdf9a6d9175/lib-open_pipe_stress_linear_supports.json",
+      "sha256": "c87d80489f123d571beb74d5093736097312df0f86ef8edbf5747b2d025c1394",
+      "retained": "fingerprints/open_pipe_stress_linear_supports-47f20bdf9a6d9175/lib-open_pipe_stress_linear_supports.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/memchr-b05f4a11c7998f77/lib-memchr.json",
+      "sha256": "5826a953ab4d735d68308474997a3d633cfb83950f102c0427b4ccf711bb114a",
+      "retained": "fingerprints/memchr-b05f4a11c7998f77/lib-memchr.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/open_pipe_stress_sparse_direct-b077806dd49c00ca/lib-open_pipe_stress_sparse_direct.json",
+      "sha256": "55004254c13689507e3133e1983acc3a774dc605ca2b763f0f26292fb5e14381",
+      "retained": "fingerprints/open_pipe_stress_sparse_direct-b077806dd49c00ca/lib-open_pipe_stress_sparse_direct.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/open_pipe_stress_solver_performance_harness-a71b304e94c9be33/lib-open_pipe_stress_solver_performance_harness.json",
+      "sha256": "3dc8f6fa189747d2b9e46077feee0f98eac29fa7e6d3a1035530199192e46470",
+      "retained": "fingerprints/open_pipe_stress_solver_performance_harness-a71b304e94c9be33/lib-open_pipe_stress_solver_performance_harness.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/zmij-7308fab9626bb41d/build-script-build-script-build.json",
+      "sha256": "c68f5a5bc23f1c3900f72bbd2b73fc64b0a58cd74913cd594a877179e6c34a3e",
+      "retained": "fingerprints/zmij-7308fab9626bb41d/build-script-build-script-build.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/zmij-04dced264bb7549b/run-build-script-build-script-build.json",
+      "sha256": "6a3e8c786d5d1dd32ec58f459ed967b40920d99c2a4e85a273249cb0b1ad9c7e",
+      "retained": "fingerprints/zmij-04dced264bb7549b/run-build-script-build-script-build.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/serde_json-71ad6382e3626af4/lib-serde_json.json",
+      "sha256": "2f0cd3879b9f659f7f7188f317bd2ef077c9b781a58f38e9dc0aff650e421506",
+      "retained": "fingerprints/serde_json-71ad6382e3626af4/lib-serde_json.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/open_pipe_stress_frame_kernel-34e06b2da0d38ada/lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "955053884dfd1a6742bd75a2cd96d9330562b4d7f0c807b02b91959e3c8d3935",
+      "retained": "fingerprints/open_pipe_stress_frame_kernel-34e06b2da0d38ada/lib-open_pipe_stress_frame_kernel.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/serde_core-ca0ebd01a6d80d38/run-build-script-build-script-build.json",
+      "sha256": "ca06152037ad709c3f20c3e0a16e953b71ac84db8f0f86092d7a2682e1a10dbb",
+      "retained": "fingerprints/serde_core-ca0ebd01a6d80d38/run-build-script-build-script-build.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/serde_core-4a3615ad1f0121b8/lib-serde_core.json",
+      "sha256": "a17653c63aeb8149ef14ff9117df26bb8886e219826f89a15a79dc8f2b9e2817",
+      "retained": "fingerprints/serde_core-4a3615ad1f0121b8/lib-serde_core.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/piping_numerical_robustness-d6a7eeabbe565c8e/lib-piping_numerical_robustness.json",
+      "sha256": "eeb02520af80dc369289c3192c26a7f77a415b31bcbc16143b33e7c2cfbd467f",
+      "retained": "fingerprints/piping_numerical_robustness-d6a7eeabbe565c8e/lib-piping_numerical_robustness.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/itoa-b3facd4cc28c6031/lib-itoa.json",
+      "sha256": "fc1edad25a13f4484bd742b0316699efd9277543ba053315cd7fee78a3ca6d56",
+      "retained": "fingerprints/itoa-b3facd4cc28c6031/lib-itoa.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/serde_json-5aadd169deac7f3a/run-build-script-build-script-build.json",
+      "sha256": "332adb47627d2378026abb5d625c9b512830f4d0eee5c0347bfb4438c364e3d3",
+      "retained": "fingerprints/serde_json-5aadd169deac7f3a/run-build-script-build-script-build.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/open_pipe_stress_curved_bend-5f3b222217033714/lib-open_pipe_stress_curved_bend.json",
+      "sha256": "4ff8c62fdb805a174b62e7581d442076dcf202747ce00af0c28a23c26e5edb28",
+      "retained": "fingerprints/open_pipe_stress_curved_bend-5f3b222217033714/lib-open_pipe_stress_curved_bend.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/open_pipe_stress_solver_diagnostics-cd87bde9ea58f8c1/lib-open_pipe_stress_solver_diagnostics.json",
+      "sha256": "98e02b43ff84477e4ae9f5df6037ceee366ac51ec77eae57860511f3d40a7182",
+      "retained": "fingerprints/open_pipe_stress_solver_diagnostics-cd87bde9ea58f8c1/lib-open_pipe_stress_solver_diagnostics.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/open_pipe_stress_nonlinear_integration-2f3aa02b373d6f6e/lib-open_pipe_stress_nonlinear_integration.json",
+      "sha256": "7ee7ad4c447a02ff3dd99657fac787a2a141ebdb4a12d19c7a623fd8731b302d",
+      "retained": "fingerprints/open_pipe_stress_nonlinear_integration-2f3aa02b373d6f6e/lib-open_pipe_stress_nonlinear_integration.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/piping_numerical_robustness-982176df3fd027de/example-vk_records.json",
+      "sha256": "803a5b43ced02778ca847d9b87b0f9e2255527b213b04ba7aba4296c7a5bb9ab",
+      "retained": "fingerprints/piping_numerical_robustness-982176df3fd027de/example-vk_records.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/open_pipe_stress_primitive_loads-9ba06706e7a3a594/lib-open_pipe_stress_primitive_loads.json",
+      "sha256": "bf3465774aa233ea500fd29c1bb8942e33288b3be49bde9def41d534c3737ddd",
+      "retained": "fingerprints/open_pipe_stress_primitive_loads-9ba06706e7a3a594/lib-open_pipe_stress_primitive_loads.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/serde_json-b6da70f105635ee0/build-script-build-script-build.json",
+      "sha256": "46e2232acb1948036df9c6d4a82cbc76b7098f5655377b1edf87b8b29a1bef86",
+      "retained": "fingerprints/serde_json-b6da70f105635ee0/build-script-build-script-build.json"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-i27-vk-seeded-target/release/.fingerprint/open_pipe_stress_nonlinear_supports-ca9368bed12741f3/lib-open_pipe_stress_nonlinear_supports.json",
+      "sha256": "d3eb253b67809b7833908f1b4fc0bfeeed804d03038376b9197febf0f20d3821",
+      "retained": "fingerprints/open_pipe_stress_nonlinear_supports-ca9368bed12741f3/lib-open_pipe_stress_nonlinear_supports.json"
+    }
+  ],
+  "fresh_Cargo_events": true,
+  "source_overlay": []
+}
