@@ -1,0 +1,85 @@
+[
+  {
+    "bitwise_k_equal": true,
+    "both_passed": false,
+    "case": "RF-MECH-LINE122-TORQUE",
+    "dec053_ratio_in_allowances": null,
+    "dec053_within": null,
+    "dense": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)",
+    "sparse": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"
+  },
+  {
+    "bitwise_k_equal": true,
+    "both_passed": false,
+    "case": "RF-MECH-LINE122-PERP",
+    "dec053_ratio_in_allowances": null,
+    "dec053_within": null,
+    "dense": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)",
+    "sparse": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"
+  },
+  {
+    "bitwise_k_equal": true,
+    "both_passed": false,
+    "case": "RF-MECH-LINE122-UNLOADED",
+    "dec053_ratio_in_allowances": null,
+    "dec053_within": null,
+    "dense": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)",
+    "sparse": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"
+  },
+  {
+    "bitwise_k_equal": true,
+    "both_passed": false,
+    "case": "RF-MECH-LINE345-RZ",
+    "dec053_ratio_in_allowances": null,
+    "dec053_within": null,
+    "dense": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)",
+    "sparse": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"
+  },
+  {
+    "bitwise_k_equal": true,
+    "both_passed": false,
+    "case": "RF-MECH-K0",
+    "dec053_ratio_in_allowances": null,
+    "dec053_within": null,
+    "dense": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)",
+    "sparse": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"
+  },
+  {
+    "bitwise_k_equal": true,
+    "both_passed": false,
+    "case": "RF-MECH-DISC-CHAIN100",
+    "dec053_ratio_in_allowances": null,
+    "dec053_within": null,
+    "dense": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)",
+    "sparse": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"
+  },
+  {
+    "bitwise_k_equal": true,
+    "both_passed": false,
+    "case": "RF-MECH-DISC-CHAIN100-SPRING",
+    "dec053_ratio_in_allowances": null,
+    "dec053_within": null,
+    "dense": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)",
+    "sparse": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"
+  },
+  {
+    "bitwise_k_equal": null,
+    "both_passed": false,
+    "case": "RF-MECH-LINE-IN-CHAIN1000",
+    "dec053_ratio_in_allowances": null,
+    "dec053_within": null,
+    "dense": null,
+    "sparse": "NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"
+  },
+  {
+    "bitwise_k_equal": true,
+    "both_passed": true,
+    "case": "RF-MECH-LINE345-RX-COMPANION",
+    "dec053_ratio_in_allowances": {
+      "exact_decimal": "3.999344720270697E-7"
+    },
+    "dec053_within": true,
+    "dense": "Passed",
+    "sparse": "Passed"
+  }
+]

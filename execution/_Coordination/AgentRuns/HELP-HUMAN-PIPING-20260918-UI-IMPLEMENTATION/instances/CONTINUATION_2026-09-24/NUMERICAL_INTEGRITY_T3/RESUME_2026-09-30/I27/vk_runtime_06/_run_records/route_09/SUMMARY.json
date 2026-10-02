@@ -1,0 +1,14 @@
+{
+  "route": "VK-R28-records-RF-LARGE",
+  "complete": true,
+  "control_exits": [
+    0,
+    0
+  ],
+  "fault_exit": 0,
+  "exit_not_semantic_verdict": true,
+  "criterion": "Both fixed AX controls are selected128/verified256 with exactly one scheduled shift at256. A missing specific shift or changed named bound/acceptance sequence is the evidence fault; generic record drift excluded.",
+  "accepted_limits": "Actual nonnullp256 data1/shift0 vsbaseline1, exact named sequence changes",
+  "end_utc": "2026-10-02T04:49:09.213349+00:00",
+  "full_original_scope": true
+}

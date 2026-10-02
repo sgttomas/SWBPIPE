@@ -1,0 +1,13 @@
+{
+  "sealed_utc": "2026-10-02T04:52:17.823998+00:00",
+  "runtime_end_utc": "2026-10-02T04:49:09.213349+00:00",
+  "status": "C_RELEASE_COMPLETE",
+  "assigned_routes": 9,
+  "completed_routes": 9,
+  "fresh_processes": 27,
+  "normal_controls_passed": 18,
+  "unrun_assigned_routes": [],
+  "D_scale_executed": false,
+  "compiler_lane_returned": true,
+  "automatic_follow_on": false
+}

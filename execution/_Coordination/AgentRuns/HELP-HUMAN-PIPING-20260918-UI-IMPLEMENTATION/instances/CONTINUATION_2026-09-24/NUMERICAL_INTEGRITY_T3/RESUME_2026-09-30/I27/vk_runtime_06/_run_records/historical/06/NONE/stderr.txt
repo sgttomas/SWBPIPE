@@ -1,0 +1,54 @@
+RF-SKEW-T-PIN-AX-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-PIN-AX-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-PIN-AX-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-PIN-AX-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-PIN-AX-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-PIN-AX-122-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-PIN-OFF-122-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-CANT-AX-122-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-T-CANT-OFF-122-r1e-12 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-A-CANT-AX-122-r1e-12 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-345-r1e-04 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-345-r1e-08 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-345-r1e-12 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-122-r1e-04 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-122-r1e-08 selected Some(128) 0.00s
+RF-SKEW-A-CANT-OFF-122-r1e-12 selected Some(128) 0.00s
+        0.07 real         0.06 user         0.00 sys
+             7405568  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 785  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   6  involuntary context switches
+           771516850  instructions retired
+           211124646  cycles elapsed
+             5423440  peak memory footprint

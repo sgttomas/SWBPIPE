@@ -1,0 +1,449 @@
+{
+  "seal_sha256": "7b37755ad73e92e15a59bc4ff30546e56423947de89bdbdf386eaa9c960ca701",
+  "payloads": [
+    {
+      "path": "RETURN.md",
+      "match": true
+    },
+    {
+      "path": "_run_records/ARTIFACT_BINDING.json",
+      "match": true
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "match": true
+    },
+    {
+      "path": "_run_records/FIRST_EXECUTION_PROPOSAL.json",
+      "match": true
+    },
+    {
+      "path": "_run_records/INPUT_BINDINGS.json",
+      "match": true
+    },
+    {
+      "path": "_run_records/KF3_COMPARATORS.json",
+      "match": true
+    },
+    {
+      "path": "_run_records/LAUNCH_MANIFEST.json",
+      "match": true
+    },
+    {
+      "path": "_run_records/MODEL_INPUTS.json",
+      "match": true
+    },
+    {
+      "path": "_run_records/PREREQUISITES_AND_POLICY.json",
+      "match": true
+    },
+    {
+      "path": "_run_records/RUN.json",
+      "match": true
+    },
+    {
+      "path": "_run_records/WRITE_INVENTORY.json",
+      "match": true
+    }
+  ],
+  "input_origins": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/runner/k6b_analysis.py",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/w1.rs",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/src/k6/canonical.rs",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/adapter.rs",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/src/k6/w1/h_envelope.rs",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/observations/k6b/counts.jsonl",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/observations/k6b/k6b_packet.json",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source/projects/chirality-piping/core/solver/performance_harness/observations/k6/models_sha256.txt",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/TASK_BRIEFS/I8R_K1_RESUME.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/b3/run_w1t4.py.txt",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/b3/run_slot.sh.txt",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/b3/build_release.sh.txt",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/b3/k6b_r1_compare.py.txt",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES/references.json",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/k0_assembly_16/DESIGN_AND_PLAN.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/k0_assembly_16/PLANNED_LAUNCHES.json",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/k0_assembly_16/HISTORICAL_COMPARISON.json",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I25/historical_replay_01/RETURN.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I25/historical_replay_01/_run_records/ACTUAL_H_REPLAY.json",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/historical_replay_01/RETURN.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_artifacts_02/RETURN.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_artifacts_02/TRANSFER.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_artifacts_02/_run_records/ARTIFACTS.json",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_artifacts_02/_run_records/BUILD_INPUTS.json",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/ordinary_artifacts_02/_run_records/GIT_SOURCE_TREE.txt",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/AGENTS.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/agents/AGENT_TASK.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/AGENTS.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I26_MEASUREMENT_PLAN_03.md",
+      "match": true
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "H",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-h/aarch64-apple-darwin/release/k6_observe",
+      "match": true
+    },
+    {
+      "name": "VR_companion_not_scheduled",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/target-vr/aarch64-apple-darwin/release/examples/vk_scale",
+      "match": true
+    },
+    {
+      "name": "source_archive",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i28-ordinary-artifacts-02/source.tar",
+      "match": true
+    }
+  ],
+  "seed_sha256": "29e4aba283a4edeb3287d72598d7f37d29ed65799959f89005cf58bcf1d4a9f4",
+  "seed_hash_matches": true,
+  "seed_rows": 33,
+  "model_metadata": [
+    {
+      "model": "DEC053:invented-cantilever-chain-24",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-32",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-48",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "DEC053:invented-cantilever-chain-8",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "DEC053:invented-grid-frame-4x3",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x5",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "DEC053:invented-grid-frame-5x6",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "DEC053:invented-grid-frame-6x8",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "DEC053:invented-grid-frame-7x8",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00010-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n00100-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n01000-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CONT-n00010-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CONT-n00100-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CONT-n01000-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-TREE-n00010-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-TREE-n00100-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-TREE-n01000-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    },
+    {
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "seed_line_hash_matches": true,
+      "selected_fields_match": true,
+      "canonical_len_matches": true,
+      "canonical_fnv_matches": true
+    }
+  ],
+  "future_root_still_absent": true
+}

@@ -1,0 +1,45 @@
+{
+  "meaning": "both exact128 THIN StopRule verdicts retained; later candidate roles and1024verification absent;256verification remains",
+  "sequences": [
+    {
+      "id": "RF-RANGE-THIN-A",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    },
+    {
+      "id": "RF-RANGE-THIN-B",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "attempts": [
+        [
+          128,
+          "Candidate",
+          "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })"
+        ],
+        [
+          256,
+          "Verification",
+          "Solved"
+        ]
+      ]
+    }
+  ],
+  "all_original_fields_match_accepted_historical_fault": true,
+  "no_new_oracle_or_criterion": true,
+  "parity_records_preserved": 0,
+  "raw_report_lines": [
+    "RF-RANGE: rows 2720: passes 2590, absolute-range passes 0, not covered 0 | structural zeros 80, expected unresolved 50, failures 0",
+    "RF-RANGE: outcomes {\"selected Some(128)\": 30, \"unresolved None\": 2}",
+    "RF-RANGE: controls discriminated 80, non-discriminating 12, undiscriminated [], unexpectedly failing []"
+  ]
+}

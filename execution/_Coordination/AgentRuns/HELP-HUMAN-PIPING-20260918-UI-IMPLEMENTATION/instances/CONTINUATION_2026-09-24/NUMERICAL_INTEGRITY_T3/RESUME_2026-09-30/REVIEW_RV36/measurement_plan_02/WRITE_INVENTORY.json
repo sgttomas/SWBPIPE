@@ -1,0 +1,69 @@
+{
+  "scope": "R/REVIEW_RV36/measurement_plan_02",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "bytes": 10148,
+      "sha256": "729c8b8cd563d9df9aea3b2e8bf34a956e664e47f06f1994f220d4832f71c1a6"
+    },
+    {
+      "path": "_run_records/BRIEF_COMMIT_CHECK.json",
+      "bytes": 380,
+      "sha256": "63dba268150e1dd3a78b398429281529aa46574373bf341143dfa5ed619ba91f"
+    },
+    {
+      "path": "_run_records/COMMANDS.json",
+      "bytes": 92827,
+      "sha256": "d80f9b3f3c258de154fac709137403b493ddf5f9bfbfa694136c0689aab33c84"
+    },
+    {
+      "path": "_run_records/FINAL_CHECK.json",
+      "bytes": 767,
+      "sha256": "575b0e8efe45f3b257cb8edf2c31d111abd6de36d99ad8c967cda747b71d5f19"
+    },
+    {
+      "path": "_run_records/HISTORY_AUDIT.json",
+      "bytes": 254047,
+      "sha256": "0664ced294241a34438272444fce38699c6d1a519307dae65fb6d0efe3123069"
+    },
+    {
+      "path": "_run_records/IDENTITIES.json",
+      "bytes": 19694,
+      "sha256": "ab24b26b31c990fa02e60c86d0c7a4faac6fb57c1fbf2d3ee2405eaba8696456"
+    },
+    {
+      "path": "_run_records/KF3_FIELD_CHECK.json",
+      "bytes": 4341,
+      "sha256": "ee3d12ef84df8c5465f80bdafff132b4acaf2735aaea803fcc4458066f0b58bf"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 2452,
+      "sha256": "9a27e2b9a1ad4d590bb7a7a695d0eda38f4734f055bb20b6f06e63723a013945"
+    },
+    {
+      "path": "_run_records/READ_SOURCES.json",
+      "bytes": 4057,
+      "sha256": "e6d69beebc4d633d12a9eb62b9faafafc0d76ccdbf536209a84fe2be241dd328"
+    },
+    {
+      "path": "_run_records/SCHEDULE_AND_COUNTS_AUDIT.json",
+      "bytes": 65172,
+      "sha256": "90e204be1271024ae5fab1e7d064cef62f52d19031730e2715ce41c63b1860cb"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "bytes": 947,
+      "sha256": "2516ed8e459e13e15eccba2ee985ae97c2b6f3e1c342b787ea78e3e938d8724a"
+    },
+    {
+      "path": "_run_records/SOURCE_MATCH.json",
+      "bytes": 7092,
+      "sha256": "7598b51af6882cf43de41e0a2bf82a72eee9b538d79aece72becd7da49c96a12"
+    }
+  ],
+  "excludes": [
+    "WRITE_INVENTORY.json itself",
+    "SHA256SUMS itself"
+  ]
+}
