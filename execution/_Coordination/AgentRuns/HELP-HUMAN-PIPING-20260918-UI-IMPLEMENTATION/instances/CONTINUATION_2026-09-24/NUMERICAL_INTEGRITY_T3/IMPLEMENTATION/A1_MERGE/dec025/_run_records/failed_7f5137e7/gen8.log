@@ -1,0 +1,22 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________________ test_live_gen8_semantic_portability_invariants ________________
+
+live_self_check = (Report(command='self-check', findings=[Finding(severity=<Severity.REVIEW: 'REVIEW'>, code='STALE_RULING_ANNOTATION', ...-session, Ryan Tufts): "You can now take all the `docs/` out of the DRAFT state, making them aut …[truncated]']), None)
+
+    @live
+    def test_live_gen8_semantic_portability_invariants(live_self_check):
+        report, _ = live_self_check
+>       assert [f for f in report.findings if f.code in {
+            "ABS_PATH_IN_PROJECT_SURFACE",
+            "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+        }] == []
+E       AssertionError: assert [Finding(seve...', caveat='')] == []
+E         
+E         Left contains 2 more items, first extra item: Finding(severity=<Severity.REVIEW: 'REVIEW'>, code='ABS_PATH_IN_UNCLASSIFIED_SURFACE', dimension='path-anchoring', mes...iew_RV31/vk_final_01/PROVENANCE.json', source_line=13, invariant='SPEC-0.2.4', invariant_ratification='N_A', caveat='')
+E         Use -v to get more diff
+
+tools/practitioner_harness/test_live_baseline.py:243: AssertionError
+=========================== short test summary info ============================
+FAILED tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants
+1 failed, 10 deselected in 35.51s

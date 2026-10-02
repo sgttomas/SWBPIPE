@@ -1,0 +1,40 @@
+{
+  "reviewer": "RV31",
+  "role": "TASK Type2",
+  "parent": "ROOT HELP_HUMAN Agent0",
+  "mechanism": "delegated-harness-native followup_task /root/rv31_a1_final",
+  "start_utc": "2026-10-02T01:35:30Z",
+  "deadline_utc": "2026-10-02T01:50:30Z",
+  "seal_reserve_start_utc": "2026-10-02T01:47:30Z",
+  "candidate": "cb13dcd9fcc8c252fa9610b1c6fef0c5b2c3c20c",
+  "base": "546e05a159a58f5ceffe1d315373bc2f31982ea8",
+  "evidence_NUM_commit": "d9cf3a6e7d1b447019f10452a8a11e0447d54020",
+  "source_review_basis_seal": "87c7f1373b0a23107e064e338c57933efb654c6a85b5146061e500c604b561ad",
+  "source_review_14payloads_reverified": true,
+  "instructions": [
+    {
+      "loaded_origin": "/Users/ryan/.codex/worktrees/92ea/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "candidate_path": "AGENTS.md"
+    },
+    {
+      "loaded_origin": "/Users/ryan/.codex/worktrees/92ea/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "candidate_path": "agents/AGENT_TASK.md"
+    },
+    {
+      "loaded_origin": "/Users/ryan/.codex/worktrees/92ea/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "candidate_path": "projects/chirality-piping/AGENTS.md"
+    },
+    {
+      "loaded_origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+      "candidate_path": ".agents/skills/software-code-review/SKILL.md"
+    }
+  ],
+  "write_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REVIEW/A1_FINAL_RV31/gates_cb13",
+  "boundary": "Only this NUM review packet; no candidate/source/index edits, runtime/compiler/probe, new host tooling, delegation or cleanup. All Git reads GIT_OPTIONAL_LOCKS=0.",
+  "source_review_kept_sealed": true,
+  "existing_comparison_script_used_readonly": true
+}

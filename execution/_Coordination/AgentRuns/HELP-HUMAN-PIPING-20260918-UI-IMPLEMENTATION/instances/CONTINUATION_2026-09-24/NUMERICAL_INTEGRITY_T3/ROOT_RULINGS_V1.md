@@ -4117,3 +4117,123 @@ candidate confirmation, full-SHA hosted dispatch/CI, clean exact-head GEN-8 and
 Mac DEC-025 comparison before merge. The source-reach check remains H/validation
 only unless the final diff establishes otherwise. AUD-T3-01 and F2a reliance stay
 held until actual closure; K6c implementation/qualification is a separate path.
+
+
+## K6c shared implementation and caller contract (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV33 kernel_01 RETURN/REVIEW and verified its25 payloads
+under sealf50f48bfdaa4874a556b7660285ed0328bba57ee0f7bf099892ad2bdf4e7d919
+(run from packet root; manifest is under _run_records). Accept bounded kernel
+fan-in for exact4a6cb3402f95d98c6f46f702055fe4b0c5245c56 under its declared
+reference premises. The review's Independent compiled checks reports the actual
+clean-archive tests and full reference comparisons. This does not cover later
+H helper/adapter edits, current-artifact qualification or a complete admission
+estimate. Those changes need their own exact-candidate review/backcheck.
+
+ROOT also read and verified RV32 h_context_01 (seal8ca1f20ce41d85c513b2443990780983f8463a3dc24e91e80bcc3fe7a938e89f)
+and selects its reviewed H1/H2/H3 caller contract, as concretely recorded in the
+review and ROOT_CLARIFICATION. Explicit OriginalK6bPair is reference-only; actual
+normal and counts-continuation contexts carry their actual known arguments.
+Runner pre-admission must be rebound before using a numeric estimate or ratio
+denominator. The source-refused variant retains raw-input construction bounds,
+normal staged refusal and positive source-window totals; explicit zero components
+mean unexecuted kernel phases only. Actual repeat digits enter outer-prefix
+formatting. No flags, policy thresholds, stale fallback or unbounded future-path
+allowance is introduced.
+
+The implementation and review packets were relocated intact into their existing
+_run_records evidence roles; old-location pointers and the complete blob/mode
+ledger preserve custody. No source/evidence/checker bytes were changed by that
+placement correction. I21 H and I24 VR implementation grants own disjoint caller
+fences, with the narrowly notified raw-H helper extraction separately requiring
+RV33 backcheck. Complete adapters, protected tests/mutants, final ordinary-source/
+request/type/input/launch qualification, admission replay and measurements remain.
+
+
+## A1 merged; AUD-T3-01 publication correction closed (ROOT, 2026-10-02 UTC)
+
+A1 merged as PR1070 at3a0251874d6ab38008173a22ef09d651a0f20d9e from the exact
+reviewed/gated headcb13dcd9fcc8c252fa9610b1c6fef0c5b2c3c20c. ROOT fetched and
+verified unchanged main546e05a159a58f5ceffe1d315373bc2f31982ea8 immediately before
+--merge --match-head-commit. The merge's parents match both bindings.
+IMPLEMENTATION/A1_MERGE/RECORD.md carries the same-pass merge record and links
+RV31's source/records and external-gate confirmations plus preserved gate evidence.
+
+Close AUD-T3-01 for the reviewed retained publication route under the independently
+derived, owner-selected M03-INTEGRITY-MP-v2 replacement. This does not vindicate the
+old A1 proof assumption or edit the audit/counterexample history. The audit-specific
+hold on relying on that corrected published guarantee is discharged on this basis.
+F2a still waits for K6c/ROOT W1 limits and its own contract adoption/qualification;
+no product receipt, native route or engineering release is implied.
+
+K6c H and VR integration candidates have returned with author tests. ROOT full-
+diff verification, independent actual-candidate review/helper backcheck, complete
+mutation obligations, final ordinary-artifact/input/launch qualification,
+chronological admission and required measurements remain before its acceptance.
+All other T3 successors and owner decisions stay as recorded in the work graph.
+
+
+## K6c runner holds precede automatic counts binding (ROOT, 2026-10-02 UTC)
+
+The independent RV32 VR and RV33 H reviews of exact
+9086964a1fb656a76cda6d1002d8594efa636fdc identified a blocking ordering defect:
+new model-specific counts binding can occur before the existing conditional
+approval or recorded-ascent hold is evaluated. ROOT read RV33's process-free
+RUNNER_HOLD_REPRO.json and confirmed the source ordering. No actual 10,000-member
+process was run by these reproductions. Final review returns remain pending.
+
+Keep those holds before automatic model-specific counts/normal launches in
+run_tier. Existing tier noop baselines and explicit standalone counts acquisition
+retain their semantics. After nonnumeric eligibility passes, bind the actual
+launch context before numeric admission/backstop and ratio use; no stale or fake
+counts substitute is permitted. Existing named refusal, conditional approval,
+recorded-ascent semantics, thresholds, normal caps, VR counts cap and process-free
+plan behavior remain. This is a correction within the accepted caller contract,
+not a new policy or owner-held limit.
+
+ROOT grants I24 a 20-minute four-file H/VR runner-and-test repair, with additive
+I24/runner_hold_repair_02 evidence and no other maintained edits. Same RV32/RV33
+reviewers must backcheck the committed repair. They continue exact-908 review
+against their own archives while I24 edits. I21 separately receives a 45-minute
+archive-only kernel/H mutation assignment against908, with actual patches and
+NONE control under I21/kernel_mutants_26. No performance slot or final-bound
+acceptance follows from either assignment. Native tasks retain no Git/index
+write authority; ROOT integrates. A1 remains merged and its audit closure stands.
+
+
+## Owner pause after K6c runner closure and mutation stop (ROOT, 2026-10-02 UTC)
+
+The owner requested a graceful halt at the current convenient conclusion.
+All current bounded TASKs returned and stopped; no follow-on implementation,
+experiment or performance slot was granted. T3 is paused by owner direction,
+not complete. HANDOFF_2026-10-02_OWNER_PAUSE.md is the recovery entrypoint.
+
+ROOT read both complete same-reviewer backchecks and verified their payloads.
+Close RV33-H1 and RV32-V1 on10315a8167c47f43aa41402beb88ed2c70e62cf2:
+R/source_review_RV33/runner_backcheck_03 and
+R/design_review_RV32/_run_records/runner_backcheck_03. The latter was relocated
+intact into its raw evidence role; the navigation pointer and custody ledger
+preserve every sealed byte/mode. No numeric admission policy was weakened.
+Author system-Python use is disclosed; independent backchecks used the requested
+VENV. This closes the runner defects only, not complete K6c qualification.
+
+Preserve I21/kernel_mutants_26 as an incomplete required programme: its RETURN
+reports NONE passing, four numerical assertion kills and the real M05 Uc-overlap
+survivor. The archive is restored but its last compiled mutant binary remains
+diagnostic. Seven later kernel variants are unrun. No mutant survivor is waived.
+I24/vr_mutants_prep_03 is uncompiled/unexecuted preparation with two pending
+witness cells; I25/historical_replay_01 is a conditional author replay awaiting
+independent review and historical VR launch-gap disposition. Neither is accepted
+as complete E_max or a measurement/admission grant.
+
+The source/review/evidence checkpoint is K6C4be7239b9f356beee5c7e4ab2f689033fad30245;
+maintained source remains10315. ROOT verified the returned seals and preserved
+the requested interpreter note and all raw evidence. No target/baseline was
+pruned. A1 remains merged at3a0251874d6ab38008173a22ef09d651a0f20d9e, with the
+corrected retained-route AUD-T3-01 closure and broader F2a prerequisites distinct.
+
+ROOT also reconciled the graph's stale Current table cell with A1's already
+recorded merge and this pause; historical progression remains preserved. Resume
+only after owner direction, starting with the narrow M05 witness/test gap and
+then the existing K6c sequence. Standing TASK/Git/gate rules and all owner-held
+T3 choices remain in force.

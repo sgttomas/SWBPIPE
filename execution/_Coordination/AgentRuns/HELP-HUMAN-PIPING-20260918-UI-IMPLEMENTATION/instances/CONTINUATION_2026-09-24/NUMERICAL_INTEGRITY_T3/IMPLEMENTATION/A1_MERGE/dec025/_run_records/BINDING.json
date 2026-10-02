@@ -1,0 +1,19 @@
+{
+  "head": "cb13dcd9fcc8c252fa9610b1c6fef0c5b2c3c20c",
+  "target_base": "546e05a159a58f5ceffe1d315373bc2f31982ea8",
+  "host": "Apple M5 Max/128GiB/18cores",
+  "guard_pid": 5387,
+  "guard_sha256": "ee11ea1f43f0892dd0396bfe5c68e133084c90c87abbf757ce0be723e0ca7b79",
+  "driver_sha256": "9e34865b8a3fc49bbbb45bcbd457d1a4be76bd2aec7cac764662831e11afd133",
+  "baseline": "<wt>/scratch/sweep_kf2",
+  "candidate_status": "",
+  "sweep_status": "",
+  "fresh_target_exists": false,
+  "tracked_historical_sweep_count": 374,
+  "untracked_sweep_files": [],
+  "preflight_correction": "Initial ROOT check mistakenly required no SWEEP files at all. Existing files are tracked history, left unchanged. Correct check excludes tracked history; no old generated files found.",
+  "previous_failed_head": "7f5137e7ec7f294c1374ae1d466485d77eb84b58",
+  "prior_gen8": "../a1_final_7f5137e7_20261002/gen8.log",
+  "placement_only_delta": true,
+  "sweep_head_before_checkout": "7f5137e7ec7f294c1374ae1d466485d77eb84b58"
+}
