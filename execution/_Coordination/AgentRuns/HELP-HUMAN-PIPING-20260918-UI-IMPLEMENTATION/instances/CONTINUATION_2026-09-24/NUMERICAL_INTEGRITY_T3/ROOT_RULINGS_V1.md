@@ -4424,3 +4424,20 @@ The full existing family/show/parity scope, original criteria and separately
 owner-approved F17 cases remain unchanged. Historical seconds are not a current
 duration guarantee. No full mechanical matrix, scale run or maintained edit
 is included. The Cargo lane is idle and assigned only to that TASK.
+
+
+## Row139 input acquisition released; later comparison held (ROOT, 2026-10-02 UTC)
+
+ROOT read RV36 measurement_plan_02 and verified its13-payload seal9c71189cd1d3f4c341a128bc69e016bf1d03a0d3ac10e7843ff14a943769bb04.
+Accept first-step readiness only. The complete37 parsed seed fields and additional
+invariants are mandatory before any row-specific seed reliance; other models and
+automatic tiers remain unqualified. No15-field summary or runner positive-estimate
+check substitutes for full correspondence.
+
+Release I26 under R/BRIEFS/I26_INPUT_QUALIFICATION_04.md for20 minutes: existing
+quiet/guard check, exactly the same ordinary H no-op and exact row139 counts-only
+prepass, then stop before admission/solve. This is evidence acquisition on the
+reviewed artifact, not timing/calibration or a scale grant. No matrix compiler/run
+shares this quiet acquisition slot; other active work is read-only review.
+The historical full-publication comparison stays held; the owner has a concrete
+scoped proposal and has not yet answered. No dependent acceptance is assumed.
