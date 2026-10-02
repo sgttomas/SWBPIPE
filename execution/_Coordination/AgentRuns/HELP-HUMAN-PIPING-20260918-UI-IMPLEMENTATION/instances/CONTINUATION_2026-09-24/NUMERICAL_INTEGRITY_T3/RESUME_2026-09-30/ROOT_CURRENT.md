@@ -40,34 +40,33 @@ REVIEW_RV37/vk_mechanical_03. Runtime and review are stopped. Fresh composite
 source review REVIEW_RV38/composite_source_01 is accepted at source scope with
 no actionable maintained-source finding; later measurements/gates need coverage.
 
-I26 /root/i26_uc_witness has the sole quiet/timed slot for original W1-T3 under
-BRIEFS/I26_T3_MEASUREMENTS_08.md. Receipt06:32:51 UTC, hard runtime stop/reap
-cutoff07:12:51, final return07:17:51. First acquire the six named1000-member
-inputs and pass complete checks, then original unchanged T3 once if eligible.
-Active packet I26/t3_measurements_08 is unsealed and unaccepted. No T4/10000
-product construction or new tool/source work is granted. Preserve journal prefix.
+All commissioned workers and reviewers have returned; no automatic follow-on is
+assigned. The most recent block, W1-T3, is accepted through
+REVIEW_RV34/t3_measurements_05. Actual1000-member inputs, admissions, all matched
+H windows and the required prefixes are independently verified. Raw preservation:
+MEASUREMENTS/W1_T3/_run_records/delta_records.tar.gz, preserving earlier prefixes.
+No10000-member product input or T4 runtime has been granted.
 
 W1-T1 finite observations are accepted through REVIEW_RV34/t1_measurements_02
-and t1_disposition_03, with explicit ROOT rulings. Required external live checks
-did not occur; complete independent retrospective checks pass. Keep the failure,
-narrow cleanup credit and filesystem-time provenance visible. Immutable raw
-snapshot: MEASUREMENTS/W1_T1/_run_records/records.tar.gz. No retry occurred.
+and t1_disposition_03. Required external live checks did not occur; complete
+independent retrospective checks pass. Keep that failure and narrow cleanup/time
+credit visible. Immutable raw snapshot: MEASUREMENTS/W1_T1/_run_records/records.tar.gz.
 
-W1-T2 finite observations are accepted through REVIEW_RV34/t2_measurements_04.
-The author base RETURN's sparse All12 Passed cell is wrong: its sealed
-OUTCOME_CORRECTION must accompany it. Actual12 sparse runs are8 Sensitive and4
-Passed; all12 W1 select128/verify256. No numerical reclassification occurred.
-Baseline was inspected while active after two rows; per-row checks were post-run.
-Immutable raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz, with
-all earlier T1 bytes preserved. These100-member rows can supply eligible later
-calibration under unchanged policy; no future admission is predicted.
+W1-T2 is accepted through REVIEW_RV34/t2_measurements_04. Its base RETURN's sparse
+All12 Passed cell is wrong: OUTCOME_CORRECTION must accompany it. Actual12 sparse
+runs are8 Sensitive and4 Passed; all12 W1 select128/verify256. Raw outcomes were
+already correct. The T3 outcome table independently agrees with its own same
+class counts. Process classificationok does not mean numerical Passed.
+Baseline/progress observations retain their actual limited timing. Immutable T2
+raw delta: MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz.
 
 Other bounded workers/reviewers have returned and no automatic follow-on exists.
 
 ## Remaining path and holds
 
-T1/T2 finite observations are accepted. T3 is active under its own conditional
-input gate; T4 contexts, measurements and owner comparison disposition are pending.
+T1/T2/T3 finite observations are accepted. T4 contexts, measurements and the owner
+comparison disposition are pending. T3 remains active at this owner-decision hold;
+this is neither completion nor a new owner-requested pause.
 The original runner enumerates catalogue metadata before filtering a tier and
 does not itself reject a failed tier no-op or enforce full seed correspondence
 on each prepass. These inherited execution limits are disclosed in the latest
@@ -76,8 +75,8 @@ actual baseline validation, repeated field checks, provisional results and
 truthful stops/monitoring limits. This index
 itself supplies no authority and grants no source repair or new host tool.
 
-Complete fresh W1-T1, T2 and T3 chronology/calibration/prefix evidence before
-ROOT considers T4. Preserve all numeric admission holds and the VR largest-size
+Fresh W1-T1/T2/T3 chronology/calibration and required T3 prefixes are established.
+ROOT still needs the owner comparison decision and a separate bounded T4 grant. Preserve all numeric admission holds and the VR largest-size
 backstop; do not force a deferred run. Required W1-T4, complete K6c return and
 independent final review, full-SHA hosted CI, exact-final-head Mac DEC-025 and
 GEN-8 remain outstanding. K6c is not complete and no PR is ready to merge.
