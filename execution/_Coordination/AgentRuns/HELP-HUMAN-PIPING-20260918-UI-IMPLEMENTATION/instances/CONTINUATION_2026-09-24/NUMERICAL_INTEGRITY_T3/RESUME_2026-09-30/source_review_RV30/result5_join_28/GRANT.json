@@ -1,0 +1,23 @@
+{
+  "role": "TASK Type2 RV30",
+  "native_task": "/root/rv30_k6c_kernel",
+  "parent": "/root HELP_HUMAN Agent0",
+  "actual_start_utc": "2026-10-01 23:49:34 UTC",
+  "original_deadline_utc": "2026-10-02 00:01:34 UTC",
+  "candidate_seal": "94567b04d0b573745abf8417af126b679c7f8a1e0f94cd307e437ae179fbcf86",
+  "scope": "Independent RESULT5 composition only;193 reference+24 actual CLI; reuse accepted kernel27/caller10; immutable preserved inputs; no global acceptance",
+  "write_fence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/result5_join_28",
+  "enforcement": "Prompt-only additive fence on unrestricted host",
+  "instructions": {
+    "path": "../kernel_01/INSTRUCTION_BINDING.json",
+    "sha256": "73add1e67bb2631831aec3d3afbc0ee4e33eed8af8e223086096deb4c08801ea",
+    "effective": "Inherited Root/TASK/Piping/COMMON/software-code-review, current parent bounded grant; no new skill/workflow"
+  },
+  "resume": "Parent reported model-capacity error; continue same original assignment/deadline, preserve partial evidence, no model switch/delegation/extension. Local tool trace shows successful executed checks; upstream failure not independently observable.",
+  "ROOT_reports": {
+    "join_commit": "164ddfc66f311dc8b3a299e33f0906c860346351",
+    "source_merge": "8b6b4db5aa5ee8a3a3db149ff36b9418910bc9a3",
+    "component_disposition": "NUMb364c679 conditional only"
+  },
+  "actual_action": "Read/hash preserved candidate inputs and compose integer fields/phases; no current/new product inspection."
+}

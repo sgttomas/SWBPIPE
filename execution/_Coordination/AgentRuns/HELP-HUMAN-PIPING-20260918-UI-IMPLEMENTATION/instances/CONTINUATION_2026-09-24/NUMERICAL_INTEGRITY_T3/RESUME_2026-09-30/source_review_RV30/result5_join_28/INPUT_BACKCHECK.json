@@ -1,0 +1,38 @@
+{
+  "candidate_payloads": 123,
+  "candidate_seal": "94567b04d0b573745abf8417af126b679c7f8a1e0f94cd307e437ae179fbcf86",
+  "nested_inputs_and_reviews": [
+    {
+      "path": "_inputs/kernel_review27/SHA256SUMS",
+      "seal": "2e0e0cf05cea3c11ea2a7b6eb4d26b0b5afb3886b0a1eae1e71bc816ecef6c82",
+      "payloads": 10
+    },
+    {
+      "path": "_inputs/kernel22/SHA256SUMS",
+      "seal": "e60c372904e1246338b97166efdb86c389b2ac3669ea3cbdfc851123d792dcd5",
+      "payloads": 17
+    },
+    {
+      "path": "_inputs/caller_review10/SHA256SUMS",
+      "seal": "c3eadadd67f038cbb4e56a10cf9cf89a168bea8e2ae4a554646f484a5cf930b7",
+      "payloads": 22
+    },
+    {
+      "path": "_inputs/caller14/SHA256SUMS",
+      "seal": "235c4a77a29789952587c9173bcf42e291540d87ccdde7719bc3dc5d56c2cbb2",
+      "payloads": 29
+    }
+  ],
+  "preserved_storage_files": 10,
+  "original_required_roster": 193,
+  "original_attempt_pairs": 390,
+  "family_hash_pairs": 10,
+  "profiles": {
+    "caller_reference": "SingleCaseFamilyReferenceV1",
+    "caller_reference_shape_policy": "stored exact z/h; B_upper=N,b_upper=f only in monotone slots; independent sparse z64_upper=min(n*n,144m+s) and triangular hs",
+    "caller_CLI": "supplied reviewed artifact/public sizes plus final ordinary-production transfer gate",
+    "kernel_reference_policy": "Reference193: exact stored z/h; tagged B_upper=N,b_upper=f",
+    "kernel_CLI_policy": "CLI24 exact reviewed B/b/z/h and original input identities"
+  },
+  "basis": "Only candidate _inputs originals used; current working-tree product/storage files not read or rebound during ROOT merge."
+}

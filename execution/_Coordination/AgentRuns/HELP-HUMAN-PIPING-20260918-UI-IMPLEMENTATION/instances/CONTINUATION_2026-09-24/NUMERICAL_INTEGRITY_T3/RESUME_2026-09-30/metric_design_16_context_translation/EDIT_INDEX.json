@@ -1,0 +1,26 @@
+{
+  "aliases": {
+    "H": "projects/chirality-piping/core/solver/performance_harness",
+    "VR": "projects/chirality-piping/validation/benchmarks/numerical_robustness"
+  },
+  "status": "proposed next-grant scope only",
+  "files": {
+    "H/src/k6/w1/envelope.rs": "consume only reviewed I21 interface; no edits proposed to active work here",
+    "H/src/k6/w1/counts.rs": "described count capture and H adapter; remove old standalone formula",
+    "H/src/k6/counts.rs": "route W1a to supplied composed result; retain four K6 modes",
+    "H/src/bin/k6_observe/main.rs": "Args/model/launch context, once-only H composition, counts_line/backstop share result",
+    "H/src/k6/models.rs": "constructor-origin facts for actual builder/conversion branches",
+    "H/src/k6/canonical.rs": "inline facts from existing successful canonical parse, no reparse",
+    "H/tests/k6b_w1.rs": "explicit reference model/launch facts and all33 independent recomputations",
+    "H/tests/k6b_bin.rs": "retain ordinary subprocess/half-cap/counts-file/parity/prefix assertions; extend binding coverage",
+    "VR/src/cases.rs": "described parsing/loading with unchanged Case item and drop order",
+    "VR/src/scale.rs": "accepted complete context + shared kernel/caller composition",
+    "VR/examples/vk_scale.rs": "complete argv facts, described input, capture before source drop, one estimate",
+    "VR/tests/scale.rs": "same193 calls/storage/order assertions with explicit single-case reference invocation"
+  },
+  "gaps": [
+    "H-LAUNCH-REUSE",
+    "H-ORIGIN/FAILURE-COVERAGE"
+  ],
+  "no_grant_created": true
+}
