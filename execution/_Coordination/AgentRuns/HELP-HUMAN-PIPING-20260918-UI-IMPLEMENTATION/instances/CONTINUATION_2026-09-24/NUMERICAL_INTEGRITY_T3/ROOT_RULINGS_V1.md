@@ -4381,3 +4381,20 @@ No retained solve,10000 construction, other group, overlay or source/criterion
 change is granted. I28 completed all compiler/reporter work and continues only
 native evidence inspection; the sole Cargo lane transfers to I27. Later B/C/D
 blocks and independent acceptance remain separate.
+
+
+## V-K debug semantic block B released (ROOT, 2026-10-02 UTC)
+
+ROOT read I27 vk_runtime_04 RETURN, verified81 payloads under seal91c7602386af0ee890296cc8634762b864f81f66b027e1602c0a4ba85e4e4132,
+and preserved its actual first-block controls. The UNKNOWN quoting discrepancy
+was an evidence-matcher transcription error: ROOT independently checked the
+unchanged seeded.rs Debug-format panic and historical P37 raw message. The fault
+was not rerun and no criterion changed; the original restoring NONE completed.
+Independent full V-K result review is still outstanding.
+
+Release I27 B2/B_DEBUG under R/BRIEFS/I27_VK_DEBUG_05.md for30 minutes, preserving
+all eight exact routes and fresh controls. ROOT has read the plan's original
+filters/criteria and historical timing fields; these are no fresh duration promise.
+Only original small-case retained solves/parity in those tests are permitted.
+No release records group, mechanical full matrix, scale job or measurement follows
+automatically. Ordinary-artifact review RV36 runs read-only on a disjoint fence.
