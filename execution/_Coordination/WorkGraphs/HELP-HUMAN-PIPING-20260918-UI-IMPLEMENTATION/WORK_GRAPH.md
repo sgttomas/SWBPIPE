@@ -101,6 +101,16 @@ qualification, admission and W1-T4 measurements remain. See the append-only T3
 rulings and RESUME_2026-09-30 packets for exact findings and scope. Raw audit
 evidence has been preserved; no pruning is authorized by this checkpoint.
 
+**Final A1 validation checkpoint (ROOT, 2026-10-02 UTC):** R28 and the original
+VR TREE100 R02 witnesses are independently qualified by fresh RV31, with actual
+normal controls; the scalar result is supplementary only. Completed V-K evidence
+and preserved historical dispositions now proceed to exact-candidate review and
+CI/dispatch, DEC-025 and GEN-8. A1 remains unmerged and F2a held. The unexpected
+native-agent interruption is preserved; fresh executors resumed only unfinished
+reviews/code work. K6c's conditional composition is verified; its shared checked
+kernel module is in bounded implementation, with caller integration, actual-code
+review, artifact qualification, admission and measurements still open.
+
 ## Predecessor and recovery
 
 The immutable predecessor is [WORK_GRAPH.json at 44a30112](https://github.com/sgttomas/chirality/blob/44a30112a2d4af21768a9eef822ad1974a3869ec/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json), branch `codex/swbpipe-continuation-20260919`. Its directory and historical graph files remain preserved. Its old pauses, worker assignments, provisional mappings and intermediate statuses are historical.
