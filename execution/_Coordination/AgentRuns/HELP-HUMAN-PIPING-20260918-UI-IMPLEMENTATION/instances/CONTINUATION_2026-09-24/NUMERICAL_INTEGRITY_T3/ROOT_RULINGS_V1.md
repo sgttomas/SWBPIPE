@@ -4237,3 +4237,27 @@ recorded merge and this pause; historical progression remains preserved. Resume
 only after owner direction, starting with the narrow M05 witness/test gap and
 then the existing K6c sequence. Standing TASK/Git/gate rules and all owner-held
 T3 choices remain in force.
+
+
+## Owner resumes after graceful halt (ROOT, 2026-10-02 UTC)
+
+The owner explicitly resumed T3 and asked ROOT to retain and improve its management
+lessons. The preceding pause is historical and revoked by that direction. No A1
+gate is reopened: GitHub confirms PR1070 merged and main remains3a0251874.
+K6C40179f1da5961cfef7edeaf7be4eb675379f79b5 is clean and pushed; its maintained
+source is10315. The M5guard is running and no Cargo/rustc/solver process was left.
+
+Previous native child sessions are absent, so fresh I26 and RV34 identities are
+dispatched directly by ROOT. I26 owns only a narrow source-valid Uc regression
+witness/test and exact NONE/M05 check; RV34 independently reviews I25's saved
+historical replay. Their scopes are disjoint; no large measurement slot or wider
+implementation/host-tool grant follows. Briefs are R/BRIEFS/I26_UC_WITNESS_01.md
+and RV34_HISTORICAL_REPLAY_01.md.
+
+Operational lessons for this run: name the claim and a decisive falsification
+check before delegation; expose individual lifetime terms that outer maxima can
+mask; keep implementation, review, artifact qualification, admission and measured
+acceptance distinct; give shared edits one owner and frozen review bases; report
+supporting work against the numerical question and its time bound; retain one
+compact recovery entrypoint with selected evidence. These are this run's execution
+practice, not an amendment to standing agent instructions or a reusable workflow.
