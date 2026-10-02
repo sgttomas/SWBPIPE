@@ -1,0 +1,28 @@
+{
+  "actor": "RV38",
+  "task": "placement_plan_02",
+  "parent": "/root",
+  "native_child": "/root/rv38_composite_source",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native existing independent reviewer",
+  "receipt_utc": "2026-10-02T15:02:12+00:00",
+  "new_check_cutoff_utc": "2026-10-02T15:17:12+00:00",
+  "deadline_utc": "2026-10-02T15:22:12+00:00",
+  "checks_complete_by_sampled_utc": "2026-10-02T15:11:26.587649+00:00",
+  "basis": "e67ae464618d271b4bda5dc98cb8a039f753af32",
+  "head_observed": "e67ae464618d271b4bda5dc98cb8a039f753af32",
+  "write_scope": "R/REVIEW_RV38/placement_plan_02 only",
+  "host_boundary": "Shared unrestricted filesystem; restrictions are brief/role boundaries, not an isolated enforced sandbox.",
+  "implemented_moves": 0,
+  "archives_created": 0,
+  "full_gates_run": 0,
+  "runtime_build_model_solver_runs": 0,
+  "git_index_writes": 0,
+  "delegation": false,
+  "automatic_continuation": false,
+  "exceptions": [
+    "One initial broad display of AUXILIARY_FILES.sha256 was truncated; only its preserved external-provenance role was consumed, not a claim to revalidate its external scratch tree.",
+    "No SHA256SUMS exists at the preflight packet root or _run_records; BEFORE.json is instead matched directly to its supplied immutable commit and SHA256.",
+    "Initial broad BEFORE display was truncated; all80 entries were subsequently parsed and independently reclassified, with full finding map recorded."
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "checked_utc": "2026-10-02T15:07:36.248666+00:00",
+  "source_revision": "e67ae464618d271b4bda5dc98cb8a039f753af32",
+  "before_sha256": "a61c7d8b9d1966bcec7800e406287d1edad3abda9a4f42b93ce57ce6304cf3ac",
+  "before_findings": 80,
+  "roles": {
+    "UNCLASSIFIED": 79,
+    "CONTROL": 1
+  },
+  "custody_units": 22,
+  "moves": 21,
+  "archives": 1,
+  "files": 280,
+  "total_payload_bytes": 6323503,
+  "manifest_payloads_verified": 258,
+  "policy_issues": [],
+  "projected_unclassified_or_control_machine_paths_in_moved_units": [],
+  "archive_role_limit": "The existing classifier does not classify archive members; GEN-8 enumerates md/yaml/yml/json only. This is custody planning, not an executed relocation or gate pass.",
+  "read_only_classification_method": "Existing load_project_policy/effective_role/iter_machine_path_lines; finite affected packets only, no GEN-8 runner or custom role regex."
+}

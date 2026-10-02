@@ -1,0 +1,133 @@
+[
+  {
+    "path": "AGENTS.md",
+    "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "use": "prior turn active instruction retained unchanged; hash checked against current bytes"
+  },
+  {
+    "path": "agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "use": "prior turn active instruction retained unchanged; hash checked against current bytes"
+  },
+  {
+    "path": "projects/chirality-piping/AGENTS.md",
+    "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "use": "prior turn active instruction retained unchanged; hash checked against current bytes"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/TASK_BRIEFS/_COMMON.md",
+    "sha256": "6bb845bfaa7cb1f6c622488dfa273d2362e39b7e1b7f63076bc82b22f02001e9",
+    "use": "prior turn active instruction retained unchanged; hash checked against current bytes"
+  },
+  {
+    "path": ".agents/skills/software-code-review/SKILL.md",
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "use": "prior turn active instruction retained unchanged; hash checked against current bytes"
+  },
+  {
+    "path": "<wt>/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV38_PLACEMENT_PLAN_02.md",
+    "sha256": "e68b79b726f556818311562405e994f9f31b48de320d98ca74a96a721371fd36",
+    "revision": "c07884bf413cf2ac8eced12a3b393f7f2638a93a",
+    "use": "current bounded brief, read in full"
+  },
+  {
+    "path": "tools/practitioner_harness/surface_roles.py",
+    "sha256": "2fa6cbe44aa2446f26dde078ca7235a1a0fd545718b0a656da38d683a6fc4fce",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "tools/practitioner_harness/cmd_self_check.py",
+    "sha256": "72cf6f4563e79f734a0a03b65e8c6df5344dd93930263d19897a56d860c76702",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "tools/practitioner_harness/agent_runs_archive.py",
+    "sha256": "4b461c31720d24cc23a4a68c78ac9ab8dfca2697a54eb28e0f6a896aeadb58fd",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "tools/practitioner_harness/test_agent_runs_archive.py",
+    "sha256": "5d95951208a5496b4126242e49ef1a2fa8742825fe212520ad805ab1cb74fd61",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "tools/practitioner_harness/README.md",
+    "sha256": "254f0e3648200e725a64efa4571b3c54f0fc33f8887229ecd2167e679e390ee3",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "tools/archive_agent_runs.py",
+    "sha256": "c6e8230baad7996696a487f5d8a325a0e72289037a19842a631aed32222ae573",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "tools/agent_runs_archive_policy.json",
+    "sha256": "ae7ba63a96fd79520e99cd3363c2790cb6fe556b1b10cfe6973c56431dbfe252",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "tools/validation/validate_run_record_leaks.py",
+    "sha256": "f4e43102fcf667b91b67f8aba75cf43a4798ef50c621009e6e21a9a9a61af638",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "docs/governance_harness/_DECISIONS/D-GOV-45_agent_run_record_archive.md",
+    "sha256": "897335b92638bdc2382118e2a37b1e186f1fec289f45b589f789e048149362a9",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/validation/portability_policy.json",
+    "sha256": "b9bc6e06826145b6bd7a27b5000026665d2b71add24dd398371b3b79a9f45231",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/k6c_record_placement_01/_run_records/BEFORE.json",
+    "sha256": "a61c7d8b9d1966bcec7800e406287d1edad3abda9a4f42b93ce57ce6304cf3ac",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/record_placement_20261002_k6c/RELOCATION.json",
+    "sha256": "f1921ff5d044dd6b78c62304a532bf5b106b4b9fa1a6045dc09e2e0c028b6b5f",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/kernel_implementation_24/MOVED.md",
+    "sha256": "66a873deb35bc16822188b392b6a05bd70475a58e3b45bd702012535314587e3",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I26_T4_MEASUREMENTS_10.md",
+    "sha256": "f140eaa01ad786514b4d55efeda389efa8db8e6a5249e9d01d38d06f18a75a58",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/t4_readiness_09/_run_records/EXECUTION_INTENT.json",
+    "sha256": "8300db5567919ab18e54842cf6dbf4f1949659bd457f25daace5f05b669490ae",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I26/t4_readiness_09/_run_records/EXECUTION_AND_COMPARISON_RECIPE.json",
+    "sha256": "1a9735c15b6da1490093dcfb014faa3da60165fa38545dcfa6b5ec18670caad3",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I28_K6C_CLOSEOUT_INDEX_03.md",
+    "sha256": "7abff0ad95488924262a208dcd3317e5b9637d8a452bd86ebfb1bfc638dec098",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I28/closeout_index_03/OBLIGATIONS.md",
+    "sha256": "2709ca5dc274c1b0a262bb9dfd638ee501e7502f9b45a3ae5c807d0bbfe6bbce",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/ROOT_CURRENT.md",
+    "sha256": "74125cd5da2f52fed6eb987359e2815d9a8e304d8cdc3b21f992734a3321227e",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+    "sha256": "1b36222c889d4af25ea169e676feff2e2b08e4fd616862764f655e9526c2793a",
+    "use": "bounded current source/evidence read; not newly activated historical instructions"
+  }
+]
