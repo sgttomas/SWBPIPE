@@ -4579,3 +4579,62 @@ neither ordinary measurements nor final K6c/gates or engineering acceptance.
 The first ordinary W1-T1 grant is active with I26, receipt05:36:25 UTC, runtime
 cutoff06:01:25 and return06:06:25. It has the sole quiet/timed slot under the
 existing guard. No later tier grant or owner comparison amendment is implied.
+
+
+## T1 observations accepted; missed live inspections disposition (ROOT, 2026-10-02 UTC)
+
+ROOT read RV34 t1_measurements_02 in full and verified its19 payloads under
+sealb75ff372045ddcc057637ae006c4a54f279aeb683a52ec75a34015301cbf65b5.
+Accept its independently reconstructed finite post-run T1 observations. Its
+actual-scope table, Baseline and chronological arithmetic, Complete input/context
+and window checks, and Outcome/work sections establish the qualifying data.
+These successful, source/artifact/input-bound rows may supply the existing
+recorded-ascent and eligible smaller-row calibration predicates, with the unchanged
+minimum-size rule. They establish no larger-size or whole-process heap guarantee.
+
+RV34-T1-F1 is a real P2 execution deviation: the required immediate/live external
+checks did not occur. ROOT owns the assignment and accepts this completed small
+tier's observations after complete independent retrospective validation, while
+retaining the unfulfilled process requirement. No fully compliant live-gated run
+is claimed, and no missing live evidence is backfilled. All baseline, binding,
+window and stop-trigger predicates tested on the complete retained records pass;
+there is no observed invalid baseline, mismatched input, bound breach or other
+trigger concealed by this disposition. A retry solely to manufacture a different
+supervision history is not commissioned. This is a disposition of this finite
+assignment, not a standing-loop or numerical-criterion amendment. Same-reviewer
+confirmation of the scoped disposition is required before releasing T2.
+
+Cleanup credit is limited to the source-supported wrapper waits, recorded outer
+exit/reap and actual endpoint command snapshots. Success-path survivors=[] is a
+default, not an executed group scan; the historical arrays remain untouched.
+Filesystem log times remain filesystem provenance, not sampled process endpoints.
+
+ROOT preserved all412 T1 raw files byte-exact in the immutable
+R/MEASUREMENTS/W1_T1/_run_records/records.tar.gz before any later chronological
+journal append. RV34 independently verified every manifest member. The live
+working journal may grow only under a later explicit grant, preserving its old
+prefix and the immutable snapshot; sealed author/review bytes remain unchanged.
+
+The prepared T2 brief explicitly keeps successful baselines, complete input gates,
+all numeric limits and full post-run checks. Existing tools should observe
+progress while possible; a missed external observation must be disclosed and
+results remain provisional until validated. No new guard/runner or source change
+is authorized. The owner-held KF3 T4 comparison and all later gates remain held.
+
+
+## T1 disposition confirmed; T2 released (ROOT, 2026-10-02 UTC)
+
+ROOT read RV34 t1_disposition_03 and verified its3-payload seal
+b3b562a58f2f69203256443a61ed4eb122f97c97b0d07976f98d529881623391.
+The same independent reviewer confirms RV34-T1-F1 has a truthful sufficient ROOT
+disposition for finite T1 observations, with no unsupported inference. Close its
+disposition requirement; the historical live-inspection failure remains recorded.
+The unchanged minimum-size rule still prevents these sub100-member observations
+from calibrating a target at least1000; they can support their eligible next tier.
+
+Release only the prepared I26_T2_MEASUREMENTS_07.md scope. ROOT's explicit native
+message starts its30-minute bound/cutoff25 and sole quiet/timed slot. Six named
+100-member input acquisitions must satisfy the complete map before the original
+W1-T2 tier begins; the shared journal preserves its old prefix and immutable T1
+snapshot. All numeric holds, successful baseline and complete measurement checks
+remain. No T3/T4, new tooling, source change or owner comparison amendment follows.
