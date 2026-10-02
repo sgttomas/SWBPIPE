@@ -1,0 +1,272 @@
+[
+  {
+    "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+    "model_bytes": 3936,
+    "args_bytes": 312,
+    "fixed_bytes": 87587,
+    "fixed_delta": -106,
+    "max_bytes": 22744194,
+    "sel128_bytes": 20739522
+  },
+  {
+    "run_id": "141_RF-LARGE-CHAIN-n00010-AX_w1a",
+    "model_bytes": 3936,
+    "args_bytes": 155,
+    "fixed_bytes": 87043,
+    "fixed_delta": -29,
+    "max_bytes": 22743650,
+    "sel128_bytes": 20738978
+  },
+  {
+    "run_id": "144_RF-LARGE-CHAIN-n00010-ROT_w1a",
+    "model_bytes": 3937,
+    "args_bytes": 314,
+    "fixed_bytes": 87590,
+    "fixed_delta": -106,
+    "max_bytes": 22744197,
+    "sel128_bytes": 20739525
+  },
+  {
+    "run_id": "146_RF-LARGE-CHAIN-n00010-ROT_w1a",
+    "model_bytes": 3937,
+    "args_bytes": 156,
+    "fixed_bytes": 87045,
+    "fixed_delta": -29,
+    "max_bytes": 22743652,
+    "sel128_bytes": 20738980
+  },
+  {
+    "run_id": "147_RF-LARGE-TREE-n00010-AX_w1a",
+    "model_bytes": 3870,
+    "args_bytes": 310,
+    "fixed_bytes": 86055,
+    "fixed_delta": -107,
+    "max_bytes": 22742662,
+    "sel128_bytes": 20737990
+  },
+  {
+    "run_id": "149_RF-LARGE-TREE-n00010-AX_w1a",
+    "model_bytes": 3870,
+    "args_bytes": 154,
+    "fixed_bytes": 85512,
+    "fixed_delta": -30,
+    "max_bytes": 22742119,
+    "sel128_bytes": 20737447
+  },
+  {
+    "run_id": "152_RF-LARGE-TREE-n00010-ROT_w1a",
+    "model_bytes": 4063,
+    "args_bytes": 312,
+    "fixed_bytes": 92106,
+    "fixed_delta": -107,
+    "max_bytes": 22748713,
+    "sel128_bytes": 20744041
+  },
+  {
+    "run_id": "154_RF-LARGE-TREE-n00010-ROT_w1a",
+    "model_bytes": 4063,
+    "args_bytes": 155,
+    "fixed_bytes": 91562,
+    "fixed_delta": -30,
+    "max_bytes": 22748169,
+    "sel128_bytes": 20743497
+  },
+  {
+    "run_id": "155_RF-LARGE-CONT-n00010-AX_w1a",
+    "model_bytes": 3998,
+    "args_bytes": 310,
+    "fixed_bytes": 89459,
+    "fixed_delta": -171,
+    "max_bytes": 22674321,
+    "sel128_bytes": 20722017
+  },
+  {
+    "run_id": "157_RF-LARGE-CONT-n00010-AX_w1a",
+    "model_bytes": 3998,
+    "args_bytes": 154,
+    "fixed_bytes": 88916,
+    "fixed_delta": -94,
+    "max_bytes": 22673778,
+    "sel128_bytes": 20721474
+  },
+  {
+    "run_id": "160_RF-LARGE-CONT-n00010-ROT_w1a",
+    "model_bytes": 4127,
+    "args_bytes": 312,
+    "fixed_bytes": 94714,
+    "fixed_delta": -171,
+    "max_bytes": 22679576,
+    "sel128_bytes": 20727272
+  },
+  {
+    "run_id": "162_RF-LARGE-CONT-n00010-ROT_w1a",
+    "model_bytes": 4127,
+    "args_bytes": 155,
+    "fixed_bytes": 94170,
+    "fixed_delta": -94,
+    "max_bytes": 22679032,
+    "sel128_bytes": 20726728
+  },
+  {
+    "run_id": "163_DEC053_invented-cantilever-chain-8_w1a",
+    "model_bytes": 2700,
+    "args_bytes": 332,
+    "fixed_bytes": 66775,
+    "fixed_delta": -97,
+    "max_bytes": 22172292,
+    "sel128_bytes": 20559972
+  },
+  {
+    "run_id": "165_DEC053_invented-cantilever-chain-8_w1a",
+    "model_bytes": 2700,
+    "args_bytes": 165,
+    "fixed_bytes": 66221,
+    "fixed_delta": -20,
+    "max_bytes": 22171738,
+    "sel128_bytes": 20559418
+  },
+  {
+    "run_id": "168_DEC053_invented-cantilever-chain-24_w1a",
+    "model_bytes": 8014,
+    "args_bytes": 334,
+    "fixed_bytes": 175520,
+    "fixed_delta": -97,
+    "max_bytes": 26717405,
+    "sel128_bytes": 21947837
+  },
+  {
+    "run_id": "170_DEC053_invented-cantilever-chain-24_w1a",
+    "model_bytes": 8014,
+    "args_bytes": 166,
+    "fixed_bytes": 174965,
+    "fixed_delta": -20,
+    "max_bytes": 26716850,
+    "sel128_bytes": 21947282
+  },
+  {
+    "run_id": "171_DEC053_invented-cantilever-chain-48_w1a",
+    "model_bytes": 15822,
+    "args_bytes": 334,
+    "fixed_bytes": 335648,
+    "fixed_delta": -97,
+    "max_bytes": 33527477,
+    "sel128_bytes": 24025109
+  },
+  {
+    "run_id": "173_DEC053_invented-cantilever-chain-48_w1a",
+    "model_bytes": 15822,
+    "args_bytes": 166,
+    "fixed_bytes": 335093,
+    "fixed_delta": -20,
+    "max_bytes": 33526922,
+    "sel128_bytes": 24024554
+  },
+  {
+    "run_id": "176_DEC053_invented-grid-frame-4x3_w1a",
+    "model_bytes": 6628,
+    "args_bytes": 324,
+    "fixed_bytes": 114359,
+    "fixed_delta": -225,
+    "max_bytes": 24297037,
+    "sel128_bytes": 21205021
+  },
+  {
+    "run_id": "178_DEC053_invented-grid-frame-4x3_w1a",
+    "model_bytes": 6628,
+    "args_bytes": 161,
+    "fixed_bytes": 113809,
+    "fixed_delta": -148,
+    "max_bytes": 24296487,
+    "sel128_bytes": 21204471
+  },
+  {
+    "run_id": "179_DEC053_invented-grid-frame-6x8_w1a",
+    "model_bytes": 27020,
+    "args_bytes": 324,
+    "fixed_bytes": 464180,
+    "fixed_delta": -929,
+    "max_bytes": 42170660,
+    "sel128_bytes": 26607204
+  },
+  {
+    "run_id": "181_DEC053_invented-grid-frame-6x8_w1a",
+    "model_bytes": 27020,
+    "args_bytes": 161,
+    "fixed_bytes": 463630,
+    "fixed_delta": -852,
+    "max_bytes": 42170110,
+    "sel128_bytes": 26606654
+  },
+  {
+    "run_id": "184_DEC053_invented-grid-frame-7x8_w1a",
+    "model_bytes": 28164,
+    "args_bytes": 324,
+    "fixed_bytes": 576556,
+    "fixed_delta": -929,
+    "max_bytes": 46485512,
+    "sel128_bytes": 27934616
+  },
+  {
+    "run_id": "186_DEC053_invented-grid-frame-7x8_w1a",
+    "model_bytes": 28164,
+    "args_bytes": 161,
+    "fixed_bytes": 576006,
+    "fixed_delta": -852,
+    "max_bytes": 46484962,
+    "sel128_bytes": 27934066
+  },
+  {
+    "run_id": "187_DEC053_invented-grid-frame-5x5_w1a",
+    "model_bytes": 13572,
+    "args_bytes": 324,
+    "fixed_bytes": 237836,
+    "fixed_delta": -417,
+    "max_bytes": 30508033,
+    "sel128_bytes": 23082465
+  },
+  {
+    "run_id": "189_DEC053_invented-grid-frame-5x5_w1a",
+    "model_bytes": 13572,
+    "args_bytes": 161,
+    "fixed_bytes": 237286,
+    "fixed_delta": -340,
+    "max_bytes": 30507483,
+    "sel128_bytes": 23081915
+  },
+  {
+    "run_id": "192_DEC053_invented-cantilever-chain-32_w1a",
+    "model_bytes": 10190,
+    "args_bytes": 334,
+    "fixed_bytes": 220960,
+    "fixed_delta": -97,
+    "max_bytes": 28967205,
+    "sel128_bytes": 22628229
+  },
+  {
+    "run_id": "194_DEC053_invented-cantilever-chain-32_w1a",
+    "model_bytes": 10190,
+    "args_bytes": 166,
+    "fixed_bytes": 220405,
+    "fixed_delta": -20,
+    "max_bytes": 28966650,
+    "sel128_bytes": 22627674
+  },
+  {
+    "run_id": "195_DEC053_invented-grid-frame-5x6_w1a",
+    "model_bytes": 14260,
+    "args_bytes": 324,
+    "fixed_bytes": 301084,
+    "fixed_delta": -417,
+    "max_bytes": 33018646,
+    "sel128_bytes": 23851814
+  },
+  {
+    "run_id": "197_DEC053_invented-grid-frame-5x6_w1a",
+    "model_bytes": 14260,
+    "args_bytes": 161,
+    "fixed_bytes": 300534,
+    "fixed_delta": -340,
+    "max_bytes": 33018096,
+    "sel128_bytes": 23851264
+  }
+]

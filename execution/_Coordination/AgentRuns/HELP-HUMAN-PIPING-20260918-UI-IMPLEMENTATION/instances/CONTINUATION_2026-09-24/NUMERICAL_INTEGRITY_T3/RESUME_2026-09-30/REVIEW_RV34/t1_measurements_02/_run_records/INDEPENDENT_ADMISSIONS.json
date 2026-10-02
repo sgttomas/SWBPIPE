@@ -1,0 +1,1254 @@
+[
+  {
+    "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+    "calibration_population": [],
+    "estimate": 22744194,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22744194 B x rho 2.000 <= C/2; projected RSS 65958162 B <= 0.8C",
+      "estimate_adm_bytes": 22744194,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45488388,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65958162,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "140_RF-LARGE-CHAIN-n00010-AX_sparse",
+    "calibration_population": [],
+    "estimate": 423232,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.4 MiB <= C/2; projected RSS 52302970 B <= 0.8C",
+      "estimate_adm_bytes": 423232,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36071014,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52302970,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "141_RF-LARGE-CHAIN-n00010-AX_w1a",
+    "calibration_population": [],
+    "estimate": 22743650,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22743650 B x rho 2.000 <= C/2; projected RSS 65956585 B <= 0.8C",
+      "estimate_adm_bytes": 22743650,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45487300,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65956585,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "142_RF-LARGE-CHAIN-n00010-AX_sparse",
+    "calibration_population": [],
+    "estimate": 423232,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.4 MiB <= C/2; projected RSS 52302970 B <= 0.8C",
+      "estimate_adm_bytes": 423232,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36071014,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52302970,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "143_RF-LARGE-CHAIN-n00010-ROT_sparse",
+    "calibration_population": [],
+    "estimate": 423232,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.4 MiB <= C/2; projected RSS 52302970 B <= 0.8C",
+      "estimate_adm_bytes": 423232,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36071014,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52302970,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "144_RF-LARGE-CHAIN-n00010-ROT_w1a",
+    "calibration_population": [],
+    "estimate": 22744197,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22744197 B x rho 2.000 <= C/2; projected RSS 65958171 B <= 0.8C",
+      "estimate_adm_bytes": 22744197,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45488394,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65958171,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "145_RF-LARGE-CHAIN-n00010-ROT_sparse",
+    "calibration_population": [],
+    "estimate": 423232,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.4 MiB <= C/2; projected RSS 52302970 B <= 0.8C",
+      "estimate_adm_bytes": 423232,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36071014,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52302970,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "146_RF-LARGE-CHAIN-n00010-ROT_w1a",
+    "calibration_population": [],
+    "estimate": 22743652,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22743652 B x rho 2.000 <= C/2; projected RSS 65956590 B <= 0.8C",
+      "estimate_adm_bytes": 22743652,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45487304,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65956590,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "147_RF-LARGE-TREE-n00010-AX_w1a",
+    "calibration_population": [],
+    "estimate": 22742662,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22742662 B x rho 2.000 <= C/2; projected RSS 65953719 B <= 0.8C",
+      "estimate_adm_bytes": 22742662,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45485324,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65953719,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "148_RF-LARGE-TREE-n00010-AX_sparse",
+    "calibration_population": [],
+    "estimate": 423232,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.4 MiB <= C/2; projected RSS 52302970 B <= 0.8C",
+      "estimate_adm_bytes": 423232,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36071014,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52302970,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "149_RF-LARGE-TREE-n00010-AX_w1a",
+    "calibration_population": [],
+    "estimate": 22742119,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22742119 B x rho 2.000 <= C/2; projected RSS 65952145 B <= 0.8C",
+      "estimate_adm_bytes": 22742119,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45484238,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65952145,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "150_RF-LARGE-TREE-n00010-AX_sparse",
+    "calibration_population": [],
+    "estimate": 423232,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.4 MiB <= C/2; projected RSS 52302970 B <= 0.8C",
+      "estimate_adm_bytes": 423232,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36071014,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52302970,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "151_RF-LARGE-TREE-n00010-ROT_sparse",
+    "calibration_population": [],
+    "estimate": 423232,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.6 MiB <= C/2; projected RSS 52607057 B <= 0.8C",
+      "estimate_adm_bytes": 423232,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36280729,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52607057,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "152_RF-LARGE-TREE-n00010-ROT_w1a",
+    "calibration_population": [],
+    "estimate": 22748713,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22748713 B x rho 2.000 <= C/2; projected RSS 65971267 B <= 0.8C",
+      "estimate_adm_bytes": 22748713,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45497426,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65971267,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "153_RF-LARGE-TREE-n00010-ROT_sparse",
+    "calibration_population": [],
+    "estimate": 423232,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.6 MiB <= C/2; projected RSS 52607057 B <= 0.8C",
+      "estimate_adm_bytes": 423232,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36280729,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52607057,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "154_RF-LARGE-TREE-n00010-ROT_w1a",
+    "calibration_population": [],
+    "estimate": 22748169,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22748169 B x rho 2.000 <= C/2; projected RSS 65969690 B <= 0.8C",
+      "estimate_adm_bytes": 22748169,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45496338,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65969690,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "155_RF-LARGE-CONT-n00010-AX_w1a",
+    "calibration_population": [],
+    "estimate": 22674321,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22674321 B x rho 2.000 <= C/2; projected RSS 65755530 B <= 0.8C",
+      "estimate_adm_bytes": 22674321,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45348642,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65755530,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "156_RF-LARGE-CONT-n00010-AX_sparse",
+    "calibration_population": [],
+    "estimate": 408244,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.4 MiB <= C/2; projected RSS 52302970 B <= 0.8C",
+      "estimate_adm_bytes": 408244,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36071014,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52302970,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "157_RF-LARGE-CONT-n00010-AX_w1a",
+    "calibration_population": [],
+    "estimate": 22673778,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22673778 B x rho 2.000 <= C/2; projected RSS 65753956 B <= 0.8C",
+      "estimate_adm_bytes": 22673778,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45347556,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65753956,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "158_RF-LARGE-CONT-n00010-AX_sparse",
+    "calibration_population": [],
+    "estimate": 408244,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.4 MiB <= C/2; projected RSS 52302970 B <= 0.8C",
+      "estimate_adm_bytes": 408244,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36071014,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52302970,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "159_RF-LARGE-CONT-n00010-ROT_sparse",
+    "calibration_population": [],
+    "estimate": 408244,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.4 MiB <= C/2; projected RSS 52302970 B <= 0.8C",
+      "estimate_adm_bytes": 408244,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36071014,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52302970,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "160_RF-LARGE-CONT-n00010-ROT_w1a",
+    "calibration_population": [],
+    "estimate": 22679576,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22679576 B x rho 2.000 <= C/2; projected RSS 65770770 B <= 0.8C",
+      "estimate_adm_bytes": 22679576,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45359152,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65770770,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "161_RF-LARGE-CONT-n00010-ROT_sparse",
+    "calibration_population": [],
+    "estimate": 408244,
+    "decision": {
+      "decision": "admitted",
+      "reason": "p1_linux_peak 34.4 MiB <= C/2; projected RSS 52302970 B <= 0.8C",
+      "estimate_adm_bytes": 408244,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 36071014,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 52302970,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "162_RF-LARGE-CONT-n00010-ROT_w1a",
+    "calibration_population": [],
+    "estimate": 22679032,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22679032 B x rho 2.000 <= C/2; projected RSS 65769192 B <= 0.8C",
+      "estimate_adm_bytes": 22679032,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 45358064,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 65769192,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "163_DEC053_invented-cantilever-chain-8_w1a",
+    "calibration_population": [],
+    "estimate": 22172292,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22172292 B x rho 2.000 <= C/2; projected RSS 64299646 B <= 0.8C",
+      "estimate_adm_bytes": 22172292,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 44344584,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 64299646,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "164_DEC053_invented-cantilever-chain-8_sparse",
+    "calibration_population": [],
+    "estimate": 340448,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 340448 B x rho 2.000 <= C/2; projected RSS 987299 B <= 0.8C",
+      "estimate_adm_bytes": 340448,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 680896,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 987299,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "165_DEC053_invented-cantilever-chain-8_w1a",
+    "calibration_population": [],
+    "estimate": 22171738,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 22171738 B x rho 2.000 <= C/2; projected RSS 64298040 B <= 0.8C",
+      "estimate_adm_bytes": 22171738,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 44343476,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 64298040,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "166_DEC053_invented-cantilever-chain-8_sparse",
+    "calibration_population": [],
+    "estimate": 340448,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 340448 B x rho 2.000 <= C/2; projected RSS 987299 B <= 0.8C",
+      "estimate_adm_bytes": 340448,
+      "rho": 2.0,
+      "rho_rss": 2.0,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 680896,
+      "rss_to_footprint": 1.45,
+      "projected_rss_bytes": 987299,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "167_DEC053_invented-cantilever-chain-24_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse"
+    ],
+    "estimate": 1002720,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 1002720 B x rho 3.465 <= C/2; projected RSS 5789923 B <= 0.8C",
+      "estimate_adm_bytes": 1002720,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3474482,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 5789923,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "168_DEC053_invented-cantilever-chain-24_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a"
+    ],
+    "estimate": 26717405,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 26717405 B x rho 0.101 <= C/2; projected RSS 4368878 B <= 0.8C",
+      "estimate_adm_bytes": 26717405,
+      "rho": 0.10123843245847484,
+      "rho_rss": 0.15887613321066665,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2704828,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 4368878,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "169_DEC053_invented-cantilever-chain-24_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse"
+    ],
+    "estimate": 1002720,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 1002720 B x rho 3.465 <= C/2; projected RSS 5789923 B <= 0.8C",
+      "estimate_adm_bytes": 1002720,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 3474482,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 5789923,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "170_DEC053_invented-cantilever-chain-24_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a"
+    ],
+    "estimate": 26716850,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 26716850 B x rho 0.101 <= C/2; projected RSS 4368787 B <= 0.8C",
+      "estimate_adm_bytes": 26716850,
+      "rho": 0.10123843245847484,
+      "rho_rss": 0.15887613321066665,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2704772,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 4368787,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "171_DEC053_invented-cantilever-chain-48_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a"
+    ],
+    "estimate": 33527477,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 33527477 B x rho 0.188 <= C/2; projected RSS 10195447 B <= 0.8C",
+      "estimate_adm_bytes": 33527477,
+      "rho": 0.18826740427857325,
+      "rho_rss": 0.23732618179164086,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 6312131,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 10195447,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "172_DEC053_invented-cantilever-chain-48_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse"
+    ],
+    "estimate": 1996128,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 1996128 B x rho 3.465 <= C/2; projected RSS 11526079 B <= 0.8C",
+      "estimate_adm_bytes": 1996128,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 6916698,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 11526079,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "173_DEC053_invented-cantilever-chain-48_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a"
+    ],
+    "estimate": 33526922,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 33526922 B x rho 0.188 <= C/2; projected RSS 10195277 B <= 0.8C",
+      "estimate_adm_bytes": 33526922,
+      "rho": 0.18826740427857325,
+      "rho_rss": 0.23732618179164086,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 6312026,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 10195277,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "174_DEC053_invented-cantilever-chain-48_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse"
+    ],
+    "estimate": 1996128,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 1996128 B x rho 3.465 <= C/2; projected RSS 11526079 B <= 0.8C",
+      "estimate_adm_bytes": 1996128,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 6916698,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 11526079,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "175_DEC053_invented-grid-frame-4x3_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse"
+    ],
+    "estimate": 618104,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 618104 B x rho 3.465 <= C/2; projected RSS 3569067 B <= 0.8C",
+      "estimate_adm_bytes": 618104,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2141766,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 3569067,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "176_DEC053_invented-grid-frame-4x3_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a"
+    ],
+    "estimate": 24297037,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 24297037 B x rho 0.101 <= C/2; projected RSS 3973093 B <= 0.8C",
+      "estimate_adm_bytes": 24297037,
+      "rho": 0.10123843245847484,
+      "rho_rss": 0.15887613321066665,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2459793,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 3973093,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "177_DEC053_invented-grid-frame-4x3_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse"
+    ],
+    "estimate": 618104,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 618104 B x rho 3.465 <= C/2; projected RSS 3569067 B <= 0.8C",
+      "estimate_adm_bytes": 618104,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2141766,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 3569067,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "178_DEC053_invented-grid-frame-4x3_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a"
+    ],
+    "estimate": 24296487,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 24296487 B x rho 0.101 <= C/2; projected RSS 3973005 B <= 0.8C",
+      "estimate_adm_bytes": 24296487,
+      "rho": 0.10123843245847484,
+      "rho_rss": 0.15887613321066665,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 2459738,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 3973005,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "179_DEC053_invented-grid-frame-6x8_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ],
+    "estimate": 42170660,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 42170660 B x rho 0.239 <= C/2; projected RSS 16276832 B <= 0.8C",
+      "estimate_adm_bytes": 42170660,
+      "rho": 0.23896221001061307,
+      "rho_rss": 0.2780553991581293,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10077194,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 16276832,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "180_DEC053_invented-grid-frame-6x8_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse",
+      "172_DEC053_invented-cantilever-chain-48_sparse",
+      "174_DEC053_invented-cantilever-chain-48_sparse",
+      "175_DEC053_invented-grid-frame-4x3_sparse",
+      "177_DEC053_invented-grid-frame-4x3_sparse"
+    ],
+    "estimate": 2923536,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 2923536 B x rho 3.465 <= C/2; projected RSS 16881137 B <= 0.8C",
+      "estimate_adm_bytes": 2923536,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10130221,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 16881137,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "181_DEC053_invented-grid-frame-6x8_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ],
+    "estimate": 42170110,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 42170110 B x rho 0.239 <= C/2; projected RSS 16276619 B <= 0.8C",
+      "estimate_adm_bytes": 42170110,
+      "rho": 0.23896221001061307,
+      "rho_rss": 0.2780553991581293,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10077062,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 16276619,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "182_DEC053_invented-grid-frame-6x8_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse",
+      "172_DEC053_invented-cantilever-chain-48_sparse",
+      "174_DEC053_invented-cantilever-chain-48_sparse",
+      "175_DEC053_invented-grid-frame-4x3_sparse",
+      "177_DEC053_invented-grid-frame-4x3_sparse"
+    ],
+    "estimate": 2923536,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 2923536 B x rho 3.465 <= C/2; projected RSS 16881137 B <= 0.8C",
+      "estimate_adm_bytes": 2923536,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 10130221,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 16881137,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "183_DEC053_invented-grid-frame-7x8_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse",
+      "172_DEC053_invented-cantilever-chain-48_sparse",
+      "174_DEC053_invented-cantilever-chain-48_sparse",
+      "175_DEC053_invented-grid-frame-4x3_sparse",
+      "177_DEC053_invented-grid-frame-4x3_sparse",
+      "180_DEC053_invented-grid-frame-6x8_sparse",
+      "182_DEC053_invented-grid-frame-6x8_sparse"
+    ],
+    "estimate": 3448432,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 3448432 B x rho 3.465 <= C/2; projected RSS 19912001 B <= 0.8C",
+      "estimate_adm_bytes": 3448432,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 11949016,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 19912001,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "184_DEC053_invented-grid-frame-7x8_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a",
+      "179_DEC053_invented-grid-frame-6x8_w1a",
+      "181_DEC053_invented-grid-frame-6x8_w1a"
+    ],
+    "estimate": 46485512,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 46485512 B x rho 0.286 <= C/2; projected RSS 21499370 B <= 0.8C",
+      "estimate_adm_bytes": 46485512,
+      "rho": 0.28633727809809,
+      "rho_rss": 0.317806550810445,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 13310534,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 21499370,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "185_DEC053_invented-grid-frame-7x8_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse",
+      "172_DEC053_invented-cantilever-chain-48_sparse",
+      "174_DEC053_invented-cantilever-chain-48_sparse",
+      "175_DEC053_invented-grid-frame-4x3_sparse",
+      "177_DEC053_invented-grid-frame-4x3_sparse",
+      "180_DEC053_invented-grid-frame-6x8_sparse",
+      "182_DEC053_invented-grid-frame-6x8_sparse"
+    ],
+    "estimate": 3448432,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 3448432 B x rho 3.465 <= C/2; projected RSS 19912001 B <= 0.8C",
+      "estimate_adm_bytes": 3448432,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 11949016,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 19912001,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "186_DEC053_invented-grid-frame-7x8_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a",
+      "179_DEC053_invented-grid-frame-6x8_w1a",
+      "181_DEC053_invented-grid-frame-6x8_w1a"
+    ],
+    "estimate": 46484962,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 46484962 B x rho 0.286 <= C/2; projected RSS 21499117 B <= 0.8C",
+      "estimate_adm_bytes": 46484962,
+      "rho": 0.28633727809809,
+      "rho_rss": 0.317806550810445,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 13310377,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 21499117,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "187_DEC053_invented-grid-frame-5x5_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ],
+    "estimate": 30508033,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 30508033 B x rho 0.188 <= C/2; projected RSS 9277257 B <= 0.8C",
+      "estimate_adm_bytes": 30508033,
+      "rho": 0.18826740427857325,
+      "rho_rss": 0.23732618179164086,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5743668,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 9277257,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "188_DEC053_invented-grid-frame-5x5_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse",
+      "175_DEC053_invented-grid-frame-4x3_sparse",
+      "177_DEC053_invented-grid-frame-4x3_sparse"
+    ],
+    "estimate": 1435520,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 1435520 B x rho 3.465 <= C/2; projected RSS 8289005 B <= 0.8C",
+      "estimate_adm_bytes": 1435520,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 4974159,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 8289005,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "189_DEC053_invented-grid-frame-5x5_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ],
+    "estimate": 30507483,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 30507483 B x rho 0.188 <= C/2; projected RSS 9277089 B <= 0.8C",
+      "estimate_adm_bytes": 30507483,
+      "rho": 0.18826740427857325,
+      "rho_rss": 0.23732618179164086,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5743564,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 9277089,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "190_DEC053_invented-grid-frame-5x5_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse",
+      "175_DEC053_invented-grid-frame-4x3_sparse",
+      "177_DEC053_invented-grid-frame-4x3_sparse"
+    ],
+    "estimate": 1435520,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 1435520 B x rho 3.465 <= C/2; projected RSS 8289005 B <= 0.8C",
+      "estimate_adm_bytes": 1435520,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 4974159,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 8289005,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "191_DEC053_invented-cantilever-chain-32_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse",
+      "175_DEC053_invented-grid-frame-4x3_sparse",
+      "177_DEC053_invented-grid-frame-4x3_sparse"
+    ],
+    "estimate": 1333856,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 1333856 B x rho 3.465 <= C/2; projected RSS 7701976 B <= 0.8C",
+      "estimate_adm_bytes": 1333856,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 4621888,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 7701976,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "192_DEC053_invented-cantilever-chain-32_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ],
+    "estimate": 28967205,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 28967205 B x rho 0.188 <= C/2; projected RSS 8808702 B <= 0.8C",
+      "estimate_adm_bytes": 28967205,
+      "rho": 0.18826740427857325,
+      "rho_rss": 0.23732618179164086,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5453580,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 8808702,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "193_DEC053_invented-cantilever-chain-32_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse",
+      "175_DEC053_invented-grid-frame-4x3_sparse",
+      "177_DEC053_invented-grid-frame-4x3_sparse"
+    ],
+    "estimate": 1333856,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 1333856 B x rho 3.465 <= C/2; projected RSS 7701976 B <= 0.8C",
+      "estimate_adm_bytes": 1333856,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 4621888,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 7701976,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "194_DEC053_invented-cantilever-chain-32_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a"
+    ],
+    "estimate": 28966650,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 28966650 B x rho 0.188 <= C/2; projected RSS 8808534 B <= 0.8C",
+      "estimate_adm_bytes": 28966650,
+      "rho": 0.18826740427857325,
+      "rho_rss": 0.23732618179164086,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 5453476,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 8808534,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "195_DEC053_invented-grid-frame-5x6_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a",
+      "187_DEC053_invented-grid-frame-5x5_w1a",
+      "189_DEC053_invented-grid-frame-5x5_w1a",
+      "192_DEC053_invented-cantilever-chain-32_w1a",
+      "194_DEC053_invented-cantilever-chain-32_w1a"
+    ],
+    "estimate": 33018646,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 33018646 B x rho 0.239 <= C/2; projected RSS 12744380 B <= 0.8C",
+      "estimate_adm_bytes": 33018646,
+      "rho": 0.23896221001061307,
+      "rho_rss": 0.2780553991581293,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 7890208,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 12744380,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "196_DEC053_invented-grid-frame-5x6_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse",
+      "172_DEC053_invented-cantilever-chain-48_sparse",
+      "174_DEC053_invented-cantilever-chain-48_sparse",
+      "175_DEC053_invented-grid-frame-4x3_sparse",
+      "177_DEC053_invented-grid-frame-4x3_sparse",
+      "188_DEC053_invented-grid-frame-5x5_sparse",
+      "190_DEC053_invented-grid-frame-5x5_sparse",
+      "191_DEC053_invented-cantilever-chain-32_sparse",
+      "193_DEC053_invented-cantilever-chain-32_sparse"
+    ],
+    "estimate": 1756560,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 1756560 B x rho 3.465 <= C/2; projected RSS 10142760 B <= 0.8C",
+      "estimate_adm_bytes": 1756560,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 6086581,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 10142760,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "197_DEC053_invented-grid-frame-5x6_w1a",
+    "calibration_population": [
+      "163_DEC053_invented-cantilever-chain-8_w1a",
+      "165_DEC053_invented-cantilever-chain-8_w1a",
+      "168_DEC053_invented-cantilever-chain-24_w1a",
+      "170_DEC053_invented-cantilever-chain-24_w1a",
+      "171_DEC053_invented-cantilever-chain-48_w1a",
+      "173_DEC053_invented-cantilever-chain-48_w1a",
+      "176_DEC053_invented-grid-frame-4x3_w1a",
+      "178_DEC053_invented-grid-frame-4x3_w1a",
+      "187_DEC053_invented-grid-frame-5x5_w1a",
+      "189_DEC053_invented-grid-frame-5x5_w1a",
+      "192_DEC053_invented-cantilever-chain-32_w1a",
+      "194_DEC053_invented-cantilever-chain-32_w1a"
+    ],
+    "estimate": 33018096,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 33018096 B x rho 0.239 <= C/2; projected RSS 12744168 B <= 0.8C",
+      "estimate_adm_bytes": 33018096,
+      "rho": 0.23896221001061307,
+      "rho_rss": 0.2780553991581293,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 7890077,
+      "rss_to_footprint": 1.6152147460453379,
+      "projected_rss_bytes": 12744168,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  },
+  {
+    "run_id": "198_DEC053_invented-grid-frame-5x6_sparse",
+    "calibration_population": [
+      "164_DEC053_invented-cantilever-chain-8_sparse",
+      "166_DEC053_invented-cantilever-chain-8_sparse",
+      "167_DEC053_invented-cantilever-chain-24_sparse",
+      "169_DEC053_invented-cantilever-chain-24_sparse",
+      "172_DEC053_invented-cantilever-chain-48_sparse",
+      "174_DEC053_invented-cantilever-chain-48_sparse",
+      "175_DEC053_invented-grid-frame-4x3_sparse",
+      "177_DEC053_invented-grid-frame-4x3_sparse",
+      "188_DEC053_invented-grid-frame-5x5_sparse",
+      "190_DEC053_invented-grid-frame-5x5_sparse",
+      "191_DEC053_invented-cantilever-chain-32_sparse",
+      "193_DEC053_invented-cantilever-chain-32_sparse"
+    ],
+    "estimate": 1756560,
+    "decision": {
+      "decision": "admitted",
+      "reason": "estimate 1756560 B x rho 3.465 <= C/2; projected RSS 10142760 B <= 0.8C",
+      "estimate_adm_bytes": 1756560,
+      "rho": 3.4650578061847916,
+      "rho_rss": 5.774978851395808,
+      "half_cap_bytes": 4294967296,
+      "footprint_estimate_bytes": 6086581,
+      "rss_to_footprint": 1.666413522251394,
+      "projected_rss_bytes": 10142760,
+      "projected_rss_limit_bytes": 6871947673
+    }
+  }
+]

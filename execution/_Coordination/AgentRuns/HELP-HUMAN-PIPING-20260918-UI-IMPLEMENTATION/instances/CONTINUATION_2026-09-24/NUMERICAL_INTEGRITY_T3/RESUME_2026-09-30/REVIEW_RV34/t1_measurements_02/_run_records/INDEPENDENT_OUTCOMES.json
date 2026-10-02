@@ -1,0 +1,422 @@
+[
+  {
+    "run_id": "139_RF-LARGE-CHAIN-n00010-AX_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "140_RF-LARGE-CHAIN-n00010-AX_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "141_RF-LARGE-CHAIN-n00010-AX_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "142_RF-LARGE-CHAIN-n00010-AX_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "143_RF-LARGE-CHAIN-n00010-ROT_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "144_RF-LARGE-CHAIN-n00010-ROT_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "145_RF-LARGE-CHAIN-n00010-ROT_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "146_RF-LARGE-CHAIN-n00010-ROT_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "147_RF-LARGE-TREE-n00010-AX_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "148_RF-LARGE-TREE-n00010-AX_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "149_RF-LARGE-TREE-n00010-AX_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "150_RF-LARGE-TREE-n00010-AX_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "151_RF-LARGE-TREE-n00010-ROT_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "152_RF-LARGE-TREE-n00010-ROT_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "153_RF-LARGE-TREE-n00010-ROT_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "154_RF-LARGE-TREE-n00010-ROT_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "155_RF-LARGE-CONT-n00010-AX_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "156_RF-LARGE-CONT-n00010-AX_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "157_RF-LARGE-CONT-n00010-AX_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "158_RF-LARGE-CONT-n00010-AX_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "159_RF-LARGE-CONT-n00010-ROT_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "160_RF-LARGE-CONT-n00010-ROT_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "161_RF-LARGE-CONT-n00010-ROT_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "162_RF-LARGE-CONT-n00010-ROT_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "163_DEC053_invented-cantilever-chain-8_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "164_DEC053_invented-cantilever-chain-8_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "165_DEC053_invented-cantilever-chain-8_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "166_DEC053_invented-cantilever-chain-8_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "167_DEC053_invented-cantilever-chain-24_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "168_DEC053_invented-cantilever-chain-24_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "169_DEC053_invented-cantilever-chain-24_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "170_DEC053_invented-cantilever-chain-24_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "171_DEC053_invented-cantilever-chain-48_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "172_DEC053_invented-cantilever-chain-48_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "173_DEC053_invented-cantilever-chain-48_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "174_DEC053_invented-cantilever-chain-48_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "175_DEC053_invented-grid-frame-4x3_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "176_DEC053_invented-grid-frame-4x3_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "177_DEC053_invented-grid-frame-4x3_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "178_DEC053_invented-grid-frame-4x3_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "179_DEC053_invented-grid-frame-6x8_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "180_DEC053_invented-grid-frame-6x8_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "181_DEC053_invented-grid-frame-6x8_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "182_DEC053_invented-grid-frame-6x8_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "183_DEC053_invented-grid-frame-7x8_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "184_DEC053_invented-grid-frame-7x8_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "185_DEC053_invented-grid-frame-7x8_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "186_DEC053_invented-grid-frame-7x8_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "187_DEC053_invented-grid-frame-5x5_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "188_DEC053_invented-grid-frame-5x5_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "189_DEC053_invented-grid-frame-5x5_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "190_DEC053_invented-grid-frame-5x5_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "191_DEC053_invented-cantilever-chain-32_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "192_DEC053_invented-cantilever-chain-32_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "193_DEC053_invented-cantilever-chain-32_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "194_DEC053_invented-cantilever-chain-32_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "195_DEC053_invented-grid-frame-5x6_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "196_DEC053_invented-grid-frame-5x6_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  },
+  {
+    "run_id": "197_DEC053_invented-grid-frame-5x6_w1a",
+    "mode": "w1a",
+    "completed_repeats": 5,
+    "outcome": "Selected",
+    "precision": 128
+  },
+  {
+    "run_id": "198_DEC053_invented-grid-frame-5x6_sparse",
+    "mode": "sparse",
+    "completed_repeats": 5,
+    "outcome": "Passed",
+    "precision": null
+  }
+]
