@@ -1,0 +1,38 @@
+{
+  "utc": "2026-10-02T01:17:22.243796+00:00",
+  "role": "ROOT HELP_HUMAN Agent0",
+  "host": "M5 Max18cores128GiB;existingguard5387",
+  "goal": "ContinueT3; A1firstclosure, K6cthenW1limits/F2a/SI/F2b/F3; no pending human approval",
+  "heads": {
+    "numerics": "ddeeadbb5b905f39cbc823aefcc0ea731f117eb7",
+    "a1": "cb13dcd9fcc8c252fa9610b1c6fef0c5b2c3c20c",
+    "k6c": "79733ae169e158b9e6b2e16ed2cbae70cc5f235d"
+  },
+  "a1": {
+    "frozen_candidate": "cb13dcd9fcc8c252fa9610b1c6fef0c5b2c3c20c",
+    "main_base": "546e05a159a58f5ceffe1d315373bc2f31982ea8",
+    "PR": 1070,
+    "GEN8": "PASS1/10deselected; prior7f51failure2rawpathfindingspreserved;intactRV31packetrelocated",
+    "source_records_review": "T3/REVIEW/A1_FINAL_RV31/7f5137e7 RETURN confirmscb13;seal87c7f1373b0a23107e064e338c57933efb654c6a85b5146061e500c604b561ad;ROOTfullread/hashverifiedcommitted",
+    "gate_dir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002",
+    "DEC_session": 53027,
+    "DEC": "started00:48:07; cargo40/40compareexact3baselinefailures;FK432->456,H75->76passes;pytestrunningstarted01:04:07;wasm/vitest/buildfollow",
+    "dispatch_run": 36947805251,
+    "dispatch": "verifiedworkflow_dispatchheadcb13,target_basefull546;inprogress",
+    "remaining": "Allsurfaces/CIcomplete, independentRV31gateconfirmation,immediatemainfetchcheck,ghmerge--merge--match-head;mergeRecord+ruling+graphsamepass. DoNOTcommitA1whilegatesrun."
+  },
+  "K6c": {
+    "kernel_candidate": "4a6cb3402f95d98c6f46f702055fe4b0c5245c56",
+    "independent_kernel_review": "RV33kernel_01 seal f50f48bfdaa4874a556b7660285ed0328bba57ee0f7bf099892ad2bdf4e7d919,25payloads;manifestunder_run_records but pathsfrompacketroot;ROOTfullreadverifiedaccepted4aonly, committed79733ae;laterHhelperneedsbackcheck",
+    "context": "RV32 Hcontext8ca1... fullROOTread/selected; packetrelocatedintactdesign_review_RV32/_run_records/h_context_01. Launchprepassrunnerbinding, actualrepeatdigits, typedSourceRefusedpositivewindowandunexecutedphase0mandatory. Noownerdecisionneeded. No fullEmax/adapter/artifact/admission/measurement acceptance."
+  },
+  "active_native_tasks": {
+    "i21_kernel_resume": "H integration25 directROOT;01:01:52\u201302:01:52 UTC,stopnewwork01:56:52;NUMBRIEFS/I21_H_INTEGRATION_25.md at9ddeb23. Hfenceonly+notifiedcratevisiblerawhelperenvelope; manifestaddendumonlycounts.jsonlSHAline. Hlibraryreadyagain01:11approx;focusedtests/33counts/runnerremaining. No10k/timing.",
+    "i24_vr_integration": "VR integration01 directROOT;01:07:41\u201302:07:41,stopnewwork02:02:41;NUMbriefI24_VR_INTEGRATION_01 at2e636ab. VRfenceonly+HlocalCargo pathdep/offlinelock;193tests/capture/callers;noHedits. Hreadinessrelayed.",
+    "rv31_a1_final": "idle; finalsourceconfirmationdone; freshboundedexternalgatecheckwhenready",
+    "rv32_h_context": "idle; contextreviewclosed",
+    "rv33_kernel_code": "idle; exact4areviewdone; backchecklateractualhelper/integrationcandidate"
+  },
+  "interruption": "At00:24:44 alloldnativeagentsgone;ROOTpreservedpartialcode+logs NUMverification/interruption_20261002_0024 seal9fd976...,newnativeidentitiesexplicit. No experimentrerunforrecovery. OldRV29final44partialpreservednovalidverdict.",
+  "rules": "TASKnoGit/index; allreadsGIT_OPTIONAL_LOCKS0. ROOTallcommits;sealedbytesimmutable. Nohosttooldevelopment/pruning. Newrawmetadataunder_run_records. ExactheadgatesrequiredrecordsPRtoo. A1BLOCKING/F2ahelduntilmerge; K6cnotA1gate."
+}
