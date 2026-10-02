@@ -4748,3 +4748,34 @@ its informational write inventory. These remain revisable drafting material,
 not accepted final D records or a new numerical claim. T4 readiness has returned
 and its raw evidence is preserved; RV34 reviews it independently before ROOT
 normal-execution disposition. I26_T4_MEASUREMENTS_10.md is prepared, not released.
+
+
+## T4 readiness accepted; original measurements and scoped comparison released (ROOT, 2026-10-02 UTC)
+
+ROOT read the complete RV34 t4_readiness_06 RETURN and verified its17-payload
+seal22f339b27f2973e80f08aa5456053400daba0e71d5fcfbfb062a7c7a49f5e423.
+Accept finite input/context/readiness evidence. The review's caller/projection
+section reproduces all prospective numeric predicates; its recipe section
+confirms unchanged wrapper/reference criteria and mandatory complete Selected-
+dump accounting. These projections are not actual future admissions or measured
+consumption. The current hold and prior journal remain untouched by readiness.
+
+Release I26_T4_MEASUREMENTS_10.md on the fixed ordinary artifact/source81c038.
+ROOT's explicit native dispatch starts60 minutes total: normal solver stop/reap
+by40 minutes, no comparator runtime after50, final return by60. This extends only
+the separately budgeted post-solver comparison/analysis time, not the normal
+execution cutoff or original per-process limits. Use the original wrapper once
+and its sole named W1-T4 hold lift, with actual fresh baseline/prepasses and all
+numeric predicates. No numeric deferral, cap or tolerance may be overridden.
+
+Only a complete valid normal tier with critical checks passing may proceed to
+the unchanged R1 comparator within the separate time bound. Account every first-
+pass outcome, require every Selected dump, preserve unavailable/unpublished cases
+without pass credit and investigate changed supported KF3 facts. Preserve full
+new outputs and all prior journal prefixes. Partial/interrupted/invalid runtime
+returns for disposition instead of silently extending or retrying. Existing
+M5 guard and sole quiet/timed lane apply; no build or new host tooling follows.
+
+Complete K6c/E_max, final comparison acceptance, exact-head final review/gates,
+W1 limits and F2a remain open. No owner decision is re-requested for the already
+approved scoped comparison.
