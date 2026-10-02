@@ -4732,3 +4732,19 @@ clean records branches remain. Release only I26_T4_READINESS_09.md under its
 25-minute bound: exact-context input acquisitions, no-op and prospective numeric
 decisions. No normal solve or R1 process yet. Actual T4 execution requires the
 next bounded ROOT grant after readiness; no numeric deferral may be overridden.
+
+
+## Scoped comparison adoption independently confirmed (ROOT, 2026-10-02 UTC)
+
+ROOT read RV36 comparison_adoption_04 and verified its3-payload seal
+1f55f2b355db885a4985d5adbfe701e6a54512f61f45399859ba4c12ab8cbd64.
+The decision is faithfully propagated with all five obligations and no further
+permission request for that same policy choice. Actual runtime/comparison evidence
+and final gates remain. The reviewer confirms its earlier boundary concerned
+comparison closure, not all independent acquisition.
+
+ROOT also read I28 closeout_index_03's full draft and obligation map and checked
+its informational write inventory. These remain revisable drafting material,
+not accepted final D records or a new numerical claim. T4 readiness has returned
+and its raw evidence is preserved; RV34 reviews it independently before ROOT
+normal-execution disposition. I26_T4_MEASUREMENTS_10.md is prepared, not released.
