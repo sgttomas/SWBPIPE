@@ -53,8 +53,8 @@ fn number(v: &Value) -> Result<f64, String> {
 }
 fn integer(v: &Value) -> Result<usize, String> {
     v.as_u64()
-        .and_then(|n| usize::try_from(n).ok())
         .filter(|n| *n <= 9_007_199_254_740_991)
+        .and_then(|n| usize::try_from(n).ok())
         .ok_or_else(|| "SOURCE_BLOCKS_INTEGER".into())
 }
 fn keys(v: &Value, expected: &[&str]) -> bool {
