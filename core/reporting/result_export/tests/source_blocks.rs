@@ -446,6 +446,34 @@ fn actual_pre_repair_producer_stress_range_packets_are_refused_unchanged() {
     }
 }
 
+/// First-failure parity: rows are checked in receipt order (as the Python
+/// reader does), so the refusal code never depends on per-call hash order.
+#[test]
+fn actual_pre_repair_stress_range_first_failure_is_stable() {
+    let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../fixtures/product_preview/source_blocks/rejected_stress_range");
+    for mode in ["dense_scrutiny", "sparse_interactive"] {
+        let raw = std::fs::read_to_string(directory.join(format!("{mode}.raw.json"))).unwrap();
+        let request =
+            std::fs::read_to_string(directory.join(format!("{mode}.request.json"))).unwrap();
+        let source: Value = serde_json::from_str(&raw).unwrap();
+        let context =
+            json!({"request":serde_json::from_str::<Value>(&request).unwrap(),"solver_mode":mode});
+        for _ in 0..32 {
+            assert_eq!(
+                semantic_contract::for_source(&source).unwrap_err(),
+                "SOURCE_BLOCKS_STRESS_OUTPUT_RANGE",
+                "{mode}"
+            );
+            assert_eq!(
+                source_blocks::validate(&source, Some(&context)),
+                Err("SOURCE_BLOCKS_STRESS_OUTPUT_RANGE".into()),
+                "{mode}"
+            );
+        }
+    }
+}
+
 /// T0R: a received all-selected envelope plus one synthetic ordinary case,
 /// resealed in memory. The frozen raw bytes are untouched. Before T0R this
 /// statement qualified; its ordinary case keeps precision-1 row semantics.
