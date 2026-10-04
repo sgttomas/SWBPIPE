@@ -6,7 +6,7 @@ from pathlib import Path
 import json
 from typing import Any, Callable, Mapping
 
-from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
+from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
 from .source_blocks import (CONTRACT_ID as SOURCE_BLOCKS_CONTRACT_ID,
     CONTRACT_SHA256 as SOURCE_BLOCKS_CONTRACT_SHA256, CONTRACT_PATH as _SOURCE_BLOCKS_CONTRACT_PATH,
     validate_source_blocks, validate_receipt_shape, domain_hash, ordinary_case_legacy_semantics)
@@ -221,6 +221,16 @@ PRECISION_1_HISTORICAL_SEMANTICS = "PRECISION_1_HISTORICAL_SEMANTICS"
 SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS = "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS"
 RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
 
+
+
+def _same_canonical(a: Any, b: Any) -> bool:
+    """RV92 S-1: equal as checked canonical JSON bytes, as TS's same() compares, so
+    false is not 0 and true is not 1, while 0.0 and 0 are one JSON value. A value
+    outside the checked profile equals nothing."""
+    try:
+        return canonical_json_checked_v1(a) == canonical_json_checked_v1(b)
+    except ValueError:
+        return False
 
 
 def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -> tuple[str, str, Path]:
@@ -521,12 +531,12 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
         raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
     run = envelope.get("analysis_run", {})
     if contract_id in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
-        if run.get("source_block_recovery") != source["source_block_recovery"]:
+        if not _same_canonical(run.get("source_block_recovery"), source["source_block_recovery"]):
             raise ValueError("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH")
     elif "source_block_recovery" in run:
         raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
     if contract_id in {PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
-        if run.get("contract_evidence") != source["contract_evidence"]:
+        if not _same_canonical(run.get("contract_evidence"), source["contract_evidence"]):
             raise ValueError("ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH")
     elif "contract_evidence" in run:
         raise ValueError("ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN")

@@ -6,7 +6,8 @@ from pathlib import Path
 import pytest
 
 from core.analysis_runs.compatibility import (
-    analysis_record_projection, build_analysis_run_v0_2, verify_analysis_run_record,
+    analysis_record_projection, build_analysis_run_v0_2, build_analysis_run_v0_3, validate_analysis_run_v0_3,
+    verify_analysis_run_record,
 )
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 from core.analysis_runs.records import build_preview_analysis_run_envelope
@@ -289,3 +290,86 @@ def test_explicit_legacy_constructor_known_versions_preserve_real_hashes_and_sem
     # The source version is part of the received checksum, not erased or relabelled.
     assert hash_by_scope(records["0.1.0"], "received_result") != hash_by_scope(records["0.2.0"], "received_result")
     assert hash_by_scope(records["0.1.0"], "analysis_run_record") != hash_by_scope(records["0.2.0"], "analysis_run_record")
+
+
+# Copy checks: a joined load-reference-source record carries both the
+# source-block receipt and the contract evidence. Each forged copy is resealed
+# with its own record checksum, so only the copy check can refuse it.
+JOINED_SOURCE = PROJECT / "fixtures/product_preview/load_reference_source/n05-sparse_interactive.raw.json"
+RECEIPT_MISMATCH = "^ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH$"
+EVIDENCE_MISMATCH = "^ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH$"
+
+
+@pytest.fixture(scope="module")
+def joined() -> tuple[dict, dict]:
+    source = json.loads(JOINED_SOURCE.read_text())
+    record = build_analysis_run_v0_3(source, input_manifest_ref=MANIFEST_REF, input_manifest_hash=MANIFEST_HASH)
+    return source, record
+
+
+def copied_leaf(value, path: tuple):
+    for key in path:
+        value = value[key]
+    return value
+
+
+def resealed_copy(record: dict, field: str, path: tuple, value) -> dict:
+    forged = deepcopy(record)
+    copied_leaf(forged["analysis_run"][field], path[:-1])[path[-1]] = value
+    seal = next(row for row in forged["analysis_run"]["hashes"] if row["payload_scope"] == "analysis_run_record")
+    seal["value"] = canonical_sha256_checked_v1(analysis_record_projection(forged))
+    assert verify_analysis_run_record(forged) == "match"
+    return forged
+
+
+def as_javascript_writes(value):
+    """JSON.stringify writes an integral float without its fraction."""
+    if type(value) is float and value.is_integer():
+        return int(value)
+    if type(value) is dict:
+        return {key: as_javascript_writes(item) for key, item in value.items()}
+    if type(value) is list:
+        return [as_javascript_writes(item) for item in value]
+    return value
+
+
+@pytest.mark.parametrize(("field", "path", "value", "code"), [
+    ("source_block_recovery", ("body", "cases", 0, "source", "force_term_count"), True, RECEIPT_MISMATCH),
+    ("source_block_recovery", ("body", "cases", 0, "ordinary_attempt", "quality_case_index"), False, RECEIPT_MISMATCH),
+    ("contract_evidence", ("exact_cases", 0, "pressure_rhs_assembly", "screen_is_not_numerical_qualification"), 1, EVIDENCE_MISMATCH),
+    ("contract_evidence", ("exact_cases", 0, "pipe_materials", 0, "thermal_consumed"), 0, EVIDENCE_MISMATCH),
+])
+def test_copy_checks_refuse_a_boolean_for_an_integer(joined, field, path, value, code) -> None:
+    source, record = joined
+    original = copied_leaf(source[field], path)
+    assert original == value and type(original) is not type(value)
+    forged = resealed_copy(record, field, path, value)
+    # Python equality cannot see the swap; the canonical bytes differ.
+    assert forged["analysis_run"][field] == source[field]
+    with pytest.raises(ValueError, match=code):
+        validate_analysis_run_v0_3(forged, source)
+
+
+@pytest.mark.parametrize(("field", "path", "value"), [
+    ("source_block_recovery", ("body", "cases", 0, "source", "force_term_count"), 1.0),
+    ("contract_evidence", ("exact_cases", 0, "pipe_materials", 0, "resolved_eigenstrain"), 0),
+])
+def test_copy_checks_treat_an_integral_float_as_the_same_json_value(joined, field, path, value) -> None:
+    # 1 and 1.0 have the same checked canonical bytes, so the record checksum is
+    # unchanged; TS's same() cannot tell them apart either.
+    source, record = joined
+    original = copied_leaf(source[field], path)
+    assert original == value and type(original) is not type(value)
+    forged = resealed_copy(record, field, path, value)
+    assert hash_by_scope(forged, "analysis_run_record") == hash_by_scope(record, "analysis_run_record")
+    validate_analysis_run_v0_3(forged, source)
+
+
+def test_copy_checks_accept_exact_stored_and_javascript_written_copies(joined) -> None:
+    source, record = joined
+    validate_analysis_run_v0_3(record, source)
+    validate_analysis_run_v0_3(json.loads(json.dumps(record)), source)
+    written = as_javascript_writes(record)
+    assert json.dumps(written["analysis_run"]["source_block_recovery"]) != json.dumps(record["analysis_run"]["source_block_recovery"])
+    assert json.dumps(written["analysis_run"]["contract_evidence"]) != json.dumps(record["analysis_run"]["contract_evidence"])
+    validate_analysis_run_v0_3(written, source)
