@@ -10,7 +10,11 @@
 
 This is an intermediate F2a PR, not the completion of F2a. The obligations in §5 stay open by name. The review is agent review, not personal review by the owner.
 
-**Status of this file.** Filled at the cut. The reviewed source head is `2e03d7cc25` (the U7 branch `codex/piping-f2a-u7-20261004`), merged into the integration branch `codex/piping-numerical-integrity-20260926` (NUM) as `4c876ac7e8`, whose maintained source is identical. The gate blanks (§7) are filled at the freeze.
+**Status of this file.** Regenerated at the freeze (RV95 S-2).
+- **The PR's source head** is `35d8ae59a7`.
+- **Its integration head** is NUM `bb3d766379` (`codex/piping-numerical-integrity-20260926`). Its maintained source equals the PR's, except the two files main also changed, which are recorded three-way merges (§2).
+- **The cut** was `5a0461661f`, from U = `2e03d7cc25`. The five source commits since the cut are in §3, "After the cut".
+- **This package's commit makes the frozen head F.** Gates run on F are recorded in the post-merge record (§7).
 
 **Notation:**
 - **P** = `projects/chirality-piping`.
@@ -24,8 +28,8 @@ This is an intermediate F2a PR, not the completion of F2a. The obligations in §
 
 | | |
 |---|---|
-| **Maintained source** | 136 files under P: 59 added, 77 modified, 11,811,048 B; +204,652 / −896 lines against base `381be775ae`. They are byte-identical to the reviewed head except `P/core/analysis_runs/compatibility.py` (§2). |
-| **This package** | 10 files, 184282 B with SHA256SUMS: this record, the PR body, `source_equality.py`, `check_citations.py`, `citations.json`, four copied records, `SHA256SUMS` |
+| **Maintained source (S)** | 139 files under P: 59 added, 80 modified, 11,944,314 B; +204,659 / −897 lines against main `5fdc5ab601`. 137 are byte-identical to the integration head `bb3d766379`. The other two, `compatibility.py` and `source_blocks.rs`, equal the recorded three-way merges (§2) |
+| **This package** | 10 files, 192,326 B including `SHA256SUMS`: this record, the PR body, `source_equality.py`, `check_citations.py`, `citations.json`, four copied records, `SHA256SUMS` |
 | **Not included** | The integration branch's 5,677 execution-record files (191.4 MB). Under the handoff packaging rule and U9 decision 5, they stay on NUM. Gate bulk stays in the T3 scratch area, with hashes in the post-merge record |
 
 **By area:**
@@ -41,16 +45,26 @@ This is an intermediate F2a PR, not the completion of F2a. The obligations in §
 
 ## 2. Main movement absorbed
 
-Main moved past the base. Of main's changes, only `compatibility.py` overlaps this PR.
-- **Main's PR1078** adds `_same_canonical` with a body byte-identical to this PR's. It also switches two copied-evidence comparisons to it.
-- **Resolution (U9 decision 3):** keep one helper and take main's two call-site lines. `source_equality.py` checks 3 re-derives this resolution, and checks that main's helper appears byte for byte inside this PR's version.
-- **Main's PR1080** (source-blocks row order) touches no file in this PR. Its effect is covered by the full Pass B and the suites (§7).
+Main moved past the base `381be775ae` to `5fdc5ab601`. Two files in S are files main also changed, and each equals its recorded three-way merge of (integration head, base, main). `source_equality.py` check 3 re-derives both.
+
+- **`P/core/analysis_runs/compatibility.py`: one conflict, resolved by rule (U9 decision 3).**
+  - Main's PR1078 adds `_same_canonical`, with a body byte-identical to this PR's, and switches two copied-evidence comparisons to it.
+  - The merge keeps one helper, the integration side's, and takes main's two call-site lines (blob `767da34027c5`).
+  - The check requires main's side of the conflict to appear byte for byte inside the integration side.
+- **`P/core/reporting/result_export/src/source_blocks.rs`: a clean merge.**
+  - **Main's PR1080** walks source-blocks rows in receipt order.
+  - **This PR's 32-bit bound** applies the `9_007_199_254_740_991` check to the u64 before `usize::try_from` (§3, After the cut).
+  - The file is in S because of the 32-bit bound; at the cut it was main's version unchanged.
+  - **PR1080 cannot run on D1:**
+    - it is reached only via `for_source` branches that D1 never takes (I65's full Pass B; RV89, with 0 entries counted on the milestone and across the 71-input sweep);
+    - and it changes no published byte on the F2a routes (G8's 324-output sweep is byte-identical, registered and Stale).
+  - **The bound is identical on 64-bit by construction,** and is likewise unreachable on D1 (RV89).
 
 ## 3. What changed and why, unit by unit
 
 Commits are on NUM and the U7 branch. Reviews are fresh and independent, and each repair was confirmed by the same reviewer.
 
-### Before step 4: the accepted components
+### Before step 4: the accepted components (components of S at the cut)
 
 - **The prepared private producer** (`922db9dce3`) passes the named case in both modes. Accepted after RV68.
 - **Caller separation and the nonallocating census** (`24af17c470`). Accepted after RV72.
@@ -144,6 +158,21 @@ Commits are on NUM and the U7 branch. Reviews are fresh and independent, and eac
 - **RV94: PASS** on `ffe65ef203`, and **PASS** on its confirmation of the round (`R/REVIEW_RV94/u7_01/ADDENDUM_01.md`, 0/0/2). The citation rewording (`2e03d7cc25`) is covered by RV95.
 - **RV89: PASS** on Pass B at `cfda60403f`.
 
+### After the cut: five source commits (NUM, then carried to the PR)
+
+| What | NUM | PR | Why |
+|---|---|---|---|
+| **The CI policy** | `c7bc3fd54e` | `fd3cbebb42` | `tools/ci/e2e_plan.py` gains `NUMERICAL_APP_INPUTS` = {`apps/desktop/src-tauri/src/lib.rs`}. PP's caller-separation guard `include_str!`s that file, so a change to it must select the numerical crate suite. Pinned in `tests/test_ci_e2e_plan.py`. Found by the first hosted run |
+| **The 32-bit bound** | `7ff569a55c` | `92a5a9da1c` | `source_blocks::integer` checks the 2^53−1 bound on the u64 before `usize::try_from`. It is identical on 64-bit; on 32-bit an oversized value gets the same `SOURCE_BLOCKS_INTEGER` refusal. PP's runtime dependency on `result_export` now compiles it into the desktop wasm32 engines, where the old literal did not compile. Found by the second hosted run |
+| **The U1 pin, scoped to the registered target** | `d069ab3ccf` | `6d8f8a82b2` | `retained_wire_tests::u1_ordinary_bytes_unchanged_under_capture` asserts the protected ordinary-bytes digest only where `ORDINARY_PINNED_TARGET` (aarch64 and macOS) holds. Dense ordinary binary64 bytes are target-dependent (Linux x86_64 differs). On every target it still asserts its claims: the Direct entry's ordinary envelope, and the captured run, equal the plain bytes. The successor pins are platform-stable and stay ungated. Found by the third hosted run |
+| **RV95 N-3** | `c5adc16384` | `35d8ae59a7` | The policy pin asserts that `NUMERICAL_APP_INPUTS` is exactly the desktop source, so emptying the set fails |
+| **RV95 S-1** | `bb3d766379` | `35d8ae59a7` | Six more stale pre-registration texts corrected, comment- and doc-only and line-neutral: `lib.rs`, `retained_memory.rs`, `retained_wire.rs` (two places), and the law, witness and challenge test headers (I65, `R/I65/u9_repair_01`) |
+
+**Reviews of these commits:**
+- **RV95** reviewed the first three as part of its complete review.
+- **RV95's same-reviewer confirmation** of S-1 and S-2 runs on F, and is recorded in the post-merge record.
+- **No Pass B rerun is needed for the CI-policy commit** (`not-d1`, RV89). Every other commit is unreachable on D1 or is comment- or test-only, and the frozen-head Pass B on F carries their reviewed entries (§7).
+
 **What eligibility means.** A supplied successor statement with its actual invocation stands `numerically_eligible`.
 - **In TS,** it is eligible only while the live native capture holds (D-U7-4, a declared difference).
 - **No producer-origin claim** follows from eligibility (D-U7-6).
@@ -152,7 +181,7 @@ Commits are on NUM and the U7 branch. Reviews are fresh and independent, and eac
 
 **Public in this PR:**
 - **The Direct retained entry** (`run_linear_static_preview_value_with_retained_direct`).
-  - It publishes the successor only for D1 requests: one load case, no combinations, the preview family, no pressure, capped counts.
+  - It publishes the successor only for D1 requests: one load case, no combinations, the preview family, no pressure, and counts within D1's caps (RV95 N-7).
   - Only in the registered dev/test build, under M = 4,026,531,840 B.
   - Within D1, a request whose W1 work falls back keeps the ordinary bytes, plus one notice once W1 work has run. Every request outside D1 keeps the ordinary bytes exactly.
 - **The Headless entry** is refused at D1.0.
@@ -173,7 +202,8 @@ Commits are on NUM and the U7 branch. Reviews are fresh and independent, and eac
 3. **Native Current for successors.**
 4. **T6's successor outputs,** replacing the explicit N-5 panel refusal deliberately.
 5. **Confirmation that RV94 N-4 is resolved** (by the S-1 alignment).
-6. **A fresh review** of the activation itself.
+6. **RV95 N-4: a 32-bit review** before any 32-bit consumer of the reader or of PP's retained path. The Rust reader has about 30 `as usize` index casts that would truncate on 32-bit. No 32-bit target reaches them today; the wasm32 engines import only PP's self-weight helpers, types and constants.
+7. **A fresh review** of the activation itself.
 
 ## 5. Open obligations
 
@@ -181,6 +211,7 @@ Commits are on NUM and the U7 branch. Reviews are fresh and independent, and eac
 2. **Wider F2a:**
    - the producer receipt and freeze transaction beyond D1;
    - resource and caller qualification for any new Direct caller, and re-qualification for any change to the D1 call graph (RR 10407, 10474; QUALIFICATION §11);
+   - **RV95 N-6, re-qualification on any further identity.** Retained product values use the platform `hypot`, and dense ordinary bytes are target-dependent. Registering any further build identity (release, or another target) must therefore re-establish the milestone's bytes and verdicts on that identity;
    - multi-case invocations and combinations; preparation-only and mixed invocations; the promised exact routes;
    - the complete invocation's exact-block no-attempt rule;
    - registration of the release identity;
@@ -189,15 +220,16 @@ Commits are on NUM and the U7 branch. Reviews are fresh and independent, and eac
 4. **Owner-held:** dense and lane ceilings; PHYS-R4 refusal and availability; observation framing; the KF3 lambda split; the KF2 dense screen; any supported-machine statement of M.
 5. **T6:**
    - the successor outputs replacing the panel refusal;
-   - the `results.schema.yaml` v0.3 dispatcher, which knows only precision-1.
+   - the `results.schema.yaml` v0.3 dispatcher, which knows only precision-1;
+   - RV95 N-5, a test of the 2^53−1 bound in `source_blocks::integer` (main's pre-existing gap).
 
 ## 6. Package and verification
 
 | File | Purpose |
 |---|---|
-| `source_equality.py` | The five equality checks (U9 decision 2) |
-| `check_citations.py`, `citations.json` | Every record, design-document and code-line citation the PR adds resolves (U9 decision 5).<br>**On the reworded tree** (`2e03d7cc25`):<br>• **Totals:** 368 resolved, 0 ambiguous, 0 unresolved.<br>• **Records and RR:** 65 occurrences.<br>• **Design documents:** 289, against a table of 23 names. Anchors are verified in the pinned version; D1 resolves on main. `API.md` and `COMP` are decided by recorded context rules; COMP is ROOT's ruling.<br>• **Code lines:** 14, each pinned with its anchor text: 11 generated in the GENERATED PROFILE block and 3 in the hash-pinned corpus data. Every other bare `FILE:line` code citation is forbidden.<br>The 93 previously in comments now name their symbol. At `e543c3d8f3` itself the check fails with those 93 |
-| `copies/g5_profile.py`, `copies/profile_tree.json` | The generator and input that regenerate `retained_memory.rs`'s GENERATED PROFILE block byte for byte at `2e03d7cc25`: `python3 g5_profile.py profile_tree.json retained_memory.rs` |
+| `source_equality.py` | The five equality checks (U9 decision 2). Check 3 requires every S file main also changed to equal the recorded three-way merge; a conflict needs a recorded rule.<br>**At `35d8ae59a7` against `bb3d766379`: 5/5 PASS.** 137 paths identical; `compatibility.py` (one conflict, the rule holds) and `source_blocks.rs` (clean) equal their merges; the execution files are exactly this package.<br>**Negative controls fail as they should:** a stale PR head, a conflict without a rule, and a PR without the merge |
+| `check_citations.py`, `citations.json` | Every record, design-document and code-line citation the PR adds resolves (U9 decision 5).<br>**At `35d8ae59a7` against main** (unchanged from the cut). The NUM pin `cfcdb5997a` is on the pushed integration branch, and no cited record moved:<br>• **Totals:** 368 resolved, 0 ambiguous, 0 unresolved.<br>• **Records and RR:** 65 occurrences.<br>• **Design documents:** 289, against a table of 23 names. Anchors are verified in the pinned version; D1 resolves on main. `API.md` and `COMP` are decided by recorded context rules; COMP is ROOT's ruling.<br>• **Code lines:** 14, each pinned with its anchor text: 11 generated in the GENERATED PROFILE block and 3 in the hash-pinned corpus data. Every other bare `FILE:line` code citation is forbidden.<br>The 93 previously in comments now name their symbol. At `e543c3d8f3` itself the check fails with those 93 |
+| `copies/g5_profile.py`, `copies/profile_tree.json` | The generator and input that regenerate `retained_memory.rs`'s GENERATED PROFILE block byte for byte, at the cut and again at `35d8ae59a7`: `python3 g5_profile.py profile_tree.json retained_memory.rs` |
 | `copies/QUALIFICATION.md` | G6's qualification, the basis of M and the registered identity |
 | `copies/G2_AMENDMENTS.md` | D-6's identity encoding (`build_identity.rs`) |
 
@@ -209,30 +241,38 @@ python3 check_citations.py --repo . --base <main> --head <PR head>
 
 ## 7. Gates (U9 plan §1)
 
-| Gate | Expected | Result |
+**Done before the freeze.** G5 and G6 transfer to `35d8ae59a7` by ROOT's carry-over ruling: since C2 the source changed only by comment- and doc-only, line-neutral PP edits and test files.
+
+| Gate | Result | Record |
 |---|---|---|
-| RV95, complete review and confirmation | No unresolved BLOCKING or SHOULD-FIX | ⟨RV95 verdict, seal⟩ |
-| Hosted CI, plus the full-SHA dispatch (`target_base` = main) | All selected checks pass on F | ⟨run IDs⟩ |
-| Mac DEC-025 on F | Only the 3 known platform failures (PP `t13`, two runner `load_reference`); added tests named; PP Registered; pytest, wasm, vitest and build pass | ⟨SWEEP file, comparison⟩ |
-| GEN-8 on F | 1 passed | ⟨log⟩ |
-| T9 | 112 of 112 identical, plus 2 added (the milestone request, both modes), equal to the ordinary bytes; extra corpus 16 of 16 | ⟨result⟩ |
-| Both-entry part 1 | 884 of 884 identical; gate_check PASS; 0 trusted breaches; 0 heap-cap aborts | ⟨result⟩ |
-| Both-entry part 2 | 4 dense runs, each ≤ 1,800 s | ⟨durations⟩ |
-| src-tauri suite | Equal to main | ⟨count⟩ |
-| Pressure, no-pressure and exact-block coexistence controls; the grant-2 sweep | Sweep registered `9a74ff16…`, Stale `0e2db8b8…`; PHYS-R4 refused; no-pressure published | ⟨result⟩ |
-| Full Pass B on the PR head (I65; RV89 confirms) | Entry byte-identical to `0c7827b6ad`'s; maxima 0.8881 / 0.8929 M; law 42/0 | ⟨result⟩ |
-| Native witness (ordinary route, panel gates) | Unchanged | ⟨result⟩ |
-| `source_equality.py`, `check_citations.py` | PASS | ⟨output⟩ |
+| **G1, RV95**, complete review of the PR diff, with the ledger | **PASS**: 0 BLOCKING, 2 SHOULD-FIX, 7 NOTE. All 99 source commits B..U map to a review. S-1 repaired (`35d8ae59a7`). S-2 is this regeneration | `R/REVIEW_RV95/u9_01/` |
+| **G4, GEN-8** at the cut | 1 passed | RR "U9 cut…" |
+| **G5, product T9** (M against C `6b9bb19a5f`, then C2 `92a5a9da1c`) | 112/112 identical. Exactly 2 added outputs, the milestone request in both modes, each equal to the Stale value-route bytes. Extra corpus 16/16. C2 reproduces C | `R/I61/u9_g5g6_01/t9/` |
+| **G6, both-entry, part 1** (M against C and C2; 884 runs per side) | gate_check PASS on every side: 764 evaluated, 332 trusted, 0 trusted breaches. 884/884 identical; 0 heap-cap aborts; 0 timeouts | `R/I61/u9_g5g6_01/gate/part1/` |
+| **G6, both-entry, part 2** (M against C2) | All 4 dense runs ended in 45–53 s (limit 1,800 s), with identical envelopes. A clean execution on a quiet host ran 45.8–46.2 s | `R/I61/u9_g5g6_01/gate/` |
+| **G7, src-tauri suite** (ROOT) | M 116, C 116, with outcomes identical | RR "U9 gates G7 and G8 pass…" |
+| **G8, pressure, coexistence, the sweep and callers** (C) | Pressure refused at D1.5 with exact bytes; the milestone publishes its successor. n05/n06 give `Coexistence` with exact bytes. The 324-output sweep is byte-identical (registered `9a74ff16…`, Stale `0e2db8b8…`). No product caller | `R/I61/u9_g8_01/` |
+| **G9a, full Pass B** (I65, on `6b9bb19a5f`) | Exit 6, on the six added tests only. Entry byte-identical to `0c7827b6ad`'s; maxima 0.8881 / 0.8929 M; law 42/0. **RV89: PASS** (0/0/1), including the classification of PR1080 and the 32-bit bound as unreachable on D1 | `R/I65/u4_g7_05/`, `R/REVIEW_RV89/u4_g7_03/` |
+| **Source equality and citations** (`35d8ae59a7`) | 5/5 PASS; 368/0/0 PASS | `R/I61/u9_freeze_01/` |
+| **Hosted CI before the freeze** | Three runs found three defects, all fixed after the cut (§3) | RR "PR #1082's first/second/third hosted run…" |
 
-**Acceptance runs on the reviewed source (U7 head after its repair round):**
+**Run on F after the freeze, and recorded in the post-merge record `IMPLEMENTATION/F2A_D1_MERGE/` on NUM:**
+- hosted CI on F and the full-SHA dispatch (`target_base` = main);
+- GEN-8 on F;
+- the Mac baseline on main and DEC-025 on F;
+- the native witness (the ordinary route and the panel gates);
+- the frozen-head Pass B (I65, with its prepared reviewed entries), confirmed by RV89;
+- RV95's same-reviewer confirmation of S-1, S-2 and the gate evidence.
 
-| Suite | Result |
-|---|---|
-| Python, 24-file sweep plus retained suites | 1,848 |
-| Python retained | 463 |
-| result_export | 171 |
-| vitest | 3,552; tsc clean |
-| PP, registered and Stale | 705 passed, 1 failed (Mac `t13`) |
-| runner/headless | 85 passed, 2 failed (known) |
-| PP fixture sweeps (RV94's own builds) | Byte-identical: registered `9a74ff16…`, Stale `0e2db8b8…` |
-| The switch's allocations on D1 | Identical in all 12 pairs (RV89) |
+**Acceptance runs on the reviewed source:**
+
+| Suite | Result | Source |
+|---|---|---|
+| PP, registered and Stale | 705 passed, 1 failed (Mac `t13`), 10 ignored | RV95 |
+| result_export | 172 | RV95 |
+| runner/headless | 85 passed, 2 failed (known) | RV95 |
+| vitest | 3,552; tsc clean | RV95 |
+| Python, 24-file sweep plus retained suites | 1,848 | U7 repair round |
+| Python retained | 463 | U7 repair round |
+| PP fixture sweeps | Byte-identical: registered `9a74ff16…`, Stale `0e2db8b8…` | RV94, G8 |
+| The switch's allocations on D1 | Identical in all 12 pairs | RV89 |

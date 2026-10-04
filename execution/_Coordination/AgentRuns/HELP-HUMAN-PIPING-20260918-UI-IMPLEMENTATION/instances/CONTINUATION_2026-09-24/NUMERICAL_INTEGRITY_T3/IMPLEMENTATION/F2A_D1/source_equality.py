@@ -20,12 +20,15 @@ Usage:
 Exit 0 only when all five checks pass. Each check prints PASS or FAIL with its evidence.
 
   1. The PR's non-execution paths equal S: `diff --name-only <main> <pr>` against S, as sorted lists.
-  2. Every S path except the known resolutions has the same blob and mode at <int> and <pr>.
-  3. Known resolutions (U9 decision 3). P/core/analysis_runs/compatibility.py is re-derived as a
-     three-way merge-file (<int>, B, <main>). It must contain exactly one conflict: the
-     `_same_canonical` helper added on both sides. Main's side must occur byte for byte inside the
-     integration side, and the resolution keeps the integration side. The result must equal
-     <pr>'s blob. Any other S path that main changed since B is a FAIL; it needs a ruling.
+  2. Every S path that main did not change since B has the same blob and mode at <int> and <pr>.
+  3. Every S path that main also changed since B equals the recorded three-way merge
+     (`git merge-file -p` of <int>, B and <main>), in blob and mode:
+     - a merge without conflicts must equal <pr>'s blob as merged (today: result_export's
+       source_blocks.rs, main's PR1080 plus the wasm32 bound);
+     - a merge with conflicts needs a recorded rule in MERGE_RULES (today only compatibility.py,
+       U9 decision 3). That rule fixes the number of conflicts, keeps the integration side, and
+       requires main's side to occur byte for byte inside it (`_same_canonical`, added on both
+       sides). Any other conflicting path is a FAIL and needs a ruling.
   4. The PR's execution paths lie only under the evidence package (when --package is given). The
      package's SHA256SUMS verify against the PR's blobs.
   5. The per-path table: blob at <int>, blob at <pr>, mode, equal flag and the last <int> commit
@@ -35,8 +38,8 @@ import argparse, hashlib, json, os, subprocess, sys
 
 P = "projects/chirality-piping/"
 EXCLUDE = [":!" + P + "execution", ":!execution"]
-KNOWN_RESOLUTIONS = {P + "core/analysis_runs/compatibility.py": "decision 3: one _same_canonical, main's two call-site lines"}
-HELPER = "def _same_canonical("
+MERGE_RULES = {P + "core/analysis_runs/compatibility.py": {"conflicts": 1, "main_side_contains": "def _same_canonical(",
+    "why": "U9 decision 3: one _same_canonical (main's is byte-identical to the integration side's), main's two call-site lines"}}
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--repo", required=True)
@@ -86,28 +89,24 @@ def tree(x, paths):
                 out[path] = (mode, blob)
     return out
 ti, tp = tree(INT, S), tree(PR, S)
-plain = [s for s in S if s not in KNOWN_RESOLUTIONS]
+moved = set(names(B, MAIN, "."))
+merged = sorted(moved & set(S))
+plain = [s for s in S if s not in moved]
 diff2 = [s for s in plain if ti.get(s) != tp.get(s)]
 report(2, not diff2, f"{len(plain)} paths identical in blob and mode" if not diff2 else {"differ": diff2})
 
-# 3. the known resolutions, and no other S path moved on main
-moved = set(names(B, MAIN, "."))
-unruled = sorted((moved & set(S)) - set(KNOWN_RESOLUTIONS))
-detail3, ok3 = {}, not unruled
-if unruled: detail3["main_moved_unruled_S_paths"] = unruled
+# 3. every S path main also changed equals the recorded three-way merge (INT, B, MAIN)
+detail3, ok3, resolution = {}, True, {}
 os.makedirs(a.work, exist_ok=True)
-for path, why in KNOWN_RESOLUTIONS.items():
-    if path not in moved:          # main no longer differs here: plain identity is required instead
-        same = ti.get(path) == tp.get(path); ok3 &= same
-        detail3[path] = "main unchanged since B; identical" if same else "main unchanged since B; DIFFERS"; continue
+for path in merged:
     f = {}
     for tag, c in (("int", INT), ("base", B), ("main", MAIN)):
-        f[tag] = os.path.join(a.work, f"compat_{tag}.py")
+        f[tag] = os.path.join(a.work, f"merge_{tag}")
         open(f[tag], "wb").write(git("cat-file", "blob", f"{c}:{path}", raw=True))
     r = subprocess.run(["git", "merge-file", "-p", f["int"], f["base"], f["main"]], capture_output=True, env=env)
-    text = r.stdout.decode()
+    if r.returncode < 0: sys.exit(f"git merge-file failed on {path}")
     out, mode, conflicts, ours, theirs = [], 0, 0, [], []
-    for line in text.splitlines(keepends=True):
+    for line in r.stdout.decode().splitlines(keepends=True):
         if line.startswith("<<<<<<< "): mode, conflicts = 1, conflicts + 1; continue
         if line.startswith("||||||| ") and mode: mode = 2; continue
         if line.rstrip("\n") == "=======" and mode: mode = 3; continue
@@ -115,16 +114,27 @@ for path, why in KNOWN_RESOLUTIONS.items():
         if mode == 1: ours.append(line)
         if mode == 3: theirs.append(line)
         if mode in (0, 1): out.append(line)
-    resolved = "".join(out).encode()
-    o, t = "".join(ours), "".join(theirs)
-    helper_ok = conflicts == 1 and HELPER in t and t.strip() in o
-    blob = hashlib.sha1(b"blob %d\0" % len(resolved) + resolved).hexdigest()
-    pr_blob = tp.get(path, (None, None))[1]
-    good = helper_ok and blob == pr_blob
+    rule = MERGE_RULES.get(path)
+    if conflicts == 0:
+        rule_ok, how = True, "clean three-way merge"
+    elif rule and conflicts == rule["conflicts"]:
+        o, t = "".join(ours), "".join(theirs)
+        rule_ok = rule["main_side_contains"] in t and t.strip() in o
+        how = rule["why"]
+    else:
+        rule_ok, how = False, f"{conflicts} conflict(s) with no recorded rule: needs a ruling"
+    expected = "".join(out).encode()
+    blob = hashlib.sha1(b"blob %d\0" % len(expected) + expected).hexdigest()
+    pr_mode, pr_blob = tp.get(path, (None, None))
+    mode_ok = pr_mode == ti.get(path, (None,))[0]
+    good = rule_ok and blob == pr_blob and mode_ok
     ok3 &= good
-    open(os.path.join(a.work, "compat_expected.py"), "wb").write(resolved)
-    detail3[path] = {"rule": why, "conflicts": conflicts, "main_helper_inside_int_side": helper_ok,
-                     "expected_blob": blob, "pr_blob": pr_blob, "equal": blob == pr_blob}
+    resolution[path] = how
+    open(os.path.join(a.work, "expected_" + path.replace("/", "__")), "wb").write(expected)
+    detail3[path] = {"how": how, "conflicts": conflicts, "rule_holds": rule_ok, "expected_blob": blob,
+                     "pr_blob": pr_blob, "mode_equal": mode_ok, "equal": blob == pr_blob}
+unused = sorted(set(MERGE_RULES) - set(merged))
+if unused: detail3["rules_not_needed"] = unused   # main no longer changes them: check 2 covers them
 report(3, ok3, detail3)
 
 # 4. execution paths only inside the package; the package's SHA256SUMS verify on the PR's blobs
@@ -150,10 +160,10 @@ else:
 def last(path): return git("log", "-1", "--format=%H", INT, "--", path).strip()
 table = [{"path": s, "int_blob": ti.get(s, (None, None))[1], "pr_blob": tp.get(s, (None, None))[1],
           "mode": tp.get(s, (None, None))[0], "equal": ti.get(s) == tp.get(s),
-          "resolution": KNOWN_RESOLUTIONS.get(s), "int_last_commit": last(s)} for s in S]
+          "resolution": resolution.get(s), "int_last_commit": last(s)} for s in S]
 unexplained = [r["path"] for r in table if not r["equal"] and not r["resolution"]]
 report(5, not unexplained, f"{len(table)} rows; {sum(r['equal'] for r in table)} equal; "
-       f"{sum(1 for r in table if r['resolution'])} known resolution(s); unexplained {unexplained}")
+       f"{sum(1 for r in table if r['resolution'])} recorded three-way merge(s); unexplained {unexplained}")
 if a.json:
     json.dump({"pr": PR, "int": INT, "main": MAIN, "base": B, "checks": results, "table": table},
               open(a.json, "w"), indent=1, sort_keys=True)
