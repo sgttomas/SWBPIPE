@@ -202,10 +202,10 @@ where
                         }
                     }
                 }
-                t.make_absolute();
+                t.make_absolute().unwrap();
                 let mut scaled = ExactWideSum::new();
                 scaled.add_scaled(&t, false, 1, i64::from(p)).unwrap();
-                let lhs = if scaled.is_zero() {
+                let lhs = if scaled.is_zero().unwrap() {
                     0.0
                 } else {
                     f64_of::<16>(&scaled.round::<16>(&mut c16).unwrap())
@@ -487,13 +487,13 @@ fn at_128_the_element_agrees_with_k_d5s_re_formation_within_64_ulps_of_its_large
                     let mut d = ExactWideSum::new();
                     d.add_wide(op.ke(a, b), false).unwrap();
                     d.add_wide(&widen2(&theirs[a][b]), true).unwrap();
-                    d.make_absolute();
+                    d.make_absolute().unwrap();
                     // |d| ≤ 64·2^(top − 127)
                     let mut test = ExactWideSum::new();
                     test.add_scaled(&d, false, 1, 127 - top).unwrap();
                     test.add_integer(true, &[64], 0).unwrap();
                     assert!(
-                        test.signum() <= 0,
+                        test.signum().unwrap() <= 0,
                         "{} member {} ({a}, {b})",
                         m.name,
                         member.id

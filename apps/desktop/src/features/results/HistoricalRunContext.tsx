@@ -1,8 +1,9 @@
-import { numericalResultStanding } from "./numericalResultQuality";
+import { numericalResultStanding, sourceContract } from "./numericalResultQuality";
+import { validateRetainedPrecision } from "./retainedPrecision";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
-import { verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
+import { verifyAnalysisRunRecord, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH } from "../../services/analysisRunCompatibility";
 import type { BundledMechanicsReference } from "../../services/previewService";
 import { bindSourceResultDimensions } from "../../services/previewService";
 import { ResultsPanel } from "./ResultsPanel";
@@ -264,6 +265,11 @@ async function verifyLegacyDesktopAnalysis(record: AnalysisRunEnvelope, received
   }
 }
 
+async function sameSavedReceipt(copy: unknown, receipt: unknown): Promise<boolean> {
+  // An absent copy is refused by the checked profile, so it never matches.
+  try { return await canonicalSha256HexCheckedV1(copy) === await canonicalSha256HexCheckedV1(receipt); } catch { return false; }
+}
+
 export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): Promise<HistoricalRunContext | null> {
   const rawMechanicsResult: unknown = opened.mechanics_result;
   const rawAnalysisRun: unknown = opened.analysis_run;
@@ -278,6 +284,13 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   if (hasReceivedMechanics && !mechanicsResult) findings.push("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
   if (analysisRun && (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string")) findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
+  // U6d reopen: a saved successor is revalidated by the accepted reader without an
+  // invocation (its first code is a finding), and the AnalysisRun's copy must equal
+  // its receipt. Nothing registers here, so standing stays needs_recompute.
+  if (mechanicsResult && sourceContract(mechanicsResult) === "retained_preview_physics") {
+    try { await validateRetainedPrecision(mechanicsResult); } catch (error) { findings.push((error as Error).message); }
+    if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) findings.push(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
+  }
   if (evidenceResult && evidenceResult.model_ref !== opened.model.project.id) findings.push("HISTORICAL_MODEL_REF_MISMATCH");
   const expectedStateRef = `state:${opened.model.project.id}:preview`;
   if (record && record.model_state_ref?.ref !== expectedStateRef) findings.push("HISTORICAL_MODEL_STATE_REF_MISMATCH");

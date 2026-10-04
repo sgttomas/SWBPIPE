@@ -61,7 +61,8 @@ fn lane(family: &str, pin: Pin) {
         }
         input_derived.extend(run.input_derived_not_covered.iter().cloned());
         *outcomes.entry(run.outcome.clone()).or_default() += 1;
-        records.push(run.record);
+        assert!(run.failures.is_empty(), "{:?}", run.failures);
+        records.push(run.record.expect("exact record after successful run"));
     }
     println!("{family}: {total}");
     println!("{family}: outcomes {outcomes:?}");
@@ -269,5 +270,67 @@ fn rf_cancel() {
             non_discriminating: 62,
             input_derived_not_covered: &[],
         },
+    );
+}
+
+#[test]
+fn checked_work_one_clean_record_keeps_bytes_and_nonexact_attempt_is_refused() {
+    use open_pipe_stress_frame_kernel::structural::retained_api::{
+        solve_case, CaseLimit, CaseOutcome, InvocationMeter, PrimitiveSource, StageWork,
+        UnresolvedReason, WorkFault,
+    };
+    use piping_numerical_robustness::records::case_record;
+    let unavailable = CaseOutcome::Unresolved {
+        reason: UnresolvedReason::WorkAccounting {
+            fault: WorkFault::Inconsistent,
+            prior: None,
+        },
+        attempts: Vec::new(),
+        geometry: Vec::new(),
+    };
+    let cases = load_family("RF-CHAIN");
+    let case = cases
+        .iter()
+        .find(|c| !c.refuse && c.model.is_some())
+        .unwrap();
+    assert_eq!(
+        case_record(
+            case,
+            &unavailable,
+            &Tally::default(),
+            &InvocationMeter::new(0)
+        ),
+        Err(WorkFault::Inconsistent)
+    );
+    let run = run_case(case);
+    assert!(run.failures.is_empty(), "{:?}", run.failures);
+    let clean = run.record.unwrap();
+    let bytes = std::fs::read_to_string(crate_dir().join("observations/kernel_lane/rf_chain.json"))
+        .unwrap();
+    let committed: Vec<serde_json::Value> = serde_json::from_str(&bytes).unwrap();
+    let expected = committed.iter().find(|v| v["id"] == case.id).unwrap();
+    assert_eq!(
+        serde_json::to_string_pretty(&clean).unwrap(),
+        serde_json::to_string_pretty(expected).unwrap()
+    );
+    let source = PrimitiveSource::new(case.model.as_ref().unwrap().source_parts()).unwrap();
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let outcome = solve_case(source, CaseLimit::new(u64::MAX), &mut meter);
+    let CaseOutcome::Selected(solve) = outcome else {
+        panic!("small clean case selected")
+    };
+    let mut attempts = solve.evidence().attempts.clone();
+    let mut bad = StageWork::default();
+    bad.formation = u64::MAX;
+    bad.assembly = 1;
+    assert_eq!(attempts[0].stages.merge(&bad), Err(WorkFault::Overflow));
+    let unavailable = CaseOutcome::Unresolved {
+        reason: UnresolvedReason::Ceiling,
+        attempts,
+        geometry: Vec::new(),
+    };
+    assert_eq!(
+        case_record(case, &unavailable, &Tally::default(), &meter),
+        Err(WorkFault::Overflow)
     );
 }

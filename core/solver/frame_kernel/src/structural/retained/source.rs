@@ -188,6 +188,7 @@ pub enum MemberProperty {
 /// Why a source cannot be constructed.
 #[derive(Debug, Clone, PartialEq)]
 pub enum SourceError {
+    CountRange(&'static str),
     NoNodes,
     NonFiniteCoordinate {
         node: u32,
@@ -325,7 +326,7 @@ fn chord_checks(xi: [f64; 3], xj: [f64; 3], y: [f64; 3]) -> (bool, bool) {
         let mut s = ExactWideSum::new();
         s.add_binary64(xj[k], false).expect("finite");
         s.add_binary64(xi[k], true).expect("finite");
-        zero &= s.is_zero();
+        zero &= s.is_zero().expect("fresh chord difference: work <= 1152");
         d.push(s);
     }
     if zero {
@@ -343,9 +344,121 @@ fn chord_checks(xi: [f64; 3], xj: [f64; 3], y: [f64; 3]) -> (bool, bool) {
             let (neg, sig, lsb) = binary64_parts(y[a]);
             c.add_scaled(&d[b], !neg, sig, lsb).expect("in span");
         }
-        parallel &= c.is_zero();
+        parallel &= c
+            .is_zero()
+            .expect("fresh chord cross product: work <= 2688");
     }
     (false, parallel)
+}
+
+// Scalar representation checks only; these do not supply a memory allowance.
+fn checked_profile_count(free: usize) -> Result<(), SourceError> {
+    let product = free
+        .checked_add(1)
+        .and_then(|n| free.checked_mul(n))
+        .ok_or(SourceError::CountRange("free profile"))?;
+    if free > u32::MAX as usize {
+        return Err(SourceError::CountRange("free block sentinel"));
+    }
+    std::alloc::Layout::array::<usize>(product / 2)
+        .map_err(|_| SourceError::CountRange("profile layout"))?;
+    Ok(())
+}
+#[allow(clippy::too_many_arguments)]
+fn source_counts(
+    nodes: &[[f64; 3]],
+    members: &[StraightMember],
+    springs: &[Spring],
+    directional: &[DirectionalSpring],
+    constraints: &[Constraint],
+    loads: &[NodalLoad],
+    stations: &[Station],
+    supports: &[SupportGroup],
+) -> Result<(), SourceError> {
+    let fail = || SourceError::CountRange("source representation");
+    for len in [
+        nodes.len(),
+        members.len(),
+        springs.len(),
+        directional.len(),
+        constraints.len(),
+        loads.len(),
+        stations.len(),
+        supports.len(),
+    ] {
+        u32::try_from(len).map_err(|_| fail())?;
+    }
+    let n = nodes.len().checked_mul(DOF_PER_NODE).ok_or_else(fail)?;
+    std::alloc::Layout::array::<Option<f64>>(n).map_err(|_| fail())?;
+    n.checked_add(1).ok_or_else(fail)?;
+    let mut bytes = 38usize;
+    for (len, stride) in [
+        (nodes.len(), 24usize),
+        (members.len(), 84),
+        (springs.len(), 17),
+        (directional.len(), 41),
+        (constraints.len(), 13),
+        (loads.len(), 17),
+        (stations.len(), 16),
+        (supports.len(), 22),
+    ] {
+        bytes = len
+            .checked_mul(stride)
+            .and_then(|v| bytes.checked_add(v))
+            .ok_or_else(fail)?;
+    }
+    for load in loads {
+        u32::try_from(load.source_id.len()).map_err(|_| fail())?;
+        bytes = bytes.checked_add(load.source_id.len()).ok_or_else(fail)?;
+    }
+    for group in supports {
+        for children in [&group.springs, &group.directional_springs] {
+            u32::try_from(children.len()).map_err(|_| fail())?;
+            bytes = children
+                .len()
+                .checked_mul(4)
+                .and_then(|v| bytes.checked_add(v))
+                .ok_or_else(fail)?;
+        }
+    }
+    std::alloc::Layout::array::<u8>(bytes).map_err(|_| fail())?;
+    let mut q = 0usize;
+    for (len, stride) in [
+        (nodes.len(), 7usize),
+        (members.len(), 12),
+        (stations.len(), 6),
+        (springs.len(), 1),
+        (directional.len(), 3),
+        (constraints.len(), 1),
+        (supports.len(), 2),
+    ] {
+        q = len
+            .checked_mul(stride)
+            .and_then(|v| q.checked_add(v))
+            .ok_or_else(fail)?;
+    }
+    u32::try_from(q).map_err(|_| fail())?;
+    std::alloc::Layout::array::<super::recover::QuantityMeta>(q).map_err(|_| fail())?;
+    // Pattern, tags, prefix sums and transpose products before their construction.
+    let p = members
+        .len()
+        .checked_mul(144)
+        .and_then(|v| {
+            directional
+                .len()
+                .checked_mul(9)
+                .and_then(|d| v.checked_add(d))
+        })
+        .and_then(|v| v.checked_add(springs.len()))
+        .ok_or_else(fail)?;
+    let z = n.checked_mul(n).ok_or_else(fail)?.min(p);
+    for count in [p, z] {
+        count.checked_mul(2).ok_or_else(fail)?;
+        let prefix = count.checked_add(1).ok_or_else(fail)?;
+        std::alloc::Layout::array::<usize>(prefix).map_err(|_| fail())?;
+    }
+    std::alloc::Layout::array::<(usize, usize)>(p).map_err(|_| fail())?;
+    Ok(())
 }
 
 impl PrimitiveSource {
@@ -360,6 +473,16 @@ impl PrimitiveSource {
             mut stations,
             mut supports,
         } = parts;
+        source_counts(
+            &nodes,
+            &members,
+            &springs,
+            &directional_springs,
+            &constraints,
+            &loads,
+            &stations,
+            &supports,
+        )?;
         // V-K seeded fault VK-F10 (§7.3-10, list-order form): the canonical
         // sort skipped (the caller's order kept).
         #[cfg(any(test, feature = "mutation-controls"))]
@@ -532,6 +655,8 @@ impl PrimitiveSource {
                 return Err(SourceError::SupportMismatch { id: group.id });
             }
         }
+        let free = node_count * DOF_PER_NODE - constraints.len();
+        checked_profile_count(free)?;
         // Bodies: the connected components of the member graph.
         let mut parent: Vec<usize> = (0..node_count).collect();
         fn root(parent: &mut [usize], mut x: usize) -> usize {
@@ -765,3 +890,23 @@ pub(crate) fn put_dof(out: &mut Vec<u8>, dof: Dof) {
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/source_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+mod checked_count_tests {
+    use super::*;
+    #[test]
+    fn checked_work_profile_scalar_overflow_refuses_without_allocating() {
+        assert!(checked_profile_count(0).is_ok());
+        assert!(checked_profile_count(3).is_ok());
+        assert!(matches!(
+            checked_profile_count(usize::MAX),
+            Err(SourceError::CountRange(_))
+        ));
+        if usize::BITS > 32 {
+            assert!(matches!(
+                checked_profile_count(u32::MAX as usize + 1),
+                Err(SourceError::CountRange(_))
+            ));
+        }
+    }
+}

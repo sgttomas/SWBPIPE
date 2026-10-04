@@ -101,7 +101,7 @@ fn determinant_nonzero(a: [f64; 3], b: [f64; 3], c: [f64; 3]) -> Option<bool> {
         sum.add_product(&mut c192, &s, &cz, negate).ok()?;
         sum.add_product(&mut c192, &e, &cz, negate).ok()?;
     }
-    Some(!sum.is_zero())
+    Some(!sum.is_zero().ok()?)
 }
 
 /// Whether the directions span R³, decided exactly (None if undecidable).
@@ -454,8 +454,14 @@ where
     sum.clear();
     sum.add_wide_scaled(pivot, false, 1, i64::from(p))?;
     sum.add_wide_scaled(pivot, true, m, 0)?;
-    sum.add_wide_scaled(scale, true, 64 * m, 0)?;
-    Ok(sum.signum() > 0)
+    sum.add_wide_scaled(
+        scale,
+        true,
+        m.checked_mul(64)
+            .ok_or(AttemptStop::CountRange("pivot multiplier"))?,
+        0,
+    )?;
+    Ok(sum.signum()? > 0)
 }
 
 /// The pattern-pair negative-energy witness on K at p (module documentation).
@@ -492,7 +498,7 @@ where
             sum.add_wide_scaled(&kii, false, 252, 0)?;
             sum.add_wide_scaled(&kjj, false, 252, 0)?;
             sum.add_wide_scaled(&kij, false, 520, 0)?;
-            if sum.signum() < 0 {
+            if sum.signum()? < 0 {
                 return Ok(Some((i, j)));
             }
         }
@@ -577,7 +583,11 @@ where
             pivot = ctx.sub(&pivot, &term)?;
             cancellation = ctx.add(&cancellation, &term.abs())?;
         }
-        let operations = 2 * (i - first[i]) as u64 + 2;
+        let operations = u64::try_from(i - first[i])
+            .ok()
+            .and_then(|n| n.checked_mul(2))
+            .and_then(|n| n.checked_add(2))
+            .ok_or(AttemptStop::CountRange("factor operations"))?;
         if !pivot_passes(sum, &pivot, &cancellation, operations, p)? {
             let global = ordering.free[ordering.order[i]];
             return Err(match negative_pair(sum, structure, k, ordering, p)? {
@@ -798,7 +808,13 @@ where
             o.offer(ctx, sum, &alternating, &y)?;
         }
         let total = abs_sum(ctx, sum, &y)?.mul_pow2(1)?;
-        let alternative = ctx.div(&total, &lift_count(3 * n)?)?;
+        let alternative = ctx.div(
+            &total,
+            &lift_count(
+                n.checked_mul(3)
+                    .ok_or(AttemptStop::CountRange("condition multiplier"))?,
+            )?,
+        )?;
         if alternative.cmp_value(&estimate) == CmpOrdering::Greater {
             estimate = alternative;
         }

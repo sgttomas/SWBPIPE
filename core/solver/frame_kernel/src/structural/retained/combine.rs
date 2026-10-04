@@ -34,15 +34,17 @@
 //! group.
 use super::adaptive::AttemptRecord;
 use super::adaptive::{
-    run_schedule, CaseLimit, CaseOutcome, CasePrep, GroupCache, InvocationMeter, Refusal,
-    RetainedSolve, UnresolvedReason,
+    run_core, CaseLimit, CasePrep, CombinationPreparationError, ExecutionOutcome, GroupCache,
+    InvocationMeter, Refusal, RetainedSolve, RunWork, UnresolvedReason,
 };
 use super::ledger::LedgerRefusal;
+use super::work::WorkTotal;
 use std::sync::Arc;
 
 /// Why a combination is not selected.
 #[derive(Debug, Clone, PartialEq)]
 pub enum CombinationReason {
+    CountRange(&'static str),
     /// "At the ceiling … `combination_unresolved`".
     CombinationUnresolved,
     /// No operand, or a non-finite factor.
@@ -72,6 +74,35 @@ pub enum CombinationOutcome {
     },
 }
 
+/// Additive terminal custody. Source/group/build origin inventories are not supplied.
+#[derive(Debug, Clone)]
+pub enum RecordedCombination {
+    PreSourceRefusal {
+        outcome: CombinationOutcome,
+        invocation_before: WorkTotal,
+        invocation_after: WorkTotal,
+    },
+    WithRun {
+        outcome: CombinationOutcome,
+        work: RunWork,
+    },
+}
+impl RecordedCombination {
+    pub fn into_legacy(self) -> CombinationOutcome {
+        let mut outcome = match self {
+            Self::PreSourceRefusal { outcome, .. } | Self::WithRun { outcome, .. } => outcome,
+        };
+        if let CombinationOutcome::Unresolved {
+            reason: CombinationReason::Refused(_),
+            attempts,
+        } = &mut outcome
+        {
+            attempts.clear();
+        }
+        outcome
+    }
+}
+
 /// Combinations Σ cᵢ·(case i) of selected cases.
 pub struct RetainedCombination;
 
@@ -82,39 +113,36 @@ impl RetainedCombination {
         case_limit: CaseLimit,
         meter: &mut InvocationMeter,
     ) -> CombinationOutcome {
-        let withheld = |reason| CombinationOutcome::Unresolved {
-            reason,
-            attempts: Vec::new(),
+        Self::solve_recorded(operands, case_limit, meter).into_legacy()
+    }
+
+    pub fn solve_recorded(
+        operands: &[(f64, &RetainedSolve)],
+        case_limit: CaseLimit,
+        meter: &mut InvocationMeter,
+    ) -> RecordedCombination {
+        let before = meter.checked_charged();
+        let withheld = |reason| RecordedCombination::PreSourceRefusal {
+            outcome: CombinationOutcome::Unresolved {
+                reason,
+                attempts: Vec::new(),
+            },
+            invocation_before: before,
+            invocation_after: before,
         };
-        if operands.is_empty() || operands.iter().any(|o| !o.0.is_finite()) {
-            return withheld(CombinationReason::NoOperands);
+        if let Err(reason) = validate_operands(operands) {
+            return withheld(reason);
         }
-        if operands.iter().any(|o| !o.1.prep.factors.is_empty()) {
-            return withheld(CombinationReason::NestedCombination);
-        }
+        let prep = match prepare_operands(operands) {
+            Ok(prep) => prep,
+            Err(reason) => return withheld(reason),
+        };
         let first = operands[0].1;
-        let identity = first.prep.source.stiffness_encoding();
-        let (stations, supports) = (first.prep.source.stations(), first.prep.source.supports());
-        if operands.iter().any(|(_, o)| {
-            o.prep.source.stiffness_encoding() != identity
-                || o.prep.layout != first.prep.layout
-                || o.prep.source.stations() != stations
-                || o.prep.source.supports() != supports
-        }) {
-            return withheld(CombinationReason::OperandsDiffer);
-        }
-        let preps: Vec<(f64, &CasePrep)> = operands
-            .iter()
-            .map(|(c, o)| (*c, o.prep.as_ref()))
-            .collect();
-        let prep = match CasePrep::combination(&preps) {
-            Ok(p) => Arc::new(p),
-            Err(e) => return withheld(CombinationReason::LedgerUnavailable(e)),
-        };
         let mut cache = GroupCache::merged(operands.iter().map(|o| &o.1.cache));
-        match run_schedule(prep, first.group.clone(), &mut cache, case_limit, meter) {
-            CaseOutcome::Selected(solve) => CombinationOutcome::Selected(solve),
-            CaseOutcome::Unresolved {
+        let run = run_core(prep, first.group.clone(), &mut cache, case_limit, meter);
+        let outcome = match run.outcome {
+            ExecutionOutcome::Selected(solve) => CombinationOutcome::Selected(solve),
+            ExecutionOutcome::Unresolved {
                 reason: UnresolvedReason::Ceiling,
                 attempts,
                 ..
@@ -122,13 +150,63 @@ impl RetainedCombination {
                 reason: CombinationReason::CombinationUnresolved,
                 attempts,
             },
-            CaseOutcome::Unresolved {
+            ExecutionOutcome::Unresolved {
                 reason, attempts, ..
             } => CombinationOutcome::Unresolved {
                 reason: CombinationReason::Unresolved(reason),
                 attempts,
             },
-            CaseOutcome::Refused { refusal, .. } => withheld(CombinationReason::Refused(refusal)),
+            ExecutionOutcome::Refused {
+                refusal, attempts, ..
+            } => CombinationOutcome::Unresolved {
+                reason: CombinationReason::Refused(refusal),
+                attempts,
+            },
+        };
+        RecordedCombination::WithRun {
+            outcome,
+            work: run.work,
+        }
+    }
+}
+
+pub(crate) fn validate_operands(
+    operands: &[(f64, &RetainedSolve)],
+) -> Result<(), CombinationReason> {
+    if operands.is_empty() || operands.iter().any(|o| !o.0.is_finite()) {
+        return Err(CombinationReason::NoOperands);
+    }
+    if operands.iter().any(|o| !o.1.prep.factors.is_empty()) {
+        return Err(CombinationReason::NestedCombination);
+    }
+    let first = operands[0].1;
+    let identity = first.prep.source.stiffness_encoding();
+    let (stations, supports) = (first.prep.source.stations(), first.prep.source.supports());
+    if operands.iter().any(|(_, o)| {
+        o.prep.source.stiffness_encoding() != identity
+            || o.prep.layout != first.prep.layout
+            || o.prep.source.stations() != stations
+            || o.prep.source.supports() != supports
+    }) {
+        return Err(CombinationReason::OperandsDiffer);
+    }
+    Ok(())
+}
+
+pub(crate) fn prepare_operands(
+    operands: &[(f64, &RetainedSolve)],
+) -> Result<Arc<CasePrep>, CombinationReason> {
+    let preps: Vec<(f64, &CasePrep)> = operands
+        .iter()
+        .map(|(c, o)| (*c, o.prep.as_ref()))
+        .collect();
+    match CasePrep::combination(&preps) {
+        Ok(p) => Ok(Arc::new(p)),
+        Err(CombinationPreparationError::Ledger(e)) => {
+            return Err(CombinationReason::LedgerUnavailable(e))
+        }
+        Err(CombinationPreparationError::CountRange(field)) => {
+            return Err(CombinationReason::CountRange(field))
         }
     }
 }

@@ -108,6 +108,10 @@ impl Interval {
 type VectorBounds = [Interval; 3];
 type Controls = [VectorBounds; 3];
 
+/// U4 G5 part 2 (T14): the heap node's in-build stride, exported for the product's
+/// retained-memory profile (the type stays private).
+pub const NODE_STRIDE: usize = std::mem::size_of::<Node>();
+
 #[derive(Clone, Debug)]
 struct Node {
     controls: Controls,

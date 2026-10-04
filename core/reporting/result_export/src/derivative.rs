@@ -1,8 +1,10 @@
 //! Pure derivative assembly from separately qualified source evidence.
 //! This module does not authenticate supplied JSON. The headless solve API and
 //! desktop Current adapter own qualification; payload shape never proves origin.
+use crate::retained_precision::AccuracyClass;
 use crate::semantic_contract::{
-    canonical_metadata_in, complete_metadata, for_source, signature_in,
+    canonical_metadata_in, complete_metadata, for_source, retained_row_classes, signature_in,
+    PREVIEW_PHYSICS_RETAINED_ID, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN,
 };
 use open_pipe_stress_canonical_json::canonical_json;
 use serde_json::{json, Value};
@@ -10,6 +12,53 @@ use sha2::{Digest, Sha256};
 use std::collections::HashSet;
 
 pub const CANONICALIZATION: &str = "openpipestress_jcs_ijson_v1";
+/// D-U6-2 (D2 4.9.9, option A): a successor row whose validated class is
+/// `absolute_verified` or `not_covered` is withheld from the derivative's
+/// values and disclosed with one of these reason codes. The bound is the
+/// receipt's published `fl-up(2^-64 S*)`, in the SI unit the message names; the
+/// receipt travels with the document. No other claim (no stop-rule bound, no
+/// extrema enclosure) is made.
+pub const RETAINED_ABSOLUTE_VERIFIED: &str = "retained_precision_absolute_verified";
+pub const RETAINED_NOT_COVERED: &str = "retained_precision_not_covered";
+pub const RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH: &str =
+    "RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH";
+/// The SI unit that the reader normalizes a row's unit to (retained_precision.rs
+/// `normalized`, `row_kind`), and so the unit the receipt's absolute bound b
+/// is published in (RV88 U6a S-2: the message names it).
+fn si_unit(unit: &str) -> Option<&'static str> {
+    match unit {
+        "m" | "mm" => Some("m"),
+        "rad" => Some("rad"),
+        "N" | "kN" => Some("N"),
+        "N*m" | "kN*m" => Some("N*m"),
+        "Pa" | "MPa" => Some("Pa"),
+        _ => None,
+    }
+}
+fn not_covered_message(kind: &str) -> String {
+    format!("{kind}: {RETAINED_NOT_COVERED}; no verified accuracy for this quantity kind; source value/unit and annotation retained; withheld from rule binding and reliance")
+}
+/// The disclosure of one validated class of a row with the given `kind` and
+/// source `unit`: its reason code and message. The reader classes a row
+/// `absolute_verified` only in a unit it normalizes, so `si_unit` is always
+/// known there; were it not, the row is still withheld, with no bound claimed.
+#[doc(hidden)]
+pub fn class_disclosure(kind: &str, unit: &str, class: Option<&AccuracyClass>) -> Option<(&'static str, String)> {
+    match class? {
+        AccuracyClass::AbsoluteVerified { bound_bits } => Some(match si_unit(unit) {
+            Some(si) => (
+                RETAINED_ABSOLUTE_VERIFIED,
+                format!(
+                    "{kind}: {RETAINED_ABSOLUTE_VERIFIED}; verified only to the receipt's absolute bound b = {:e} {si} (binary64 {bound_bits:016x}), below the relative accuracy floor; source value/unit and annotation retained; withheld from rule binding and reliance",
+                    f64::from_bits(*bound_bits)
+                ),
+            ),
+            None => (RETAINED_NOT_COVERED, not_covered_message(kind)),
+        }),
+        AccuracyClass::NotCovered => Some((RETAINED_NOT_COVERED, not_covered_message(kind))),
+        _ => None,
+    }
+}
 pub fn guard_json(v: &Value) -> Result<(), String> {
     match v {
         Value::Number(n) => {
@@ -63,6 +112,7 @@ pub fn derive_document(
     request: Option<&Value>,
 ) -> Result<Value, String> {
     let (table, version) = for_source(source)?;
+    let classes = retained_row_classes(source)?;
     guard_json(model)?;
     guard_json(source)?;
     guard_json(&base)?;
@@ -100,6 +150,7 @@ pub fn derive_document(
                     | crate::semantic_contract::LOAD_REFERENCE_ID
                     | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
                     | crate::semantic_contract::PREVIEW_PHYSICS_ID
+                    | PREVIEW_PHYSICS_RETAINED_ID
             )
         ) {
             e["contract_evidence"] = source["contract_evidence"].clone();
@@ -115,6 +166,12 @@ pub fn derive_document(
             e["source_block_recovery"] = source["source_block_recovery"].clone();
         } else if e.get("source_block_recovery").is_some() {
             return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
+        }
+        // D2 4.9.7: the successor's receipt travels with the document, whole.
+        // A receipt on any other identity's document is refused by the
+        // validate_document call that ends this function.
+        if source["producer"]["semantic_contract_id"] == PREVIEW_PHYSICS_RETAINED_ID {
+            e["retained_precision"] = source["retained_precision"].clone();
         }
         e["semantic_contract_ref"] = reference(
             "semantic_contract",
@@ -183,7 +240,8 @@ pub fn derive_document(
         let review_missing = disposition == "exported_review" && !complete_metadata(row);
         let physical_missing =
             disposition == "exported_quantity" && mandatory && metadata.is_none();
-        let actual = if review_missing || physical_missing {
+        let class = class_disclosure(kind, unit, classes.as_ref().and_then(|c| c.get(id)));
+        let actual = if review_missing || physical_missing || class.is_some() {
             "disclosed"
         } else {
             disposition
@@ -237,7 +295,9 @@ pub fn derive_document(
             reviews.push(target.clone());
             (target, pointer, "review_evidence", "derived_review_row")
         } else {
-            let reason = if review_missing {
+            let reason = if let Some((code, _)) = &class {
+                *code
+            } else if review_missing {
                 "review_metadata_incomplete"
             } else if physical_missing {
                 "physical_metadata_incomplete"
@@ -255,7 +315,7 @@ pub fn derive_document(
             } else {
                 "diagnostic_evidence_not_physical_quantity"
             };
-            let target = json!({"source_row_index":index,"source_result_id":id,"source_kind":kind,"source_value":value,"source_unit":unit,"source_dimension_present":observed["present"],"source_dimension":observed["value"],"declared_semantic_dimension":dimension,"source_physical_semantic_dimension":math,"semantic_category":category,"reason_code":reason,"object_ref":obj,"source_field_path":path,"source_annotation_ref":annotation_ref,"received_carrier_row_checksum":row_hash,"original_producer_row_checksum":original,"message":format!("{kind}: {reason}; source value/unit and annotation retained; non-governing evidence")});
+            let target = json!({"source_row_index":index,"source_result_id":id,"source_kind":kind,"source_value":value,"source_unit":unit,"source_dimension_present":observed["present"],"source_dimension":observed["value"],"declared_semantic_dimension":dimension,"source_physical_semantic_dimension":math,"semantic_category":category,"reason_code":reason,"object_ref":obj,"source_field_path":path,"source_annotation_ref":annotation_ref,"received_carrier_row_checksum":row_hash,"original_producer_row_checksum":original,"message":class.as_ref().map(|(_, message)| message.clone()).unwrap_or_else(|| format!("{kind}: {reason}; source value/unit and annotation retained; non-governing evidence"))});
             let pointer = format!("/result_envelope/row_disclosures/{}", disclosures.len());
             disclosures.push(target.clone());
             (target, pointer, "row_disclosure", "derived_disclosure_row")
@@ -324,6 +384,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     guard_json(doc)?;
     guard_json(source)?;
     let (table, version) = for_source(source)?;
+    let classes = retained_row_classes(source)?;
     if matches!(
         source["producer"]["semantic_contract_id"].as_str(),
         Some(
@@ -340,6 +401,15 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
         .is_some()
     {
         return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
+    }
+    // D2 4.9.7: the copied receipt equals the source's, whole; no other
+    // identity's document carries one.
+    if source["producer"]["semantic_contract_id"] == PREVIEW_PHYSICS_RETAINED_ID {
+        if doc["result_envelope"]["retained_precision"] != source["retained_precision"] {
+            return Err(RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH.into());
+        }
+    } else if doc["result_envelope"].get("retained_precision").is_some() {
+        return Err(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN.into());
     }
     if version == "0.3.0" {
         for key in ["producer", "numerical_quality", "formulation_basis"] {
@@ -487,6 +557,14 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
         {
             disposition = "disclosed";
         }
+        let class = class_disclosure(
+            row["kind"].as_str().ok_or("SOURCE_KIND_MISSING")?,
+            row["unit"].as_str().ok_or("SOURCE_UNIT_MISSING")?,
+            classes.as_ref().and_then(|c| c.get(id)),
+        );
+        if class.is_some() {
+            disposition = "disclosed";
+        }
         let (target_type, prefix, target_id, target_scope) = match disposition {
             "exported_quantity" => (
                 "quantity_result",
@@ -615,6 +693,21 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
                 || target["original_producer_row_checksum"] != original
             {
                 return Err("DISCLOSURE_SEMANTICS_MISMATCH".into());
+            }
+            // D-U6-2: a class disclosure states exactly its class code and
+            // message; no other disclosure of a successor claims a class code.
+            if classes.is_some() {
+                let claimed = target["reason_code"] == RETAINED_ABSOLUTE_VERIFIED
+                    || target["reason_code"] == RETAINED_NOT_COVERED;
+                let consistent = match &class {
+                    Some((code, message)) => {
+                        target["reason_code"] == *code && target["message"] == *message
+                    }
+                    None => !claimed,
+                };
+                if !consistent {
+                    return Err("DISCLOSURE_SEMANTICS_MISMATCH".into());
+                }
             }
         } else {
             if target["dimension"] != dimension {

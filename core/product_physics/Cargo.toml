@@ -4,6 +4,8 @@ version = "0.2.0"
 edition = "2021"
 description = "Product-preview physics adapter for OpenPipeStress"
 publish = false
+# U4 G5 (D-6 = (a)): records the compiler and target identity; never fails the build.
+build = "build.rs"
 
 [lib]
 path = "src/lib.rs"
@@ -25,3 +27,5 @@ open_pipe_stress_stress_recovery = { path = "../loads/stress_recovery" }
 open_pipe_stress_units = { path = "../units" }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["float_roundtrip"] }
+# U3 (decision 5): the accepted Rust reader validates the successor precommit.
+open_pipe_stress_result_export = { path = "../reporting/result_export" }

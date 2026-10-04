@@ -2,6 +2,7 @@ import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 import { sourceContract } from "./numericalResultQuality";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { resultRowLabel } from "./knownSemanticLimitations";
+import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
 import type { ReactNode } from "react";
 import { QuantityReadout } from "../display-units";
 import { semanticFamily, semanticDimension, semanticCategory } from "./resultSemantics";
@@ -69,9 +70,9 @@ export function ResultsPanel({
     [filteredResults, pageIndex, pageSize]
   );
   const groups = result ? groupResults(page.items, result) : [];
-  // Dispatch once per render; the row labels apply to preview-physics-1 only.
+  // Dispatch once per render; the row labels apply to preview-physics-1 and its successor only.
   const labelSource = useMemo(() => {
-    try { return result && sourceContract(result) === "preview_physics" ? result : null; } catch { return null; }
+    try { return result && ["preview_physics", "retained_preview_physics"].includes(sourceContract(result)) ? result : null; } catch { return null; }
   }, [result]);
   const interpretation = result
     ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun })
@@ -103,7 +104,7 @@ export function ResultsPanel({
       <div className="panel-title">Results</div>
       {result ? (
         <>
-          <p data-testid="numerical-result-standing">{sourceContract(result) === "legacy" ? "Historical precision: absolute rounding; integrity not assessed. Needs recompute." : sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : ["source_blocks", "physics_source"].includes(sourceContract(result)) ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
+          <p data-testid="numerical-result-standing">{sourceContract(result) === "legacy" ? "Historical precision: absolute rounding; integrity not assessed. Needs recompute." : sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : sourceContract(result) === "retained_preview_physics" ? retainedPrecisionStandingText(result) : ["source_blocks", "physics_source"].includes(sourceContract(result)) ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
           <KnownSemanticNotices result={result} testIdPrefix="results" />
           <PhysicsSourceEvidencePanel result={result} />
           <ResultControls

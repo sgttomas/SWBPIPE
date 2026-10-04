@@ -395,7 +395,7 @@ where
         for c in 0..3 {
             sum.add_product(ctx, &yr[c], &yr[c], true)?;
         }
-        if sum.signum() >= 0 {
+        if sum.signum()? >= 0 {
             return u32::try_from(k).map_err(|_| AttemptStop::Exponent);
         }
         k += 1;

@@ -78,7 +78,7 @@
 //!
 //! # Work (D1 §4.1.7; ROOT's K3 ruling Q9)
 //!
-//! `WideContext` counts its operations by kind, saturating. `AttemptWork`
+//! `WideContext` checks its prospective operation counts before arithmetic. `AttemptWork`
 //! adds contexts of every width within one attempt and states their cost in
 //! limb-multiply equivalents, a deterministic function of (kind, L) taken from
 //! the algorithm's step count (not a timing):
@@ -95,6 +95,7 @@
 //! The conversion to binary64 and widening are value methods and are not
 //! counted. K3a's `WorkCounter` at L = 2 is unchanged.
 
+use super::super::work::{WorkFault, WorkStatus, WorkTotal};
 use super::{checked_exponent, Wide, WideError, EXPONENT_LIMIT, MIN_PRECISION};
 use std::cmp::Ordering;
 use std::fmt;
@@ -148,6 +149,14 @@ const SLOT_LIMBS: [usize; 3] = [4, 8, 16];
 
 fn limbs_zero(a: &[u64]) -> bool {
     a.iter().all(|&x| x == 0)
+}
+
+/// Before a borrowed integer magnitude is indexed in bit coordinates. This is
+/// a representation precondition, independent of work or numerical span.
+pub(crate) fn integer_magnitude_bits(limbs: usize) -> Result<usize, WideError> {
+    limbs
+        .checked_mul(64)
+        .ok_or(WideError::CountRange("integer magnitude bits"))
 }
 
 /// Index of the highest set bit.
@@ -398,6 +407,7 @@ fn round_detail<const L: usize>(
     scale: i128,
     p: u32,
 ) -> Result<(Wide<L>, usize, bool), WideError> {
+    integer_magnitude_bits(mag.len())?;
     let Some(h) = highest_bit(mag) else {
         debug_assert!(!sticky);
         return Ok((signed_zero(negative), 0, false));
@@ -455,6 +465,7 @@ fn from_integer_rounded<const L: usize>(
     exponent: i64,
     p: u32,
 ) -> Result<Wide<L>, WideError> {
+    integer_magnitude_bits(magnitude.len())?;
     if limbs_zero(magnitude) {
         return Ok(signed_zero(false));
     }
@@ -996,9 +1007,10 @@ pub(crate) fn limb_multiply_cost(kind: OpKind, limbs: usize) -> u64 {
     }
 }
 
-/// Operations of one width, by kind. Saturating; never wraps.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+/// Operations of one width, by kind; unavailable accounting is sticky.
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub struct WidthWork {
+    status: WorkStatus,
     pub(crate) add: u64,
     pub(crate) sub: u64,
     pub(crate) mul: u64,
@@ -1037,16 +1049,39 @@ impl WidthWork {
         }
     }
 
-    fn charge(&mut self, kind: OpKind) {
-        let count = self.count_mut(kind);
-        *count = count.saturating_add(1);
+    fn charge(&mut self, kind: OpKind, limbs: usize) -> Result<(), WorkFault> {
+        let mut prospective = *self;
+        let count = WorkTotal::exact_count(self.count(kind)).add(WorkTotal::exact_count(1));
+        prospective.status = prospective.status.join(count.status());
+        *prospective.count_mut(kind) = count.legacy_saturated();
+        let total = prospective.checked_lme(limbs);
+        self.status = self.status.join(total.status());
+        total.exact()?;
+        *self = prospective;
+        Ok(())
     }
 
-    fn merge(&mut self, other: &Self) {
+    fn merge(&mut self, other: &Self, limbs: usize) {
+        self.status = self.status.join(other.status);
         for kind in OpKind::ALL {
-            let count = self.count_mut(kind);
-            *count = count.saturating_add(other.count(kind));
+            let total = WorkTotal::exact_count(self.count(kind))
+                .add(WorkTotal::exact_count(other.count(kind)));
+            self.status = self.status.join(total.status());
+            *self.count_mut(kind) = total.legacy_saturated();
         }
+        self.status = self.status.join(self.checked_lme(limbs).status());
+    }
+
+    pub(crate) fn checked_lme(&self, limbs: usize) -> WorkTotal {
+        let mut total = WorkTotal::zero().join_status(self.status);
+        if !SLOT_LIMBS.contains(&limbs) {
+            return total.join_status(WorkStatus::from_fault(WorkFault::Inconsistent));
+        }
+        for kind in OpKind::ALL {
+            total = total
+                .add(WorkTotal::exact_count(self.count(kind)).mul(limb_multiply_cost(kind, limbs)));
+        }
+        total
     }
 
     /// All operations counted.
@@ -1054,21 +1089,20 @@ impl WidthWork {
     pub(crate) fn operations(&self) -> u64 {
         OpKind::ALL
             .iter()
-            .fold(0u64, |sum, &kind| sum.saturating_add(self.count(kind)))
+            .fold(WorkTotal::zero().join_status(self.status), |sum, &kind| {
+                sum.add(WorkTotal::exact_count(self.count(kind)))
+            })
+            .legacy_saturated()
     }
 
     /// The counts' cost at width `limbs`, in limb-multiply equivalents.
+    #[allow(dead_code)] // Legacy getter retained for callers and compatibility tests.
     pub(crate) fn limb_multiply_equivalents(&self, limbs: usize) -> u64 {
-        OpKind::ALL.iter().fold(0u64, |sum, &kind| {
-            sum.saturating_add(
-                self.count(kind)
-                    .saturating_mul(limb_multiply_cost(kind, limbs)),
-            )
-        })
+        self.checked_lme(limbs).legacy_saturated()
     }
 }
 
-/// The work of one attempt across widths (L = 4, 8, 16). Saturating.
+/// The checked work of one attempt across widths (L = 4, 8, 16).
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct AttemptWork {
     widths: [WidthWork; 3],
@@ -1081,14 +1115,14 @@ impl AttemptWork {
     where
         Wide<L>: SupportedWidth,
     {
-        self.widths[<Wide<L> as SupportedWidth>::SLOT].merge(&context.work);
+        self.widths[<Wide<L> as SupportedWidth>::SLOT].merge(&context.work, L);
     }
 
     /// Adds another attempt's counts, width by width.
     #[allow(dead_code)] // K4 API (budgets)
     pub(crate) fn merge(&mut self, other: &Self) {
-        for (mine, theirs) in self.widths.iter_mut().zip(&other.widths) {
-            mine.merge(theirs);
+        for ((mine, theirs), limbs) in self.widths.iter_mut().zip(&other.widths).zip(SLOT_LIMBS) {
+            mine.merge(theirs, limbs);
         }
     }
 
@@ -1103,11 +1137,14 @@ impl AttemptWork {
 
     /// The whole attempt's cost in limb-multiply equivalents.
     pub fn limb_multiply_equivalents(&self) -> u64 {
+        self.checked_lme().legacy_saturated()
+    }
+    pub fn checked_lme(&self) -> WorkTotal {
         self.widths
             .iter()
             .zip(SLOT_LIMBS)
-            .fold(0u64, |sum, (work, limbs)| {
-                sum.saturating_add(work.limb_multiply_equivalents(limbs))
+            .fold(WorkTotal::zero(), |sum, (work, limbs)| {
+                sum.add(work.checked_lme(limbs))
             })
     }
 }
@@ -1151,31 +1188,31 @@ where
 
     #[allow(dead_code)] // K4 API
     pub(crate) fn add(&mut self, a: &Wide<L>, b: &Wide<L>) -> Result<Wide<L>, WideError> {
-        self.work.charge(OpKind::Add);
+        self.work.charge(OpKind::Add, L)?;
         add_rounded(a, b, self.precision)
     }
 
     #[allow(dead_code)] // K4 API
     pub(crate) fn sub(&mut self, a: &Wide<L>, b: &Wide<L>) -> Result<Wide<L>, WideError> {
-        self.work.charge(OpKind::Sub);
+        self.work.charge(OpKind::Sub, L)?;
         add_rounded(a, &negated(b), self.precision)
     }
 
     #[allow(dead_code)] // K4 API
     pub(crate) fn mul(&mut self, a: &Wide<L>, b: &Wide<L>) -> Result<Wide<L>, WideError> {
-        self.work.charge(OpKind::Mul);
+        self.work.charge(OpKind::Mul, L)?;
         mul_rounded(a, b, self.precision)
     }
 
     #[allow(dead_code)] // K4 API
     pub(crate) fn div(&mut self, a: &Wide<L>, b: &Wide<L>) -> Result<Wide<L>, WideError> {
-        self.work.charge(OpKind::Div);
+        self.work.charge(OpKind::Div, L)?;
         div_rounded(a, b, self.precision)
     }
 
     #[allow(dead_code)] // K4 API
     pub(crate) fn sqrt(&mut self, a: &Wide<L>) -> Result<Wide<L>, WideError> {
-        self.work.charge(OpKind::Sqrt);
+        self.work.charge(OpKind::Sqrt, L)?;
         sqrt_rounded(a, self.precision)
     }
 
@@ -1184,7 +1221,7 @@ where
     /// zero keeps its sign.
     #[allow(dead_code)] // K4 API
     pub(crate) fn round<const M: usize>(&mut self, x: &Wide<M>) -> Result<Wide<L>, WideError> {
-        self.work.charge(OpKind::Round);
+        self.work.charge(OpKind::Round, L)?;
         round_from::<L, M>(x, self.precision)
     }
 
@@ -1197,7 +1234,8 @@ where
         magnitude: &[u64],
         exponent: i64,
     ) -> Result<Wide<L>, WideError> {
-        self.work.charge(OpKind::Round);
+        integer_magnitude_bits(magnitude.len())?;
+        self.work.charge(OpKind::Round, L)?;
         from_integer_rounded::<L>(negative, magnitude, exponent, self.precision)
     }
 
@@ -1209,7 +1247,7 @@ where
         a: &Wide<L>,
         b: &Wide<L>,
     ) -> Result<(Wide<L>, Wide<L>), WideError> {
-        self.work.charge(OpKind::TwoSum);
+        self.work.charge(OpKind::TwoSum, L)?;
         two_sum_rounded(a, b, self.precision)
     }
 
@@ -1221,7 +1259,7 @@ where
         a: &Wide<L>,
         b: &Wide<L>,
     ) -> Result<(Wide<L>, Wide<L>), WideError> {
-        self.work.charge(OpKind::TwoProduct);
+        self.work.charge(OpKind::TwoProduct, L)?;
         two_product_rounded(a, b, self.precision)
     }
 }
@@ -1229,3 +1267,21 @@ where
 #[cfg(test)]
 #[path = "../../../../tests/retained_wide_k3/k3_tests.rs"]
 mod tests;
+
+impl fmt::Debug for WidthWork {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut d = f.debug_struct("WidthWork");
+        d.field("add", &self.add);
+        d.field("sub", &self.sub);
+        d.field("mul", &self.mul);
+        d.field("div", &self.div);
+        d.field("sqrt", &self.sqrt);
+        d.field("round", &self.round);
+        d.field("two_sum", &self.two_sum);
+        d.field("two_product", &self.two_product);
+        if !self.status.is_exact() {
+            d.field("work_status", &self.status);
+        }
+        d.finish()
+    }
+}

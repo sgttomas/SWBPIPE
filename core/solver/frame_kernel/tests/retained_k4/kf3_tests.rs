@@ -369,7 +369,7 @@ where
     let group = prepare_group(&prep.source).unwrap();
     sweep(&format!("{name} {p} build_shared"), |g| {
         let s = build_shared::<L, R>(p, q, &prep.source, &group, g);
-        (s.result.is_ok(), s.stages, s.total)
+        (s.result.is_ok(), s.stages, s.total.exact().unwrap())
     })
 }
 
@@ -390,7 +390,7 @@ where
         .unwrap();
     sweep(&format!("{name} {p} solve_case_at"), |g| {
         let s = solve_case_at::<L, R>(&shared, &prep, &group, g);
-        (s.result.is_ok(), s.stages, s.total)
+        (s.result.is_ok(), s.stages, s.total.exact().unwrap())
     })
 }
 
@@ -407,14 +407,14 @@ fn verify_sweep(name: &str, m: &models::Model) -> (usize, usize) {
         .unwrap();
     let a = sweep(&format!("{name} 256 build_verify_shared"), |g| {
         let s = build_verify_shared::<4, 8, 8>(&shared, &prep.source, &group, g);
-        (s.result.is_ok(), s.stages, s.total)
+        (s.result.is_ok(), s.stages, s.total.exact().unwrap())
     });
     let vs = build_verify_shared::<4, 8, 8>(&shared, &prep.source, &group, g)
         .result
         .unwrap();
     let b = sweep(&format!("{name} 256 verify_state"), |g| {
         let s = verify_state::<4, 8, 8>(&shared, &vs, &prep, &group, &state, g);
-        (s.result.is_ok(), s.stages, s.total)
+        (s.result.is_ok(), s.stages, s.total.exact().unwrap())
     });
     (a, b)
 }
@@ -438,7 +438,7 @@ fn kf3_every_build_stages_its_charged_work_on_every_path() {
         let s = build_shared::<4, 4>(128, 192, &prep.source, &group, StageGuard::unlimited());
         let err = s.result.as_ref().expect_err(name);
         assert!(format!("{err:?}").starts_with(stop), "{name}: {err:?}");
-        assert_eq!(s.stages.total(), s.total, "{name}");
+        assert_eq!(s.stages.total(), s.total.exact().unwrap(), "{name}");
         let partial = if stop == "Pivot" {
             s.stages.factor
         } else {
@@ -467,7 +467,7 @@ fn kf3_every_build_stages_its_charged_work_on_every_path() {
     }
     let s = solve_case_at::<4, 4>(&shared, &prep, &group, StageGuard::unlimited());
     assert!(matches!(s.result, Err(AttemptStop::ResidualGate { .. })));
-    assert_eq!(s.stages.total(), s.total);
+    assert_eq!(s.stages.total(), s.total.exact().unwrap());
     assert!(s.stages.refinement > 0 && s.stages.bounded_gate > 0);
     // `ResolutionScale` in the pass (EHAT-OVERFLOW at 256).
     let all5a3 = models::parse_models(include_str!("models5a3.txt"));
@@ -486,7 +486,7 @@ fn kf3_every_build_stages_its_charged_work_on_every_path() {
         .unwrap();
     let s = verify_state::<4, 8, 8>(&shared, &vs, &prep, &group, &state, g);
     assert!(matches!(s.result, Err(AttemptStop::ResolutionScale { .. })));
-    assert_eq!(s.stages.total(), s.total);
+    assert_eq!(s.stages.total(), s.total.exact().unwrap());
     assert!(s.stages.scale > 0);
 }
 
@@ -504,7 +504,7 @@ fn kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work() {
     let full = build_verify_shared::<4, 8, 8>(&shared, &prep.source, &group, g);
     let vs = full.result.as_ref().unwrap();
     assert!(vs.uc[0].refused.is_some() && full.stages.uc > 0);
-    assert_eq!(full.stages.total(), full.total);
+    assert_eq!(full.stages.total(), full.total.exact().unwrap());
     let room = full.stages.bounded_formation + full.stages.wide_formation + full.stages.uc / 2;
     let s = build_verify_shared::<4, 8, 8>(
         &shared,
@@ -516,7 +516,7 @@ fn kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work() {
         s.result,
         Err(AttemptStop::Budget(BudgetScope::Case))
     ));
-    assert_eq!(s.stages.total(), s.total);
+    assert_eq!(s.stages.total(), s.total.exact().unwrap());
     assert!(s.stages.uc > 0 && s.stages.uc < full.stages.uc);
 }
 

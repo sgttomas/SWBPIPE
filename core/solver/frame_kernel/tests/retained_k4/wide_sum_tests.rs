@@ -180,15 +180,15 @@ fn zero_negation_absolute_value_and_reuse() {
     let x = lift::<8>(-3.5);
     sum.add_wide(&x, false).unwrap();
     sum.add_binary64(3.5, false).unwrap();
-    assert!(sum.is_zero());
+    assert!(sum.is_zero().unwrap());
     let z = sum.round(&mut c).unwrap();
     assert!(z.is_zero() && !z.is_sign_negative());
     sum.clear();
     let empty = sum.round(&mut c).unwrap();
     assert!(empty.is_zero() && !empty.is_sign_negative());
     sum.add_binary64(-2.0, false).unwrap();
-    assert_eq!(sum.signum(), -1);
-    sum.make_absolute();
+    assert_eq!(sum.signum().unwrap(), -1);
+    sum.make_absolute().unwrap();
     assert_eq!(tok(&sum.round(&mut c).unwrap()), tok(&lift::<8>(2.0)));
     sum.negate();
     assert_eq!(tok(&sum.round(&mut c).unwrap()), tok(&lift::<8>(-2.0)));
@@ -196,7 +196,7 @@ fn zero_negation_absolute_value_and_reuse() {
     let mut other = ExactWideSum::new();
     other.add_scaled(&sum, false, 3, 5).unwrap();
     other.add_binary64(192.0, false).unwrap();
-    assert!(other.is_zero());
+    assert!(other.is_zero().unwrap());
     // Work is charged (term limbs, nettings, the from_integer length).
     let w = sum.work();
     assert!(w.term_limbs > 0 && w.net_limbs > 0 && w.rounded_limbs > 0);
@@ -580,4 +580,98 @@ fn a_refused_term_writes_nothing_and_reset_zeroes_both_magnitudes_in_full() {
         sum.round(&mut ctx).unwrap(),
         Wide::<4>::from_f64(2f64.powi(-60)).unwrap()
     );
+}
+
+#[test]
+fn checked_work_carry_reservation_poison_and_full_reset() {
+    let mut sum = ExactWideSum::new();
+    sum.empty = false;
+    sum.used = 3;
+    sum.positive[..3].fill(u64::MAX);
+    sum.work.term_limbs = u64::MAX - 2;
+    let result = sum.add_raw(false, &[1], 0);
+    assert_eq!(result, Err(SumRefusal::WorkAccounting(WorkFault::Overflow)));
+    assert_eq!(
+        sum.work.term_limbs,
+        u64::MAX - 2,
+        "failed carry and pending base are uncharged"
+    );
+    assert!(sum.poisoned);
+    assert_eq!(sum.positive[..3], [0, 0, u64::MAX]);
+    sum.clear();
+    assert!(!sum.poisoned);
+    assert!(sum.positive.iter().chain(&sum.negative).all(|&x| x == 0));
+    assert_eq!(
+        sum.signum(),
+        Err(SumRefusal::WorkAccounting(WorkFault::Overflow))
+    );
+}
+
+#[test]
+fn checked_work_compound_span_poison_rejects_zero_donor_shortcut() {
+    let mut donor = ExactWideSum::new();
+    donor.add_integer(false, &[1], 0).unwrap();
+    donor.add_integer(true, &[1], -8127).unwrap();
+    let mut target = ExactWideSum::new();
+    target.add_integer(false, &[1], 8127).unwrap();
+    assert_eq!(
+        target.add_scaled(&donor, false, 1, 0),
+        Err(SumRefusal::Span)
+    );
+    assert!(target.poisoned);
+    let mut recipient = ExactWideSum::new();
+    assert_eq!(
+        recipient.add_scaled(&target, false, 0, 0),
+        Err(SumRefusal::WorkAccounting(WorkFault::Inconsistent))
+    );
+    target.clear();
+    assert!(!target.poisoned);
+    target.add_binary64(3.0, false).unwrap();
+    assert_eq!(target.signum().unwrap(), 1);
+}
+
+#[test]
+fn checked_work_base_reservation_and_observation_are_transactional() {
+    let mut sum = ExactWideSum::new();
+    sum.work.term_limbs = u64::MAX - 1;
+    assert_eq!(
+        sum.add_binary64(1.0, false),
+        Err(SumRefusal::WorkAccounting(WorkFault::Overflow))
+    );
+    assert!(sum.empty);
+    assert!(!sum.poisoned);
+    assert_eq!(sum.work.term_limbs, u64::MAX - 1);
+    let mut observed = ExactWideSum::new();
+    observed.add_binary64(1.0, false).unwrap();
+    observed.work.net_limbs = u64::MAX - observed.work.term_limbs;
+    assert_eq!(
+        observed.signum(),
+        Err(SumRefusal::WorkAccounting(WorkFault::Overflow))
+    );
+    assert_eq!(observed.work.net_limbs, u64::MAX - observed.work.term_limbs);
+}
+
+#[test]
+fn checked_work_persistent_clone_delta_preserves_later_loss() {
+    let mut source = ExactWideSum::new();
+    source.add_binary64(1.0, false).unwrap();
+    source.test_seed_term_work(u64::MAX - 7);
+    let mut clone = CloneWork::new(&source);
+    let (sign, first) = clone.signum();
+    assert_eq!(sign.unwrap(), 1);
+    assert_eq!(first.checked_lme().exact(), Ok(2));
+    let mut ctx = WideContext::<16>::new(1024).unwrap();
+    let (rounded, later) = clone.round(&mut ctx);
+    assert_eq!(
+        rounded,
+        Err(SumRefusal::WorkAccounting(WorkFault::Overflow))
+    );
+    assert_eq!(later.checked_lme().exact(), Err(WorkFault::Overflow));
+    assert_eq!(later.net_limbs, 4, "only the committed netting delta");
+    assert_eq!(
+        later.rounded_limbs, 0,
+        "failed prospective round stays uncharged"
+    );
+    assert_eq!(source.work().checked_lme().exact(), Ok(u64::MAX - 7));
+    assert_eq!(ctx.work().checked_lme(16).exact(), Ok(0));
 }

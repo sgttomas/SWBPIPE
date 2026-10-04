@@ -62,7 +62,11 @@ RETAINED = "retained_source_blocks_exact_v1"
 PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 # Carrier order: every branch main carries (T0R's preview-physics-1 included),
 # then T1's appended identities. Positions are derived from this pinned order.
-CARRIER_ORDER = [PRECISION_ID, PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PREVIEW_ID, LR_ID, LRS_ID]
+# T3's F2a preview successor follows T1's branches (C1:162; reader fan-in and U6c).
+SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
+SUCCESSOR_SHA = "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+SUCCESSOR_PROFILE = "product_preview_retained_w1a_v2"
+CARRIER_ORDER = [PRECISION_ID, PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PREVIEW_ID, LR_ID, LRS_ID, SUCCESSOR_ID]
 BRANCH_OF = {contract_id: index for index, contract_id in enumerate(CARRIER_ORDER)}
 NEW_BRANCH = BRANCH_OF[LRS_ID]
 PS_BRANCH = BRANCH_OF[PS_ID]
@@ -298,12 +302,13 @@ def test_joined_branches_are_appended_with_pinned_identities():
     assert props["source_block_recovery"]["oneOf"][-1] == LOCAL_RECOVERY
     for key in ("producer", "semantic_contract_ref"):
         field = "semantic_contract_id" if key == "producer" else "ref_id"
-        assert props[key]["properties"][field]["enum"][-1] == LRS_ID
-    assert props["formulation_basis"]["properties"]["profile_id"]["enum"][-1] == LRS_PROFILE
+        assert props[key]["properties"][field]["enum"][-2:] == [LRS_ID, SUCCESSOR_ID]
+    assert props["formulation_basis"]["properties"]["profile_id"]["enum"][-2:] == [LRS_PROFILE, SUCCESSOR_PROFILE]
 
     run = schema(RUN)["$defs"]
-    assert run["SemanticContract"]["oneOf"][-1] == {"properties": {"id": {"const": LRS_ID}, "sha256": {"const": LRS_SHA}}}
-    assert run["SemanticContract"]["properties"]["sha256"]["enum"][-1] == LRS_SHA
+    assert run["SemanticContract"]["oneOf"][-2:] == [{"properties": {"id": {"const": LRS_ID}, "sha256": {"const": LRS_SHA}}},
+                                                     {"properties": {"id": {"const": SUCCESSOR_ID}, "sha256": {"const": SUCCESSOR_SHA}}}]
+    assert run["SemanticContract"]["properties"]["sha256"]["enum"][-2:] == [LRS_SHA, SUCCESSOR_SHA]
     branch = run["AnalysisRun"]["oneOf"][NEW_BRANCH]
     assert len(run["AnalysisRun"]["oneOf"]) == len(CARRIER_ORDER)
     assert branch["required"] == ["source_block_recovery", "contract_evidence"]

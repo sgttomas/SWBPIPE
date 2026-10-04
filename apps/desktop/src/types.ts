@@ -505,6 +505,9 @@ export type MechanicsResult = {
   contract_evidence?: Record<string, unknown>;
   /** Preserved producer receipt; eligibility requires independently captured invocation. */
   source_block_recovery?: unknown;
+  /** U6d: the F2a successor's retained-precision receipt (retained_precision_mp_v2),
+   * carried whole and checked only by the accepted reader; never present on another identity. */
+  retained_precision?: unknown;
   producer?: { component_name: string; component_version: string; semantic_contract_id: string };
   numerical_quality?: NumericalQuality;
   formulation_basis?: { profile_id: string; limitations: string[] };
@@ -540,6 +543,8 @@ export type MechanicsResult = {
     entity_ref: string;
     basis_ref?: ResultBasisRef;
     source_result_refs?: string[];
+    /** U6d: the W1 method token on each row of a selected successor case (C1 G6). */
+    recovery_method?: string;
     metadata?: {
       component: string;
       coordinate_system: string;
@@ -658,6 +663,8 @@ export type AnalysisRunEnvelope = {
   analysis_run: {
     /** Retained method evidence, never a live invocation credential. */
     source_block_recovery?: unknown;
+    /** U6d: the successor's complete receipt, copied whole and checked for equality (C1:162). */
+    retained_precision?: unknown;
     contract_evidence?: Record<string, unknown>;
     run_id: string;
     run_name: string;

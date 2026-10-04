@@ -8,23 +8,42 @@ mod retained;
 /// crate names this module. `PrecisionState` and `RetainedSolve::state` stay
 /// crate-private (ROOT's ruling C-2).
 pub mod retained_api {
+    pub use super::retained::origins::{NumericTrace,NumericError,TraceCopyWork,PreparationEndpoint,PreparationConversion,
+        ReadoutLaw,ViewFailure,BridgeFailure,LaneWorkTrace,ProductFailureView,HelperFailure,LaneTrace,ProductProofTrace};
+    pub use super::retained::origins::{ProductRowSpec, ProductProofStartSpent,
+        ProductProofDraft, ProductProofFailure, ProductProjectionSpent, ProjectedProofDraft,
+        ProductValuesBuilder, FrozenProductValues, ProductMaximumValue, ProductValuesSpent,
+        ValuesCompletionWork, ProductValuesFailure, CertifiedProductProof, ProductFinalSpent};
+    pub use super::retained::origins::{prepare_product_annulus, PreparedAnnulus, PreparedSectionBits, AnnulusPreparationVersion, AnnulusPreparationSpent, SectionPreparationError, SectionPreparationWork};
+    pub use super::retained::origins::{
+        ProductMaterial, ProductMemberFacts, ProductSite, ProductStress, ProductRecipe,
+        ProductUnit, ProductFinalRow, ProductPredicate, ProductRowVerdict,
+        ProductFailure, ProductCertificateSpent, ProductSummaryCoverage,
+    };
     pub use super::retained::adaptive::{
         absolute_bound, body_extent, classify, classify_rows, classify_rows_floored,
         coupled_scales, intensified_k, solve_case, solve_cases, stress_scale, threshold,
         AttemptOutcome, AttemptReason, AttemptRecord, AttemptRole, AttemptStop, BudgetScope,
-        CaseLimit, CaseOutcome, CertificateIssue, GateTest, InvocationMeter, Publication,
-        PublicationPredicate, PublishedRow, Refusal, RetainedEvidence, RetainedSolve, RowClass,
-        StageWork, StorageCounts, UnresolvedReason, VerificationSummary, FLOOR_RATIO_BITS,
-        K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN, POLICY, PRECISIONS, RCOND_LABEL,
+        CaseLimit, CaseOutcome, CertificateIssue, ExecutionOutcome, GateTest, InvocationMeter,
+        Publication, PublicationPredicate, PublishedRow, Refusal, RetainedEvidence, RetainedSolve,
+        RowClass, RunWork, StageWork, StorageCounts, UnresolvedReason, VerificationSummary,
+        FLOOR_RATIO_BITS, K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN, POLICY, PRECISIONS,
+        RCOND_LABEL,
     };
     pub use super::retained::bound::{
         BlockRefusal, BoundPass, BoundRefusal, CertifiedBound, RefusalKind,
     };
     pub use super::retained::combine::{
-        CombinationOutcome, CombinationReason, RetainedCombination,
+        CombinationOutcome, CombinationReason, RecordedCombination, RetainedCombination,
     };
     pub use super::retained::factor::{reverse_cuthill_mckee, BodyGeometry};
     pub use super::retained::ledger::LedgerRefusal;
+    pub use super::retained::origins::{
+        BuildOrigin, BuildPhase, BuildState, CacheImport, CallKind, CallOrigin, CallResult,
+        CombinationStage, GroupOrigin, GroupPreparation, NativeOwner, OriginCapacity, OriginError,
+        OriginSlot, RecordBuildLinks, RecordedCase, RecordedInvocation, RecordedKernelCombination,
+        RequestedOperand, RunOrigins, RunPhase, SlotSnapshot, SourceOrigin,
+    };
     pub use super::retained::recover::{layout, End, Kind, QuantityId, QuantityMeta};
     pub use super::retained::source::{
         Component, Constraint, DirectionalSpring, Dof, MemberProperty, NodalLoad, PrimitiveSource,
@@ -34,8 +53,11 @@ pub mod retained_api {
     pub use super::retained::wide::multi::{AttemptWork, Binary64Outcome, WidthWork};
     pub use super::retained::wide::WideError;
     pub use super::retained::wide_sum::SumWork;
+    pub use super::retained::work::{WorkFault, WorkStatus, WorkTotal};
 }
 mod sparse;
+// U4 G5 part 2: the kernel's in-build strides for the product's retained-memory profile.
+pub mod retained_resource;
 
 pub use formation_check::{
     CurvedFormation, FormationCheck, FormationCheckReason, FormationSource, FORMATION_CRITERION,

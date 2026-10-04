@@ -21,7 +21,8 @@ use super::super::staged::{Stage, StageObserver};
 use super::adapter;
 use open_pipe_stress_frame_kernel::structural::retained_api::{
     solve_case, AttemptOutcome, AttemptReason, AttemptRecord, CaseLimit, CaseOutcome,
-    InvocationMeter, PrimitiveSource, SourceError, StageWork, UnresolvedReason,
+    InvocationMeter, PrimitiveSource, SourceError, StageWork, UnresolvedReason, WorkFault,
+    WorkTotal,
 };
 
 /// The per-case limit and the invocation meter's limit (ROOT's Q3 ruling:
@@ -45,7 +46,7 @@ impl Default for W1Limits {
 #[derive(Debug)]
 pub struct W1Solve {
     pub outcome: CaseOutcome,
-    pub charged: u64,
+    pub charged: WorkTotal,
     pub exhausted: bool,
 }
 
@@ -79,10 +80,10 @@ pub fn w1_solve(
         CaseOutcome::Refused { refusal, .. } => Some(format!("Refused({refusal:?})")),
         CaseOutcome::Unresolved { reason, .. } => Some(format!("Unresolved({reason:?})")),
     };
-    obs.end(stage, true, error);
+    obs.end(stage, meter.checked_charged().status().is_exact(), error);
     W1Solve {
         outcome,
-        charged: meter.charged(),
+        charged: meter.checked_charged(),
         exhausted: meter.exhausted(),
     }
 }
@@ -132,9 +133,7 @@ pub fn stage_fields(w: &StageWork) -> [(&'static str, u64); 19] {
 
 /// The sum of a `StageWork`'s fields (saturating).
 pub fn stage_sum(w: &StageWork) -> u64 {
-    stage_fields(w)
-        .iter()
-        .fold(0u64, |s, &(_, v)| s.saturating_add(v))
+    w.checked_total().exact().unwrap_or(u64::MAX)
 }
 
 /// An attempt's own work: its contexts and its K4 sums (K4 RETURN §14's
@@ -160,11 +159,44 @@ pub fn charged_by(a: &AttemptRecord) -> u64 {
 }
 
 /// Parity `w1_work_closes`: the attempts' charges add up to the meter's.
-pub fn work_closes(attempts: &[AttemptRecord], charged: u64) -> bool {
-    attempts
-        .iter()
-        .fold(0u64, |s, a| s.saturating_add(charged_by(a)))
-        == charged
+pub fn validate_outcome(outcome: &CaseOutcome) -> Result<(), WorkFault> {
+    if let CaseOutcome::Unresolved {
+        reason: UnresolvedReason::WorkAccounting { fault, .. },
+        ..
+    } = outcome
+    {
+        return Err(*fault);
+    }
+    validate_attempts(attempts_of(outcome))
+}
+
+pub fn validate_attempts(attempts: &[AttemptRecord]) -> Result<(), WorkFault> {
+    let mut case = 0u64;
+    let mut invocation = 0u64;
+    for a in attempts {
+        case = case
+            .checked_add(a.checked_case_charge().exact()?)
+            .ok_or(WorkFault::Overflow)?;
+        invocation = invocation
+            .checked_add(a.checked_invocation_increment().exact()?)
+            .ok_or(WorkFault::Overflow)?;
+        a.checked_verification_work().exact()?;
+        a.checked_stop_rule_work().exact()?;
+        a.stages.checked_total().exact()?;
+        a.shared_stages.checked_total().exact()?;
+    }
+    Ok(())
+}
+pub fn work_closes(attempts: &[AttemptRecord], charged: WorkTotal) -> bool {
+    let checked = || -> Result<bool, WorkFault> {
+        validate_attempts(attempts)?;
+        let total = attempts.iter().try_fold(0u64, |sum, a| {
+            sum.checked_add(a.checked_invocation_increment().exact()?)
+                .ok_or(WorkFault::Overflow)
+        })?;
+        Ok(total == charged.exact()?)
+    };
+    checked().unwrap_or(false)
 }
 
 /// The shared work charged to an attempt's case: its build and the
@@ -181,7 +213,9 @@ pub fn shared_total(a: &AttemptRecord) -> u64 {
 /// `stages_equal_totals` holds every attempt to equality, completed or
 /// stopped (ROOT's ruling "KF3: main merged; K6b's parity restored in KF3").
 pub fn builds_completed(a: &AttemptRecord) -> bool {
-    !matches!(a.outcome, AttemptOutcome::Failed(AttemptReason::Stop(_))) || a.stop_rule_work > 0
+    validate_attempts(std::slice::from_ref(a)).is_ok()
+        && (!matches!(a.outcome, AttemptOutcome::Failed(AttemptReason::Stop(_)))
+            || a.stop_rule_work > 0)
 }
 
 /// The work an attempt was charged that no stage records: (own, shared). Since
@@ -199,7 +233,7 @@ pub fn unstaged(a: &AttemptRecord) -> (u64, u64) {
 /// Whether no charged work is unstaged: the attempt line's `stages_complete`
 /// (RV22-1); true on every attempt since T3 KF3.
 pub fn stages_complete(a: &AttemptRecord) -> bool {
-    unstaged(a) == (0, 0)
+    validate_attempts(std::slice::from_ref(a)).is_ok() && unstaged(a) == (0, 0)
 }
 
 /// Parity `w1_stages_equal_totals`: on every attempt, completed or stopped,
@@ -210,9 +244,10 @@ pub fn stages_complete(a: &AttemptRecord) -> bool {
 /// in progress, so the relaxation for a stopped build (ROOT's ruling on the
 /// K6B-S3 stop; RV22's review) is withdrawn: one short side fails.
 pub fn stages_equal_totals(attempts: &[AttemptRecord]) -> bool {
-    attempts.iter().all(|a| {
-        stage_sum(&a.stages) == own_total(a) && stage_sum(&a.shared_stages) == shared_total(a)
-    })
+    validate_attempts(attempts).is_ok()
+        && attempts.iter().all(|a| {
+            stage_sum(&a.stages) == own_total(a) && stage_sum(&a.shared_stages) == shared_total(a)
+        })
 }
 
 /// Work by precision: each precision's attempts, their own stages and their
@@ -230,30 +265,13 @@ pub struct PrecisionWork {
     pub shared_total: u64,
 }
 
-fn add_stages(a: &mut StageWork, b: &StageWork) {
-    a.formation += b.formation;
-    a.assembly += b.assembly;
-    a.residual_formation += b.residual_formation;
-    a.factor += b.factor;
-    a.condition += b.condition;
-    a.rhs += b.rhs;
-    a.solve += b.solve;
-    a.refinement += b.refinement;
-    a.recovery += b.recovery;
-    a.stop_rule += b.stop_rule;
-    a.bounded_gate += b.bounded_gate;
-    a.scale += b.scale;
-    a.estimate += b.estimate;
-    a.charge += b.charge;
-    a.bound += b.bound;
-    a.shift += b.shift;
-    a.bounded_formation += b.bounded_formation;
-    a.wide_formation += b.wide_formation;
-    a.uc += b.uc;
+fn add_stages(a: &mut StageWork, b: &StageWork) -> Result<(), WorkFault> {
+    a.merge(b)
 }
 
 /// Each attempt's work filed under its own precision, ascending.
-pub fn work_by_precision(attempts: &[AttemptRecord]) -> Vec<PrecisionWork> {
+pub fn work_by_precision(attempts: &[AttemptRecord]) -> Result<Vec<PrecisionWork>, WorkFault> {
+    validate_attempts(attempts)?;
     let mut out: Vec<PrecisionWork> = Vec::new();
     for a in attempts {
         let entry = match out.iter().position(|w| w.precision == a.precision) {
@@ -271,13 +289,19 @@ pub fn work_by_precision(attempts: &[AttemptRecord]) -> Vec<PrecisionWork> {
             }
         };
         entry.attempts += 1;
-        add_stages(&mut entry.own, &a.stages);
-        add_stages(&mut entry.shared, &a.shared_stages);
-        entry.own_total = entry.own_total.saturating_add(own_total(a));
-        entry.shared_total = entry.shared_total.saturating_add(shared_total(a));
+        add_stages(&mut entry.own, &a.stages)?;
+        add_stages(&mut entry.shared, &a.shared_stages)?;
+        entry.own_total = entry
+            .own_total
+            .checked_add(own_total(a))
+            .ok_or(WorkFault::Overflow)?;
+        entry.shared_total = entry
+            .shared_total
+            .checked_add(shared_total(a))
+            .ok_or(WorkFault::Overflow)?;
     }
     out.sort_by_key(|w| w.precision);
-    out
+    Ok(out)
 }
 
 /// A segment of the call in time order, with the case work charged through
@@ -289,16 +313,21 @@ pub struct Segment {
 }
 
 /// The call's segments in the schedule's time order (module documentation).
-pub fn segments(attempts: &[AttemptRecord]) -> Vec<Segment> {
+pub fn segments(attempts: &[AttemptRecord]) -> Result<Vec<Segment>, WorkFault> {
+    validate_attempts(attempts)?;
     let mut out = Vec::new();
     let mut total = 0u64;
     for (i, a) in attempts.iter().enumerate() {
         let own_solve = own_total(a)
-            .saturating_sub(a.verification_work)
-            .saturating_sub(a.stop_rule_work);
+            .checked_sub(a.verification_work)
+            .ok_or(WorkFault::Inconsistent)?
+            .checked_sub(a.stop_rule_work)
+            .ok_or(WorkFault::Inconsistent)?;
         total = total
-            .saturating_add(a.shared_work)
-            .saturating_add(own_solve);
+            .checked_add(a.shared_work)
+            .ok_or(WorkFault::Overflow)?
+            .checked_add(own_solve)
+            .ok_or(WorkFault::Overflow)?;
         out.push(Segment {
             label: format!("solve_{}", a.precision),
             end: total,
@@ -307,14 +336,18 @@ pub fn segments(attempts: &[AttemptRecord]) -> Vec<Segment> {
             a.verification.is_some() || a.verification_work > 0 || a.verification_shared_work > 0;
         if verified {
             total = total
-                .saturating_add(a.verification_shared_work)
-                .saturating_add(a.verification_work);
+                .checked_add(a.verification_shared_work)
+                .ok_or(WorkFault::Overflow)?
+                .checked_add(a.verification_work)
+                .ok_or(WorkFault::Overflow)?;
             out.push(Segment {
                 label: format!("verify_{}", a.precision),
                 end: total,
             });
             if i > 0 && attempts[i - 1].stop_rule_work > 0 {
-                total = total.saturating_add(attempts[i - 1].stop_rule_work);
+                total = total
+                    .checked_add(attempts[i - 1].stop_rule_work)
+                    .ok_or(WorkFault::Overflow)?;
                 out.push(Segment {
                     label: format!("decide_{}", attempts[i - 1].precision),
                     end: total,
@@ -322,15 +355,19 @@ pub fn segments(attempts: &[AttemptRecord]) -> Vec<Segment> {
             }
         }
     }
-    out
+    Ok(out)
 }
 
 /// Parity `w1_prefix_segments` for prefix j (1-based): the prefix call ended on
 /// the case budget, and its first j segments equal the full call's (RV22-N3:
 /// the binary's predicate, here so that it is tested).
 pub fn prefix_matches(j: usize, full: &[AttemptRecord], prefix: &CaseOutcome) -> bool {
-    let full_segments = segments(full);
-    let own = segments(attempts_of(prefix));
+    let Ok(full_segments) = segments(full) else {
+        return false;
+    };
+    let Ok(own) = segments(attempts_of(prefix)) else {
+        return false;
+    };
     let budget_stop = matches!(
         prefix,
         CaseOutcome::Unresolved {
@@ -343,10 +380,11 @@ pub fn prefix_matches(j: usize, full: &[AttemptRecord], prefix: &CaseOutcome) ->
 
 /// The prefix limits: every segment's end but the last (the last is the full
 /// call).
-pub fn prefix_limits(attempts: &[AttemptRecord]) -> Vec<(String, u64)> {
-    let segs = segments(attempts);
-    segs.iter()
+pub fn prefix_limits(attempts: &[AttemptRecord]) -> Result<Vec<(String, u64)>, WorkFault> {
+    let segs = segments(attempts)?;
+    Ok(segs
+        .iter()
         .take(segs.len().saturating_sub(1))
         .map(|s| (s.label.clone(), s.end))
-        .collect()
+        .collect())
 }

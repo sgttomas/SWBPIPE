@@ -38,7 +38,7 @@ pub struct CaseRun {
     pub input_derived_not_covered: Vec<String>,
     pub controls: ControlTally,
     /// The deterministic per-case record (plan §12).
-    pub record: Value,
+    pub record: Option<Value>,
     /// The published rows, for the invariance checks.
     pub published: BTreeMap<QuantityId, PublishedRow>,
 }
@@ -209,7 +209,11 @@ pub fn run_parts(case: &Case, model: &Model, parts: SourceParts) -> CaseRun {
                 failures.push(format!("{}: source refused: {e:?}", case.id));
             }
             decide_outcome_controls(case, false, &mut controls);
-            let record = records::source_refused_record(case, &format!("{e:?}"), &tally);
+            let record = Some(records::source_refused_record(
+                case,
+                &format!("{e:?}"),
+                &tally,
+            ));
             return CaseRun {
                 id: case.id.clone(),
                 family: case.family.clone(),
@@ -321,7 +325,13 @@ pub fn run_parts(case: &Case, model: &Model, parts: SourceParts) -> CaseRun {
             records::outcome_text(&outcome)
         ));
     }
-    let record = records::case_record(case, &outcome, &tally, &meter);
+    let record = match records::case_record(case, &outcome, &tally, &meter) {
+        Ok(record) => Some(record),
+        Err(fault) => {
+            failures.push(format!("{}: retained work accounting {fault}", case.id));
+            None
+        }
+    };
     CaseRun {
         id: case.id.clone(),
         family: case.family.clone(),

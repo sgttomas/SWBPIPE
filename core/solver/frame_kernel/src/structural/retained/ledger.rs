@@ -146,6 +146,64 @@ impl RetainedLedger {
             .is_ok_and(|k| self.nonzero[k])
     }
 
+    /// The same individual-term predicate with an explicit finite comparison
+    /// prefix for the private bridge. A cancelled nonzero ledger remains data.
+    pub(crate) fn nonzero_term_spent(&self, dof: usize) -> (bool, super::work::WorkTotal) {
+        use super::work::WorkTotal;
+        let (mut lo, mut hi) = (0, self.entries.len());
+        let mut visits = WorkTotal::zero();
+        while lo < hi {
+            visits = visits.add(WorkTotal::exact_count(1));
+            let mid = lo + (hi - lo) / 2;
+            match self.entries[mid].0.cmp(&dof) {
+                std::cmp::Ordering::Less => lo = mid + 1,
+                std::cmp::Ordering::Greater => hi = mid,
+                std::cmp::Ordering::Equal => return (self.nonzero[mid], visits),
+            }
+        }
+        (false, visits)
+    }
+
+    /// Compare the actual net encoding without allocating a duplicate ledger.
+    /// Individual nonzero facts are intentionally obtained separately above.
+    pub(crate) fn encoding_matches(&self, expected: &[u8]) -> (bool, super::work::WorkTotal) {
+        use super::work::WorkTotal;
+        let mut at = 0usize;
+        let mut visits = WorkTotal::zero();
+        let mut equal = true;
+        let mut bytes = |part: &[u8]| {
+            for byte in part {
+                visits = visits.add(WorkTotal::exact_count(1));
+                equal &= expected.get(at) == Some(byte);
+                if let Some(next) = at.checked_add(1) {
+                    at = next;
+                } else {
+                    equal = false;
+                    visits = visits.add(WorkTotal::exact_count(u64::MAX));
+                }
+            }
+        };
+        bytes(b"K4LED\x01");
+        let Ok(count) = u32::try_from(self.entries.len()) else {
+            return (false, visits);
+        };
+        bytes(&count.to_le_bytes());
+        for (dof, net) in &self.entries {
+            let d = Dof::from_global(*dof);
+            bytes(&d.node.to_le_bytes());
+            bytes(&[d.component.index() as u8, u8::from(net.negative)]);
+            bytes(&net.exponent.to_le_bytes());
+            let Ok(limbs) = u32::try_from(net.magnitude.len()) else {
+                return (false, visits);
+            };
+            bytes(&limbs.to_le_bytes());
+            for limb in &net.magnitude {
+                bytes(&limb.to_le_bytes());
+            }
+        }
+        (equal && at == expected.len(), visits)
+    }
+
     /// The ledger of a combination Σ cᵢ·(case i): per DOF, the exact products
     /// cᵢ·v of every load term of every operand (`add_product`, exact).
     pub(crate) fn combined(operands: &[(f64, &PrimitiveSource)]) -> Result<Self, LedgerRefusal> {

@@ -923,16 +923,18 @@ fn main() {
                     }
                     Ok(source) => {
                         let solve = w1_solve(source, w1_limits, Stage::W1Solve, &mut observer);
-                        w1::outcome_line(repeat, &solve);
-                        w1::attempt_lines(repeat, attempts_of(&solve.outcome));
+                        w1::outcome_line(repeat, &solve).unwrap_or_else(work_failure);
+                        w1::attempt_lines(repeat, attempts_of(&solve.outcome))
+                            .unwrap_or_else(work_failure);
                         if repeat == 0 {
-                            w1::parity_lines(repeat, w1_counts, &solve);
+                            w1::parity_lines(repeat, w1_counts, &solve)
+                                .unwrap_or_else(work_failure);
                             if let Some(path) = &args.dump_published {
                                 w1::dump_rows(path, &model.id, &solve);
                             }
                         }
                         w1_last_attempts = Some(attempts_of(&solve.outcome).to_vec());
-                        w1::repeat_digest(&solve)
+                        w1::repeat_digest(&solve).unwrap_or_else(work_failure)
                     }
                 }
             }
@@ -1014,7 +1016,11 @@ fn main() {
             let saved = (observer.max_stage_peak, observer.max_stage_peak_move);
             observer.repeat = repeats_completed;
             let (mut peak, mut peak_move) = (0, 0);
-            for (j, (label, limit)) in prefix_limits(full).iter().enumerate() {
+            for (j, (label, limit)) in prefix_limits(full)
+                .unwrap_or_else(work_failure)
+                .iter()
+                .enumerate()
+            {
                 let Ok(source) = w1_adapter::source(&model) else {
                     break;
                 };
@@ -1026,7 +1032,7 @@ fn main() {
                 let solve = w1_solve(source, limits, stage, &mut observer);
                 peak = peak.max(alloc::stage_peak());
                 peak_move = peak_move.max(alloc::stage_peak_move());
-                w1::prefix_line(j + 1, label, *limit, full, &solve);
+                w1::prefix_line(j + 1, label, *limit, full, &solve).unwrap_or_else(work_failure);
             }
             observer.max_stage_peak = saved.0;
             observer.max_stage_peak_move = saved.1;
@@ -1056,4 +1062,9 @@ fn main() {
     if internal_error {
         std::process::exit(4);
     }
+}
+
+fn work_failure<T>(fault: open_pipe_stress_frame_kernel::structural::retained_api::WorkFault) -> T {
+    eprintln!("k6_observe: retained work accounting {fault}");
+    std::process::exit(4)
 }

@@ -62,7 +62,7 @@ fn equal_sum(actual: &ExactWideSum, expected: &ExactWideSum) {
     let mut d = ExactWideSum::new();
     d.add_scaled(actual, false, 1, 0).unwrap();
     d.add_scaled(expected, true, 1, 0).unwrap();
-    assert_eq!(d.signum(), 0);
+    assert_eq!(d.signum().unwrap(), 0);
 }
 
 fn row(x: f64, class: RowClass) -> PublishedRow {
@@ -225,25 +225,18 @@ fn metered_bound_matches_pinned_pure_formula_at_branches() {
 
 #[test]
 fn clone_counter_delta_never_bills_inherited_work() {
-    // Fixed independent arithmetic on counters; this is NOT the yet-required
-    // independent absolute operation ledger for the real conversion path.
-    let before = SumWork {
-        term_limbs: 31,
-        shift_limbs: 17,
-        net_limbs: 9,
-        rounded_limbs: 5,
-        max_span_bits: 1075,
-    };
-    let after = SumWork {
-        term_limbs: 38,
-        shift_limbs: 19,
-        net_limbs: 12,
-        rounded_limbs: 9,
-        max_span_bits: 1075,
-    };
-    let delta = sum_work_delta(after, before);
-    assert_eq!(delta.limb_multiply_equivalents(), 16);
-    assert_eq!(delta.max_span_bits, 1075);
+    let mut source = ExactWideSum::new();
+    source.add_binary64(1.0, false).unwrap();
+    let inherited = source.work().limb_multiply_equivalents();
+    let mut clone = CloneWork::new(&source);
+    let (sign, sign_work) = clone.signum();
+    assert_eq!(sign.unwrap(), 1);
+    assert_eq!(sign_work.limb_multiply_equivalents(), 2);
+    let mut ctx = WideContext::<16>::new(1024).unwrap();
+    let (rounded, round_work) = clone.round(&mut ctx);
+    assert_eq!(rounded.unwrap(), Wide::<16>::ONE);
+    assert_eq!(round_work.limb_multiply_equivalents(), 6);
+    assert_eq!(source.work().limb_multiply_equivalents(), inherited);
 }
 
 #[test]
@@ -254,9 +247,9 @@ fn budget_stop_collects_new_conversion_work_without_a_radius() {
         result,
         Err(AttemptStop::Budget(BudgetScope::Case))
     ));
-    assert!(m.total() > 0);
+    assert!(m.total().exact().unwrap() > 0);
     // Absolute ledger/stop-position assertions are intentionally not invented
-    // from m.total(); RV28-N1's independent frozen ledger is still required.
+    // from m.total().exact().unwrap(); RV28-N1's independent frozen ledger is still required.
 }
 
 #[test]
@@ -271,11 +264,14 @@ fn certificate_errors_are_terminal_and_budget_precedence_is_unchanged() {
         })
     );
     let g = StageGuard {
-        base: 0,
-        case_room: 0,
-        invocation_room: 0,
+        base: WorkTotal::zero(),
+        case_room: WorkTotal::zero(),
+        invocation_room: WorkTotal::zero(),
     };
-    assert_eq!(g.test(1), Err(AttemptStop::Budget(BudgetScope::Case)));
+    assert_eq!(
+        g.test(WorkTotal::exact_count(1)),
+        Err(AttemptStop::Budget(BudgetScope::Case))
+    );
 }
 
 fn two_node_source(
@@ -445,19 +441,22 @@ fn c17_cannot_publish_the_false_p128_interval() {
             let mut error = ExactWideSum::new();
             error.add_binary64(x, false).unwrap();
             error.add_binary64(exact, true).unwrap();
-            error.make_absolute();
+            error.make_absolute().unwrap();
             if let RowClass::AbsoluteVerified { bound_bits } = row.class {
                 let mut margin = ExactWideSum::new();
                 margin
                     .add_binary64(f64::from_bits(bound_bits), false)
                     .unwrap();
                 margin.add_scaled(&error, true, 1, 0).unwrap();
-                assert!(margin.signum() >= 0, "bare bound, no qualified slack");
+                assert!(
+                    margin.signum().unwrap() >= 0,
+                    "bare bound, no qualified slack"
+                );
             } else {
                 let mut margin = ExactWideSum::new();
                 margin.add_binary64(x.abs(), false).unwrap();
                 margin.add_scaled(&error, true, 1_000_000_000, 0).unwrap();
-                assert!(margin.signum() >= 0);
+                assert!(margin.signum().unwrap() >= 0);
             }
         }
     }
@@ -572,16 +571,16 @@ fn sum_tuple(s: SumWork) -> (u64, u64, u64, u64) {
 fn pc40_independent_absolute_work_ledgers_success_and_numeric_rejection() {
     let (result, m) = ledger_h_route(StageGuard::unlimited(), 2.0);
     assert_eq!(result, Ok(Some(f64::from_bits(1.0f64.to_bits() + 1))));
-    assert_eq!(m.total(), 18_103); // H44 + predicate115 + RU17_944.
+    assert_eq!(m.total().exact().unwrap(), 18_103); // H44 + predicate115 + RU17_944.
     assert_eq!(sum_tuple(m.sums), (250, 188, 138, 21));
-    assert_eq!(lme(&m.ctx), 17_506);
+    assert_eq!(lme(&m.ctx).exact().unwrap(), 17_506);
     // RV29 additive source derivation e08b726fb695752b...: the b=2
     // comparison retains uncancelled term extrema +1 and -1074.
     // Aggregate span is 1-(-1074)+1=1076; H and RU alone remain 1075.
     assert_eq!(m.sums.max_span_bits, 1076);
     let (result, m) = ledger_h_route(StageGuard::unlimited(), 1.0);
     assert_eq!(result, Ok(None));
-    assert_eq!(m.total(), 159); // Rejection precedes RU, not an omitted radius.
+    assert_eq!(m.total().exact().unwrap(), 159); // Rejection precedes RU, not an omitted radius.
     assert_eq!(m.sums.max_span_bits, 1075); // b=1 has high exponent 0.
     let mut m = meter();
     assert_eq!(
@@ -590,9 +589,9 @@ fn pc40_independent_absolute_work_ledgers_success_and_numeric_rejection() {
             .to_bits(),
         3
     );
-    assert_eq!(m.total(), 17_563);
+    assert_eq!(m.total().exact().unwrap(), 17_563);
     assert_eq!(sum_tuple(m.sums), (32, 6, 15, 4));
-    assert_eq!(lme(&m.ctx), 17_506);
+    assert_eq!(lme(&m.ctx).exact().unwrap(), 17_506);
     assert_eq!(m.sums.max_span_bits, 2);
 }
 
@@ -602,29 +601,29 @@ fn pc41_independent_successful_checkpoints_and_both_budget_scopes() {
     for (i, &c) in checkpoints.iter().enumerate() {
         for scope in [BudgetScope::Case, BudgetScope::Invocation] {
             let guard = StageGuard {
-                base: 0,
-                case_room: if scope == BudgetScope::Case {
+                base: WorkTotal::zero(),
+                case_room: WorkTotal::exact_count(if scope == BudgetScope::Case {
                     c - 1
                 } else {
                     u64::MAX
-                },
-                invocation_room: if scope == BudgetScope::Invocation {
+                }),
+                invocation_room: WorkTotal::exact_count(if scope == BudgetScope::Invocation {
                     c - 1
                 } else {
                     u64::MAX
-                },
+                }),
             };
             let (result, m) = ledger_h_route(guard, 2.0);
             assert_eq!(result, Err(AttemptStop::Budget(scope)));
-            assert_eq!(m.total(), c);
+            assert_eq!(m.total().exact().unwrap(), c);
         }
         let (result, m) = ledger_h_route(StageGuard::with_case_room(c), 2.0);
         if let Some(&next) = checkpoints.get(i + 1) {
             assert_eq!(result, Err(AttemptStop::Budget(BudgetScope::Case)));
-            assert_eq!(m.total(), next); // Equality admitted c, next check stopped.
+            assert_eq!(m.total().exact().unwrap(), next); // Equality admitted c, next check stopped.
         } else {
             assert!(result.unwrap().is_some());
-            assert_eq!(m.total(), c);
+            assert_eq!(m.total().exact().unwrap(), c);
         }
     }
     // Duplicate zero-cost final checks share the last checkpoint; they cannot
@@ -636,7 +635,7 @@ fn pc41_independent_successful_checkpoints_and_both_budget_scopes() {
             m.row_bound(f64::from_bits(1), f64::from_bits(1)),
             Err(AttemptStop::Budget(BudgetScope::Case))
         );
-        assert_eq!(m.total(), c);
+        assert_eq!(m.total().exact().unwrap(), c);
     }
 }
 
@@ -650,7 +649,7 @@ fn pc42_independent_terminal_work_and_precedence() {
             publication_h(0, &meta(Kind::Translation), 1.0, &w(0.0), &r, &mut m),
             Err(AttemptStop::Span)
         ));
-        assert_eq!(m.total(), 4);
+        assert_eq!(m.total().exact().unwrap(), 4);
     }
     for (room, expected, total) in [
         (1, AttemptStop::Budget(BudgetScope::Case), 2),
@@ -668,7 +667,7 @@ fn pc42_independent_terminal_work_and_precedence() {
             m.round_up(&num)
         })();
         assert_eq!(result, Err(expected));
-        assert_eq!(m.total(), total);
+        assert_eq!(m.total().exact().unwrap(), total);
     }
 }
 
@@ -822,11 +821,20 @@ fn zero_pair(p: u32) -> PairFixture {
     let mut cache = GroupCache::default();
     let mut budget = CaseBudget {
         limit: u64::MAX,
-        used: 0,
+        used: WorkTotal::zero(),
+        invocation_increment: WorkTotal::zero(),
     };
     let mut invocation = InvocationMeter::new(u64::MAX);
-    let (candidate, c) =
-        solve_precision(p, &prep, &group, &mut cache, &mut budget, &mut invocation);
+    let (candidate, c) = solve_precision(
+        p,
+        &prep,
+        &group,
+        &mut cache,
+        &mut budget,
+        &mut invocation,
+        None,
+        0,
+    );
     let candidate = candidate.unwrap();
     let (verification, mut v) = solve_precision(
         p * 2,
@@ -835,6 +843,8 @@ fn zero_pair(p: u32) -> PairFixture {
         &mut cache,
         &mut budget,
         &mut invocation,
+        None,
+        1,
     );
     let verification = verification.unwrap();
     v.role = AttemptRole::Verification;
@@ -846,6 +856,8 @@ fn zero_pair(p: u32) -> PairFixture {
         &mut budget,
         &mut invocation,
         &mut v,
+        None,
+        1,
     )
     .unwrap();
     PairFixture {
@@ -1031,7 +1043,7 @@ fn pc36_39_final_draft_move_drop_and_radius_identity() {
         draft,
         vec![BodyGeometry::Restrained],
     );
-    let CaseOutcome::Selected(mut solve) = out else {
+    let ExecutionOutcome::Selected(mut solve) = out else {
         panic!("final move");
     };
     assert_eq!(solve.publication, expected);
@@ -1226,10 +1238,10 @@ fn independent_fixed_extra_source_rows_never_escape_their_bare_claim() {
                     let mut error = ExactWideSum::new();
                     error.add_binary64(x, false).unwrap();
                     error.add_wide(&truth, true).unwrap();
-                    error.make_absolute();
+                    error.make_absolute().unwrap();
                     let scale = s.publication.body_scales[row.body as usize * 4 + row.kind.index()];
                     if row.class == RowClass::InputDerived {
-                        assert_eq!(error.signum(), 0);
+                        assert_eq!(error.signum().unwrap(), 0);
                     } else {
                         assert_eq!(
                             publication_predicate(
@@ -1450,7 +1462,8 @@ pub(super) fn replay_certificate_components(
             let mut cache = solve.cache.clone();
             let mut budget = CaseBudget {
                 limit: u64::MAX,
-                used: 0,
+                used: WorkTotal::zero(),
+                invocation_increment: WorkTotal::zero(),
             };
             let mut setup_meter = InvocationMeter::new(u64::MAX);
             let bound = verify_precision(
@@ -1461,6 +1474,8 @@ pub(super) fn replay_certificate_components(
                 &mut budget,
                 &mut setup_meter,
                 &mut record,
+                None,
+                0,
             )
             .unwrap();
             assert!(bound.state.same_state(verification));
@@ -1474,11 +1489,11 @@ pub(super) fn replay_certificate_components(
                 StageGuard::unlimited(),
             );
             assert_eq!(
-                r7.total,
+                r7.total.exact().unwrap(),
                 r7.work.limb_multiply_equivalents() + r7.sum_work.limb_multiply_equivalents()
             );
             let mut out = CertificateComponents {
-                r7: r7.total,
+                r7: r7.total.exact().unwrap(),
                 ..Default::default()
             };
             if r7.result == Ok(true) {
@@ -1492,7 +1507,7 @@ pub(super) fn replay_certificate_components(
                 );
                 out.context = certificate.work.limb_multiply_equivalents();
                 out.sums = certificate.sums.limb_multiply_equivalents();
-                out.total = certificate.total;
+                out.total = certificate.total.exact().unwrap();
                 assert_eq!(out.total, out.context + out.sums);
                 match certificate.result.unwrap() {
                     PublicationDecision::Accepted(draft) => {
@@ -1603,7 +1618,7 @@ fn pc31_39_exact_relative_admission_positive_radii_and_partial_draft() {
     let allowance = exact_sum(&[(x, -64), (x, -85), (x, -53), (f64::from_bits(1), 0)]);
     let mut gap = exact_sum(&[(f64::from_bits(0x3ca0_0200_0010_0402), 0)]);
     gap.add_scaled(&allowance, true, 1, 0).unwrap();
-    assert_eq!(gap.signum(), 1); // RU64(H) exceeds the exact sharper allowance.
+    assert_eq!(gap.signum().unwrap(), 1); // RU64(H) exceeds the exact sharper allowance.
     let accepted = |r: &VerificationReport<4>, guard| {
         let mut met = CertificateMeter::new(guard);
         let out = certify_rows(
@@ -1655,7 +1670,7 @@ fn pc31_39_exact_relative_admission_positive_radii_and_partial_draft() {
         }
     }
     assert!(m > d && prefix.ctx.work().div > 0);
-    let before_conversion = prefix.total();
+    let before_conversion = prefix.total().exact().unwrap();
     let refs = Arc::strong_count(&f.prep);
     let (stopped, stopped_meter) = accepted(r, StageGuard::with_case_room(before_conversion));
     assert!(matches!(
@@ -1663,7 +1678,8 @@ fn pc31_39_exact_relative_admission_positive_radii_and_partial_draft() {
         Err(AttemptStop::Budget(BudgetScope::Case))
     ));
     assert!(
-        stopped_meter.total() > before_conversion && stopped_meter.total() < full_meter.total()
+        stopped_meter.total().exact().unwrap() > before_conversion
+            && stopped_meter.total().exact().unwrap() < full_meter.total().exact().unwrap()
     );
     assert_eq!(Arc::strong_count(&f.prep), refs);
     let mut late = (**r).clone();
@@ -1708,7 +1724,7 @@ fn pc31_39_exact_relative_admission_positive_radii_and_partial_draft() {
         fresh,
         vec![BodyGeometry::Restrained],
     );
-    let CaseOutcome::Selected(solve) = out else {
+    let ExecutionOutcome::Selected(solve) = out else {
         panic!("controlled final draft")
     };
     assert_eq!(publication_bits(solve.publish()), expected);

@@ -606,7 +606,9 @@ def test_carrier_branches_are_appended_after_the_existing_methods():
                    "openpipestress.result_semantics/0.3.0/source-blocks-1",
                    "openpipestress.result_semantics/0.3.0/physics-source-1",
                    "openpipestress.result_semantics/0.3.0/preview-physics-1", LR_ID,
-                   "openpipestress.result_semantics/0.3.0/load-reference-source-1"]
+                   "openpipestress.result_semantics/0.3.0/load-reference-source-1",
+                   # T3's F2a preview successor follows T1's branches (C1:162; U6c).
+                   "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"]
     lr = ids.index(LR_ID)
     evidence = results["properties"]["contract_evidence"]["anyOf"]
     assert evidence.count(LR_EVIDENCE_REF) == 1
@@ -619,7 +621,8 @@ def test_carrier_branches_are_appended_after_the_existing_methods():
     assert contracts[lr] == {"properties": {"id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}}
     assert len(run["AnalysisRun"]["oneOf"]) == len(ids)
     assert run["AnalysisRun"]["oneOf"][lr]["not"] == {"anyOf": [{"required": ["source_block_recovery"]},
-                                                               {"required": ["contract_evidence"]}]}
+                                                               {"required": ["contract_evidence"]},
+                                                               {"required": ["retained_precision"]}]}
     package = schema("stress_neutral_export.v0.3.schema.json")
     package_ids = [branch["properties"]["semantic_contract"]["properties"]["id"]["const"] for branch in package["oneOf"]]
     assert package_ids == ids

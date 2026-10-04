@@ -963,7 +963,8 @@
                 "openpipestress.result_semantics/0.3.0/physics-source-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-1",
-                "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+                "openpipestress.result_semantics/0.3.0/load-reference-source-1",
+                "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
               ]
             }
           }
@@ -987,7 +988,8 @@
                 "openpipestress.result_semantics/0.3.0/physics-source-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-1",
-                "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+                "openpipestress.result_semantics/0.3.0/load-reference-source-1",
+                "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
               ]
             }
           }
@@ -1005,7 +1007,8 @@
                 "product_preview_mechanics_v1",
                 "exact_straight_pressure_v2",
                 "resolved_straight_load_state_v1",
-                "resolved_straight_load_state_source_v1"
+                "resolved_straight_load_state_source_v1",
+                "product_preview_retained_w1a_v2"
               ]
             },
             "limitations": {
@@ -1139,6 +1142,9 @@
               "$ref": "#/$defs/LoadReferenceSourceRecovery"
             }
           ]
+        },
+        "retained_precision": {
+          "$ref": "retained_precision_mp_v2.schema.json"
         }
       },
       "oneOf": [
@@ -1184,7 +1190,34 @@
                 ]
               }
             ]
-          }
+          },
+          "allOf": [
+            {
+              "not": {
+                "required": [
+                  "retained_precision"
+                ]
+              }
+            },
+            {
+              "properties": {
+                "row_disclosures": {
+                  "items": {
+                    "properties": {
+                      "reason_code": {
+                        "not": {
+                          "enum": [
+                            "retained_precision_absolute_verified",
+                            "retained_precision_not_covered"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
         },
         {
           "required": [
@@ -1229,7 +1262,34 @@
                 ]
               }
             ]
-          }
+          },
+          "allOf": [
+            {
+              "not": {
+                "required": [
+                  "retained_precision"
+                ]
+              }
+            },
+            {
+              "properties": {
+                "row_disclosures": {
+                  "items": {
+                    "properties": {
+                      "reason_code": {
+                        "not": {
+                          "enum": [
+                            "retained_precision_absolute_verified",
+                            "retained_precision_not_covered"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
         },
         {
           "required": [
@@ -1270,7 +1330,34 @@
             "required": [
               "contract_evidence"
             ]
-          }
+          },
+          "allOf": [
+            {
+              "not": {
+                "required": [
+                  "retained_precision"
+                ]
+              }
+            },
+            {
+              "properties": {
+                "row_disclosures": {
+                  "items": {
+                    "properties": {
+                      "reason_code": {
+                        "not": {
+                          "enum": [
+                            "retained_precision_absolute_verified",
+                            "retained_precision_not_covered"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
         },
         {
           "required": [
@@ -1310,7 +1397,34 @@
                 "$ref": "#/$defs/PhysicsSourceResultSet"
               }
             }
-          }
+          },
+          "allOf": [
+            {
+              "not": {
+                "required": [
+                  "retained_precision"
+                ]
+              }
+            },
+            {
+              "properties": {
+                "row_disclosures": {
+                  "items": {
+                    "properties": {
+                      "reason_code": {
+                        "not": {
+                          "enum": [
+                            "retained_precision_absolute_verified",
+                            "retained_precision_not_covered"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
         },
         {
           "required": [
@@ -1366,7 +1480,34 @@
                 ]
               }
             ]
-          }
+          },
+          "allOf": [
+            {
+              "not": {
+                "required": [
+                  "retained_precision"
+                ]
+              }
+            },
+            {
+              "properties": {
+                "row_disclosures": {
+                  "items": {
+                    "properties": {
+                      "reason_code": {
+                        "not": {
+                          "enum": [
+                            "retained_precision_absolute_verified",
+                            "retained_precision_not_covered"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
         },
         {
           "required": [
@@ -1411,7 +1552,34 @@
                 ]
               }
             ]
-          }
+          },
+          "allOf": [
+            {
+              "not": {
+                "required": [
+                  "retained_precision"
+                ]
+              }
+            },
+            {
+              "properties": {
+                "row_disclosures": {
+                  "items": {
+                    "properties": {
+                      "reason_code": {
+                        "not": {
+                          "enum": [
+                            "retained_precision_absolute_verified",
+                            "retained_precision_not_covered"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
         },
         {
           "required": [
@@ -1451,6 +1619,93 @@
                 "$ref": "#/$defs/PhysicsSourceResultSet"
               }
             }
+          },
+          "allOf": [
+            {
+              "not": {
+                "required": [
+                  "retained_precision"
+                ]
+              }
+            },
+            {
+              "properties": {
+                "row_disclosures": {
+                  "items": {
+                    "properties": {
+                      "reason_code": {
+                        "not": {
+                          "enum": [
+                            "retained_precision_absolute_verified",
+                            "retained_precision_not_covered"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "required": [
+            "contract_evidence",
+            "retained_precision"
+          ],
+          "properties": {
+            "producer": {
+              "properties": {
+                "semantic_contract_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
+                }
+              }
+            },
+            "semantic_contract_ref": {
+              "properties": {
+                "ref_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
+                }
+              }
+            },
+            "formulation_basis": {
+              "properties": {
+                "profile_id": {
+                  "const": "product_preview_retained_w1a_v2"
+                },
+                "limitations": {
+                  "const": [
+                    "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
+                    "Nonzero pressure is refused on this route, and so is legacy imposed_displacement.",
+                    "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
+                    "On arcs: signed tangent-frame resultants and nominal stress components. Endpoint force rows are in the chord frame. No maximum, and no stress headline for a model containing an arc.",
+                    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
+                    "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
+                    "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance."
+                  ]
+                }
+              }
+            },
+            "contract_evidence": {
+              "$ref": "#/$defs/PreviewPhysicsContractEvidence"
+            },
+            "result_sets": {
+              "items": {
+                "$ref": "#/$defs/PreviewPhysicsResultSet"
+              }
+            },
+            "retained_precision": {
+              "$ref": "retained_precision_mp_v2.schema.json"
+            }
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "source_block_recovery"
+                ]
+              }
+            ]
           }
         }
       ]
@@ -1899,7 +2154,9 @@
             "physical_metadata_incomplete",
             "unsupported_source_kind",
             "basis_annotation_not_quantity",
-            "diagnostic_relative_ratio_non_governing"
+            "diagnostic_relative_ratio_non_governing",
+            "retained_precision_absolute_verified",
+            "retained_precision_not_covered"
           ]
         },
         "object_ref": {
@@ -3180,7 +3437,7 @@
     "PreviewPhysicsContractEvidence": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Closed preview-physics-1 statement (T0R S1 §5): per-case straight-member maximum enclosures, coverage, support attribution and intensified-measure inputs, plus one gate per model combination. Binding to rows is checked by the readers; no engineering qualification.",
+      "description": "Closed preview-physics-1 statement (T0R S1 \u00a75): per-case straight-member maximum enclosures, coverage, support attribution and intensified-measure inputs, plus one gate per model combination. Binding to rows is checked by the readers; no engineering qualification.",
       "required": [
         "preview_cases",
         "combination_gates"

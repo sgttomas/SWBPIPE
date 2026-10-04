@@ -12,7 +12,7 @@
 
 use super::Line;
 use open_pipe_stress_frame_kernel::structural::retained_api::{
-    AttemptRecord, CaseOutcome, GateTest, UnresolvedReason,
+    AttemptRecord, CaseOutcome, GateTest, UnresolvedReason, WorkFault,
 };
 use open_pipe_stress_solver_performance_harness::k6::w1::counts::{
     fnv64, limbs_per_entry, W1Counts,
@@ -20,7 +20,8 @@ use open_pipe_stress_solver_performance_harness::k6::w1::counts::{
 use open_pipe_stress_solver_performance_harness::k6::w1::rows::{class_counts, write_rows};
 use open_pipe_stress_solver_performance_harness::k6::w1::staged::{
     attempts_of, charged_by, outcome_class, own_total, prefix_matches, stage_fields,
-    stages_complete, stages_equal_totals, unstaged, work_by_precision, work_closes, W1Solve,
+    stages_complete, stages_equal_totals, unstaged, validate_attempts, validate_outcome,
+    work_by_precision, work_closes, W1Solve,
 };
 use open_pipe_stress_solver_performance_harness::k6::{debug_digest, Fnv64};
 use std::io::Write;
@@ -40,22 +41,26 @@ fn gate(g: &Option<GateTest>) -> Option<String> {
 }
 
 /// Whether the call ended on a budget (a stop: the limits are `u64::MAX`).
-pub fn budget_reached(solve: &W1Solve) -> bool {
-    solve.exhausted
+pub fn budget_reached(solve: &W1Solve) -> Result<bool, WorkFault> {
+    solve.charged.exact()?;
+    validate_outcome(&solve.outcome)?;
+    Ok(solve.exhausted
         || matches!(
             solve.outcome,
             CaseOutcome::Unresolved {
                 reason: UnresolvedReason::Budget(_),
                 ..
             }
-        )
+        ))
 }
 
 /// The repeat's determinism digest: the publication's and the evidence's
 /// `Debug` digests (a selected case), or the outcome's (otherwise; it holds
 /// only the reason and the attempts), and the charged work, folded into one
 /// FNV-1a. The retained solve's caches are not formatted.
-pub fn repeat_digest(solve: &W1Solve) -> (u64, u64) {
+pub fn repeat_digest(solve: &W1Solve) -> Result<(u64, u64), WorkFault> {
+    solve.charged.exact()?;
+    validate_outcome(&solve.outcome)?;
     let parts = match &solve.outcome {
         CaseOutcome::Selected(s) => vec![debug_digest(s.publish()), debug_digest(s.evidence())],
         other => vec![debug_digest(other)],
@@ -67,12 +72,14 @@ pub fn repeat_digest(solve: &W1Solve) -> (u64, u64) {
         h.update(&l.to_le_bytes());
         h.update(&f.to_le_bytes());
     }
-    h.update(&solve.charged.to_le_bytes());
-    (len, h.finish())
+    h.update(&solve.charged.exact()?.to_le_bytes());
+    Ok((len, h.finish()))
 }
 
 /// The outcome line of one repeat.
-pub fn outcome_line(repeat: usize, solve: &W1Solve) {
+pub fn outcome_line(repeat: usize, solve: &W1Solve) -> Result<(), WorkFault> {
+    solve.charged.exact()?;
+    validate_outcome(&solve.outcome)?;
     let attempts = attempts_of(&solve.outcome);
     let mut line = Line::new("outcome")
         .n("repeat", repeat)
@@ -112,19 +119,21 @@ pub fn outcome_line(repeat: usize, solve: &W1Solve) {
     };
     line = line
         .n("attempts", attempts.len())
-        .n("meter_charged", solve.charged)
-        .b("budget_reached", budget_reached(solve));
-    for w in work_by_precision(attempts) {
+        .n("meter_charged", solve.charged.exact()?)
+        .b("budget_reached", budget_reached(solve)?);
+    for w in work_by_precision(attempts)? {
         line = line
             .n(&format!("work_{}_attempts", w.precision), w.attempts)
             .n(&format!("work_{}_own", w.precision), w.own_total)
             .n(&format!("work_{}_shared", w.precision), w.shared_total);
     }
     line.emit();
+    Ok(())
 }
 
 /// One `attempt` line per attempt.
-pub fn attempt_lines(repeat: usize, attempts: &[AttemptRecord]) {
+pub fn attempt_lines(repeat: usize, attempts: &[AttemptRecord]) -> Result<(), WorkFault> {
+    validate_attempts(attempts)?;
     for (index, a) in attempts.iter().enumerate() {
         let mut line = Line::new("attempt")
             .n("repeat", repeat)
@@ -173,6 +182,7 @@ pub fn attempt_lines(repeat: usize, attempts: &[AttemptRecord]) {
             .opt_n("verification_g_violation", v.and_then(|v| v.g_violation))
             .emit();
     }
+    Ok(())
 }
 
 fn parity(item: &str, repeat: usize, equal: bool) -> Line {
@@ -183,7 +193,9 @@ fn parity(item: &str, repeat: usize, equal: bool) -> Line {
 }
 
 /// The W1 parity items (plan §3.4). A false item is a stop for the runner.
-pub fn parity_lines(repeat: usize, counts: &W1Counts, solve: &W1Solve) {
+pub fn parity_lines(repeat: usize, counts: &W1Counts, solve: &W1Solve) -> Result<(), WorkFault> {
+    solve.charged.exact()?;
+    validate_outcome(&solve.outcome)?;
     let attempts = attempts_of(&solve.outcome);
     if !attempts.is_empty() {
         parity(
@@ -223,7 +235,7 @@ pub fn parity_lines(repeat: usize, counts: &W1Counts, solve: &W1Solve) {
             repeat,
             work_closes(attempts, solve.charged),
         )
-        .n("meter_charged", solve.charged)
+        .n("meter_charged", solve.charged.exact()?)
         .emit();
     }
     if let CaseOutcome::Selected(s) = &solve.outcome {
@@ -236,7 +248,8 @@ pub fn parity_lines(repeat: usize, counts: &W1Counts, solve: &W1Solve) {
         .hex("evidence_source_fnv64", fnv)
         .emit();
     }
-    parity("w1_budget_not_reached", repeat, !budget_reached(solve)).emit();
+    parity("w1_budget_not_reached", repeat, !budget_reached(solve)?).emit();
+    Ok(())
 }
 
 /// Writes the selected publication's rows (`k6b-rows v1`).
@@ -257,7 +270,16 @@ pub fn dump_rows(path: &str, model_id: &str, solve: &W1Solve) {
 
 /// The line of one prefix call (`prefix`, a new kind): its limit and segment,
 /// its outcome, and whether its completed segments equal the full call's.
-pub fn prefix_line(j: usize, label: &str, limit: u64, full: &[AttemptRecord], solve: &W1Solve) {
+pub fn prefix_line(
+    j: usize,
+    label: &str,
+    limit: u64,
+    full: &[AttemptRecord],
+    solve: &W1Solve,
+) -> Result<(), WorkFault> {
+    solve.charged.exact()?;
+    validate_outcome(&solve.outcome)?;
+    validate_attempts(full)?;
     let reason = match &solve.outcome {
         CaseOutcome::Unresolved { reason, .. } => Some(bounded(format!("{reason:?}"))),
         _ => None,
@@ -269,7 +291,7 @@ pub fn prefix_line(j: usize, label: &str, limit: u64, full: &[AttemptRecord], so
         .s("class", outcome_class(&solve.outcome))
         .opt_s("reason", reason.as_deref())
         .n("attempts", attempts_of(&solve.outcome).len())
-        .n("meter_charged", solve.charged)
+        .n("meter_charged", solve.charged.exact()?)
         .emit();
     parity(
         "w1_prefix_segments",
@@ -277,4 +299,32 @@ pub fn prefix_line(j: usize, label: &str, limit: u64, full: &[AttemptRecord], so
         prefix_matches(j, full, &solve.outcome),
     )
     .emit();
+    Ok(())
+}
+
+#[cfg(test)]
+mod checked_work_tests {
+    use super::*;
+    #[test]
+    fn checked_work_explicit_terminal_cannot_emit_with_an_exact_empty_view() {
+        let solve = W1Solve {
+            outcome: CaseOutcome::Unresolved {
+                reason: UnresolvedReason::WorkAccounting {
+                    fault: WorkFault::Inconsistent,
+                    prior: None,
+                },
+                attempts: Vec::new(),
+                geometry: Vec::new(),
+            },
+            charged: Default::default(),
+            exhausted: false,
+        };
+        assert_eq!(repeat_digest(&solve), Err(WorkFault::Inconsistent));
+        assert_eq!(outcome_line(0, &solve), Err(WorkFault::Inconsistent));
+        assert_eq!(
+            prefix_line(1, "blocked", 0, &[], &solve),
+            Err(WorkFault::Inconsistent)
+        );
+        assert_eq!(budget_reached(&solve), Err(WorkFault::Inconsistent));
+    }
 }

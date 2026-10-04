@@ -172,12 +172,23 @@ dependencies = [
  "open_pipe_stress_nonlinear_integration",
  "open_pipe_stress_nonlinear_supports",
  "open_pipe_stress_primitive_loads",
+ "open_pipe_stress_result_export",
  "open_pipe_stress_solver_diagnostics",
  "open_pipe_stress_sparse_direct",
  "open_pipe_stress_straight_pipe",
  "open_pipe_stress_stress_recovery",
  "open_pipe_stress_units",
  "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
+name = "open_pipe_stress_result_export"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_canonical_json",
+ "open_pipe_stress_units",
  "serde_json",
  "sha2",
 ]

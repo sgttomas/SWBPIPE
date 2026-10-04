@@ -67,9 +67,17 @@ fn main() {
                 .entry(format!("{} {:?}", run.outcome, run.selected_precision))
                 .or_insert(0usize) += 1;
             if show.iter().any(|s| *s == &run.id) {
-                println!("{}", serde_json::to_string_pretty(&run.record).unwrap());
+                let record = run.record.as_ref().unwrap_or_else(|| {
+                    eprintln!("{}: no exact work record", run.id);
+                    std::process::exit(1)
+                });
+                println!("{}", serde_json::to_string_pretty(record).unwrap());
             }
-            records.push(run.record.clone());
+            let Some(record) = run.record.clone() else {
+                eprintln!("{}: no exact work record: {:?}", run.id, run.failures);
+                std::process::exit(1);
+            };
+            records.push(record);
             runs.push(run);
         }
         if family == "RF-INVARIANCE" {

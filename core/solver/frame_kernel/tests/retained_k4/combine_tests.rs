@@ -566,3 +566,29 @@ fn operands_whose_stations_or_support_groups_differ_are_withheld() {
         .unwrap();
     assert_eq!(st.value.value(), Some(1.5));
 }
+
+#[test]
+fn checked_work_recorded_combination_keeps_early_and_run_custody_distinct() {
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let early = RetainedCombination::solve_recorded(&[], unlimited(), &mut meter);
+    assert!(
+        matches!(early, RecordedCombination::PreSourceRefusal { invocation_before, invocation_after, .. } if invocation_before.exact() == Ok(0) && invocation_after == invocation_before)
+    );
+    let selected = selected("N05");
+    let before = meter.checked_charged();
+    let recorded =
+        RetainedCombination::solve_recorded(&[(1.0, &selected)], CaseLimit::new(0), &mut meter);
+    let RecordedCombination::WithRun { work, .. } = recorded else {
+        panic!("valid preparation owns a core run")
+    };
+    assert_eq!(work.invocation_before(), before);
+    assert_eq!(work.invocation_after(), meter.checked_charged());
+    assert_eq!(
+        work.invocation_before()
+            .exact()
+            .unwrap()
+            .checked_add(work.invocation_increment().exact().unwrap()),
+        Some(work.invocation_after().exact().unwrap())
+    );
+    assert!(work.case().exact().unwrap() > 0);
+}

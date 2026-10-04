@@ -94,8 +94,8 @@ fn the_staged_solve_equals_k4s_own_entries() {
         assert_eq!(o.publish(), selected(&staged).publish());
         assert_eq!(o.evidence(), selected(&staged).evidence());
     }
-    assert_eq!(meter.charged(), staged.charged);
-    assert_eq!(meter_all.charged(), staged.charged);
+    assert_eq!(meter.charged(), staged.charged.exact().unwrap());
+    assert_eq!(meter_all.charged(), staged.charged.exact().unwrap());
 }
 
 /// Every R1 row of `id` under the unchanged predicate; W1's counts against the
@@ -198,7 +198,7 @@ fn stage_array(w: &StageWork) -> [u64; 19] {
 fn work_by_precision_files_each_attempt_under_its_own_precision() {
     let solve = run("RF-LARGE-CHAIN-n00010-ROT", W1Limits::default());
     let attempts: &[AttemptRecord] = attempts_of(&solve.outcome);
-    let by = work_by_precision(attempts);
+    let by = work_by_precision(attempts).unwrap();
     assert_eq!(
         by.iter().map(|w| w.precision).collect::<Vec<_>>(),
         vec![128, 256]
@@ -259,7 +259,7 @@ fn a_build_that_stops_partway_is_checked_against_its_charged_total() {
     assert!(v.verification_shared_built_here && v.shared_stages.uc > 1);
     // The verification's shared build starts where solve_256 ends and runs
     // bounded_formation, wide_formation, then uc.
-    let segs = segments(full_attempts);
+    let segs = segments(full_attempts).unwrap();
     assert_eq!(segs[1].label, "solve_256");
     let into_uc = segs[1].end
         + v.shared_stages.bounded_formation
@@ -309,7 +309,7 @@ fn a_build_that_stops_partway_is_checked_against_its_charged_total() {
     assert!(stages_equal_totals(attempts));
     assert!(work_closes(attempts, stopped.charged));
     // The work by precision reports the charged totals, equal to the stages.
-    let by = work_by_precision(attempts);
+    let by = work_by_precision(attempts).unwrap();
     assert_eq!(by[1].precision, 256);
     assert_eq!(by[1].shared_total, shared_total(a));
     assert_eq!(by[1].shared_total, stage_sum(&by[1].shared));
@@ -339,7 +339,7 @@ fn a_build_that_stops_partway_is_checked_against_its_charged_total() {
 fn every_stopped_build_leaves_nothing_unstaged() {
     let id = "RF-LARGE-CHAIN-n00010-AX";
     let full = run(id, W1Limits::default());
-    let segs = segments(attempts_of(&full.outcome));
+    let segs = segments(attempts_of(&full.outcome)).unwrap();
     let mut limits = Vec::new();
     let mut start = 0;
     for s in &segs {
@@ -413,7 +413,7 @@ fn into_solve_128_records_partial_own_work_and_complete_shared_work() {
 fn a_stop_in_the_stop_rule_is_held_to_equality() {
     let id = "RF-LARGE-CHAIN-n00010-AX";
     let full = run(id, W1Limits::default());
-    let segs = segments(attempts_of(&full.outcome));
+    let segs = segments(attempts_of(&full.outcome)).unwrap();
     assert_eq!(segs[2].label, "verify_256");
     let stopped = run(
         id,
@@ -446,13 +446,13 @@ fn prefixes_stop_on_the_case_budget_after_each_segment() {
     let id = "RF-LARGE-CHAIN-n00010-AX";
     let full = run(id, W1Limits::default());
     let full_attempts = attempts_of(&full.outcome).to_vec();
-    let segs = segments(&full_attempts);
+    let segs = segments(&full_attempts).unwrap();
     assert_eq!(
         segs.iter().map(|s| s.label.as_str()).collect::<Vec<_>>(),
         vec!["solve_128", "solve_256", "verify_256", "decide_128"]
     );
-    assert_eq!(segs.last().unwrap().end, full.charged);
-    let limits = prefix_limits(&full_attempts);
+    assert_eq!(segs.last().unwrap().end, full.charged.exact().unwrap());
+    let limits = prefix_limits(&full_attempts).unwrap();
     assert_eq!(limits.len(), 3);
     // Each prefix limit is its segment's exact end (b_j), not a neighbour of it.
     assert_eq!(
@@ -479,7 +479,7 @@ fn prefixes_stop_on_the_case_budget_after_each_segment() {
             j + 1,
             prefix.outcome
         );
-        let own = segments(attempts_of(&prefix.outcome));
+        let own = segments(attempts_of(&prefix.outcome)).unwrap();
         assert!(own.len() > j, "prefix {}", j + 1);
         assert_eq!(own[..=j], segs[..=j], "prefix {}", j + 1);
         // The binary's `w1_prefix_segments` (RV22-N3): true for prefix j + 1,
@@ -487,7 +487,7 @@ fn prefixes_stop_on_the_case_budget_after_each_segment() {
         assert!(prefix_matches(j + 1, &full_attempts, &prefix.outcome));
         assert!(!prefix_matches(j + 2, &full_attempts, &prefix.outcome));
         assert!(
-            prefix.charged > *limit,
+            prefix.charged.exact().unwrap() > *limit,
             "the next segment starts before it stops"
         );
     }
@@ -495,7 +495,7 @@ fn prefixes_stop_on_the_case_budget_after_each_segment() {
     let exact = run(
         id,
         W1Limits {
-            case: full.charged,
+            case: full.charged.exact().unwrap(),
             invocation: u64::MAX,
         },
     );

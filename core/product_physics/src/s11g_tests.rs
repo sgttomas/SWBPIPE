@@ -1718,6 +1718,27 @@ fn t13b_already_sensitive_case_is_left_untouched() {
     }
 }
 
+/// I61 U1 (G-b): T13b's case through the observed route. The load-row finding
+/// is captured typed but, the report being already Sensitive, `demote` leaves it
+/// undisclosed, so its diagnostic reference stays null; the ordinary bytes are
+/// unchanged by the capture.
+#[test]
+fn u1_already_sensitive_finding_is_captured_undisclosed() {
+    let request = n05_request(vec![n05_tip_noise("case")]);
+    for mode in MODES {
+        let plain = serde_json::to_vec(&run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+        let (typed, capture) = source_receipt::CapturedInvocation::parse(request.clone(), mode).unwrap();
+        let mut observer = crate::retained_product::ProductCapture::prepared_probe();
+        let observed = run_linear_static_preview_observed(typed, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
+        assert_eq!(serde_json::to_vec(&observed).unwrap(), plain, "{mode:?}: capture leaves the ordinary bytes unchanged");
+        let [seed] = &observer.ordinary[..] else { panic!("one seed") };
+        assert!(matches!(&seed.initial, Some(crate::retained_product::InitialSeed::Report { code, .. }) if code == "NUMERICAL_INTEGRITY_SENSITIVE"), "{mode:?}: {:?}", seed.initial);
+        let finding = seed.load_row_finding.as_ref().expect("the load-row guard fires");
+        assert!(!finding.sentence.is_empty(), "{mode:?}");
+        assert_eq!(finding.diagnostic_ref, None, "{mode:?}: already Sensitive, so the finding is not disclosed");
+    }
+}
+
 /// The invented bend of S11-F's F8 on a 2 m chord (OD 0.168 m, wall 0.007 m).
 fn curved_body(model: &mut Value, prefix: &str, origin: f64, loads: Vec<Value>) {
     let n0 = format!("{prefix}0");

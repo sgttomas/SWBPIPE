@@ -25,6 +25,7 @@
 //! 6a) couples it in binary64: ê_fo = max(E_fo, fl(E_mo/L_b)),
 //! ê_mo = max(E_mo, fl(L_b·E_fo)); L_b = 0 gives ê = E. **Φ** = fl↑(2^-438·ê),
 //! decided exactly as b is (the constant's bits `0x2490000000000000`).
+use super::adaptive::finish_work;
 use super::adaptive::{
     lme, next_up, AttemptStop, CasePrep, GroupPrep, Shared, Solved, Stage, StageGuard, StageWork,
 };
@@ -44,6 +45,7 @@ use super::source::PrimitiveSource;
 use super::wide::multi::{AttemptWork, SupportedWidth, WideContext};
 use super::wide::Wide;
 use super::wide_sum::{ExactWideSum, SumWork};
+use super::work::{WorkStream, WorkTotal};
 use crate::DOF_PER_NODE;
 use std::cmp::Ordering as CmpOrdering;
 
@@ -400,7 +402,7 @@ where
     pub(crate) work: AttemptWork,
     pub(crate) sum_work: SumWork,
     pub(crate) stages: StageWork,
-    pub(crate) total: u64,
+    pub(crate) total: WorkTotal,
 }
 
 /// A verification build or pass with the work it spent.
@@ -409,7 +411,7 @@ pub(crate) struct VerifySpent<T> {
     pub(crate) work: AttemptWork,
     pub(crate) sum_work: SumWork,
     pub(crate) stages: StageWork,
-    pub(crate) total: u64,
+    pub(crate) total: WorkTotal,
     /// T3 KF3 (amendment A2): the pass's S_c refusals, per block, on every
     /// path. For the shared build, its Uc_c refusals when it stops (RV23-1);
     /// a completed shared build's are in `uc`, and this is empty.
@@ -434,6 +436,7 @@ where
     let mut ctx_w = WideContext::<W>::new(q_w).expect("supported precision");
     let mut sum = ExactWideSum::new();
     let mut stages = StageWork::default();
+    let stream = WorkStream::new();
     // T3 KF3: the stage in progress, for a stopped build's unstaged work.
     let mut current = Stage::BoundedFormation;
     // RV23-1: the Uc_c refusal slots, one per block, held outside the build so
@@ -441,9 +444,9 @@ where
     let mut uc_refused: Vec<Option<BoundRefusal>> = vec![None; group.blocks.len()];
     let mut run = || -> Result<VerifyShared<L, W>, AttemptStop> {
         let spent = |ctx: &WideContext<L>, ctx_w: &WideContext<W>, sum: &ExactWideSum| {
-            lme(ctx) + lme(ctx_w) + sum.work().limb_multiply_equivalents()
+            lme(ctx) + lme(ctx_w) + sum.work().checked_lme()
         };
-        let t0 = spent(&ctx, &ctx_w, &sum);
+        let t0 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
         let g = guard;
         let bounded: Vec<BoundedCoefficients<L>> =
             shared.members.iter().map(|m| m.bounded()).collect();
@@ -456,8 +459,8 @@ where
             &bounded,
             &shared.directional,
         )?;
-        let t1 = spent(&ctx, &ctx_w, &sum);
-        stages.bounded_formation = t1 - t0;
+        let t1 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
+        stages.set(Stage::BoundedFormation, t1.delta_since(t0))?;
         current = Stage::WideFormation;
         let (ke_w, directional_w) = if q_w == p {
             (
@@ -473,7 +476,7 @@ where
                     .collect(),
             )
         } else {
-            let gw = guard.with_base(lme(&ctx));
+            let gw = guard.with_base(lme(&ctx))?;
             let members_w = form_members(&mut ctx_w, &mut sum, &gw, source)?;
             let directional_w = form_directional(&mut ctx_w, &mut sum, source)?;
             (
@@ -481,10 +484,10 @@ where
                 directional_w.iter().map(|d| d.k).collect(),
             )
         };
-        let t2 = spent(&ctx, &ctx_w, &sum);
-        stages.wide_formation = t2 - t1;
+        let t2 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
+        stages.set(Stage::WideFormation, t2.delta_since(t1))?;
         current = Stage::Uc;
-        let gu = guard.with_base(lme(&ctx_w));
+        let gu = guard.with_base(lme(&ctx_w))?;
         let nf = group.ordering.free.len();
         let gamma = gamma_m(&mut ctx, &mut sum, nf)?;
         let rows = block_of_rows(&group.ordering, &group.blocks);
@@ -499,8 +502,8 @@ where
             &mut uc_refused,
             &gamma,
         )?;
-        let t3 = spent(&ctx, &ctx_w, &sum);
-        stages.uc = t3 - t2;
+        let t3 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
+        stages.set(Stage::Uc, t3.delta_since(t2))?;
         Ok(VerifyShared {
             q_w,
             abar,
@@ -511,16 +514,17 @@ where
             work: AttemptWork::default(),
             sum_work: SumWork::default(),
             stages: StageWork::default(),
-            total: 0,
+            total: WorkTotal::zero(),
         })
     };
-    let result = run();
+    let mut result = run();
     let mut work = AttemptWork::default();
     work.record(&ctx);
     work.record(&ctx_w);
     let sum_work = sum.work();
-    let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
+    let total = work.checked_lme() + sum_work.checked_lme();
     stages.close_stopped(&result, current, total);
+    let total = finish_work(&mut result, total, &stages);
     // RV23-1: a stopped build's Uc_c refusals (a completed build's are in `uc`).
     let refusals = if result.is_err() {
         uc_refusals(&uc_refused)
@@ -735,13 +739,14 @@ where
     let mut ctx_w = WideContext::<W>::new(q_w).expect("supported precision");
     let mut sum = ExactWideSum::new();
     let mut stages = StageWork::default();
+    let stream = WorkStream::new();
     // T3 KF3: the stage in progress, for a stopped pass's unstaged work, and
     // the pass's S_c refusals (amendment A2), both kept on every path.
     let mut current = Stage::Scale;
     let mut refusals: Vec<BlockRefusal> = Vec::new();
     let mut run = || -> Result<VerificationReport<L>, AttemptStop> {
         let spent = |ctx: &WideContext<L>, ctx_w: &WideContext<W>, sum: &ExactWideSum| {
-            lme(ctx) + lme(ctx_w) + sum.work().limb_multiply_equivalents()
+            lme(ctx) + lme(ctx_w) + sum.work().checked_lme()
         };
         let check = |ctx: &WideContext<L>, ctx_w: &WideContext<W>, sum: &ExactWideSum| {
             guard.test(spent(ctx, ctx_w, sum))
@@ -756,7 +761,7 @@ where
         let scale = shared.factor.scale();
         let u = &state.u;
         let zero = Wide::<L>::ZERO;
-        let t0 = spent(&ctx, &ctx_w, &sum);
+        let t0 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
         // ---- E (§4.1.6.2 item 4): |u| with the prescribed values as at P.
         let w_abs: Vec<Wide<L>> = u.iter().map(|v| v.abs()).collect();
         let e_rows = formation_scale(
@@ -787,8 +792,8 @@ where
         }
         // E encodes for every body; then ê (ROOT's A3b ruling).
         resolution_hats(&resolution, &prep.extents)?;
-        let t1 = spent(&ctx, &ctx_w, &sum);
-        stages.scale = t1 - t0;
+        let t1 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
+        stages.set(Stage::Scale, t1.delta_since(t0))?;
         current = Stage::Estimate;
         // ---- The exact prescribed values (item 1): each term c·v at q_W and
         // at P (both exact: at most 106 bits), and whether the sum is nonzero.
@@ -814,7 +819,7 @@ where
                 terms_w[*g].push(tw);
                 terms_p[*g].push(tl);
             }
-            let sign = sum.signum();
+            let sign = sum.signum()?;
             prescribed_nonzero[*g] = sign != 0;
             prescribed_negative[*g] = sign < 0;
             sum.clear();
@@ -840,7 +845,7 @@ where
             )?;
             let mut rr = r.clone();
             r_hat[a] = r.round(&mut ctx)?;
-            rr.make_absolute();
+            rr.make_absolute()?;
             sr_row[a] = round_toward(&mut ctx, &mut rr, Toward::Up)?.mul_pow2(scale[a])?;
             if a % 64 == 63 {
                 check(&ctx, &ctx_w, &sum)?;
@@ -875,8 +880,8 @@ where
             .zip(&recovered.values)
             .map(|(meta, v)| matches!(meta.kind, Kind::Force | Kind::Moment).then(|| v.abs()))
             .collect();
-        let t2 = spent(&ctx, &ctx_w, &sum);
-        stages.estimate = t2 - t1;
+        let t2 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
+        stages.set(Stage::Estimate, t2.delta_since(t1))?;
         current = Stage::Charge;
         // ---- r₂ (item 5): r − K^c·δ̂, one exact expansion per row.
         let mut sr2_row = vec![zero; nf];
@@ -907,7 +912,7 @@ where
                 &delta,
                 None,
             )?;
-            r.make_absolute();
+            r.make_absolute()?;
             sr2_row[a] = round_toward(&mut ctx, &mut r, Toward::Up)?.mul_pow2(scale[a])?;
             if a % 64 == 63 {
                 check(&ctx, &ctx_w, &sum)?;
@@ -965,8 +970,8 @@ where
             &w_s,
             StageRounding::Up,
         )?;
-        let t3 = spent(&ctx, &ctx_w, &sum);
-        stages.charge = t3 - t2;
+        let t3 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
+        stages.set(Stage::Charge, t3.delta_since(t2))?;
         current = Stage::Bound;
         // ---- B_c (7a–7d): data flags, the shift where 7c needs it.
         let data = data_blocks(
@@ -994,8 +999,8 @@ where
             &data,
             &mut s_refused,
         )?;
-        let t4 = spent(&ctx, &ctx_w, &sum);
-        stages.bound = t4 - t3;
+        let t4 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
+        stages.set(Stage::Bound, t4.delta_since(t3))?;
         current = Stage::Shift;
         let shifted = shift_run(
             &mut ctx,
@@ -1012,8 +1017,8 @@ where
         );
         refusals = block_refusals::<L>(&[], &s_refused);
         let (shifts, shift_factorizations) = shifted?;
-        let t5 = spent(&ctx, &ctx_w, &sum);
-        stages.shift = t5 - t4;
+        let t5 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
+        stages.set(Stage::Shift, t5.delta_since(t4))?;
         current = Stage::Bound;
         // 7d with A2: a block with data left with no bound after a refusal
         // stops the attempt with that refusal, before any `uc` rejection
@@ -1132,8 +1137,8 @@ where
                 t3,
             });
         }
-        let t6 = spent(&ctx, &ctx_w, &sum);
-        stages.bound = (t4 - t3) + (t6 - t5);
+        let t6 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
+        stages.set(Stage::Bound, (t4.delta_since(t3)) + (t6.delta_since(t5)))?;
         current = Stage::Charge;
         // C_q (item 11) and W⁺ (item 12), unless a block with data lacks B.
         let mut charge = vec![None; layout.len()];
@@ -1174,7 +1179,7 @@ where
                                 for t in &terms_p[g] {
                                     d.add_wide(t, true)?;
                                 }
-                                d.make_absolute();
+                                d.make_absolute()?;
                                 sum.add_scaled(&d, false, 1, 0)?;
                             }
                         }
@@ -1184,8 +1189,8 @@ where
                 }
             }
         }
-        let t7 = spent(&ctx, &ctx_w, &sum);
-        stages.charge = (t3 - t2) + (t7 - t6);
+        let t7 = stream.snapshot(spent(&ctx, &ctx_w, &sum))?;
+        stages.set(Stage::Charge, (t3.delta_since(t2)) + (t7.delta_since(t6)))?;
         check(&ctx, &ctx_w, &sum)?;
         Ok(VerificationReport {
             precision: p,
@@ -1208,13 +1213,14 @@ where
             shift_factorizations,
         })
     };
-    let result = run();
+    let mut result = run();
     let mut work = AttemptWork::default();
     work.record(&ctx);
     work.record(&ctx_w);
     let sum_work = sum.work();
-    let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
+    let total = work.checked_lme() + sum_work.checked_lme();
     stages.close_stopped(&result, current, total);
+    let total = finish_work(&mut result, total, &stages);
     VerifySpent {
         result,
         work,

@@ -2412,7 +2412,7 @@ fn work_is_counted_by_kind_and_width_and_saturates() {
         ..WidthWork::default()
     };
     let mut twice = saturated;
-    twice.merge(&saturated);
+    twice.merge(&saturated, 16);
     assert_eq!(twice.add, u64::MAX);
     assert_eq!(saturated.limb_multiply_equivalents(16), u64::MAX);
     assert_eq!(saturated.operations(), u64::MAX);
@@ -2449,6 +2449,7 @@ fn limb_multiply_cost_table_is_pinned() {
         round: 1,
         two_sum: 1,
         two_product: 1,
+        ..WidthWork::default()
     };
     assert_eq!(
         one_each.limb_multiply_equivalents(8),
@@ -2476,4 +2477,41 @@ fn attempt_work_merges_across_widths() {
     assert_eq!(first.width::<8>().sqrt, 1);
     assert_eq!(first.width::<16>(), WidthWork::default());
     assert_eq!(first.limb_multiply_equivalents(), 2 * 16 + 2 * 1290 + 5140);
+}
+
+#[test]
+fn checked_work_context_refuses_before_numerical_operation() {
+    let mut ctx = WideContext::<4>::new(128).unwrap();
+    ctx.work.add = u64::MAX / 8;
+    let before = ctx.work.add;
+    assert_eq!(
+        ctx.add(&Wide::<4>::ONE, &Wide::<4>::ONE),
+        Err(WideError::WorkAccounting(WorkFault::Overflow))
+    );
+    assert_eq!(ctx.work.add, before);
+    assert_eq!(
+        ctx.div(&Wide::<4>::ONE, &Wide::<4>::ZERO),
+        Err(WideError::WorkAccounting(WorkFault::Overflow))
+    );
+    assert_eq!(
+        WidthWork::default().checked_lme(2).exact(),
+        Err(WorkFault::Inconsistent)
+    );
+}
+
+#[test]
+fn checked_work_raw_magnitude_bits_have_a_distinct_scalar_refusal() {
+    assert_eq!(integer_magnitude_bits(0), Ok(0));
+    assert_eq!(integer_magnitude_bits(68), Ok(4352));
+    assert_eq!(integer_magnitude_bits(128), Ok(8192));
+    assert_eq!(
+        integer_magnitude_bits(usize::MAX),
+        Err(WideError::CountRange("integer magnitude bits"))
+    );
+    let largest = usize::MAX / 64;
+    assert_eq!(integer_magnitude_bits(largest), Ok(largest * 64));
+    assert_eq!(
+        integer_magnitude_bits(largest + 1),
+        Err(WideError::CountRange("integer magnitude bits"))
+    );
 }

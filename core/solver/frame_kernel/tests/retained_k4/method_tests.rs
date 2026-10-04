@@ -112,7 +112,11 @@ pub(super) fn tokens(attempts: &[AttemptRecord], layout: &[QuantityMeta]) -> Vec
                         AttemptReason::Charge { quantity, .. } => {
                             format!("charge:{}", index(quantity))
                         }
-                        AttemptReason::PublicationEnclosure { quantity, predicate, .. } => {
+                        AttemptReason::PublicationEnclosure {
+                            quantity,
+                            predicate,
+                            ..
+                        } => {
                             format!("publication_enclosure:{}:{predicate:?}", index(quantity))
                         }
                         AttemptReason::Stop(s) => panic!("{s:?}"),
@@ -813,7 +817,7 @@ fn directional_span_under_5a2_was_selected_at_256_and_published_within_its_claim
         let mut err = ExactWideSum::new();
         err.add_wide(&s256.recovered.values[index], false).unwrap();
         err.add_wide(&qstar[index], true).unwrap();
-        err.make_absolute();
+        err.make_absolute().unwrap();
         let err = err.round(&mut ctx16).unwrap();
         let r = ratio(&err, &magnitude.widen::<16>().mul_pow2(-64).unwrap());
         if r > worst {
@@ -825,9 +829,9 @@ fn directional_span_under_5a2_was_selected_at_256_and_published_within_its_claim
             e.add_binary64(values[index].value().unwrap(), false)
                 .unwrap();
             e.add_wide(&qstar[index], true).unwrap();
-            e.make_absolute();
+            e.make_absolute().unwrap();
             e.add_binary64(b, true).unwrap();
-            assert!(e.signum() <= 0, "{:?}: beyond b", meta.id);
+            assert!(e.signum().unwrap() <= 0, "{:?}: beyond b", meta.id);
             absolute += 1;
         }
     }
@@ -1111,10 +1115,10 @@ where
                 let mut sum = ExactWideSum::new();
                 sum.add_wide(&w, false).unwrap();
                 sum.add_wide(&exact, true).unwrap();
-                sum.make_absolute();
+                sum.make_absolute().unwrap();
                 sum.add_wide_scaled(&exact, true, 1, -8).unwrap();
                 assert!(
-                    sum.signum() <= 0,
+                    sum.signum().unwrap() <= 0,
                     "{name} {p} row {index}: Ŵ {} against {}",
                     tok(&w),
                     f[4]
@@ -1343,11 +1347,11 @@ where
         let mut d = ExactWideSum::new();
         d.add_wide(&lo.values[index], false).unwrap();
         d.add_wide(&hi.values[index], true).unwrap();
-        d.make_absolute();
+        d.make_absolute().unwrap();
         let mut test = d.clone();
         test.add_wide_scaled(&e, true, 1, 8 - i64::from(p)).unwrap();
         assert!(
-            test.signum() <= 0,
+            test.signum().unwrap() <= 0,
             "{name} {p}: {:?} beyond 2^8·2^-P·ê",
             layout[index].id
         );

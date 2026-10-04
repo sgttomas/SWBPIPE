@@ -12,7 +12,7 @@ use crate::cases::Case;
 use crate::compare::Tally;
 use crate::lane::refusal_text;
 use open_pipe_stress_frame_kernel::structural::retained_api::{
-    AttemptRecord, CaseOutcome, InvocationMeter, StageWork,
+    AttemptRecord, CaseOutcome, InvocationMeter, StageWork, UnresolvedReason, WorkFault,
 };
 use serde_json::{json, Map, Value};
 
@@ -85,7 +85,36 @@ pub fn outcome_text(o: &CaseOutcome) -> String {
     }
 }
 
-pub fn case_record(case: &Case, o: &CaseOutcome, t: &Tally, meter: &InvocationMeter) -> Value {
+pub fn case_record(
+    case: &Case,
+    o: &CaseOutcome,
+    t: &Tally,
+    meter: &InvocationMeter,
+) -> Result<Value, WorkFault> {
+    if let CaseOutcome::Unresolved {
+        reason: UnresolvedReason::WorkAccounting { fault, .. },
+        ..
+    } = o
+    {
+        return Err(*fault);
+    }
+    meter.checked_charged().exact()?;
+    let attempts = match o {
+        CaseOutcome::Selected(s) => s.evidence().attempts.as_slice(),
+        CaseOutcome::Unresolved { attempts, .. } => attempts.as_slice(),
+        CaseOutcome::Refused { .. } => &[],
+    };
+    let mut charged = 0u64;
+    for a in attempts {
+        a.checked_case_charge().exact()?;
+        charged = charged
+            .checked_add(a.checked_invocation_increment().exact()?)
+            .ok_or(WorkFault::Overflow)?;
+        a.checked_verification_work().exact()?;
+        a.checked_stop_rule_work().exact()?;
+        a.stages.checked_total().exact()?;
+        a.shared_stages.checked_total().exact()?;
+    }
     let mut r = Map::new();
     r.insert("schema".into(), json!(SCHEMA));
     r.insert("id".into(), json!(case.id));
@@ -117,7 +146,7 @@ pub fn case_record(case: &Case, o: &CaseOutcome, t: &Tally, meter: &InvocationMe
     };
     r.insert("attempts".into(), Value::Array(attempts));
     r.insert("report".into(), report(t));
-    Value::Object(r)
+    Ok(Value::Object(r))
 }
 
 pub fn source_refused_record(case: &Case, error: &str, t: &Tally) -> Value {

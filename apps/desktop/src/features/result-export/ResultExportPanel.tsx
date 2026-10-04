@@ -2,7 +2,7 @@ import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { checkedJsonText } from "../../services/hashService";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { hasCurrentSourceContract, numericalResultStanding } from "../results/numericalResultQuality";
-import { isLoadReferenceRoute } from "../results/loadReferenceOutputAvailability";
+import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
 import { useEffect, useState } from "react";
 import { buildCurrentResultExport, type JsonObject } from "./resultExportAdapter";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
@@ -11,7 +11,9 @@ import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, Previ
 
 function liveResultBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null, inputManifest?: CurrentSessionInputManifestEvidence | null): string | null {
   try {
-    if (!result || !analysisRun || !inputManifest || !hasCurrentSourceContract(result) || isLoadReferenceRoute(result)
+    // U7 slice T (RV91 N-5): an explicit gate on the shared output refusal, which
+    // covers load/reference-state and retained-precision successor results.
+    if (!result || !analysisRun || !inputManifest || !hasCurrentSourceContract(result) || loadReferenceOutputRefusal(result) !== null
       || !hasNativeMechanicsInvocation(result, model, inputManifest.manifest.solver_basis.solver_mode)
       || !numericalResultStanding(result, model).eligible) return null;
     return checkedJsonText({ model, result, analysisRun, inputManifest });

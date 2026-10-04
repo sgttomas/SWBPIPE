@@ -88,7 +88,7 @@ fn a_directed_result_is_never_on_the_wrong_side_and_exact_values_do_not_move() {
         sum.clear();
         sum.add_product(&mut ctx, v, &three, false).unwrap();
         sum.add_wide(&one, true).unwrap();
-        assert_eq!(sum.signum(), sign);
+        assert_eq!(sum.signum().unwrap(), sign);
     }
     // An exact product and an exact sum stay put in both directions.
     let two = Wide::<4>::from_f64(2.0).unwrap();

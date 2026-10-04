@@ -1,7 +1,8 @@
 import { retainedPhysicsSourceInvocation } from "../features/results/physicsSourceRecovery";
 import { retainedSourceBlockInvocation } from "../features/results/sourceBlockRecovery";
 import { sourceContract, numericalResultStanding } from "../features/results/numericalResultQuality";
-import { isFreshSemanticResult, isRetiredResultId, ruleBindingRefusal, standingReason, N_P1, N_RULE_RETIRED, N_SB, PRECISION_1_HISTORICAL_SEMANTICS, RULE_BINDS_RETIRED_RESULT } from "../features/results/knownSemanticLimitations";
+import { isFreshSemanticResult, isRetiredResultId, ruleBindingRefusal, standingReason, retainedRowClassLabel, N_P1, N_RP_UNVALIDATED, N_RULE_RETIRED, N_SB, PRECISION_1_HISTORICAL_SEMANTICS, RULE_BINDS_RETIRED_RESULT, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED } from "../features/results/knownSemanticLimitations";
+import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
 import { invoke } from "@tauri-apps/api/core";
 import type { MechanicsResult, PreviewModel } from "../types";
 import type { RulePackDocument } from "./rulePackService";
@@ -122,9 +123,16 @@ export async function runRuleChecks(args: {
   // T0R: only the static fresh-identity set is rule-eligible; precision-1 is historical.
   if (!isFreshSemanticResult(source)) throw new Error(standingReason(source) === PRECISION_1_HISTORICAL_SEMANTICS ? `${PRECISION_1_HISTORICAL_SEMANTICS}: ${N_P1}` : "RULE_SOURCE_IDENTITY_NOT_FRESH: the result is not a fresh supported publication.");
   if (["source_blocks", "physics_source"].includes(sourceContract(source)) && !numericalResultStanding(source, args.model).eligible) throw new Error("SOURCE_BLOCKS_RULE_INPUT_UNQUALIFIED");
+  // U6d: a preview successor requires eligible standing, as the receipt routes do;
+  // standing comes only from its registered reader validation (never numerical_quality).
+  if (sourceContract(source) === "retained_preview_physics") {
+    const standing = numericalResultStanding(source, args.model);
+    if (!standing.eligible) throw new Error(`${standing.findings[0]}: the retained-precision result is not numerically eligible for rule checks.`);
+  }
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
   if (sourceContract(source) === "source_blocks") invokeArgs.sourceBlockInvocation = retainedSourceBlockInvocation(source, args.model);
   if (sourceContract(source) === "physics_source") invokeArgs.sourceBlockInvocation = retainedPhysicsSourceInvocation(source, args.model);
+  if (sourceContract(source) === "retained_preview_physics") invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, args.model);
   if (args.model) invokeArgs.model = args.model;
   if (args.solverResultBindings && args.solverResultBindings.length > 0) {
     invokeArgs.solverResultBindings = args.solverResultBindings;
@@ -325,7 +333,10 @@ export function ruleBindingPrecheck(
     const row = source.results.find((candidate) => candidate.id === binding.result_id);
     if (row) {
       const reason = ruleBindingRefusal(source, row);
-      if (reason) findings.push({ ...binding, reason, notice: N_SB });
+      // U6d: a successor refusal shows its class notice (D2 4.9.9), never N-SB.
+      // Without a validated class (unregistered or refused) the row has no class label.
+      const notice = reason === RULE_QUANTITY_BELOW_VERIFIED_FLOOR || reason === RULE_QUANTITY_NOT_COVERED ? retainedRowClassLabel(row, source) ?? N_RP_UNVALIDATED : N_SB;
+      if (reason) findings.push({ ...binding, reason, notice });
     } else if (route === "preview_physics" && isRetiredResultId(binding.result_id)) {
       findings.push({ ...binding, reason: RULE_BINDS_RETIRED_RESULT, notice: N_RULE_RETIRED });
     }

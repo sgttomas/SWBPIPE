@@ -105,6 +105,92 @@ pub const LOAD_REFERENCE_SOURCE_TABLE_SHA256: &str = crate::load_reference_sourc
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 pub const PREVIEW_PHYSICS_SHA256: &str =
     "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a";
+/// U6a (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its raw and
+/// transport statements are checked only by the accepted reader
+/// (`crate::retained_precision`), never by this module's ordinary branches, and
+/// its standing comes only from that reader's verified receipt (D1 5 item 3).
+pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
+pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
+pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
+    "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8";
+/// A receipt member or a W1 method-token row offered under any other identity
+/// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
+pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
+/// D2 4.9.9 (revision 4, N-5): binding refusals for classified successor rows
+/// before S-I. They never demote the envelope's standing.
+pub const RULE_QUANTITY_BELOW_VERIFIED_FLOOR: &str = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR";
+pub const RULE_QUANTITY_NOT_COVERED: &str = "RULE_QUANTITY_NOT_COVERED";
+/// Pinned successor table bytes: identity, profile and sha256 are checked.
+pub fn verify_preview_physics_retained_table(bytes: &[u8]) -> Result<Value, String> {
+    use sha2::{Digest, Sha256};
+    if format!("{:x}", Sha256::digest(bytes)) != PREVIEW_PHYSICS_RETAINED_SHA256 {
+        return Err("SOURCE_PREVIEW_PHYSICS_RETAINED_TABLE_HASH".into());
+    }
+    let table: Value = serde_json::from_slice(bytes)
+        .map_err(|_| "SOURCE_PREVIEW_PHYSICS_RETAINED_TABLE_HASH".to_string())?;
+    if table["semantic_contract_id"] != PREVIEW_PHYSICS_RETAINED_ID
+        || table["formulation_profile_id"] != PREVIEW_PHYSICS_RETAINED_PROFILE
+    {
+        return Err("SOURCE_PREVIEW_PHYSICS_RETAINED_TABLE_IDENTITY".into());
+    }
+    Ok(table)
+}
+pub fn preview_physics_retained_contract() -> &'static Value {
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        verify_preview_physics_retained_table(include_bytes!(
+            "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
+        ))
+        .expect("pinned preview-physics-retained semantic contract")
+    })
+}
+fn is_retained(source: &Value) -> bool {
+    source["producer"]["semantic_contract_id"] == PREVIEW_PHYSICS_RETAINED_ID
+}
+/// The reader's first failure as this module's error text: a G7 failure keeps
+/// the base validator's own text, every other gate its code.
+fn retained_error(error: crate::retained_precision::ValidationError) -> String {
+    error.detail.unwrap_or(error.code)
+}
+/// F-5: no identity but the successor may carry a receipt member.
+fn forbid_retained_member(source: &Value) -> Result<(), String> {
+    if !is_retained(source) && source.get("retained_precision").is_some() {
+        return Err(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN.into());
+    }
+    Ok(())
+}
+/// F-5 (C1 G6): no raw row outside the successor carries the W1 method token.
+fn forbid_retained_rows(source: &Value) -> Result<(), String> {
+    if !is_retained(source)
+        && source["results"].as_array().is_some_and(|rows| {
+            rows.iter()
+                .any(|row| row["recovery_method"] == crate::retained_precision::METHOD)
+        })
+    {
+        return Err(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN.into());
+    }
+    Ok(())
+}
+/// Validated successor row classes by result id; `None` for any other identity.
+/// Classes come only from a statement the accepted reader validated (G5c).
+pub fn retained_row_classes(
+    source: &Value,
+) -> Result<
+    Option<std::collections::HashMap<String, crate::retained_precision::AccuracyClass>>,
+    String,
+> {
+    if !is_retained(source) {
+        return Ok(None);
+    }
+    let validation = crate::retained_precision::validate(source, None).map_err(retained_error)?;
+    Ok(Some(
+        validation
+            .classifications
+            .into_iter()
+            .map(|row| (row.result_id, row.class))
+            .collect(),
+    ))
+}
 pub fn precision_contract() -> &'static Value {
     static CONTRACT: OnceLock<Value> = OnceLock::new();
     CONTRACT.get_or_init(|| {
@@ -181,6 +267,13 @@ pub fn physics_source_contract() -> &'static Value {
 /// Header dispatch only; canonical envelopes have no raw rows. This does not
 /// validate physical evidence and must never be used alone to qualify raw output.
 pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static str), String> {
+    if is_retained(source) {
+        // Transport checks (G0-G2 plus the base metadata check on the reader's
+        // projection); never eligible. The projection drops the receipt.
+        crate::retained_precision::validate_transport_metadata(source).map_err(retained_error)?;
+        return Ok((preview_physics_retained_contract(), "0.3.0"));
+    }
+    forbid_retained_member(source)?;
     match source["schema_version"].as_str() {
         Some("0.1.0") => {
             if [
@@ -342,7 +435,15 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
 /// Raw dispatch validates the selected physical contract, never inferring it
 /// from a profile name or a numerical/accuracy label.
 pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), String> {
+    if is_retained(source) {
+        // The accepted reader, G0-G7 without an invocation. Its G7 runs this
+        // function's unchanged base branch on its own projection, which drops
+        // the receipt and the method token, so this branch is not re-entered.
+        crate::retained_precision::validate(source, None).map_err(retained_error)?;
+        return Ok((preview_physics_retained_contract(), "0.3.0"));
+    }
     let selected = for_source_metadata(source)?;
+    forbid_retained_rows(source)?;
     match source["producer"]["semantic_contract_id"].as_str() {
         Some(PHYSICS_ID) => {
             forbid_load_reference_evidence(source)?;
@@ -407,6 +508,9 @@ pub const FRESH_IDENTITIES: &[&str] = &[
     // T1 activation (DESIGN 10.3, SF-4): 0.4.0 exact-route identities only.
     LOAD_REFERENCE_ID,
     LOAD_REFERENCE_SOURCE_ID,
+    // U6a (D-U6-6; D2 4.7 S-1): membership is not standing. The successor's
+    // standing comes only from the accepted reader's verified receipt.
+    PREVIEW_PHYSICS_RETAINED_ID,
 ];
 pub fn is_fresh_identity(semantic_contract_id: &str) -> bool {
     FRESH_IDENTITIES.contains(&semantic_contract_id)
@@ -431,6 +535,9 @@ pub fn standing_reason(source: &Value) -> Option<&'static str> {
 /// non-composite source-blocks-1 envelope may not be bound, directly or via
 /// its headline reference. Every binding site calls this helper.
 pub fn rule_binding_refusal(envelope: &Value, row: &Value) -> Option<&'static str> {
+    if is_retained(envelope) {
+        return retained_binding_refusal(envelope, row);
+    }
     if envelope["producer"]["semantic_contract_id"] != crate::source_blocks::CONTRACT_ID {
         return None;
     }
@@ -438,6 +545,173 @@ pub fn rule_binding_refusal(envelope: &Value, row: &Value) -> Option<&'static st
     (row["kind"] == "open_formula_stress_summary"
         || (headline.is_string() && row["id"] == *headline))
         .then_some(RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE)
+}
+/// D2 4.9.9 before S-I: a successor row binds only when its validated class
+/// allows it. A headline binds the row its `result_ref` names, so it is
+/// refused exactly as that row. A statement the reader refuses yields no
+/// validated class for any row; every row is then refused (fail closed).
+fn retained_binding_refusal(envelope: &Value, row: &Value) -> Option<&'static str> {
+    let Ok(validation) = crate::retained_precision::validate(envelope, None) else {
+        return Some(RULE_QUANTITY_NOT_COVERED);
+    };
+    let id = row["id"].as_str()?;
+    validation
+        .classifications
+        .iter()
+        .find(|c| c.result_id == id)
+        .and_then(|c| class_binding_refusal(&c.class))
+}
+/// The binding refusal of one validated class (D2 4.9.9, before S-I).
+#[doc(hidden)]
+pub fn class_binding_refusal(
+    class: &crate::retained_precision::AccuracyClass,
+) -> Option<&'static str> {
+    use crate::retained_precision::AccuracyClass;
+    match class {
+        AccuracyClass::AbsoluteVerified { .. } => Some(RULE_QUANTITY_BELOW_VERIFIED_FLOOR),
+        AccuracyClass::NotCovered => Some(RULE_QUANTITY_NOT_COVERED),
+        _ => None,
+    }
+}
+/// D2 4.9.4: the successor's standing from an accepted-reader validation.
+/// `numerically_eligible` needs all of: an invocation-bound validation whose
+/// eligibility is set; requested refs equal to the receipt's case order;
+/// `MECHANICS_SOLVED`; and every `not_required` case ordinarily eligible by
+/// the base rules (C1:160; I66 F-7). `numerical_quality` never contributes
+/// for a selected case. The reader's eligibility is on since U7; the other
+/// conjuncts still apply.
+#[doc(hidden)]
+pub fn retained_standing_from(
+    validation: &crate::retained_precision::Validation,
+    source: &Value,
+    requested_basis_refs: &[Value],
+) -> &'static str {
+    let cases = source["retained_precision"]["body"]["cases"]
+        .as_array()
+        .map(Vec::as_slice)
+        .unwrap_or(&[]);
+    let expected: Vec<&Value> = cases.iter().map(|case| &case["basis_ref"]).collect();
+    if !validation.invocation_bound
+        || !validation.numerical_eligible
+        || expected.len() != requested_basis_refs.len()
+        || expected.iter().zip(requested_basis_refs).any(|(a, b)| *a != b)
+        || source["status"]["mechanics"] != "MECHANICS_SOLVED"
+        || !not_required_cases_ordinarily_eligible(source, cases)
+    {
+        return "needs_recompute";
+    }
+    "numerically_eligible"
+}
+/// Every case is `selected`, or `not_required` and ordinarily eligible by the
+/// base rules (the generic branch below), by its receipt index. Any other
+/// status (an `unavailable` case) is not eligible (D2 4.9.4).
+fn not_required_cases_ordinarily_eligible(source: &Value, cases: &[Value]) -> bool {
+    let quality = source["numerical_quality"]["cases"]
+        .as_array()
+        .map(Vec::as_slice)
+        .unwrap_or(&[]);
+    let mut ids = std::collections::HashSet::new();
+    for key in ["results", "diagnostics"] {
+        for item in source[key].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+            match item["id"].as_str().filter(|id| !id.is_empty()) {
+                Some(id) if ids.insert(id) => {}
+                _ => return false,
+            }
+        }
+    }
+    cases.iter().enumerate().all(|(index, case)| {
+        match case["status"].as_str() {
+            Some("selected") => return true,
+            Some("not_required") => {}
+            _ => return false,
+        }
+        let Some(q) = quality.get(index) else {
+            return false;
+        };
+        q["basis_ref"] == case["basis_ref"]
+            && q["solve_quality"] == "checks_passed"
+            && q["structural_status"] == "passive_model_basis"
+            && q["model_matrix_fidelity"] == "represented_equations_retained"
+            && matches!(
+                q["accuracy_evidence"].as_str(),
+                Some("not_claimed" | "reference_verified")
+            )
+            && q["evidence_refs"].as_array().is_some_and(|refs| {
+                !refs.is_empty()
+                    && refs
+                        .iter()
+                        .all(|r| r.as_str().is_some_and(|id| ids.contains(id)))
+            })
+    })
+}
+fn retained_standing(
+    source: &Value,
+    requested_basis_refs: &[Value],
+    actual_invocation: Option<&Value>,
+) -> &'static str {
+    match crate::retained_precision::validate(source, actual_invocation) {
+        Ok(validation) => retained_standing_from(&validation, source, requested_basis_refs),
+        Err(_) => "unsupported",
+    }
+}
+/// D2 4.9.9: per-case counts over the validated G5c classes of a successor
+/// (rows of selected cases). `withheld` counts the quantity rows (every class
+/// but `non_quantity`) that cannot bind under the envelope's standing: all of
+/// them unless the standing with the caller's requested refs is
+/// `numerically_eligible` (RV94 S-1, as TS); then the absolute and not-covered
+/// rows, since S-I has not landed (`interval_bindable` is 0). Any other
+/// identity, or a statement the reader refuses, returns nothing.
+pub fn classification_summary(source: &Value, invocation: Option<&Value>, requested_basis_refs: &[Value]) -> Vec<Value> {
+    match crate::retained_precision::validate(source, invocation) {
+        Ok(validation) => classification_summary_from(&validation, source, requested_basis_refs),
+        Err(_) => Vec::new(),
+    }
+}
+/// `classification_summary` over an already validated successor statement.
+#[doc(hidden)]
+pub fn classification_summary_from(
+    validation: &crate::retained_precision::Validation,
+    source: &Value,
+    requested_basis_refs: &[Value],
+) -> Vec<Value> {
+    use crate::retained_precision::AccuracyClass;
+    // RV94 S-1 (the U7 repair, as TS's summary since e5e1693ceb): `withheld`
+    // counts as Current only when the standing with the caller's requested refs
+    // is `numerically_eligible`; with no refs, or other refs, it is the
+    // not-Current count. The invocation only binds the validation; its own
+    // cases are never substituted for the caller's refs (RV94 N-4), so this
+    // borrows the caller's slice and builds no list of its own. A caller with no
+    // refs (a library reader, or a summary shown without a model) therefore
+    // sees every quantity row withheld.
+    let current =
+        retained_standing_from(validation, source, requested_basis_refs) == "numerically_eligible";
+    source["retained_precision"]["body"]["cases"]
+        .as_array()
+        .map(Vec::as_slice)
+        .unwrap_or(&[])
+        .iter()
+        .map(|case| {
+            let id = &case["basis_ref"]["ref_id"];
+            let mut n = [0u64; 5];
+            for c in validation
+                .classifications
+                .iter()
+                .filter(|c| &c.basis_ref["ref_id"] == id)
+            {
+                n[match c.class {
+                    AccuracyClass::RelativeVerified => 0,
+                    AccuracyClass::AbsoluteVerified { .. } => 1,
+                    AccuracyClass::NotCovered => 2,
+                    AccuracyClass::InputDerived => 3,
+                    AccuracyClass::NonQuantity => 4,
+                }] += 1;
+            }
+            let withheld = if current { n[1] + n[2] } else { n[0] + n[1] + n[2] + n[3] };
+            serde_json::json!({"case_id":id,"relative_verified":n[0],"absolute_verified":n[1],
+                "interval_bindable":0,"not_covered":n[2],"input_derived":n[3],"non_quantity":n[4],
+                "withheld":withheld})
+        })
+        .collect()
 }
 
 fn quality_status(value: &Value) -> bool {
@@ -459,6 +733,10 @@ pub fn numerical_use_standing_with_context(
     requested_basis_refs: &[Value],
     actual_invocation: Option<&Value>,
 ) -> &'static str {
+    if is_retained(source) {
+        // Validated once, with the invocation; G7 includes the base dispatch.
+        return retained_standing(source, requested_basis_refs, actual_invocation);
+    }
     let Ok((_, version)) = for_source(source) else {
         return "unsupported";
     };

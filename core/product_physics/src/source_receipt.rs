@@ -127,6 +127,10 @@ impl CapturedInvocation {
             },
         ))
     }
+    // Borrowed facts only: no reparse, clone or new custody constructor.
+    pub(super) fn borrowed_raw(&self) -> &Value { &self.raw }
+    pub(super) fn borrowed_digest(&self) -> &String { &self.digest }
+    pub(super) fn encoded_length(&self) -> usize { self.encoded_len }
     pub(super) fn mode(&self) -> PreviewSolverMode {
         self.mode
     }

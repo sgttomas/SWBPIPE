@@ -6,7 +6,7 @@ import { validateRetainedRecoverySource } from "../../services/analysisRunCompat
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { validatePreviewPhysicsTransportMetadata } from "../results/previewPhysicsEvidence";
 import { sourceContract, numericalResultStanding, currentSemanticContract, hasCurrentSourceContract } from "../results/numericalResultQuality";
-import { isLoadReferenceRoute, refuseLoadReferenceOutput, LOAD_REFERENCE_OUTPUT_REFUSAL } from "../results/loadReferenceOutputAvailability";
+import { loadReferenceOutputRefusal, refuseLoadReferenceOutput } from "../results/loadReferenceOutputAvailability";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
 import { Download, FileJson } from "lucide-react";
@@ -80,10 +80,12 @@ type StressNeutralUnitPreservationWitness = {
 
 // Same small publication binding as the source-recovery reader: private live
 // invocation plus immutable checked contents, never a serializable proof flag.
-function liveStressBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null): string | null {
+// Exported so that its explicit output gate is tested directly (U7 slice T).
+export function liveStressBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null): string | null {
   try {
     if (!result || !analysisRun || !hasNativeMechanicsInvocation(result, model)
-      || !hasCurrentSourceContract(result) || isLoadReferenceRoute(result) || !numericalResultStanding(result, model).eligible) return null;
+      // U7 slice T (RV91 N-5): an explicit gate on the shared output refusal.
+      || !hasCurrentSourceContract(result) || loadReferenceOutputRefusal(result) !== null || !numericalResultStanding(result, model).eligible) return null;
     return checkedJsonText({ model, result, analysisRun });
   } catch { return null; }
 }
@@ -204,8 +206,8 @@ export function StressNeutralExportPanel({
             />
           </div>
         </>
-      ) : isLoadReferenceRoute(result) ? (
-        <p className="muted" role="status" data-testid="stress-neutral-load-reference-output-unavailable">{LOAD_REFERENCE_OUTPUT_REFUSAL}</p>
+      ) : loadReferenceOutputRefusal(result) ? (
+        <p className="muted" role="status" data-testid="stress-neutral-load-reference-output-unavailable">{loadReferenceOutputRefusal(result)}</p>
       ) : (
         <p className="muted" data-testid="stress-neutral-empty">
           Run mechanics with the native backend to assemble a stress-neutral CSV/JSON package. Bundled references and restored history are unavailable for qualified export.

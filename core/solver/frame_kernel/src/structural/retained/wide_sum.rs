@@ -37,6 +37,7 @@
 //! `from_integer` (K3's N3); `two_product` is counted by its own context.
 use super::wide::multi::{SupportedWidth, WideContext};
 use super::wide::{Wide, WideError};
+use super::work::{WorkFault, WorkStatus, WorkTotal};
 use std::cmp::Ordering;
 
 /// Limbs of each magnitude.
@@ -51,6 +52,8 @@ const TERM_LIMBS: usize = SUM_LIMBS + 2;
 /// A sum that cannot be formed exactly within its limits. Never a truncation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SumRefusal {
+    CountRange(&'static str),
+    WorkAccounting(WorkFault),
     /// The terms span more than `SPAN_LIMIT_BITS`.
     Span,
     /// The anchor or the rounded result is outside the exponent range.
@@ -65,6 +68,8 @@ pub(crate) enum SumRefusal {
 impl From<WideError> for SumRefusal {
     fn from(error: WideError) -> Self {
         match error {
+            WideError::CountRange(field) => Self::CountRange(field),
+            WideError::WorkAccounting(fault) => Self::WorkAccounting(fault),
             WideError::ExponentRange => Self::Exponent,
             WideError::NonFinite => Self::NonFinite,
             other => Self::Wide(other),
@@ -73,8 +78,9 @@ impl From<WideError> for SumRefusal {
 }
 
 /// Deterministic work of an accumulator (limb-multiply equivalents).
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub struct SumWork {
+    status: WorkStatus,
     /// Limbs of the added terms, of their scaling multiplications and of the
     /// carries they propagated.
     pub(crate) term_limbs: u64,
@@ -88,20 +94,124 @@ pub struct SumWork {
     pub(crate) max_span_bits: u64,
 }
 
-impl SumWork {
-    pub fn limb_multiply_equivalents(&self) -> u64 {
-        self.term_limbs
-            .saturating_add(self.shift_limbs)
-            .saturating_add(self.net_limbs)
-            .saturating_add(self.rounded_limbs)
+impl From<WorkFault> for SumRefusal {
+    fn from(fault: WorkFault) -> Self {
+        Self::WorkAccounting(fault)
     }
+}
 
+impl SumWork {
+    pub fn checked_lme(&self) -> WorkTotal {
+        [
+            self.term_limbs,
+            self.shift_limbs,
+            self.net_limbs,
+            self.rounded_limbs,
+        ]
+        .into_iter()
+        .fold(WorkTotal::zero().join_status(self.status), |t, n| {
+            t.add(WorkTotal::exact_count(n))
+        })
+    }
+    pub fn limb_multiply_equivalents(&self) -> u64 {
+        self.checked_lme().legacy_saturated()
+    }
     pub(crate) fn merge(&mut self, other: &Self) {
-        self.term_limbs = self.term_limbs.saturating_add(other.term_limbs);
-        self.shift_limbs = self.shift_limbs.saturating_add(other.shift_limbs);
-        self.net_limbs = self.net_limbs.saturating_add(other.net_limbs);
-        self.rounded_limbs = self.rounded_limbs.saturating_add(other.rounded_limbs);
+        self.status = self.status.join(other.status);
+        macro_rules! merge {
+            ($field:ident) => {{
+                let t =
+                    WorkTotal::exact_count(self.$field).add(WorkTotal::exact_count(other.$field));
+                self.status = self.status.join(t.status());
+                self.$field = t.legacy_saturated();
+            }};
+        }
+        merge!(term_limbs);
+        merge!(shift_limbs);
+        merge!(net_limbs);
+        merge!(rounded_limbs);
         self.max_span_bits = self.max_span_bits.max(other.max_span_bits);
+        self.status = self.status.join(self.checked_lme().status());
+    }
+    fn delta_since(self, before: Self) -> Self {
+        let mut out = Self {
+            status: self.status.join(before.status),
+            max_span_bits: self.max_span_bits,
+            ..Self::default()
+        };
+        macro_rules! delta {
+            ($field:ident) => {{
+                let t = WorkTotal::exact_count(self.$field)
+                    .remainder(WorkTotal::exact_count(before.$field));
+                out.status = out.status.join(t.status());
+                out.$field = t.legacy_saturated();
+            }};
+        }
+        delta!(term_limbs);
+        delta!(shift_limbs);
+        delta!(net_limbs);
+        delta!(rounded_limbs);
+        out.status = out.status.join(out.checked_lme().status());
+        out
+    }
+    // Include the pending base term in both the component and aggregate reserve.
+    fn reserve(&mut self, field: SumCharge, amount: u64, pending: u64) -> Result<(), WorkFault> {
+        let component = match field {
+            SumCharge::Term => self.term_limbs,
+            SumCharge::Shift => self.shift_limbs,
+            SumCharge::Net => self.net_limbs,
+            SumCharge::Round => self.rounded_limbs,
+        };
+        let t = WorkTotal::exact_count(component).add(WorkTotal::exact_count(amount));
+        let term = WorkTotal::exact_count(self.term_limbs)
+            .add(WorkTotal::exact_count(pending))
+            .add(WorkTotal::exact_count(
+                if matches!(field, SumCharge::Term) {
+                    amount
+                } else {
+                    0
+                },
+            ));
+        let total = self
+            .checked_lme()
+            .add(WorkTotal::exact_count(amount))
+            .add(WorkTotal::exact_count(pending))
+            .join_status(t.status())
+            .join_status(term.status());
+        self.status = self.status.join(total.status());
+        total.exact().map(|_| ())
+    }
+    fn charge(&mut self, field: SumCharge, amount: u64, pending: u64) -> Result<(), WorkFault> {
+        self.reserve(field, amount, pending)?;
+        let slot = match field {
+            SumCharge::Term => &mut self.term_limbs,
+            SumCharge::Shift => &mut self.shift_limbs,
+            SumCharge::Net => &mut self.net_limbs,
+            SumCharge::Round => &mut self.rounded_limbs,
+        };
+        *slot += amount; // the prospective component and total were checked above
+        Ok(())
+    }
+}
+#[derive(Clone, Copy)]
+enum SumCharge {
+    Term,
+    Shift,
+    Net,
+    Round,
+}
+impl std::fmt::Debug for SumWork {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut d = f.debug_struct("SumWork");
+        d.field("term_limbs", &self.term_limbs)
+            .field("shift_limbs", &self.shift_limbs)
+            .field("net_limbs", &self.net_limbs)
+            .field("rounded_limbs", &self.rounded_limbs)
+            .field("max_span_bits", &self.max_span_bits);
+        if !self.status.is_exact() {
+            d.field("work_status", &self.status);
+        }
+        d.finish()
     }
 }
 
@@ -121,6 +231,7 @@ pub(crate) struct ExactWideSum {
     /// The highest leading-bit exponent of any term.
     high: i128,
     work: SumWork,
+    poisoned: bool,
 }
 
 impl Default for ExactWideSum {
@@ -131,12 +242,16 @@ impl Default for ExactWideSum {
 
 impl std::fmt::Debug for ExactWideSum {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ExactWideSum")
-            .field("anchor", &self.anchor)
+        let mut d = f.debug_struct("ExactWideSum");
+        d.field("anchor", &self.anchor)
             .field("used", &self.used)
-            .field("empty", &self.empty)
-            .field("signum", &self.signum_quiet())
-            .finish()
+            .field("empty", &self.empty);
+        if self.poisoned {
+            d.field("value_poisoned", &true);
+        } else {
+            d.field("signum", &self.signum_quiet());
+        }
+        d.finish()
     }
 }
 
@@ -182,11 +297,16 @@ impl ExactWideSum {
             empty: true,
             high: 0,
             work: SumWork::default(),
+            poisoned: false,
         }
     }
 
     /// Resets the value to zero (the work counts are kept).
     pub(crate) fn clear(&mut self) {
+        if self.poisoned {
+            self.reset();
+            return;
+        }
         self.positive[..self.used].fill(0);
         self.negative[..self.used].fill(0);
         self.used = 0;
@@ -201,6 +321,7 @@ impl ExactWideSum {
     /// refusal interrupted (the in-loop refusal of `add_raw`, unreachable under
     /// the span check) cannot reach a later sum. The work counts are kept.
     pub(crate) fn reset(&mut self) {
+        self.poisoned = false;
         self.positive.fill(0);
         self.negative.fill(0);
         self.used = 0;
@@ -209,55 +330,97 @@ impl ExactWideSum {
         self.high = 0;
     }
 
+    #[cfg(test)]
+    pub(crate) fn test_seed_term_work(&mut self, terms: u64) {
+        self.work.term_limbs = terms;
+    }
+
     pub(crate) fn work(&self) -> SumWork {
         self.work
     }
 
     /// Adds ±t·2^lsb, t a little-endian magnitude (any length, possibly with
     /// low zero bits or zero).
+    pub(crate) fn ensure_valid(&self) -> Result<(), SumRefusal> {
+        let status = if self.poisoned {
+            self.work
+                .status
+                .join(WorkStatus::from_fault(WorkFault::Inconsistent))
+        } else {
+            self.work.status
+        };
+        status
+            .fault()
+            .map_or(Ok(()), |f| Err(SumRefusal::WorkAccounting(f)))
+    }
+    fn donor(&mut self, donor: &Self) -> Result<(), SumRefusal> {
+        let result = donor.ensure_valid();
+        if let Err(SumRefusal::WorkAccounting(fault)) = result {
+            self.work.status = self.work.status.join(WorkStatus::from_fault(fault));
+        }
+        result
+    }
+    fn ready(&mut self) -> Result<(), SumRefusal> {
+        if self.poisoned {
+            self.work.status = self
+                .work
+                .status
+                .join(WorkStatus::from_fault(WorkFault::Inconsistent));
+        }
+        self.ensure_valid()
+    }
+    fn inconsistent(&mut self, mutated: bool) -> SumRefusal {
+        self.poisoned |= mutated;
+        self.work.status = self
+            .work
+            .status
+            .join(WorkStatus::from_fault(WorkFault::Inconsistent));
+        SumRefusal::WorkAccounting(self.work.status.fault().unwrap())
+    }
     fn add_raw(&mut self, negative: bool, t: &[u64], lsb: i128) -> Result<(), SumRefusal> {
+        self.ready()?;
+        super::wide::multi::integer_magnitude_bits(t.len())?;
         let (Some(lo), Some(hi)) = (lowest_bit(t), highest_bit(t)) else {
             return Ok(());
         };
-        let term_low = lsb + lo as i128;
-        let term_high = lsb + hi as i128;
+        let term_low = lsb.checked_add(lo as i128).ok_or(SumRefusal::Exponent)?;
+        let term_high = lsb.checked_add(hi as i128).ok_or(SumRefusal::Exponent)?;
         let (new_low, new_high) = if self.empty {
             (term_low, term_high)
         } else {
             (self.anchor.min(term_low), self.high.max(term_high))
         };
-        let span = new_high - new_low + 1;
+        let span = new_high
+            .checked_sub(new_low)
+            .and_then(|v| v.checked_add(1))
+            .ok_or(SumRefusal::Span)?;
         if span > SPAN_LIMIT_BITS {
             return Err(SumRefusal::Span);
         }
-        if self.empty {
-            self.anchor = new_low;
-            self.used = 0;
-            self.empty = false;
-        } else if new_low < self.anchor {
-            let shift = (self.anchor - new_low) as usize;
-            self.shift_up(shift);
-            self.anchor = new_low;
+        let limbs = (hi - lo + 1).div_ceil(64);
+        if limbs > TERM_LIMBS {
+            return Err(self.inconsistent(false));
         }
+        let pending = limbs as u64 + 1;
+        self.work.reserve(SumCharge::Term, 0, pending)?;
+        if !self.empty && new_low < self.anchor {
+            let shift =
+                usize::try_from(self.anchor - new_low).map_err(|_| self.inconsistent(false))?;
+            self.shift_up(shift, pending)?;
+        }
+        self.anchor = new_low;
+        self.empty = false;
         self.high = new_high;
         self.work.max_span_bits = self.work.max_span_bits.max(span as u64);
-        // The term with its low zero bits removed (bits above `hi` are zero, so
-        // each window is exact), added at bit offset (term_low - anchor) >= 0.
-        let limbs = (hi - lo + 1).div_ceil(64);
         let mut trimmed = [0u64; TERM_LIMBS];
         for (k, limb) in trimmed.iter_mut().enumerate().take(limbs) {
             *limb = window(t, lo + 64 * k);
         }
-        let offset = (term_low - self.anchor) as usize;
-        let word = offset / 64;
+        let offset =
+            usize::try_from(term_low - self.anchor).map_err(|_| self.inconsistent(true))?;
         let bit = (offset % 64) as u32;
-        let target = if negative {
-            &mut self.negative
-        } else {
-            &mut self.positive
-        };
         let mut carry = 0u64;
-        let mut index = word;
+        let mut index = offset / 64;
         for k in 0..=limbs {
             let current = if k < limbs { trimmed[k] } else { 0 };
             let previous = if k == 0 { 0 } else { trimmed[k - 1] };
@@ -267,15 +430,16 @@ impl ExactWideSum {
                 (current << bit) | (previous >> (64 - bit))
             };
             if index >= SUM_LIMBS {
-                // Unreachable under the span check (RETURN §5 item 3). Were it
-                // reached, a bit that does not fit is refused rather than
-                // dropped (RV19-N4); the sum is then unusable, and every
-                // caller ends its attempt on `Span`.
                 if part != 0 || carry != 0 || trimmed[k.min(limbs)..limbs].iter().any(|&w| w != 0) {
-                    return Err(SumRefusal::Span);
+                    return Err(self.inconsistent(true));
                 }
                 break;
             }
+            let target = if negative {
+                &mut self.negative
+            } else {
+                &mut self.positive
+            };
             let (s1, c1) = target[index].overflowing_add(part);
             let (s2, c2) = s1.overflowing_add(carry);
             target[index] = s2;
@@ -283,33 +447,62 @@ impl ExactWideSum {
             index += 1;
         }
         while carry != 0 {
-            debug_assert!(index < SUM_LIMBS, "carry headroom exceeded");
+            if index >= SUM_LIMBS {
+                return Err(self.inconsistent(true));
+            }
+            if let Err(fault) = self.work.reserve(SumCharge::Term, 1, pending) {
+                self.poisoned = true;
+                return Err(fault.into());
+            }
+            let target = if negative {
+                &mut self.negative
+            } else {
+                &mut self.positive
+            };
             let (s, c) = target[index].overflowing_add(carry);
             target[index] = s;
             carry = u64::from(c);
             index += 1;
-            self.work.term_limbs += 1;
+            self.work.term_limbs += 1; // reserved before mutation, including pending base
         }
         self.used = self.used.max(index.min(SUM_LIMBS));
-        self.work.term_limbs += limbs as u64 + 1;
+        self.work.charge(SumCharge::Term, pending, 0)?;
         Ok(())
     }
 
-    /// Both magnitudes times 2^shift (the span check has already passed).
-    fn shift_up(&mut self, shift: usize) {
+    fn shift_up(&mut self, shift: usize, pending: u64) -> Result<(), SumRefusal> {
         let words = shift / 64;
         let bits = (shift % 64) as u32;
-        let new_used = (self.used + words + 1).min(SUM_LIMBS);
+        let new_used = self
+            .used
+            .checked_add(words)
+            .and_then(|v| v.checked_add(1))
+            .ok_or_else(|| self.inconsistent(false))?
+            .min(SUM_LIMBS);
+        let outside = [&self.positive, &self.negative]
+            .into_iter()
+            .any(|magnitude| {
+                highest_bit(magnitude)
+                    .is_some_and(|h| h.checked_add(shift).is_none_or(|v| v >= SUM_LIMBS * 64))
+            });
+        if outside {
+            return Err(self.inconsistent(false));
+        }
+        self.work
+            .reserve(SumCharge::Shift, 2 * new_used as u64, pending)?;
         for magnitude in [&mut self.positive, &mut self.negative] {
             for i in (0..new_used).rev() {
-                let source = i as isize - words as isize;
-                let high = if source >= 0 {
-                    magnitude[source as usize]
-                } else {
-                    0
-                };
-                let low = if bits != 0 && source >= 1 {
-                    magnitude[source as usize - 1] >> (64 - bits)
+                let high = i
+                    .checked_sub(words)
+                    .and_then(|j| magnitude.get(j))
+                    .copied()
+                    .unwrap_or(0);
+                let low = if bits != 0 {
+                    i.checked_sub(words + 1)
+                        .and_then(|j| magnitude.get(j))
+                        .copied()
+                        .unwrap_or(0)
+                        >> (64 - bits)
                 } else {
                     0
                 };
@@ -322,6 +515,7 @@ impl ExactWideSum {
         }
         self.work.shift_limbs += 2 * new_used as u64;
         self.used = new_used;
+        Ok(())
     }
 
     /// Adds ±x exactly.
@@ -333,6 +527,7 @@ impl ExactWideSum {
     where
         Wide<M>: SupportedWidth,
     {
+        self.ready()?;
         if x.is_zero() {
             return Ok(());
         }
@@ -352,10 +547,12 @@ impl ExactWideSum {
     where
         Wide<M>: SupportedWidth,
     {
+        self.ready()?;
         if x.is_zero() || factor == 0 {
             return Ok(());
         }
         let (negative, exponent, significand) = x.parts();
+        self.work.charge(SumCharge::Term, M as u64, 0)?;
         let mut scaled = [0u64; 17];
         let mut carry = 0u128;
         for (k, &limb) in significand.iter().enumerate() {
@@ -364,13 +561,14 @@ impl ExactWideSum {
             carry = product >> 64;
         }
         scaled[M] = carry as u64;
-        self.work.term_limbs += M as u64;
+
         let lsb = i128::from(exponent) - (64 * M as i128 - 1) + i128::from(pow2);
         self.add_raw(negative != negate, &scaled[..=M], lsb)
     }
 
     /// Adds ±x exactly, for a finite binary64 x (NaN and infinities refused).
     pub(crate) fn add_binary64(&mut self, x: f64, negate: bool) -> Result<(), SumRefusal> {
+        self.ready()?;
         if !x.is_finite() {
             return Err(SumRefusal::NonFinite);
         }
@@ -400,12 +598,17 @@ impl ExactWideSum {
     where
         Wide<M>: SupportedWidth,
     {
+        self.ready()?;
         if a.is_zero() || b.is_zero() {
             return Ok(());
         }
         let (s, e) = context.two_product(a, b)?;
         self.add_wide(&s, negate)?;
-        self.add_wide(&e, negate)
+        let result = self.add_wide(&e, negate);
+        if result.is_err() && !s.is_zero() {
+            self.poisoned = true;
+        }
+        result
     }
 
     /// Adds ±magnitude·2^exponent exactly (a little-endian magnitude of any
@@ -427,27 +630,38 @@ impl ExactWideSum {
         factor: u64,
         pow2: i64,
     ) -> Result<(), SumRefusal> {
+        self.ready()?;
+        self.donor(other)?;
         if other.empty || factor == 0 {
             return Ok(());
         }
         let lsb = other.anchor + i128::from(pow2);
-        for (negative, magnitude) in [(false, &other.positive), (true, &other.negative)] {
-            let mut scaled = [0u64; TERM_LIMBS];
-            let mut carry = 0u128;
-            for k in 0..other.used {
-                let product = u128::from(magnitude[k]) * u128::from(factor) + carry;
-                scaled[k] = product as u64;
-                carry = product >> 64;
+        let mut inserted = false;
+        let result = (|| {
+            for (negative, magnitude) in [(false, &other.positive), (true, &other.negative)] {
+                self.work.charge(SumCharge::Term, other.used as u64, 0)?;
+                let mut scaled = [0u64; TERM_LIMBS];
+                let mut carry = 0u128;
+                for k in 0..other.used {
+                    let product = u128::from(magnitude[k]) * u128::from(factor) + carry;
+                    scaled[k] = product as u64;
+                    carry = product >> 64;
+                }
+                scaled[other.used] = carry as u64;
+
+                self.add_raw(negative != negate, &scaled[..=other.used], lsb)?;
+                inserted |= scaled[..=other.used].iter().any(|&v| v != 0);
             }
-            scaled[other.used] = carry as u64;
-            self.work.term_limbs += other.used as u64;
-            self.add_raw(negative != negate, &scaled[..=other.used], lsb)?;
+            Ok(())
+        })();
+        if result.is_err() && inserted {
+            self.poisoned = true;
         }
-        Ok(())
+        result
     }
 
     /// Replaces the value by its negation.
-    pub(crate) fn negate(&mut self) {
+    fn negate(&mut self) {
         std::mem::swap(&mut self.positive, &mut self.negative);
     }
 
@@ -463,20 +677,22 @@ impl ExactWideSum {
     }
 
     /// Sign of the exact value: -1, 0 or 1.
-    pub(crate) fn signum(&mut self) -> i8 {
-        self.work.net_limbs += self.used as u64;
-        self.signum_quiet()
+    pub(crate) fn signum(&mut self) -> Result<i8, SumRefusal> {
+        self.ready()?;
+        self.work.charge(SumCharge::Net, self.used as u64, 0)?;
+        Ok(self.signum_quiet())
     }
 
-    pub(crate) fn is_zero(&mut self) -> bool {
-        self.signum() == 0
+    pub(crate) fn is_zero(&mut self) -> Result<bool, SumRefusal> {
+        Ok(self.signum()? == 0)
     }
 
     /// Replaces the value by its magnitude.
-    pub(crate) fn make_absolute(&mut self) {
-        if self.signum() < 0 {
+    pub(crate) fn make_absolute(&mut self) -> Result<(), SumRefusal> {
+        if self.signum()? < 0 {
             self.negate();
         }
+        Ok(())
     }
 
     /// Adds ±a·b exactly, the product of two accumulators' exact values (D1
@@ -490,25 +706,38 @@ impl ExactWideSum {
         b: &mut Self,
         negate: bool,
     ) -> Result<(), SumRefusal> {
+        self.ready()?;
+        self.donor(a)?;
+        self.donor(b)?;
+        b.ready()?;
         if a.empty || b.empty {
             return Ok(());
         }
-        let (negative, magnitude, used) = b.net();
-        for (k, &limb) in magnitude[..used].iter().enumerate() {
-            if limb == 0 {
-                continue;
+        let (negative, magnitude, used) = b.net()?;
+        let mut inserted = false;
+        let result = (|| {
+            for (k, &limb) in magnitude[..used].iter().enumerate() {
+                if limb == 0 {
+                    continue;
+                }
+                let pow2 =
+                    i64::try_from(b.anchor + 64 * k as i128).map_err(|_| SumRefusal::Exponent)?;
+                self.add_scaled(a, negate != negative, limb, pow2)?;
+                inserted = true;
             }
-            let pow2 =
-                i64::try_from(b.anchor + 64 * k as i128).map_err(|_| SumRefusal::Exponent)?;
-            self.add_scaled(a, negate != negative, limb, pow2)?;
+            Ok(())
+        })();
+        if result.is_err() && inserted {
+            self.poisoned = true;
         }
-        Ok(())
+        result
     }
 
     /// The netted exact value: (negative, magnitude, used limbs, anchor).
-    fn net(&mut self) -> (bool, Magnitude, usize) {
+    fn net(&mut self) -> Result<(bool, Magnitude, usize), SumRefusal> {
+        self.ready()?;
         let used = self.used;
-        self.work.net_limbs += 2 * used as u64;
+        self.work.charge(SumCharge::Net, 2 * used as u64, 0)?;
         let (negative, big, small) = match compare(&self.positive[..used], &self.negative[..used]) {
             Ordering::Less => (true, &self.negative, &self.positive),
             _ => (false, &self.positive, &self.negative),
@@ -521,8 +750,10 @@ impl ExactWideSum {
             out[i] = y;
             borrow = b1 || b2;
         }
-        debug_assert!(!borrow);
-        (negative, out, used)
+        if borrow {
+            return Err(self.inconsistent(false));
+        }
+        Ok((negative, out, used))
     }
 
     /// The exact value rounded once to the context's precision (nearest, ties
@@ -534,12 +765,13 @@ impl ExactWideSum {
     where
         Wide<L>: SupportedWidth,
     {
+        self.ready()?;
         if self.empty {
             return Ok(context.from_integer(false, &[0], 0)?);
         }
-        let (negative, magnitude, used) = self.net();
+        let (negative, magnitude, used) = self.net()?;
         let anchor = i64::try_from(self.anchor).map_err(|_| SumRefusal::Exponent)?;
-        self.work.rounded_limbs += used as u64;
+        self.work.charge(SumCharge::Round, used as u64, 0)?;
         Ok(context.from_integer(negative, &magnitude[..used.max(1)], anchor)?)
     }
 }
@@ -547,3 +779,29 @@ impl ExactWideSum {
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/wide_sum_tests.rs"]
 mod tests;
+
+/// An inherited sum whose operation deltas can only come from this same clone.
+pub(crate) struct CloneWork {
+    sum: ExactWideSum,
+}
+impl CloneWork {
+    pub(crate) fn new(sum: &ExactWideSum) -> Self {
+        Self { sum: sum.clone() }
+    }
+    pub(crate) fn signum(&mut self) -> (Result<i8, SumRefusal>, SumWork) {
+        let before = self.sum.work();
+        let result = self.sum.signum();
+        (result, self.sum.work().delta_since(before))
+    }
+    pub(crate) fn round<const L: usize>(
+        &mut self,
+        ctx: &mut WideContext<L>,
+    ) -> (Result<Wide<L>, SumRefusal>, SumWork)
+    where
+        Wide<L>: SupportedWidth,
+    {
+        let before = self.sum.work();
+        let result = self.sum.round(ctx);
+        (result, self.sum.work().delta_since(before))
+    }
+}

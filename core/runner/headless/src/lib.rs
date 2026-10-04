@@ -731,12 +731,51 @@ pub fn run_preview_model_value_with_mode(request:RunnerRequest,solve_payload:Val
 /// captured by the same actual Value invocation as the no-aggregate route.
 pub fn run_preview_model_value_with_mode_and_rule_check(request:RunnerRequest,solve_payload:Value,mode:PreviewSolverMode,aggregate:Option<&str>)->Result<PreviewRunnerOutput,String>{run_preview_model_value_mode(request,solve_payload,aggregate,mode)}
 fn run_preview_model_value_mode(request: RunnerRequest, solve_payload: Value, aggregate: Option<&str>, mode:PreviewSolverMode) -> Result<PreviewRunnerOutput, String> {
+    run_preview_model_value_dispatch(request, solve_payload, aggregate, mode, PreviewProducerEntry::Ordinary)
+        .map(|outcome| outcome.output)
+}
+
+/// Explicit prospective retained route. Its current admission always refuses
+/// W1 and preserves the ordinary output, including non-wire export availability.
+pub fn run_preview_model_value_with_retained_headless(
+    request: RunnerRequest,
+    solve_payload: Value,
+    mode: PreviewSolverMode,
+    aggregate: Option<&str>,
+) -> Result<RetainedPreviewRunnerOutput, String> {
+    run_preview_model_value_dispatch(request, solve_payload, aggregate, mode, PreviewProducerEntry::RetainedHeadless)
+}
+
+pub struct RetainedPreviewRunnerOutput {
+    output: PreviewRunnerOutput,
+    admission: Option<open_pipe_stress_product_physics::RetainedAdmissionReport>,
+}
+impl RetainedPreviewRunnerOutput {
+    pub fn output(&self) -> &PreviewRunnerOutput { &self.output }
+    /// None means the actual runner/preparse path did not enter admission.
+    pub fn admission(&self) -> Option<&open_pipe_stress_product_physics::RetainedAdmissionReport> { self.admission.as_ref() }
+    pub fn into_parts(self) -> (PreviewRunnerOutput, Option<open_pipe_stress_product_physics::RetainedAdmissionReport>) {
+        (self.output, self.admission)
+    }
+}
+enum PreviewProducerEntry { Ordinary, RetainedHeadless }
+fn run_preview_model_value_dispatch(request: RunnerRequest, solve_payload: Value, aggregate: Option<&str>, mode:PreviewSolverMode, entry: PreviewProducerEntry) -> Result<RetainedPreviewRunnerOutput, String> {
     // Capture before execution; the exact same request Value is passed into the
     // product boundary. No model-only projection or typed reconstruction occurs.
     let actual_invocation = serde_json::json!({"request": &solve_payload, "solver_mode": mode.as_str()});
     let retained_request=request.clone();
+    let mut admission = None;
     let mut output=run_preview_with_producer(request, aggregate, || {
-        run_linear_static_preview_value_with_mode(solve_payload.clone(), mode)
+        match entry {
+            PreviewProducerEntry::Ordinary => run_linear_static_preview_value_with_mode(solve_payload.clone(), mode),
+            PreviewProducerEntry::RetainedHeadless => {
+                use open_pipe_stress_product_physics::{RetainedHeadlessContext, run_linear_static_preview_value_with_retained_headless};
+                let context = RetainedHeadlessContext::from_borrowed_roots(&solve_payload, &actual_invocation, &retained_request.request_id);
+                let (envelope, report) = run_linear_static_preview_value_with_retained_headless(solve_payload.clone(), mode, context)?.into_parts();
+                admission = report;
+                Ok(envelope)
+            }
+        }
     })?;
     let qualified=|| -> Result<QualifiedPreviewEvidence,String> {
         use open_pipe_stress_result_export::derivative::{digest,guard_json};
@@ -753,7 +792,7 @@ fn run_preview_model_value_mode(request: RunnerRequest, solve_payload: Value, ag
         },
         Err(reason)=>output.canonical_export_unavailability=Some(reason),
     }
-    Ok(output)
+    Ok(RetainedPreviewRunnerOutput { output, admission })
 }
 pub fn run_preview_model_value(request: RunnerRequest, solve_payload: Value) -> Result<PreviewRunnerOutput,String> {run_preview_model_value_with_rule_check(request,solve_payload,None)}
 

@@ -1,0 +1,908 @@
+{
+  "format": "I66-U6-CARRIER-CASES-v4",
+  "note": "Shared carrier standing-parity scenarios for the Rust, Python and TypeScript carriers (I66 U6; D2 4.7 parity). Fixtures are byte-identical copies of PP's pinned milestone successor files (D-U6-5), producer test outputs, not native Current evidence. Edits apply literally, with no rehash. 'requested' is 'invocation' (the invocation model's load cases, in order) or an explicit list. 'expected_dispatch' is 'ok' or the raw dispatch's first error code. Since U7 the readers' eligibility is switched on: an unedited milestone case with its fixture invocation and the invocation's requested cases expects numerically_eligible, and every other case keeps its expectation. v2 (I66 U6 repairs): fixtures carry 'shape': 'milestone' ({id, invocation, source}) or 'raw' (the file is the source; its cases have no invocation). The F-5 guard cases (a W1 token on a non-first row only; a receipt member that is {} or null) on a legacy 0.1.0 source and on a preview-physics-1 source are refused in every language. 'declared_differences' lists the only ruled differences between the languages' carriers (and F5's shared semantics), each with its ruling and one expectation per language; any other difference is a defect. Their subjects: 'standing' (as the cases), 'binding' (every row of the edited source: 'by_validated_class' or 'every_row:<code>') and 'transport' (the header-only dispatch: 'ok' or the first error code). v3 (I66 post-U6f): 'declared_differences' entries carry 'forms'; each form names its fixtures, 'invocation' (null, 'fixture', or a literal object such as {}), 'requested', 'edits', one 'subject' and one expectation per language. Subjects: 'standing'; 'transport' ('ok' or the first error code); 'binding' over every row of the edited source ('by_validated_class', 'every_row:<code>', 'every_row:none', or 'source_blocks_summary:<code>': the open_formula_stress_summary rows and the max_open_formula_stress headline row refused, every other row bound); and 'summary' ('by_validated_class': one entry per receipt case counting the reader's classes, interval_bindable 0, the not-Current withheld count; or 'empty'; 'by_validated_class_current' is defined by the U7 repair below). An optional 'finding' or 'notice' is TS's. v4 (I66 U7 slice F): a form may carry 'capture' ('none': TS registers the form's invocation without an IPC capture, so no live native capture exists; Rust and Python read the invocation argument exactly as for 'invocation': 'fixture') and 'current_model_edits' (edits, op 'set', applied only to TS's current model, which is otherwise the captured invocation's model; Rust and Python have no current-model input beyond 'requested', so these edits change nothing they read). Every consumer reads both fields explicitly; any other unknown field is a defect. U7 repair (RV94 S-1; the format stays v4, since no field changes and every consumer refuses an unknown summary value): each language counts a summary Current only when its own standing for the form's requested refs is numerically_eligible; 'by_validated_class_current' is 'by_validated_class' with the Current withheld count (the absolute and not-covered rows only), and 'by_validated_class' is the not-Current count whether or not the form carries an invocation.",
+  "scope": "Differences inherited from the base carriers are not U6 differences and are not listed here: the G7 dispatch text (each language forwards its own base validator's detail), Rust's header dispatch ignoring carrier_evidence, and the AnalysisRun builders' refusal codes. G7 parity compares the reader's (gate, code), not the dispatch text (ROOT_RULINGS_V1 \"RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions\"; RV92 u6f_01 N-4). Rust's header dispatch checks only that a preview contract_evidence is an object, so TS's transport route, like Python's transport check, refuses evidence content that Rust's transport accepts (for example a successor's contract_evidence with a key added and its hashes made consistent, which TS refuses at the reader's G7). A transport refused by a header check before the reader runs carries each language's own code (TS SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED; Rust the reader's G0 code or its base header code; Python F-U6b-2's code), so parity there compares only accept against refuse (ROOT_RULINGS_V1 \"RV92 on the post-U6f round: one transport residue, declared by a scope sentence\"; RV92 u6f_02 N-9 (a), (b)). A numerically_eligible standing is a property of the supplied statement and its actual invocation, as the accepted reader checks them: no carrier authenticates producer origin, and none claims that a registered producer made the statement (ROOT_RULINGS_V1 \"RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled\", D-U7-6). A statement whose mechanics status is not MECHANICS_SOLVED (MODEL_INCOMPLETE, MECHANICS_FAILED or NOT_RUN on a milestone successor, made hash-consistent) is a blocked envelope that still carries preview evidence: a blocked envelope is refused at G7 with each language's own base code (Python SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID, Rust SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE, TS SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID; the 06b settlement), so for this class G7 parity compares the gate and each language asserts its own code (I66 u7_slice_f_01 observation 3; I67 u7_slice_f_01). An invalid enum value in a not_required case's quality is refused at G7 with each language's own code (Python SOURCE_NUMERICAL_CASE_INVALID, Rust SOURCE_NUMERICAL_CASE_INVALID, TS SOURCE_PRODUCER_CONTRACT_UNSUPPORTED, TS's G7 contract check firing first): a value outside the vocabulary of accuracy_evidence, structural_status or model_matrix_fidelity in the numerical_quality case of a not_required receipt case, made hash-consistent (observed for all three fields, RV94 u7_01 N-3; pinned by the shared corpus probe g7_not_required_quality_enum_invalid), so for this class G7 parity compares the gate and each language asserts its own code (ROOT_RULINGS_V1 \"RV94 on U7: PASS; the summary aligned across languages; the stale-comment repair; a public-activation checklist\"; I67 u7_repair_01).",
+  "fixtures": {
+    "milestone_sparse_interactive": {
+      "path": "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json",
+      "sha256": "ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc",
+      "shape": "milestone"
+    },
+    "milestone_dense_scrutiny": {
+      "path": "fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json",
+      "sha256": "6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5",
+      "shape": "milestone"
+    },
+    "legacy_preview_0_1": {
+      "path": "fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c",
+      "shape": "raw"
+    },
+    "preview_physics_1_invented_sparse": {
+      "path": "fixtures/results/preview_physics_invented_sparse.json",
+      "sha256": "a8d18b7f791071e0c18bb745494ca68ac1d9d08afb7adb6fd998d5936bb9d5c4",
+      "shape": "raw"
+    },
+    "source_blocks_n05_sparse": {
+      "path": "fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json",
+      "sha256": "90baefacf40111b85812a2fa8a32c6c9811254ed3c05497494e06f5d6583153f",
+      "shape": "raw"
+    }
+  },
+  "cases": [
+    {
+      "id": "sparse_interactive:invocation",
+      "fixture": "milestone_sparse_interactive",
+      "invocation": "fixture",
+      "requested": "invocation",
+      "edits": [],
+      "expected_standing": "numerically_eligible",
+      "expected_dispatch": "ok"
+    },
+    {
+      "id": "sparse_interactive:no_invocation",
+      "fixture": "milestone_sparse_interactive",
+      "invocation": null,
+      "requested": "invocation",
+      "edits": [],
+      "expected_standing": "needs_recompute",
+      "expected_dispatch": "ok"
+    },
+    {
+      "id": "sparse_interactive:no_requested",
+      "fixture": "milestone_sparse_interactive",
+      "invocation": "fixture",
+      "requested": [],
+      "edits": [],
+      "expected_standing": "needs_recompute",
+      "expected_dispatch": "ok"
+    },
+    {
+      "id": "sparse_interactive:other_requested",
+      "fixture": "milestone_sparse_interactive",
+      "invocation": "fixture",
+      "requested": [
+        {
+          "ref_type": "load_case",
+          "ref_id": "other"
+        }
+      ],
+      "edits": [],
+      "expected_standing": "needs_recompute",
+      "expected_dispatch": "ok"
+    },
+    {
+      "id": "sparse_interactive:edited_row",
+      "fixture": "milestone_sparse_interactive",
+      "invocation": "fixture",
+      "requested": "invocation",
+      "edits": [
+        {
+          "target": "source",
+          "path": [
+            "results",
+            0,
+            "value"
+          ],
+          "op": "set",
+          "value": 12345.0
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    {
+      "id": "sparse_interactive:foreign_mode",
+      "fixture": "milestone_sparse_interactive",
+      "invocation": "fixture",
+      "requested": "invocation",
+      "edits": [
+        {
+          "target": "invocation",
+          "path": [
+            "solver_mode"
+          ],
+          "op": "set",
+          "value": "dense_scrutiny"
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "ok"
+    },
+    {
+      "id": "sparse_interactive:relabelled_base_with_receipt",
+      "fixture": "milestone_sparse_interactive",
+      "invocation": "fixture",
+      "requested": "invocation",
+      "edits": [
+        {
+          "target": "source",
+          "path": [
+            "producer",
+            "semantic_contract_id"
+          ],
+          "op": "set",
+          "value": "openpipestress.result_semantics/0.3.0/preview-physics-1"
+        },
+        {
+          "target": "source",
+          "path": [
+            "formulation_basis",
+            "profile_id"
+          ],
+          "op": "set",
+          "value": "product_preview_mechanics_v1"
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+    },
+    {
+      "id": "dense_scrutiny:invocation",
+      "fixture": "milestone_dense_scrutiny",
+      "invocation": "fixture",
+      "requested": "invocation",
+      "edits": [],
+      "expected_standing": "numerically_eligible",
+      "expected_dispatch": "ok"
+    },
+    {
+      "id": "dense_scrutiny:no_invocation",
+      "fixture": "milestone_dense_scrutiny",
+      "invocation": null,
+      "requested": "invocation",
+      "edits": [],
+      "expected_standing": "needs_recompute",
+      "expected_dispatch": "ok"
+    },
+    {
+      "id": "dense_scrutiny:no_requested",
+      "fixture": "milestone_dense_scrutiny",
+      "invocation": "fixture",
+      "requested": [],
+      "edits": [],
+      "expected_standing": "needs_recompute",
+      "expected_dispatch": "ok"
+    },
+    {
+      "id": "dense_scrutiny:other_requested",
+      "fixture": "milestone_dense_scrutiny",
+      "invocation": "fixture",
+      "requested": [
+        {
+          "ref_type": "load_case",
+          "ref_id": "other"
+        }
+      ],
+      "edits": [],
+      "expected_standing": "needs_recompute",
+      "expected_dispatch": "ok"
+    },
+    {
+      "id": "dense_scrutiny:edited_row",
+      "fixture": "milestone_dense_scrutiny",
+      "invocation": "fixture",
+      "requested": "invocation",
+      "edits": [
+        {
+          "target": "source",
+          "path": [
+            "results",
+            0,
+            "value"
+          ],
+          "op": "set",
+          "value": 12345.0
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    {
+      "id": "dense_scrutiny:foreign_mode",
+      "fixture": "milestone_dense_scrutiny",
+      "invocation": "fixture",
+      "requested": "invocation",
+      "edits": [
+        {
+          "target": "invocation",
+          "path": [
+            "solver_mode"
+          ],
+          "op": "set",
+          "value": "sparse_interactive"
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "ok"
+    },
+    {
+      "id": "dense_scrutiny:relabelled_base_with_receipt",
+      "fixture": "milestone_dense_scrutiny",
+      "invocation": "fixture",
+      "requested": "invocation",
+      "edits": [
+        {
+          "target": "source",
+          "path": [
+            "producer",
+            "semantic_contract_id"
+          ],
+          "op": "set",
+          "value": "openpipestress.result_semantics/0.3.0/preview-physics-1"
+        },
+        {
+          "target": "source",
+          "path": [
+            "formulation_basis",
+            "profile_id"
+          ],
+          "op": "set",
+          "value": "product_preview_mechanics_v1"
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+    },
+    {
+      "id": "legacy_0_1:token_last_row_only",
+      "fixture": "legacy_preview_0_1",
+      "invocation": null,
+      "requested": [],
+      "edits": [
+        {
+          "target": "source",
+          "path": [
+            "results",
+            829,
+            "recovery_method"
+          ],
+          "op": "set",
+          "value": "contribution_preserving_multiprecision_v1"
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+    },
+    {
+      "id": "legacy_0_1:receipt_member_empty",
+      "fixture": "legacy_preview_0_1",
+      "invocation": null,
+      "requested": [],
+      "edits": [
+        {
+          "target": "source",
+          "path": [
+            "retained_precision"
+          ],
+          "op": "set",
+          "value": {}
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+    },
+    {
+      "id": "legacy_0_1:receipt_member_null",
+      "fixture": "legacy_preview_0_1",
+      "invocation": null,
+      "requested": [],
+      "edits": [
+        {
+          "target": "source",
+          "path": [
+            "retained_precision"
+          ],
+          "op": "set",
+          "value": null
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+    },
+    {
+      "id": "preview_physics_1:token_last_row_only",
+      "fixture": "preview_physics_1_invented_sparse",
+      "invocation": null,
+      "requested": [],
+      "edits": [
+        {
+          "target": "source",
+          "path": [
+            "results",
+            624,
+            "recovery_method"
+          ],
+          "op": "set",
+          "value": "contribution_preserving_multiprecision_v1"
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+    },
+    {
+      "id": "preview_physics_1:receipt_member_empty",
+      "fixture": "preview_physics_1_invented_sparse",
+      "invocation": null,
+      "requested": [],
+      "edits": [
+        {
+          "target": "source",
+          "path": [
+            "retained_precision"
+          ],
+          "op": "set",
+          "value": {}
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+    },
+    {
+      "id": "preview_physics_1:receipt_member_null",
+      "fixture": "preview_physics_1_invented_sparse",
+      "invocation": null,
+      "requested": [],
+      "edits": [
+        {
+          "target": "source",
+          "path": [
+            "retained_precision"
+          ],
+          "op": "set",
+          "value": null
+        }
+      ],
+      "expected_standing": "unsupported",
+      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+    }
+  ],
+  "declared_differences": [
+    {
+      "id": "I67-F1:unregistered_invalid_statement",
+      "kind": "language",
+      "ruling": "ROOT_RULINGS_V1 \"RV88 on U6a, U6c, U6b (and U6d): all PASS; repair rounds and the shared declared-difference cases\"; RV88 u6d_01 N-1; RV88 u6b_01 section 3; I67 u6d RETURN F1; PLAN section 3 rule 1",
+      "description": "An edited (invalid) successor statement with no invocation. Rust and Python run the reader and read unsupported; TS standing is registration-based and reads needs_recompute until a reader runs. No language makes it eligible or binds it.",
+      "forms": [
+        {
+          "label": "edited_row:no_invocation",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": null,
+          "requested": "invocation",
+          "edits": [
+            {
+              "target": "source",
+              "path": [
+                "results",
+                0,
+                "value"
+              ],
+              "op": "set",
+              "value": 12345.0
+            }
+          ],
+          "subject": "standing",
+          "expected": {
+            "rust": {
+              "standing": "unsupported"
+            },
+            "python": {
+              "standing": "unsupported"
+            },
+            "typescript": {
+              "standing": "needs_recompute",
+              "finding": "RETAINED_PRECISION_VALIDATION_REQUIRED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "I67-F2:display_only_binding_precheck",
+      "kind": "language",
+      "ruling": "ROOT_RULINGS_V1 \"RV88 on U6a, U6c, U6b (and U6d): all PASS; repair rounds and the shared declared-difference cases\"; RV88 u6d_01 N-1, N-2; I67 u6d RETURN F2; widened by ROOT_RULINGS_V1 \"RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions\" (RV92 u6f_01 N-3); TS expectation from RV92's probes (R/REVIEW_RV92/u6f_01 section 1)",
+      "description": "A valid successor statement with no valid registration in TS: none (no invocation), or one the reader refused (a foreign solver mode, an edited invocation model, an empty invocation). Rust and Python bind each row by its validated class, because binding validates without the invocation (absolute_verified: RULE_QUANTITY_BELOW_VERIFIED_FLOOR; not_covered: RULE_QUANTITY_NOT_COVERED; other classes bind), and with no invocation they summarise the validated classes. TS's display-only precheck and summary read registered classes only: it refuses every row (notice N_RP_UNVALIDATED) and its summary is empty. With a refused invocation every language's summary is empty, which is not a difference. Fail-closed; TS's rule check needs eligible standing, and Tauri's binding runs after the standing gate.",
+      "forms": [
+        {
+          "label": "none:binding",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": null,
+          "requested": "invocation",
+          "edits": [],
+          "subject": "binding",
+          "expected": {
+            "rust": {
+              "binding": "by_validated_class"
+            },
+            "python": {
+              "binding": "by_validated_class"
+            },
+            "typescript": {
+              "binding": "every_row:RULE_QUANTITY_NOT_COVERED",
+              "notice": "N_RP_UNVALIDATED"
+            }
+          }
+        },
+        {
+          "label": "none:summary",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": null,
+          "requested": "invocation",
+          "edits": [],
+          "subject": "summary",
+          "expected": {
+            "rust": {
+              "summary": "by_validated_class"
+            },
+            "python": {
+              "summary": "by_validated_class"
+            },
+            "typescript": {
+              "summary": "empty"
+            }
+          }
+        },
+        {
+          "label": "refused_registration:foreign_mode:sparse_interactive",
+          "fixtures": [
+            "milestone_sparse_interactive"
+          ],
+          "invocation": "fixture",
+          "requested": "invocation",
+          "edits": [
+            {
+              "target": "invocation",
+              "path": [
+                "solver_mode"
+              ],
+              "op": "set",
+              "value": "dense_scrutiny"
+            }
+          ],
+          "subject": "binding",
+          "expected": {
+            "rust": {
+              "binding": "by_validated_class"
+            },
+            "python": {
+              "binding": "by_validated_class"
+            },
+            "typescript": {
+              "binding": "every_row:RULE_QUANTITY_NOT_COVERED",
+              "notice": "N_RP_UNVALIDATED"
+            }
+          }
+        },
+        {
+          "label": "refused_registration:foreign_mode:dense_scrutiny",
+          "fixtures": [
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": "fixture",
+          "requested": "invocation",
+          "edits": [
+            {
+              "target": "invocation",
+              "path": [
+                "solver_mode"
+              ],
+              "op": "set",
+              "value": "sparse_interactive"
+            }
+          ],
+          "subject": "binding",
+          "expected": {
+            "rust": {
+              "binding": "by_validated_class"
+            },
+            "python": {
+              "binding": "by_validated_class"
+            },
+            "typescript": {
+              "binding": "every_row:RULE_QUANTITY_NOT_COVERED",
+              "notice": "N_RP_UNVALIDATED"
+            }
+          }
+        },
+        {
+          "label": "refused_registration:edited_model",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": "fixture",
+          "requested": "invocation",
+          "edits": [
+            {
+              "target": "invocation",
+              "path": [
+                "request",
+                "model",
+                "load_cases",
+                0,
+                "id"
+              ],
+              "op": "set",
+              "value": "case-edited"
+            }
+          ],
+          "subject": "binding",
+          "expected": {
+            "rust": {
+              "binding": "by_validated_class"
+            },
+            "python": {
+              "binding": "by_validated_class"
+            },
+            "typescript": {
+              "binding": "every_row:RULE_QUANTITY_NOT_COVERED",
+              "notice": "N_RP_UNVALIDATED"
+            }
+          }
+        },
+        {
+          "label": "refused_registration:empty_invocation",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": {},
+          "requested": "invocation",
+          "edits": [],
+          "subject": "binding",
+          "expected": {
+            "rust": {
+              "binding": "by_validated_class"
+            },
+            "python": {
+              "binding": "by_validated_class"
+            },
+            "typescript": {
+              "binding": "every_row:RULE_QUANTITY_NOT_COVERED",
+              "notice": "N_RP_UNVALIDATED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-U6b-2:python_refuses_transport",
+      "kind": "language",
+      "ruling": "ROOT_RULINGS_V1 \"RV88 on U6a, U6c, U6b (and U6d): all PASS; repair rounds and the shared declared-difference cases\"; ROOT_RULINGS_V1 \"U6b (Python carriers) verified and committed; the pin and findings ruled\" (tracked to wider F2a); RV88 u6b_01 N-2; I66 u6b RETURN F-U6b-2",
+      "description": "The header-only (transport) dispatch of the unedited successor: Rust for_source_metadata, Python _source_contract(check_receipt=False), TS its transport route. Rust and TS run the transport checks (TS through validateRetainedPrecisionTransport, I67's post-U6f round, RV88/RV92 N-1); Python has no transport validator and refuses (fail-closed). Transport is never eligible in any language.",
+      "forms": [
+        {
+          "label": "unedited",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": null,
+          "requested": "invocation",
+          "edits": [],
+          "subject": "transport",
+          "expected": {
+            "rust": {
+              "transport": "ok"
+            },
+            "python": {
+              "transport": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+            },
+            "typescript": {
+              "transport": "ok"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "F5:refused_statement_binding",
+      "kind": "semantics",
+      "ruling": "ROOT_RULINGS_V1 \"RV88 on U6a, U6c, U6b (and U6d): all PASS; repair rounds and the shared declared-difference cases\"; ROOT_RULINGS_V1 \"U6a verified and committed; fan-out\" (F5 accepted fail-closed, subject to RV88); RV88 u6a_01 section 5, N-1",
+      "description": "Binding of a refused (edited) successor statement: no row has a validated class, so every row is refused with RULE_QUANTITY_NOT_COVERED in every language. Declared because the code stretches D2 4.9.9's not_covered meaning to a statement with no verified class.",
+      "forms": [
+        {
+          "label": "edited_row:no_invocation",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": null,
+          "requested": "invocation",
+          "edits": [
+            {
+              "target": "source",
+              "path": [
+                "results",
+                0,
+                "value"
+              ],
+              "op": "set",
+              "value": 12345.0
+            }
+          ],
+          "subject": "binding",
+          "expected": {
+            "rust": {
+              "binding": "every_row:RULE_QUANTITY_NOT_COVERED"
+            },
+            "python": {
+              "binding": "every_row:RULE_QUANTITY_NOT_COVERED"
+            },
+            "typescript": {
+              "binding": "every_row:RULE_QUANTITY_NOT_COVERED",
+              "notice": "N_RP_UNVALIDATED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "RV92-N2-N5:ts_refuses_token_rows_at_the_header",
+      "kind": "language",
+      "ruling": "ROOT_RULINGS_V1 \"RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions\" (N-2 declared as a fifth entry; N-5 declared with it); RV92 u6f_01 N-2 (28 probes), N-5 (5 probes); TS expectation from RV92's probes (R/REVIEW_RV92/u6f_01 section 1)",
+      "description": "A non-successor source with the W1 token on a row, or a receipt member. (N-2) Rust's and Python's header-only dispatch reads no rows and admits a token-row source (their raw dispatch refuses it); TS has one dispatch, which reads rows when present, and refuses it with RETAINED_PRECISION_DOWNGRADE_FORBIDDEN. Stricter; raw dispatch agrees in all three. (N-5) A source-blocks envelope carrying a receipt member or a token row: Rust and Python still refuse its summary stress row (open_formula_stress_summary or the max_open_formula_stress headline) with RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE, keyed on the producer id; TS keys that branch on the dispatched route, which is unsupported for the downgraded envelope, so it refuses no row there. No reliance differs: every language's standing for it is unsupported, so each rule gate refuses first.",
+      "forms": [
+        {
+          "label": "header:token_row:legacy_0_1",
+          "fixtures": [
+            "legacy_preview_0_1"
+          ],
+          "invocation": null,
+          "requested": [],
+          "edits": [
+            {
+              "target": "source",
+              "path": [
+                "results",
+                0,
+                "recovery_method"
+              ],
+              "op": "set",
+              "value": "contribution_preserving_multiprecision_v1"
+            }
+          ],
+          "subject": "transport",
+          "expected": {
+            "rust": {
+              "transport": "ok"
+            },
+            "python": {
+              "transport": "ok"
+            },
+            "typescript": {
+              "transport": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+            }
+          }
+        },
+        {
+          "label": "header:token_row:preview_physics_1",
+          "fixtures": [
+            "preview_physics_1_invented_sparse"
+          ],
+          "invocation": null,
+          "requested": [],
+          "edits": [
+            {
+              "target": "source",
+              "path": [
+                "results",
+                0,
+                "recovery_method"
+              ],
+              "op": "set",
+              "value": "contribution_preserving_multiprecision_v1"
+            }
+          ],
+          "subject": "transport",
+          "expected": {
+            "rust": {
+              "transport": "ok"
+            },
+            "python": {
+              "transport": "ok"
+            },
+            "typescript": {
+              "transport": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+            }
+          }
+        },
+        {
+          "label": "source_blocks_summary_row:receipt_member",
+          "fixtures": [
+            "source_blocks_n05_sparse"
+          ],
+          "invocation": null,
+          "requested": [],
+          "edits": [
+            {
+              "target": "source",
+              "path": [
+                "retained_precision"
+              ],
+              "op": "set",
+              "value": {}
+            }
+          ],
+          "subject": "binding",
+          "expected": {
+            "rust": {
+              "binding": "source_blocks_summary:RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
+            },
+            "python": {
+              "binding": "source_blocks_summary:RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
+            },
+            "typescript": {
+              "binding": "every_row:none"
+            }
+          }
+        },
+        {
+          "label": "source_blocks_summary_row:token_row",
+          "fixtures": [
+            "source_blocks_n05_sparse"
+          ],
+          "invocation": null,
+          "requested": [],
+          "edits": [
+            {
+              "target": "source",
+              "path": [
+                "results",
+                0,
+                "recovery_method"
+              ],
+              "op": "set",
+              "value": "contribution_preserving_multiprecision_v1"
+            }
+          ],
+          "subject": "binding",
+          "expected": {
+            "rust": {
+              "binding": "source_blocks_summary:RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
+            },
+            "python": {
+              "binding": "source_blocks_summary:RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
+            },
+            "typescript": {
+              "binding": "every_row:none"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "D-U7-4:ts_requires_live_native_capture",
+      "kind": "language",
+      "ruling": "ROOT_RULINGS_V1 \"RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled\" (D-U7-4); RV91 u6d_01 N-2; RV88 u6d_01 S-1; I61 u7_scoping_01 PLAN section 2 row 5; I67 u7_slice_t_01; RV94 u7_01 S-1; ROOT_RULINGS_V1 \"RV94 on U7: PASS; the summary aligned across languages; the stale-comment repair; a public-activation checklist\"; I66 u7_repair_01; I67 u7_repair_01",
+      "description": "A valid successor statement with its actual invocation, whose TS standing has no live native capture for these bytes and the current model: registered without an IPC capture, or read against a current model that differs from the captured one while keeping the same load-case ids. After U7, Rust and Python, given the invocation argument and requested refs equal to the receipt's case order, read numerically_eligible; TS binds standing to the live native capture (hasNativeMechanicsInvocation: an unchanged, not invalidated capture, unchanged bytes, and the current model equal to the captured one) and reads needs_recompute with RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED. Stricter; fails closed. Every TS consumer of eligible standing (session Current, the rule-check gate, the T6 panels) also requires hasNativeMechanicsInvocation. The summary follows the same split (RV94 S-1): each language counts the per-case summary Current only when its own standing for the requested refs is numerically_eligible, so with the form's invocation and requested refs Rust and Python give the Current summary ('by_validated_class_current', 69 withheld on each milestone) and TS, without the live native capture, the not-Current one ('by_validated_class', 97 withheld).",
+      "forms": [
+        {
+          "label": "invocation_without_native_capture",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": "fixture",
+          "capture": "none",
+          "requested": "invocation",
+          "edits": [],
+          "subject": "standing",
+          "expected": {
+            "rust": {
+              "standing": "numerically_eligible"
+            },
+            "python": {
+              "standing": "numerically_eligible"
+            },
+            "typescript": {
+              "standing": "needs_recompute",
+              "finding": "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED"
+            }
+          }
+        },
+        {
+          "label": "stale_current_model_same_case_ids",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": "fixture",
+          "requested": "invocation",
+          "edits": [],
+          "current_model_edits": [
+            {
+              "path": [
+                "nodes",
+                0,
+                "position",
+                "x"
+              ],
+              "op": "set",
+              "value": 1.0
+            }
+          ],
+          "subject": "standing",
+          "expected": {
+            "rust": {
+              "standing": "numerically_eligible"
+            },
+            "python": {
+              "standing": "numerically_eligible"
+            },
+            "typescript": {
+              "standing": "needs_recompute",
+              "finding": "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED"
+            }
+          }
+        },
+        {
+          "label": "invocation_without_native_capture:summary",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": "fixture",
+          "capture": "none",
+          "requested": "invocation",
+          "edits": [],
+          "subject": "summary",
+          "expected": {
+            "rust": {
+              "summary": "by_validated_class_current"
+            },
+            "python": {
+              "summary": "by_validated_class_current"
+            },
+            "typescript": {
+              "summary": "by_validated_class"
+            }
+          }
+        },
+        {
+          "label": "stale_current_model_same_case_ids:summary",
+          "fixtures": [
+            "milestone_sparse_interactive",
+            "milestone_dense_scrutiny"
+          ],
+          "invocation": "fixture",
+          "requested": "invocation",
+          "edits": [],
+          "current_model_edits": [
+            {
+              "path": [
+                "nodes",
+                0,
+                "position",
+                "x"
+              ],
+              "op": "set",
+              "value": 1.0
+            }
+          ],
+          "subject": "summary",
+          "expected": {
+            "rust": {
+              "summary": "by_validated_class_current"
+            },
+            "python": {
+              "summary": "by_validated_class_current"
+            },
+            "typescript": {
+              "summary": "by_validated_class"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

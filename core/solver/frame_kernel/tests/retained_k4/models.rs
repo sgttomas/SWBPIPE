@@ -424,9 +424,9 @@ fn claim_ratio(q: f64, x: &Exact, a: f64) -> f64 {
     let mut num = ExactWideSum::new();
     num.add_binary64(q, false).unwrap();
     x.add_to(&mut num, true);
-    num.make_absolute();
+    num.make_absolute().expect("finite helper sum is available");
     x.add_slack(&mut num, true);
-    if num.signum() <= 0 {
+    if num.signum().expect("finite helper sum is available") <= 0 {
         return 0.0;
     }
     if a == 0.0 {
@@ -445,12 +445,12 @@ fn claim_ratio(q: f64, x: &Exact, a: f64) -> f64 {
 fn range_consistent(outcome: &Binary64Outcome, x: &Exact) -> bool {
     let mut s = ExactWideSum::new();
     x.add_to(&mut s, false);
-    s.make_absolute();
+    s.make_absolute().expect("finite helper sum is available");
     match outcome {
         Binary64Outcome::Underflow { .. } => {
             x.add_slack(&mut s, true);
             s.add_integer(true, &[1], -1075).unwrap();
-            s.signum() <= 0
+            s.signum().expect("finite helper sum is available") <= 0
         }
         Binary64Outcome::Overflow { negative } => {
             if x.mantissa == 0 || x.negative != *negative {
@@ -458,7 +458,7 @@ fn range_consistent(outcome: &Binary64Outcome, x: &Exact) -> bool {
             }
             x.add_slack(&mut s, false);
             s.add_integer(true, &[(1u64 << 54) - 1], 970).unwrap();
-            s.signum() >= 0
+            s.signum().expect("finite helper sum is available") >= 0
         }
         _ => true,
     }

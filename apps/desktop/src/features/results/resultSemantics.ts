@@ -6,6 +6,7 @@ import precisionContract from '../../../../../fixtures/results/semantic_contract
 import previewPhysicsContract from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json';
 import loadReferenceContract from '../../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json';
 import loadReferenceSourceContract from '../../../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json';
+import previewPhysicsRetainedContract from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json';
 import { sourceContract } from './numericalResultQuality';
 import type { MechanicsResult } from '../../types';
 export type SourceRow = MechanicsResult['results'][number];
@@ -27,6 +28,9 @@ export function semanticContractForSource(source?: MechanicsResult) {
   // equal to physics-1 and physics-source-1 respectively).
   if (sourceContract(source) === 'load_reference') return loadReferenceContract;
   if (sourceContract(source) === 'load_reference_source') return loadReferenceSourceContract;
+  // U6d: the successor reads its own pinned table, whose rows equal preview-physics-1's
+  // (the reader's G0 binds these bytes by sha256).
+  if (sourceContract(source) === 'retained_preview_physics') return previewPhysicsRetainedContract;
   throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');
 }
 export function resultSemantics(row: SourceRow, source?: MechanicsResult): SemanticSignature | null {

@@ -159,3 +159,34 @@ fn publication_failure_reasons_are_typed_at_the_public_boundary() {
         UnresolvedReason::PublicationCertificate { .. }
     ));
 }
+
+#[test]
+fn checked_work_public_consumers_refuse_unavailable_stage_records() {
+    use open_pipe_stress_frame_kernel::structural::retained_api::WorkFault;
+    use open_pipe_stress_solver_performance_harness::k6::w1::staged::{
+        attempts_of, prefix_limits, segments, stages_complete, stages_equal_totals,
+        validate_attempts, work_by_precision, work_closes,
+    };
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let outcome = solve_case(cantilever(), CaseLimit::new(u64::MAX), &mut meter);
+    let mut attempts = attempts_of(&outcome).to_vec();
+    validate_attempts(&attempts).unwrap();
+    let mut unavailable = StageWork::default();
+    unavailable.formation = u64::MAX;
+    unavailable.assembly = 1;
+    assert_eq!(
+        unavailable.checked_total().exact(),
+        Err(WorkFault::Overflow)
+    );
+    assert_eq!(
+        attempts[0].stages.merge(&unavailable),
+        Err(WorkFault::Overflow)
+    );
+    assert_eq!(validate_attempts(&attempts), Err(WorkFault::Overflow));
+    assert!(work_by_precision(&attempts).is_err());
+    assert!(segments(&attempts).is_err());
+    assert!(prefix_limits(&attempts).is_err());
+    assert!(!stages_equal_totals(&attempts));
+    assert!(!stages_complete(&attempts[0]));
+    assert!(!work_closes(&attempts, meter.checked_charged()));
+}

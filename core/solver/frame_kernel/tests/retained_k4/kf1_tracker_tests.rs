@@ -124,7 +124,7 @@ fn refusing(c: f64) -> Pair {
 fn is_refusing(den: &ExactWideSum) -> bool {
     let mut t = den.clone();
     t.add_binary64(1.0, true).unwrap();
-    if t.is_zero() {
+    if t.is_zero().unwrap() {
         return false;
     }
     let v = t.round(&mut ctx64()).unwrap();
@@ -408,7 +408,7 @@ fn differential(stream: &[Pair], direction: Direction, limit: usize, cov: &mut C
     let mut refused_seen = false;
     for (num, den) in stream {
         let key = approximate_ratio(&mut c64k, num, den).unwrap().to_bits();
-        keys.push((key, !num.clone().is_zero()));
+        keys.push((key, !num.clone().is_zero().unwrap()));
         r.offer(&mut c64r, num.clone(), den.clone()).unwrap();
         b.offer(&mut c64b, &mut c16b, num.clone(), den.clone())
             .unwrap();
@@ -462,11 +462,15 @@ fn differential(stream: &[Pair], direction: Direction, limit: usize, cov: &mut C
         // tracker's adds one per nonzero row it evaluated at a collapse and
         // K4 does not keep.
         let cost = evaluation_cost();
-        assert_eq!(lme(&c16r), cost * reference_evals);
-        assert_eq!(lme(&c16b), cost * evals, "{direction:?} T = {limit}");
+        assert_eq!(lme(&c16r).exact().unwrap(), cost * reference_evals);
+        assert_eq!(
+            lme(&c16b).exact().unwrap(),
+            cost * evals,
+            "{direction:?} T = {limit}"
+        );
         assert!(evals >= reference_evals);
         let nonzero = keys.iter().filter(|k| k.1).count() as u64;
-        assert!(lme(&c16b) <= cost * nonzero);
+        assert!(lme(&c16b).exact().unwrap() <= cost * nonzero);
         if evals > reference_evals {
             cov.collapsed_then_dropped += 1;
         }
@@ -627,10 +631,10 @@ fn kf1_the_shared_cap_bounds_a_calls_trackers_together() {
         // row K4's finish evaluates (up to its first refusal) is evaluated once
         // by the bounded trackers, at a collapse or at finish, at the same cost.
         assert!(
-            lme(&c16s) >= lme(&c16r),
+            lme(&c16s).exact().unwrap() >= lme(&c16r).exact().unwrap(),
             "round {round}: the set's work {} < K4's {}",
-            lme(&c16s),
-            lme(&c16r)
+            lme(&c16s).exact().unwrap(),
+            lme(&c16r).exact().unwrap()
         );
     }
     println!("KF1 shared cap: {collapses_all} collapses of every tracker");

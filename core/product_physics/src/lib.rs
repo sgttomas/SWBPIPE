@@ -111,6 +111,22 @@ mod pressure_exact;
 mod pressure_material;
 mod pressure_runtime;
 mod preview_physics;
+mod retained_product;
+mod retained_receipt;
+mod retained_memory;
+// I61 U1: the private serializer (production-unreachable until U3).
+mod retained_wire;
+pub use retained_memory::{
+    borrowed_request_census, borrowed_value_census, AllowanceStatus, BorrowedRequestFacts,
+    BorrowedValueFacts, CapacityFact, CensusStatus, HeadlessRootFacts, MissingAdmissionTerm,
+    ProfileStatus, RetainedAdmissionReport, RetainedCaller, RetainedHeadlessContext,
+};
+#[cfg(test)]
+mod retained_product_tests;
+#[cfg(test)]
+mod retained_wire_tests;
+#[cfg(test)]
+mod retained_facade_tests;
 pub use pressure_runtime::{PressureContractInput, PressureRegionInput, PressureTerminalInput};
 
 const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF: &str =
@@ -2152,11 +2168,139 @@ pub fn run_linear_static_preview_value_with_mode(
     actual_request: serde_json::Value,
     solver_mode: PreviewSolverMode,
 ) -> Result<MechanicsEnvelope, String> {
+    // Shared/native compatibility never selects a retained caller profile.
+    run_linear_static_preview_value_dispatch(actual_request, solver_mode, None)
+        .map(|outcome| outcome.envelope)
+}
+
+/// Ordinary result plus non-wire admission facts. No production permit exists.
+pub struct RetainedPreviewOutput {
+    envelope: MechanicsEnvelope,
+    admission: Option<RetainedAdmissionReport>,
+    /// U3 (D-a): a permitted invocation's W1 result: the checked successor, or
+    /// the private cause of its fallback. `None` on every refused or shared call.
+    retained: Option<Result<RetainedSuccessor, W1Fallback>>,
+}
+/// R-1 (ROOT, NUM efde9ca2d1, Proposal A): the one publication of a retained entry.
+/// Without a permit it is always `Ordinary`, as in every Stale (unregistered) build.
+#[derive(Debug, Clone)]
+pub enum RetainedPublication {
+    /// The ordinary base, with R-2's unavailable notice when a permitted
+    /// invocation's W1 work ran and fell back.
+    Ordinary(MechanicsEnvelope),
+    /// The precommit-validated retained-precision successor document.
+    Successor(serde_json::Value),
+}
+/// U3 (D-a): the successor document (the envelope with `retained_precision`),
+/// staged, serialized and validated before the transfer moved it here.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct RetainedSuccessor(serde_json::Value);
+impl RetainedSuccessor {
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn value(&self) -> &serde_json::Value { &self.0 }
+}
+/// U3: why a permitted invocation published the untouched ordinary bytes.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum W1Fallback {
+    /// Load-state or exact-pressure model: outside D1 (D1.3), the ordinary route.
+    Domain,
+    /// The reserved-stack thread could not be spawned (STACK_PLAN §1).
+    StackReservation,
+    /// Exact-block selected on the ordinary route (coexistence, D-15).
+    Coexistence,
+    /// G-B or G-C refused.
+    LateGate(retained_memory::PhaseRefusal),
+    CompleteGate(retained_memory::PhaseRefusal),
+    /// The prepared attempt refused at a stage (one-case: no successor, RR:8436).
+    Preparation,
+    Native,
+    Candidate,
+    /// The staging overlay's invariant did not hold (RV85 N6): the site.
+    Staging(retained_product::StagingFault),
+    /// The serializer refused typed.
+    Serializer(retained_wire::ReceiptFailure),
+    /// Precommit validation (decision 5): the accepted Rust reader's first failure.
+    Precommit { gate: &'static str, code: String },
+    /// R-2: the notice's space could not be reserved, so W1 did not start.
+    NoticeReservation,
+    /// Fail-closed guard: the permitted observer no longer held its permit at G-C
+    /// (unreachable: `permitted_probe` moves the permit in and nothing takes it).
+    PermitUnbound,
+}
+impl RetainedPreviewOutput {
+    /// The ordinary base: the publication unless `successor()` is present.
+    pub fn envelope(&self) -> &MechanicsEnvelope { &self.envelope }
+    /// R-1: the successor document, present only when a permitted invocation's
+    /// W1 transfer completed. Always `None` without a permit.
+    #[doc = "R-1 (RV92 N-6, C-3): a borrowing view of the same successor that `into_publication()` publishes, not a second publication. A caller that publishes this successor does not also publish `envelope()`."] pub fn successor(&self) -> Option<&serde_json::Value> {
+        match &self.retained {
+            Some(Ok(successor)) => Some(&successor.0),
+            _ => None,
+        }
+    }
+    /// R-1: exactly one publication. The ordinary owner drops when a caller takes
+    /// the successor.
+    pub fn into_publication(self) -> RetainedPublication {
+        match self.retained {
+            Some(Ok(successor)) => RetainedPublication::Successor(successor.0),
+            _ => RetainedPublication::Ordinary(self.envelope),
+        }
+    }
+    /// U3: the permitted invocation's W1 result (see `retained`).
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn retained(&self) -> Option<&Result<RetainedSuccessor, W1Fallback>> { self.retained.as_ref() }
+    /// None means the existing pre-parse refusal returned before census entry.
+    pub fn admission(&self) -> Option<&RetainedAdmissionReport> { self.admission.as_ref() }
+    #[doc = "R-1 (RV92 N-6, C-1): the ordinary base and the admission report only. A successor that a permitted invocation produced is dropped here, never published; take it with `into_publication()`."] pub fn into_parts(self) -> (MechanicsEnvelope, Option<RetainedAdmissionReport>) {
+        (self.envelope, self.admission)
+    }
+}
+
+pub fn run_linear_static_preview_value_with_retained_direct(
+    actual_request: serde_json::Value,
+    solver_mode: PreviewSolverMode,
+) -> Result<RetainedPreviewOutput, String> {
+    run_linear_static_preview_value_dispatch(actual_request, solver_mode, Some(retained_memory::Entry::Direct))
+}
+
+pub fn run_linear_static_preview_value_with_retained_headless(
+    actual_request: serde_json::Value,
+    solver_mode: PreviewSolverMode,
+    context: RetainedHeadlessContext<'_>,
+) -> Result<RetainedPreviewOutput, String> {
+    run_linear_static_preview_value_dispatch(actual_request, solver_mode, Some(retained_memory::Entry::Headless(context)))
+}
+
+fn run_linear_static_preview_value_dispatch(
+    actual_request: serde_json::Value,
+    solver_mode: PreviewSolverMode,
+    retained_entry: Option<retained_memory::Entry<'_>>,
+) -> Result<RetainedPreviewOutput, String> {
     if let Some(refused) = preview_physics::imposed_displacement_refusal(&actual_request) {
-        return refused;
+        return refused.map(|envelope| RetainedPreviewOutput { envelope, admission: None, retained: None });
     }
     let (request, capture) = source_receipt::CapturedInvocation::parse(actual_request, solver_mode)
         .map_err(|error| error.0)?;
+    // G-A (API.md §2): census, then admission, before any ProductCapture can be
+    // installed. A refusal is private evidence only; the once-only ordinary route
+    // below is unchanged. Only D1 Direct calls in the registered build get a permit.
+    let admission = match retained_entry.map(|entry| retained_memory::admit(&capture, &request, entry)) {
+        Some(Ok((permit, report))) => return permitted_dispatch(permit, report, request, capture, solver_mode),
+        Some(Err(report)) => Some(report),
+        None => None,
+    };
+    ordinary_dispatch(request, &capture, solver_mode, admission, None)
+}
+
+/// The unchanged ordinary route of every refused or shared call (and of a
+/// permitted call whose reserved-stack thread could not be spawned).
+fn ordinary_dispatch(
+    request: LinearStaticPreviewRequest,
+    capture: &source_receipt::CapturedInvocation,
+    solver_mode: PreviewSolverMode,
+    admission: Option<RetainedAdmissionReport>,
+    retained: Option<Result<RetainedSuccessor, W1Fallback>>,
+) -> Result<RetainedPreviewOutput, String> {
     // The composite profile pays for retained-source and physical evidence.
     // This closed resource policy does not change old source-blocks-1 or the
     // exact helper defaults, and never changes the numerical criterion.
@@ -2164,13 +2308,18 @@ pub fn run_linear_static_preview_value_with_mode(
     if pressure_runtime::is_exact(&request.model) {
         budget.per_case_limit = PHYSICS_SOURCE_WORK_LIMIT;
     }
-    let result = run_linear_static_preview_captured(request, solver_mode, Some(&capture), &mut budget);
-    if matches!(result.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID)
-        && result.source_block_recovery.is_none()
-    {
+    #[cfg(test)]
+    retained_memory::tests::ordinary_dispatch_entered();
+    let result = run_linear_static_preview_captured(request, solver_mode, Some(capture), &mut budget);
+    if source_finalization_failed(&result) {
         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
     }
-    Ok(result)
+    Ok(RetainedPreviewOutput { envelope: result, admission, retained })
+}
+
+fn source_finalization_failed(envelope: &MechanicsEnvelope) -> bool {
+    matches!(envelope.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID)
+        && envelope.source_block_recovery.is_none()
 }
 
 fn run_linear_static_preview_captured(
@@ -2217,6 +2366,17 @@ fn run_linear_static_preview_captured_once(
     capture: Option<&source_receipt::CapturedInvocation>,
     source_budget: &mut SourceRecoveryBudget,
 ) -> MechanicsEnvelope {
+    run_linear_static_preview_observed(request, solver_mode, capture, source_budget, None)
+}
+
+fn run_linear_static_preview_observed(
+    request: LinearStaticPreviewRequest,
+    solver_mode: PreviewSolverMode,
+    capture: Option<&source_receipt::CapturedInvocation>,
+    source_budget: &mut SourceRecoveryBudget,
+    mut product: Option<&mut retained_product::ProductCapture>,
+) -> MechanicsEnvelope {
+    #[cfg(test)] retained_tests_hooks::ordinary_run_entered(); if let Some(observer)=product.as_deref_mut(){observer.invocation(capture,solver_mode);}
     let mut model = request.model;
     let request_materials_supplied = !request.materials.is_empty();
     let mut materials = if request.materials.is_empty() {
@@ -2278,6 +2438,9 @@ fn run_linear_static_preview_captured_once(
     preview_physics::refuse_unqualified_joint_elements(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
+    }
+    if let Some(observer) = product.as_deref_mut() {
+        observer.normalized(&model, &materials, request_materials_supplied);
     }
     let resolved_cases = if load_state {
         let resolved = model
@@ -2431,7 +2594,7 @@ fn run_linear_static_preview_captured_once(
             };
             let (_, basis_materials, basis_built, basis_stiffness, _) =
                 &basis_solve_states[state_index];
-            match solve_load_case(
+            match solve_load_case_observed(
                 &model,
                 basis_built,
                 basis_materials,
@@ -2445,6 +2608,7 @@ fn run_linear_static_preview_captured_once(
                 source_budget,
                 Some(resolved),
                 &mut diagnostics,
+                product.as_deref_mut(),
             ) {
                 Ok(solve) => load_case_solves.push(solve),
                 Err(error) => return solver_blocked(model, diagnostics, error),
@@ -2460,7 +2624,7 @@ fn run_linear_static_preview_captured_once(
             }
             let (_, basis_materials, basis_built, basis_stiffness, basis_record) =
                 &basis_solve_states[0];
-            match solve_load_case(
+            match solve_load_case_observed(
                 &model,
                 basis_built,
                 basis_materials,
@@ -2474,6 +2638,7 @@ fn run_linear_static_preview_captured_once(
                 source_budget,
                 None,
                 &mut diagnostics,
+                product.as_deref_mut(),
             ) {
                 Ok(solve) => load_case_solves.push(solve),
                 Err(error) => return solver_blocked(model, diagnostics, error),
@@ -2490,7 +2655,7 @@ fn run_linear_static_preview_captured_once(
             Some(index) => index,
             None => {
                 let Some((basis_materials, basis_record)) =
-                    materials_for_modulus_basis(&model, &materials, load_case, &mut diagnostics)
+                    materials_for_modulus_basis_observed(&model, &materials, load_case, &mut diagnostics, product.as_deref_mut())
                 else {
                     return blocked_envelope(model, diagnostics);
                 };
@@ -2517,7 +2682,7 @@ fn run_linear_static_preview_captured_once(
         };
         let (_, basis_materials, basis_built, basis_stiffness, basis_record) =
             &basis_solve_states[state_index];
-        match solve_load_case(
+        match solve_load_case_observed(
             &model,
             basis_built,
             basis_materials,
@@ -2531,6 +2696,7 @@ fn run_linear_static_preview_captured_once(
             source_budget,
             None,
             &mut diagnostics,
+            product.as_deref_mut(),
         ) {
             Ok(solve) => load_case_solves.push(solve),
             Err(error) => return solver_blocked(model, diagnostics, error),
@@ -2740,7 +2906,394 @@ fn run_linear_static_preview_captured_once(
             }
         }
     }
+    if let Some(observer) = product.as_deref_mut() { observer.finish(&envelope); }
     envelope
+}
+
+/// U3: a permitted retained invocation (API.md §3). Everything after G-A runs on
+/// one scoped thread with the permit's reserved stack (STACK_PLAN §1, D-3 = S1):
+/// the single observed ordinary run, G-B (inside the capture), G-C and every W1
+/// phase. A spawn failure runs the unchanged ordinary route on this thread.
+/// The permit is linear (U3 grant 1b): it moves onto the reserved-stack thread and
+/// into the observer, and drops with the work, or unrun with it on a spawn failure.
+/// Only D1 Direct calls in the registered dev/test build reach it (M = 4,026,531,840 B, D-7).
+fn permitted_dispatch(
+    permit: retained_memory::CapturePermit,
+    report: RetainedAdmissionReport,
+    request: LinearStaticPreviewRequest,
+    capture: source_receipt::CapturedInvocation,
+    solver_mode: PreviewSolverMode,
+) -> Result<RetainedPreviewOutput, String> {
+    let bytes = permit.reserved_stack_bytes();
+    let mut slot = Some(request);
+    let (pending, captured) = (&mut slot, &capture);
+    let ran = on_reserved_stack(bytes, carry_test_hooks(move || {
+        pending.take().map(|request| permitted_run(permit, report, request, captured, solver_mode))
+    }));
+    #[cfg(test)]
+    retained_tests_hooks::reclaim_handed_back();
+    match (ran.flatten(), slot) {
+        (Some(result), _) => result,
+        (None, Some(request)) => ordinary_dispatch(request, &capture, solver_mode, Some(report), Some(Err(W1Fallback::StackReservation))),
+        (None, None) => Err("retained dispatch lost its request".into()),
+    }
+}
+
+/// STACK_PLAN §1: run `work` on one scoped thread with `bytes` of reserved stack,
+/// borrowing the caller's owners. `None` when the thread cannot be spawned (the
+/// work did not run). A panic is re-raised here with its original payload.
+fn on_reserved_stack<T: Send>(bytes: usize, work: impl FnOnce() -> T + Send) -> Option<T> {
+    std::thread::scope(|scope| {
+        match std::thread::Builder::new().stack_size(bytes).spawn_scoped(scope, work) {
+            Ok(handle) => Some(match handle.join() {
+                Ok(value) => value,
+                Err(payload) => std::panic::resume_unwind(payload),
+            }),
+            Err(_) => None,
+        }
+    })
+}
+
+/// Production: the work itself. Test builds: the caller thread's armed fault hooks
+/// (thread-local) move with the work onto the reserved-stack thread, so a committed
+/// fault test cannot pass vacuously there (ROOT's flag on grant 1). Faults that did
+/// not fire there are handed back to the caller (RV85 U2): after the work, or as the
+/// unrun work drops on a spawn failure; the caller re-arms them with
+/// `reclaim_handed_back`.
+#[cfg(not(test))]
+fn carry_test_hooks<F>(work: F) -> F { work }
+#[cfg(test)]
+fn carry_test_hooks<T, F: FnOnce() -> T + Send>(work: F) -> impl FnOnce() -> T + Send {
+    let carried = retained_tests_hooks::Carried::take();
+    move || {
+        let caller = carried.install();
+        let value = work();
+        retained_tests_hooks::hand_back(caller);
+        value
+    }
+}
+
+/// The permitted run on the reserved-stack thread: the single observed ordinary
+/// run with capture installed, G-C, then the W1 phases.
+fn permitted_run(
+    permit: retained_memory::CapturePermit,
+    report: RetainedAdmissionReport,
+    request: LinearStaticPreviewRequest,
+    capture: &source_receipt::CapturedInvocation,
+    solver_mode: PreviewSolverMode,
+) -> Result<RetainedPreviewOutput, String> {
+    // D1.3: load-state and exact-pressure models never reach W1; defensively, a
+    // permit for one takes the unchanged ordinary route (with its SF-1 logic).
+    if case_state::is_load_state(&request.model) || pressure_runtime::is_exact(&request.model) {
+        return ordinary_dispatch(request, capture, solver_mode, Some(report), Some(Err(W1Fallback::Domain)));
+    }
+    let mut budget = SourceRecoveryBudget::default();
+    // The permit moves into the observer, which checks G-B with it.
+    let mut observer = retained_product::ProductCapture::permitted_probe(permit);
+    let ordinary = run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer));
+    if source_finalization_failed(&ordinary) {
+        return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
+    }
+    // RV85 N1 (I51 COMPOSITION §2): G-C follows only a settled ordinary run whose
+    // exact-block arbitration left W1 open and whose late capture G-B authorized;
+    // otherwise its true cause is recorded and G-C is never consulted.
+    let (envelope, retained) = if ordinary.source_block_recovery.is_some() {
+        (ordinary, Err(W1Fallback::Coexistence))
+    } else if let Some(refusal) = observer.late_refusal().cloned() {
+        (ordinary, Err(W1Fallback::LateGate(refusal)))
+    } else {
+        #[cfg(test)] retained_tests_hooks::at_complete_gate(&mut observer); // G-C, with the observer's own permit.
+        match observer.permit().map(|permit| permit.check_complete(&retained_memory::CompleteFacts { ordinary: &ordinary, capture: &observer })) {
+            Some(Ok(())) => retained_w1(observer, ordinary, capture),
+            Some(Err(refusal)) => (ordinary, Err(W1Fallback::CompleteGate(refusal))),
+            None => (ordinary, Err(W1Fallback::PermitUnbound)),
+        }
+    };
+    Ok(RetainedPreviewOutput { envelope, admission: Some(report), retained: Some(retained) })
+}
+
+/// R-2 (ROOT, NUM efde9ca2d1, N1): the fixed product text of the base publication's
+/// unavailable notice. No receipt reference: the base publication carries none.
+pub(crate) const RETAINED_UNAVAILABLE_NOTICE: &str = "Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics.";
+/// C1:68: the reason a receipt-encoding fallback states, before its detail token.
+const RECEIPT_ENCODING_REASON: &str = " Reason: receipt_encoding; detail: ";
+/// The longest C1:68 detail token (`work_counter_inconsistent`).
+const RECEIPT_ENCODING_DETAIL_MAX: usize = 25;
+
+/// C1:68's receipt-encoding detail for a serializer refusal, from the accepted
+/// `ReceiptCheck::wire()` token: only the details C1:68 names (the three work-counter
+/// tokens, and `publication_hash_range` "similarly"). An association or untranslated
+/// refusal is not a receipt-encoding fallback and states no reason.
+fn receipt_encoding_detail(check: retained_wire::ReceiptCheck) -> Option<&'static str> {
+    match check.wire() {
+        token @ ("work_counter_range" | "work_counter_inconsistent" | "saturation_not_excluded" | "publication_hash_range") => Some(token),
+        _ => None,
+    }
+}
+
+/// R-2 (N1): the notice whose space is reserved before any W1 work starts (COMP:66),
+/// so that rendering it after a fallback allocates nothing.
+struct ReservedNotice(Diagnostic);
+impl ReservedNotice {
+    /// Reserve one diagnostic slot in the ordinary owner and the longest message.
+    /// `None` (W1 does not start) if either reservation fails, or the base already
+    /// carries the notice's id.
+    fn reserve(ordinary: &mut MechanicsEnvelope, case_id: &str) -> Option<Self> {
+        let id = format!("diagnostic:retained-precision:{case_id}:unavailable");
+        if ordinary.diagnostics.iter().any(|d| d.id == id) {
+            return None;
+        }
+        ordinary.diagnostics.try_reserve_exact(1).ok()?;
+        let mut message = String::new();
+        message.try_reserve_exact(RETAINED_UNAVAILABLE_NOTICE.len() + RECEIPT_ENCODING_REASON.len() + RECEIPT_ENCODING_DETAIL_MAX + 1).ok()?;
+        message.push_str(RETAINED_UNAVAILABLE_NOTICE);
+        #[cfg(test)]
+        assert!(message.capacity() >= RETAINED_UNAVAILABLE_NOTICE.len() + RECEIPT_ENCODING_REASON.len() + RECEIPT_ENCODING_DETAIL_MAX + 1);
+        Some(Self(Diagnostic {
+            id,
+            code: retained_wire::UNAVAILABLE_CODE.to_owned(),
+            severity: "info".to_owned(),
+            message,
+            source: Some("core/product_physics".to_owned()),
+            affected_refs: vec![case_id.to_owned()],
+        }))
+    }
+    /// Append the notice after the ordinary prefix, for a fallback after W1 work
+    /// ran. Within the reserved capacity: no allocation.
+    fn publish(self, mut ordinary: MechanicsEnvelope, cause: W1Fallback) -> (MechanicsEnvelope, Result<RetainedSuccessor, W1Fallback>) {
+        let Self(mut notice) = self;
+        // RV85 T1: rendering and appending allocate nothing (the capacities reserved
+        // before W1 are the capacities published).
+        #[cfg(test)]
+        let reserved = (ordinary.diagnostics.capacity(), notice.message.capacity());
+        if let W1Fallback::Serializer(failure) = &cause {
+            if let Some(detail) = receipt_encoding_detail(failure.check) {
+                notice.message.push_str(RECEIPT_ENCODING_REASON);
+                notice.message.push_str(detail);
+                notice.message.push('.');
+            }
+        }
+        #[cfg(test)]
+        assert!(ordinary.diagnostics.len() < ordinary.diagnostics.capacity() && notice.message.capacity() == reserved.1,
+            "the notice's space was reserved before W1: rendering allocated nothing");
+        ordinary.diagnostics.push(notice);
+        #[cfg(test)]
+        assert_eq!(ordinary.diagnostics.capacity(), reserved.0, "appending the notice allocated nothing");
+        (ordinary, Err(cause))
+    }
+}
+
+/// The one case W1 attempts (D1.4: one load case, no combinations). `None` outside
+/// D1.4, where W1 never starts.
+fn w1_case_id(capture: &source_receipt::CapturedInvocation) -> Option<&str> {
+    let model = &capture.borrowed_raw()["model"];
+    match (model["load_cases"].as_array().map(Vec::as_slice), model["combinations"].as_array().map_or(0, Vec::len)) {
+        (Some([case]), 0) => case["id"].as_str(),
+        _ => None,
+    }
+}
+
+/// U3: the W1 phases over the single actual ordinary run's capture: coexistence,
+/// G-B's outcome, the notice reservation, preparation, native, proof (the frozen
+/// candidate), staging, serialization, precommit validation and the transfer. The
+/// ordinary envelope's bytes are never changed by W1: it returns on every fallback
+/// (D-b), with R-2's notice appended when W1 work ran, and beside the successor on
+/// success. No fallible step follows the transfer's first move.
+fn retained_w1(
+    observer: retained_product::ProductCapture,
+    mut ordinary: MechanicsEnvelope,
+    capture: &source_receipt::CapturedInvocation,
+) -> (MechanicsEnvelope, Result<RetainedSuccessor, W1Fallback>) {
+    if ordinary.source_block_recovery.is_some() {
+        return (ordinary, Err(W1Fallback::Coexistence));
+    }
+    if let Some(refusal) = observer.late_refusal() {
+        let refusal = refusal.clone();
+        return (ordinary, Err(W1Fallback::LateGate(refusal)));
+    }
+    let Some(case_id) = w1_case_id(capture) else {
+        return (ordinary, Err(W1Fallback::Domain));
+    };
+    // R-2: the notice's space is reserved before any W1 work starts.
+    let Some(notice) = ReservedNotice::reserve(&mut ordinary, case_id) else {
+        return (ordinary, Err(W1Fallback::NoticeReservation));
+    };
+    let mut prepared = match observer.prepare_case(ordinary) {
+        Ok(prepared) => prepared,
+        Err(failure) => return notice.publish(failure.ordinary, W1Fallback::Preparation),
+    };
+    #[cfg(test)]
+    retained_tests_hooks::before_native(&mut prepared);
+    if prepared.solve_native().is_err() {
+        return notice.publish(prepared.into_ordinary(), W1Fallback::Native);
+    }
+    let frozen = match prepared.freeze_candidate() {
+        Ok(frozen) => frozen,
+        Err(refusal) => return notice.publish(refusal.ordinary, W1Fallback::Candidate),
+    };
+    // Staging: the overlay applies to a copy; the ordinary owner stays intact. A
+    // broken overlay invariant falls back typed (RV85 N6).
+    #[cfg(test)]
+    let mut frozen = frozen;
+    #[cfg(test)]
+    retained_tests_hooks::before_staging(&mut frozen);
+    let staged = match frozen.staged_envelope() {
+        Ok(staged) => staged,
+        Err(fault) => return notice.publish(frozen.into_ordinary(), W1Fallback::Staging(fault)),
+    };
+    let serialized = retained_wire::serialize_frozen(&frozen, &staged, capture);
+    drop(staged);
+    #[cfg(test)]
+    let serialized = retained_tests_hooks::after_serialize(serialized);
+    #[cfg_attr(not(test), allow(unused_mut))]
+    let mut successor = match serialized {
+        Ok(successor) => successor,
+        Err(failure) => return notice.publish(frozen.into_ordinary(), W1Fallback::Serializer(failure)),
+    };
+    #[cfg(test)]
+    retained_tests_hooks::before_precommit(&mut successor);
+    // Decision 5: precommit validation by the accepted Rust reader, against the
+    // actual invocation (only Ok/Err is used here; eligibility is not read).
+    #[cfg_attr(not(test), allow(unused_mut))]
+    let mut invocation = serde_json::json!({"request": capture.borrowed_raw(), "solver_mode": capture.mode().as_str()});
+    #[cfg(test)]
+    retained_tests_hooks::before_precommit_invocation(&mut invocation);
+    if let Err(error) = open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)) {
+        return notice.publish(frozen.into_ordinary(), W1Fallback::Precommit { gate: error.gate, code: error.code });
+    }
+    drop(invocation);
+    // The transfer: moves only. The unused notice drops; the reserved slot is not
+    // a byte of the ordinary publication.
+    drop(notice);
+    (frozen.into_ordinary(), Ok(RetainedSuccessor(successor)))
+}
+
+/// Test-only fault seams for the W1 phases the private driver reaches (decision 7
+/// permits no test permit). The armed faults are thread-local; `carry_test_hooks`
+/// moves them onto the reserved-stack thread.
+#[cfg(test)]
+pub(crate) mod retained_tests_hooks {
+    use super::retained_wire::{ReceiptCheck, ReceiptFailure};
+    /// The faults armed on one thread, each consumed by its next stage.
+    #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+    pub(crate) struct Armed {
+        corrupt: bool,
+        withdraw: bool,
+        rebind: bool,
+        serializer: Option<ReceiptCheck>,
+        staging: bool, late_gate: bool, complete_gate: bool, preparation: bool, candidate: Option<super::retained_receipt::TraceFault>,
+        /// lib.rs's dense-scrutiny ceiling override (F1b), read by the ordinary run.
+        ceiling: Option<u128>,
+    }
+    thread_local! {
+        static ARMED: std::cell::Cell<Armed> = std::cell::Cell::new(Armed::default());
+    }
+    fn arm(f: impl FnOnce(&mut Armed)) { ARMED.with(|a| { let mut armed = a.get(); f(&mut armed); a.set(armed); }); }
+    fn consume<T>(f: impl FnOnce(&mut Armed) -> T) -> T { ARMED.with(|a| { let mut armed = a.get(); let value = f(&mut armed); a.set(armed); value }) }
+    /// Take this thread's armed faults (leaving none) and copy its ceiling override.
+    pub(crate) fn take_armed() -> Armed {
+        let mut armed = ARMED.with(|a| a.take());
+        // A setting, not a one-shot fault: copied, so the caller thread keeps it.
+        armed.ceiling = super::DENSE_SCRUTINY_CEILING_OVERRIDE.with(|c| c.get());
+        armed
+    }
+    pub(crate) fn install_armed(armed: Armed) {
+        super::DENSE_SCRUTINY_CEILING_OVERRIDE.with(|c| c.set(armed.ceiling));
+        ARMED.with(|a| a.set(Armed { ceiling: None, ..armed }));
+    }
+    /// RV85 U2: faults handed back across the hop, by the caller's thread.
+    static HANDED_BACK: std::sync::Mutex<Vec<(std::thread::ThreadId, Armed)>> = std::sync::Mutex::new(Vec::new());
+    fn record(caller: std::thread::ThreadId, armed: Armed) {
+        let faults = Armed { ceiling: None, ..armed };
+        if faults != Armed::default() {
+            HANDED_BACK.lock().unwrap().push((caller, faults));
+        }
+    }
+    /// The caller's faults in transit: installed on the worker, or handed back as
+    /// they drop unrun (a spawn failure drops the work on the caller's thread).
+    pub(crate) struct Carried { armed: Option<Armed>, caller: std::thread::ThreadId, tally: grant2::TallyCarry }
+    impl Carried {
+        pub(crate) fn take() -> Self { Self { armed: Some(take_armed()), caller: std::thread::current().id(), tally: grant2::TallyCarry::take() } }
+        /// On the worker: install the carried faults; returns the caller to hand back to.
+        pub(crate) fn install(mut self) -> std::thread::ThreadId {
+            install_armed(self.armed.take().unwrap_or_default()); self.tally.install();
+            self.caller
+        }
+    }
+    impl Drop for Carried {
+        fn drop(&mut self) {
+            if let Some(armed) = self.armed.take() {
+                record(self.caller, armed);
+            }
+        }
+    }
+    /// On the worker, after the work: this thread's unfired faults go back to the caller.
+    pub(crate) fn hand_back(caller: std::thread::ThreadId) {
+        record(caller, ARMED.with(|a| a.take())); grant2::TallyCarry::hand_back();
+    }
+    /// On the caller, after the hop: re-arm every fault handed back to this thread.
+    pub(crate) fn reclaim_handed_back() {
+        let me = std::thread::current().id();
+        let mut back = HANDED_BACK.lock().unwrap();
+        let mut mine = Vec::new();
+        back.retain(|(owner, armed)| if *owner == me { mine.push(*armed); false } else { true });
+        drop(back);
+        for faults in mine {
+            arm(|a| {
+                a.corrupt |= faults.corrupt;
+                a.withdraw |= faults.withdraw;
+                a.rebind |= faults.rebind;
+                a.serializer = a.serializer.or(faults.serializer);
+                a.staging |= faults.staging; grant2::merge(a, &faults);
+            });
+        }
+    }
+    /// The names of the faults armed on this thread (test assertions).
+    pub(crate) fn armed_names() -> Vec<&'static str> {
+        let a = armed();
+        [(a.corrupt, "precommit"), (a.withdraw, "native"), (a.rebind, "rebind"), (a.serializer.is_some(), "serializer"), (a.staging, "staging")]
+            .into_iter().chain(grant2::names(&a)).filter(|(on, _)| *on).map(|(_, name)| name).collect()
+    }
+    /// Disarm every fault on this thread (test cleanup).
+    pub(crate) fn disarm() { ARMED.with(|a| a.set(Armed { ceiling: None, ..Armed::default() })); }
+    /// Precommit binding fault: the next precommit validates against the other mode.
+    pub(crate) fn rebind_next_precommit_invocation() { arm(|a| a.rebind = true); }
+    pub(crate) fn before_precommit_invocation(invocation: &mut serde_json::Value) {
+        if consume(|a| std::mem::take(&mut a.rebind)) {
+            let other = if invocation["solver_mode"] == "dense_scrutiny" { "sparse_interactive" } else { "dense_scrutiny" };
+            invocation["solver_mode"] = serde_json::json!(other);
+        }
+    }
+    pub(crate) fn corrupt_next_precommit() { arm(|a| a.corrupt = true); }
+    /// Native-stage fault: the prepared source is withdrawn before the native solve.
+    pub(crate) fn withdraw_next_native_source() { arm(|a| a.withdraw = true); }
+    /// Serializer-stage fault: the next serialization refuses with this check.
+    pub(crate) fn fail_next_serializer(check: ReceiptCheck) { arm(|a| a.serializer = Some(check)); }
+    /// Staging fault: the next frozen overlay names a maxima patch past the evidence.
+    pub(crate) fn break_next_staging() { arm(|a| a.staging = true); }
+    pub(crate) fn before_staging(frozen: &mut super::retained_product::FrozenCandidate) {
+        if consume(|a| std::mem::take(&mut a.staging)) {
+            frozen.test_break_overlay();
+        }
+    }
+    pub(crate) fn before_native(prepared: &mut super::retained_product::PreparedCase) {
+        if consume(|a| std::mem::take(&mut a.withdraw)) {
+            prepared.test_capture_mut().source = None;
+        }
+    }
+    pub(crate) fn after_serialize(serialized: Result<serde_json::Value, ReceiptFailure>) -> Result<serde_json::Value, ReceiptFailure> {
+        match consume(|a| a.serializer.take()) {
+            Some(check) => Err(ReceiptFailure { check, field_path: "cases[].run.invocation_after" }),
+            None => serialized,
+        }
+    }
+    pub(crate) fn before_precommit(successor: &mut serde_json::Value) {
+        if consume(|a| std::mem::take(&mut a.corrupt)) {
+            successor["retained_precision"]["receipt_sha256"] = serde_json::json!("0".repeat(64));
+        }
+    }
+    /// The faults still armed on this thread (tests assert none is left behind).
+    pub(crate) fn armed() -> Armed { ARMED.with(|a| a.get()) } mod grant2; pub(crate) use grant2::*;
 }
 
 /// Resolved thermal+fit eigenstrain with each member's own E and the exact
@@ -3319,6 +3872,26 @@ fn solve_load_case(
     load_state: Option<&case_state::resolve::ResolvedCase>,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
+    solve_load_case_observed(model, built, materials, stiffness, restrained_dofs, spring_entries,
+        load_case, modulus_basis_record, solver_mode, capture, source_budget, load_state, diagnostics, None)
+}
+
+fn solve_load_case_observed(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    materials: &[MaterialInput],
+    stiffness: &BasisStiffness,
+    restrained_dofs: &[usize],
+    spring_entries: &[SpringEntry],
+    load_case: &PreviewLoadCase,
+    modulus_basis_record: Option<&str>,
+    solver_mode: PreviewSolverMode,
+    capture: Option<&source_receipt::CapturedInvocation>,
+    source_budget: &mut SourceRecoveryBudget,
+    load_state: Option<&case_state::resolve::ResolvedCase>,
+    diagnostics: &mut Vec<Diagnostic>,
+    mut product: Option<&mut retained_product::ProductCapture>,
+) -> Result<LoadCaseSolve, FrameKernelError> {
     // A resolved case supplies the complete ordinary-source ledger: only its
     // declared, factored primitives are applied, exactly once.
     let load_case = load_state.map_or(load_case, |state| &state.effective_case);
@@ -3431,6 +4004,10 @@ fn solve_load_case(
         &load_case.id,
         diagnostics,
     );
+    if let Some(observer) = product.as_deref_mut() {
+        observer.case_source(model, built, materials, load_case, restrained_dofs, spring_entries,
+            &load_application, &thermal_loads, &pressure_thrust_loads);
+    }
     let force = finish_case_ledger(ledger, built.nodes.len())?;
     // S11-G section 3.5: the load-row guard reads the ledger's formation
     // records once, before the solve; its finding gates retained-source
@@ -3443,6 +4020,10 @@ fn solve_load_case(
         |dof| integrity_dof_label(model, dof),
         &load_case.id,
     );
+    // I61 U1 (G-b): the typed finding; its disclosure, if any, is set at the report.
+    if let Some(observer) = product.as_deref_mut() {
+        observer.ordinary_finding(&load_case.id, load_row_finding.as_ref());
+    }
 
     // F1b: the basis's formed values (none when its range refusal was
     // deferred, ROOT Q2).
@@ -3561,6 +4142,10 @@ fn solve_load_case(
         // range refusal; nothing was formed to attempt.
         BasisStiffness::RangeDeferred(error) => Err(OrdinaryFailure::Formation(error.clone())),
     };
+    // I61 U1 (G-b; C2 §5): the initial failure, captured before W2 consumes it.
+    if let (Some(observer), Err(failure)) = (product.as_deref_mut(), &attempted_linear) {
+        observer.ordinary_initial_failure(&load_case.id, failure);
+    }
     let report_sensitive = matches!(&attempted_linear, Ok(solve) if solve.structural_report.quality == SolveQuality::Sensitive);
     let attempt_err = attempted_linear.is_err();
     let needs_source_recovery =
@@ -3601,6 +4186,8 @@ fn solve_load_case(
         // route would not attempt (report Passed, no Err) is declined for its
         // load-row finding without running an attempt, so the invocation
         // ledger equals the unguarded one.
+        // I61 U1 (G-l; D39): whether an actual `solve_ordinary` attempt ran.
+        let mut legacy_attempted = false;
         let attempt = if !crate::needs_source_recovery(report_sensitive, attempt_err, None) {
             Err(source_recovery::formation_decline_without_attempt())
         } else if formed.is_none() {
@@ -3611,6 +4198,7 @@ fn solve_load_case(
             Err(source_recovery::range_formation_decline_without_attempt())
         } else {
             source_budget.attempts += 1;
+            legacy_attempted = true;
             let case_limit = source_budget.case_limit();
             source_recovery::solve_ordinary(
                 recovery_input(),
@@ -3660,9 +4248,17 @@ fn solve_load_case(
                     format!("The bounded retained-source method did not produce a selected response: {failure:?}{withheld}"),
                     vec![load_case.id.clone()],
                 ));
+                // I61 U1 (G-l; C2:160-162): the typed failure and its actual WorkReport.
+                if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
+                    observer.ordinary_legacy_failure(&load_case.id, legacy_attempted, &failure, &record.id);
+                }
                 source_failure = Some(failure);
             }
         }
+    }
+    // I61 U1 (G-l; D39): the route rows that carry no RecoveryFailure.
+    if let Some(observer) = product.as_deref_mut() {
+        observer.ordinary_legacy_route(&load_case.id, source_eligible, needs_source_recovery, selected_source.is_some());
     }
     if load_state.is_some() && selected_source.is_none() {
         let attempt = if !needs_source_recovery {
@@ -3733,6 +4329,10 @@ fn solve_load_case(
                     solver_mode,
                 ) {
                     Ok((solve, publication)) => {
+                        // I61 U1 (G-b): W2 published at b != 0.
+                        if let Some(observer) = product.as_deref_mut() {
+                            observer.ordinary_w2_published(&load_case.id, &trigger, publication.force_scale_exponent);
+                        }
                         w2_publication = Some(publication);
                         Some(solve)
                     }
@@ -3744,6 +4344,10 @@ fn solve_load_case(
                             &trigger,
                             model,
                         );
+                        // I61 U1 (G-b): W2's actual failure, before the early return.
+                        if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
+                            observer.ordinary_w2_failed(&load_case.id, &trigger, &refusal, &record.id);
+                        }
                         return Ok(LoadCaseSolve {
                 load_state_evidence: None,
                 pressure_evidence: Vec::new(),
@@ -3771,6 +4375,10 @@ fn solve_load_case(
                 // actual error alone.
                 (None, OrdinaryFailure::Structural(error)) => {
                     append_integrity_failure(diagnostics, &load_case.id, &error, model);
+                    // I61 U1 (G-b): the initial failure's own integrity diagnostic.
+                    if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
+                        observer.ordinary_failure_diagnostic(&load_case.id, &record.id);
+                    }
                     return Ok(LoadCaseSolve {
                 load_state_evidence: None,
                 pressure_evidence: Vec::new(),
@@ -3865,6 +4473,9 @@ fn solve_load_case(
             }
         }
     }
+    if let Some(observer) = product.as_deref_mut() {
+        observer.solver_observations(load_case, solver_mode, &results);
+    }
     if let Some(recovery) = &selected_source {
         displacements.copy_from_slice(recovery.displacements());
         diagnostics.push(diag(
@@ -3926,6 +4537,16 @@ fn solve_load_case(
                 linear.formation_check.as_ref(),
                 w2_publication.as_ref(),
             );
+            // I61 U1 (G-b): the published report; `demote` discloses the finding
+            // only on a Passed report, and K-D5's record is one line of it.
+            if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
+                observer.ordinary_report(
+                    &load_case.id,
+                    record,
+                    load_row_finding.is_some() && linear.structural_report.quality != SolveQuality::Sensitive,
+                    linear.formation_check.is_some(),
+                );
+            }
             if let Some(report) = &linear.load_fidelity {
                 append_load_contribution_absorbed(diagnostics, &load_case.id, report);
             }
@@ -4792,11 +5413,15 @@ fn solve_load_case(
         if let Some(finding) =
             formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id)
         {
-            formation_guard::amend_integrity_report(
+            let demoted = formation_guard::amend_integrity_report(
                 diagnostics,
                 &integrity_diagnostic_id(&load_case.id),
                 &finding,
             );
+            // I61 U1 (G-b): no wire member carries R-b''s finding.
+            if let (true, Some(observer)) = (demoted, product.as_deref_mut()) {
+                observer.ordinary_recovery_demoted(&load_case.id);
+            }
         }
     }
     require_finite_mechanics(results.iter().map(|row| row.value))?;
@@ -4907,6 +5532,11 @@ fn solve_load_case(
             }
         }
     } else { None };
+    if let Some(observer) = product.as_deref_mut() {
+        observer.prepared_case_source(source_selected, model, built, materials, load_case,
+            restrained_dofs, spring_entries, &load_application, &thermal_loads,
+            &pressure_thrust_loads);
+    }
     Ok(LoadCaseSolve {
         load_state_evidence,
         exact_case_evidence,
@@ -8995,6 +9625,12 @@ fn materials_for_modulus_basis(
     load_case: &PreviewLoadCase,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Option<(Vec<MaterialInput>, String)> {
+    materials_for_modulus_basis_observed(model, materials, load_case, diagnostics, None)
+}
+fn materials_for_modulus_basis_observed(
+    model: &PreviewModel, materials: &[MaterialInput], load_case: &PreviewLoadCase,
+    diagnostics: &mut Vec<Diagnostic>, mut product: Option<&mut retained_product::ProductCapture>,
+) -> Option<(Vec<MaterialInput>, String)> {
     if pressure_runtime::is_exact(model) {
         return pressure_material::resolve_case(model, materials, load_case, diagnostics);
     }
@@ -9012,6 +9648,7 @@ fn materials_for_modulus_basis(
             resolved.push(material.clone());
             continue;
         }
+        let mut selected_ordinals = None;
         let (elastic_modulus, shear_modulus, thermal_expansion_coefficient, provenance) =
             if let Some(basis_ref) = load_case.modulus_basis_ref.as_deref() {
                 let Some(point) = material
@@ -9076,6 +9713,9 @@ fn materials_for_modulus_basis(
                     blocked = true;
                     continue;
                 };
+                if product.is_some() {
+                    selected_ordinals = material.temperature_points.iter().position(|p| std::ptr::eq(p, point)).map(|i| (i, None));
+                }
                 (
                     elastic_modulus,
                     shear_modulus,
@@ -9207,6 +9847,11 @@ fn materials_for_modulus_basis(
                     blocked = true;
                     continue;
                 }
+                if product.is_some() {
+                    let lo = material.temperature_points.iter().position(|p| std::ptr::eq(p, lower)).expect("selected lower");
+                    let hi = material.temperature_points.iter().position(|p| std::ptr::eq(p, upper)).expect("selected upper");
+                    selected_ordinals = Some((lo, Some(hi)));
+                }
                 let fraction = (solve_temperature - lower_temperature)
                     / (upper_temperature - lower_temperature);
                 let interpolated_e = lower_e.value + fraction * (upper_e.value - lower_e.value);
@@ -9295,6 +9940,10 @@ fn materials_for_modulus_basis(
             blocked = true;
             continue;
         }
+        if let Some(observer) = product.as_deref_mut() {
+            observer.selection(load_case, materials, material, selected_ordinals,
+                elastic_modulus.value, shear_modulus.value, thermal_expansion_coefficient.as_ref().map(|a| a.value));
+        }
         provenance_records.push(provenance);
         resolved.push(MaterialInput {
             id: material.id.clone(),
@@ -9326,6 +9975,9 @@ fn materials_for_modulus_basis(
                 provenance_records.join(" | ")
             )
         };
+        if let Some(observer) = product.as_deref_mut() {
+            observer.successful_basis_record(load_case, &basis_record);
+        }
         Some((resolved, basis_record))
     }
 }

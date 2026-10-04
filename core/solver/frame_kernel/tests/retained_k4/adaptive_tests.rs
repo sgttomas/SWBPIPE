@@ -1134,3 +1134,145 @@ fn probe_v4_s3_y_reference_with_a_chord_component() {
         }
     }
 }
+
+#[test]
+fn checked_work_stage_merge_max_and_stopped_underflow() {
+    let mut stages = StageWork::default();
+    stages
+        .set(Stage::Formation, WorkTotal::exact_count(u64::MAX))
+        .unwrap();
+    assert_eq!(stages.checked_total().exact(), Ok(u64::MAX));
+    let mut one = StageWork::default();
+    one.set(Stage::Assembly, WorkTotal::exact_count(1)).unwrap();
+    assert_eq!(stages.merge(&one), Err(WorkFault::Overflow));
+    assert_eq!(stages.checked_total().exact(), Err(WorkFault::Overflow));
+    let mut stopped = StageWork::default();
+    stopped
+        .set(Stage::Formation, WorkTotal::exact_count(2))
+        .unwrap();
+    stopped.close_stopped(
+        &Err::<(), _>(AttemptStop::Span),
+        Stage::Assembly,
+        WorkTotal::exact_count(1),
+    );
+    assert_eq!(
+        stopped.checked_total().exact(),
+        Err(WorkFault::Inconsistent)
+    );
+}
+
+#[test]
+fn checked_work_cached_numerical_prior_is_terminal_before_escalation() {
+    let source = models::model("N05").source();
+    let group = Arc::new(prepare_group(&source).unwrap());
+    let prep = Arc::new(CasePrep::new(source).unwrap());
+    let mut cache = GroupCache::default();
+    let unavailable = WorkTotal::exact_count(u64::MAX).add(WorkTotal::exact_count(1));
+    cache.s128 = Some(Err((
+        AttemptStop::Condition,
+        unavailable,
+        StageWork::default(),
+    )));
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let run = run_core(
+        prep,
+        group,
+        &mut cache,
+        CaseLimit::new(u64::MAX),
+        &mut meter,
+    );
+    assert_eq!(run.work.invocation_before().exact(), Ok(0));
+    assert_eq!(
+        run.work.invocation_increment().exact(),
+        Err(WorkFault::Overflow)
+    );
+    assert_eq!(run.work.case().exact(), Err(WorkFault::Overflow));
+    assert_eq!(meter.checked_charged().exact(), Err(WorkFault::Overflow));
+    let ExecutionOutcome::Unresolved {
+        reason, attempts, ..
+    } = run.outcome
+    else {
+        panic!("accounting terminal required")
+    };
+    assert_eq!(
+        reason,
+        UnresolvedReason::WorkAccounting {
+            fault: WorkFault::Overflow,
+            prior: Some(AttemptStop::Condition)
+        }
+    );
+    assert_eq!(attempts.len(), 1);
+    assert!(!attempts[0].shared_built_here);
+    assert_eq!(
+        attempts[0].outcome,
+        AttemptOutcome::Failed(AttemptReason::Stop(AttemptStop::Condition))
+    );
+    assert!(cache.s256.is_none());
+}
+
+#[test]
+fn checked_work_run_increment_is_actual_and_bad_meter_stops_before_preparation() {
+    let source = models::model("N05").source();
+    let group = Arc::new(prepare_group(&source).unwrap());
+    let prep = Arc::new(CasePrep::new(source.clone()).unwrap());
+    let mut cache = GroupCache::default();
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let run = run_core(
+        prep.clone(),
+        group.clone(),
+        &mut cache,
+        CaseLimit::new(0),
+        &mut meter,
+    );
+    assert!(run.work.case().exact().unwrap() > 0);
+    assert_eq!(run.work.invocation_before().exact(), Ok(0));
+    assert_eq!(
+        run.work.invocation_increment().exact(),
+        run.work.invocation_after().exact()
+    );
+    // MAX itself is exact. An actual next charge overflows and remains unavailable.
+    meter.charged = WorkTotal::exact_count(u64::MAX - 1);
+    let run = run_core(
+        prep,
+        group,
+        &mut GroupCache::default(),
+        CaseLimit::new(u64::MAX),
+        &mut meter,
+    );
+    assert_eq!(run.work.invocation_before().exact(), Ok(u64::MAX - 1));
+    assert_eq!(
+        run.work.invocation_after().exact(),
+        Err(WorkFault::Overflow)
+    );
+    assert!(matches!(
+        run.outcome,
+        ExecutionOutcome::Unresolved {
+            reason: UnresolvedReason::WorkAccounting { .. },
+            ..
+        }
+    ));
+    let subsequent = solve_cases(&[source], CaseLimit::new(u64::MAX), &mut meter);
+    assert!(
+        matches!(&subsequent[0], CaseOutcome::Unresolved { reason: UnresolvedReason::WorkAccounting { .. }, attempts, geometry } if attempts.is_empty() && geometry.is_empty())
+    );
+}
+
+#[test]
+fn checked_work_tracker_collapse_cannot_turn_loss_into_prunable_refusal() {
+    let mut num = ExactWideSum::new();
+    let mut den = ExactWideSum::new();
+    num.add_binary64(1.0, false).unwrap();
+    den.add_binary64(1.0, false).unwrap();
+    // The approximation clone's net+round costs 6; the directed clone's
+    // sign+net+round costs 8. The stored owner remains within the first bound.
+    num.test_seed_term_work(u64::MAX - 7);
+    let mut c64 = WideContext::<4>::new(64).unwrap();
+    let mut c16 = WideContext::<16>::new(1024).unwrap();
+    let mut tracker = BoundedExtremeTracker::with_limit(Direction::Up, 1);
+    tracker.offer(&mut c64, &mut c16, num, den).unwrap();
+    assert_eq!(
+        tracker.collapse(&mut c16),
+        Err(AttemptStop::WorkAccounting(WorkFault::Overflow))
+    );
+    assert!(tracker.table.is_empty());
+}

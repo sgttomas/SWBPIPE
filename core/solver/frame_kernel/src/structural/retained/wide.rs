@@ -148,6 +148,8 @@ pub(crate) const ATAN_PROVED_BOUND_TENTH_ULPS: u32 = 236;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WideError {
+    CountRange(&'static str),
+    WorkAccounting(super::work::WorkFault),
     /// Precision outside [MIN_PRECISION, MAX_PRECISION] (or below
     /// ATAN_MIN_PRECISION for the arctangent).
     InvalidPrecision(u32),
@@ -175,6 +177,8 @@ pub enum WideError {
 impl fmt::Display for WideError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::CountRange(field) => write!(f, "retained count cannot be represented: {field}"),
+            Self::WorkAccounting(fault) => write!(f, "retained work accounting {fault}"),
             Self::InvalidPrecision(p) => write!(f, "retained precision {p} is not supported"),
             Self::NonFinite => write!(f, "retained lift of a non-finite binary64 value"),
             Self::ExponentRange => write!(f, "retained exponent outside the supported range"),
@@ -995,3 +999,9 @@ impl WideArith {
 #[cfg(test)]
 #[path = "../../../tests/retained_wide/wide_tests.rs"]
 mod tests;
+
+impl From<super::work::WorkFault> for WideError {
+    fn from(fault: super::work::WorkFault) -> Self {
+        Self::WorkAccounting(fault)
+    }
+}

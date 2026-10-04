@@ -18,6 +18,8 @@ use super::wide::multi::{Binary64Outcome, SupportedWidth, WideContext};
 use super::wide::Wide;
 use super::wide_sum::ExactWideSum;
 
+pub(super) mod certificate;
+
 /// The direction of a bound's rounding.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Toward {
@@ -71,7 +73,7 @@ where
     let nearest = sum.round(ctx)?;
     sum.add_wide(&nearest, true)?;
     // The sign of (exact − nearest).
-    let side = sum.signum();
+    let side = sum.signum()?;
     sum.clear();
     let wrong = match toward {
         Toward::Up => side > 0,
@@ -156,7 +158,7 @@ where
     sum.add_product(ctx, &q, b, false)?;
     sum.add_wide(a, true)?;
     // q·b − a has the sign of q − a/b (b > 0).
-    let side = sum.signum();
+    let side = sum.signum()?;
     sum.clear();
     let wrong = match toward {
         Toward::Up => side < 0,
@@ -169,9 +171,21 @@ where
     }
 }
 
-/// The least binary64 not below x ≥ 0 (+∞ beyond the range): K3's nearest
-/// conversion, then `next_up` when the exact comparison shows it below x.
-pub(crate) fn binary64_up<const L: usize>(x: &Wide<L>) -> Result<f64, AttemptStop>
+/// One conversion execution and its actual producing sum work. No tariff.
+#[derive(Debug)]
+pub(super) struct Binary64UpSpent {
+    result: Result<f64, AttemptStop>,
+    sums: super::wide_sum::SumWork,
+}
+
+impl Binary64UpSpent {
+    pub(super) fn into_parts(self) -> (Result<f64, AttemptStop>, super::wide_sum::SumWork) {
+        (self.result, self.sums)
+    }
+}
+
+/// The least binary64 not below x >= 0, retaining every executed work prefix.
+pub(super) fn binary64_up_spent<const L: usize>(x: &Wide<L>) -> Binary64UpSpent
 where
     Wide<L>: SupportedWidth,
 {
@@ -180,20 +194,63 @@ where
         Binary64Outcome::Normal(v) => v.abs(),
         Binary64Outcome::Subnormal { value, .. } => value.abs(),
         Binary64Outcome::Underflow { .. } => 0.0,
-        Binary64Outcome::Overflow { .. } => return Ok(f64::INFINITY),
+        Binary64Outcome::Overflow { .. } => {
+            return Binary64UpSpent {
+                result: Ok(f64::INFINITY),
+                sums: super::wide_sum::SumWork::default(),
+            }
+        }
     };
-    let mut sum = ExactWideSum::new();
-    sum.add_wide(x, false)?;
-    sum.add_binary64(nearest, true)?;
-    if sum.signum() > 0 {
-        Ok(if nearest == f64::MAX {
-            f64::INFINITY
+    binary64_up_owned(x, nearest, ExactWideSum::new())
+}
+
+// Same producing owner on all exits. The private owned form also allows tests
+// to seed a bounded failure prefix without a runtime injection mechanism.
+fn binary64_up_owned<const L: usize>(
+    x: &Wide<L>,
+    nearest: f64,
+    mut sum: ExactWideSum,
+) -> Binary64UpSpent
+where
+    Wide<L>: SupportedWidth,
+{
+    let result = (|| {
+        sum.add_wide(x, false)?;
+        sum.add_binary64(nearest, true)?;
+        if sum.signum()? > 0 {
+            Ok(if nearest == f64::MAX {
+                f64::INFINITY
+            } else {
+                next_up(nearest)
+            })
         } else {
-            next_up(nearest)
-        })
-    } else {
-        Ok(nearest)
+            Ok(nearest)
+        }
+    })();
+    Binary64UpSpent {
+        result,
+        sums: sum.work(),
     }
+}
+
+#[cfg(test)]
+pub(super) fn test_binary64_up_owned<const L: usize>(
+    x: &Wide<L>,
+    nearest: f64,
+    sum: ExactWideSum,
+) -> Binary64UpSpent
+where
+    Wide<L>: SupportedWidth,
+{
+    binary64_up_owned(x, nearest, sum)
+}
+
+/// Historical numerical projection of one execution; callers keep their policy.
+pub(crate) fn binary64_up<const L: usize>(x: &Wide<L>) -> Result<f64, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    binary64_up_spent(x).into_parts().0
 }
 
 #[cfg(test)]

@@ -266,7 +266,7 @@ fn the_product_of_two_exact_sums_is_exact() {
             .unwrap();
         // got − want = 0 exactly.
         got.add_scaled(&want, true, 1, 0).unwrap();
-        assert_eq!(got.signum(), 0);
+        assert_eq!(got.signum().unwrap(), 0);
     }
 }
 
@@ -414,7 +414,7 @@ fn kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s() {
     let mut diff = ExactWideSum::new();
     diff.add_wide(&s, false).unwrap();
     diff.add_binary64(norm, true).unwrap();
-    assert!(diff.signum() >= 0, "S below the exact norm");
+    assert!(diff.signum().unwrap() >= 0, "S below the exact norm");
     // certify, as verify_state composes it: block 0 carries data and takes S.
     let est = vec![Wide::<4>::ONE.mul_pow2(43).unwrap(), Wide::<4>::ONE];
     let mut s_refused = vec![None; 2];
@@ -557,7 +557,8 @@ fn kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal() {
         &mut [None],
     )
     .unwrap();
-    let before = super::super::adaptive::lme(&ctx) + sum.work().limb_multiply_equivalents();
+    let before =
+        super::super::adaptive::lme(&ctx).exact().unwrap() + sum.work().limb_multiply_equivalents();
     let guard = StageGuard::with_case_room(before + 2_000);
     let got = uc_bounds(
         &mut ctx,
@@ -701,7 +702,8 @@ fn kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence() {
             &start,
             &mut s_refused,
         );
-        let used = super::super::adaptive::lme(&ctx) + sum.work().limb_multiply_equivalents();
+        let used = super::super::adaptive::lme(&ctx).exact().unwrap()
+            + sum.work().limb_multiply_equivalents();
         (got, s_refused, used)
     };
     // Unlimited: the results carry both refusals; `s_refused` is the caller's.
@@ -761,4 +763,40 @@ fn kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence() {
     }
     println!("RV23-1 (S): total {total} LME, step {step}: {in_flight} stops in flight, {kept} after the results kept both");
     assert!(in_flight > 0 && kept > 0, "{in_flight} {kept}");
+}
+
+#[test]
+fn checked_work_ceil_sqrt_never_wraps_at_scalar_limit() {
+    let r = ceil_sqrt(usize::MAX);
+    assert!(u128::from(r) * u128::from(r) >= usize::MAX as u128);
+    assert!(u128::from(r - 1) * u128::from(r - 1) < usize::MAX as u128);
+    assert_eq!(ceil_sqrt(0), 0);
+    assert_eq!(ceil_sqrt(1), 1);
+    assert_eq!(ceil_sqrt(16), 4);
+    assert_eq!(ceil_sqrt(17), 5);
+}
+
+#[test]
+fn checked_work_a2_keeps_prior_and_never_resets_accounting_loss() {
+    use super::super::work::WorkFault;
+    let mut sum = ExactWideSum::new();
+    sum.test_seed_term_work(u64::MAX);
+    assert!(sum.add_binary64(1.0, false).is_err());
+    let mut refused = None;
+    assert_eq!(
+        refusable::<()>(
+            Err(AttemptStop::Span),
+            &mut sum,
+            &mut refused,
+            BoundPass::Form,
+            0
+        ),
+        Err(AttemptStop::Span)
+    );
+    assert!(refused.is_none());
+    assert_eq!(sum.work().checked_lme().exact(), Err(WorkFault::Overflow));
+    assert_eq!(
+        refusable(Ok(()), &mut sum, &mut refused, BoundPass::Form, 0),
+        Err(AttemptStop::WorkAccounting(WorkFault::Overflow))
+    );
 }

@@ -4,6 +4,7 @@ import { sourceContract, hasCurrentSourceContract } from '../features/results/nu
 import { validatePreviewPhysicsEvidence } from '../features/results/previewPhysicsEvidence';
 import { validateLoadReferenceEvidence } from '../features/results/loadReferenceEvidence';
 import { validateLoadReferenceSourceEvidence } from '../features/results/loadReferenceSourceEvidence';
+import { registerRetainedPrecision } from '../features/results/retainedPrecisionStanding';
 import { invoke } from "@tauri-apps/api/core";
 import type {
   AgentProposal,
@@ -125,6 +126,10 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // which stays needs_recompute (never numerically eligible in T1).
     if (sourceContract(source) === "load_reference") validateLoadReferenceEvidence(source, capture.invocation.request.model);
     if (sourceContract(source) === "load_reference_source") await validateLoadReferenceSourceEvidence(source);
+    // U6d: a preview successor registers only after the accepted reader passes with
+    // this captured invocation; its outcome is recorded against the exact bytes.
+    // U7 slice T: its standing is bound to this live native capture and the current model.
+    if (sourceContract(source) === "retained_preview_physics") await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel));
     await canonicalSha256HexCheckedV1(source);
     if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
     nativeSourceInvocations.set(source, { capture, sourceFingerprint });

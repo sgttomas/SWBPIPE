@@ -488,7 +488,10 @@ fn main() {
     let phase = Phase::start();
     let mut run = lane::run_case_with(&case, &model);
     let w1 = phase.fields();
-    let record = run.record.clone();
+    let record = run.record.clone().unwrap_or_else(|| {
+        eprintln!("{}: no exact work record: {:?}", run.id, run.failures);
+        std::process::exit(1)
+    });
     let storage = &record["attempts"][0]["storage"];
     let counts_match_storage = storage["pattern_entries"].as_u64()
         == Some(counts.pattern_entries as u64)

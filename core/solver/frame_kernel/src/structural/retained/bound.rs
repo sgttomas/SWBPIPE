@@ -156,6 +156,48 @@ where
     data
 }
 
+/// Borrowed bridge fill of exactly the R7 predicate above. The caller validates
+/// dimensions and owns the output; no new report or hidden data allocation.
+/// Visits include each free position, ledger comparison and inspected adjacency.
+pub(crate) fn fill_data_blocks<const L: usize>(
+    blocks: &FreeBlocks,
+    ordering: &Ordering,
+    structure: &Structure,
+    ledger: &RetainedLedger,
+    prescribed_nonzero: &[bool],
+    u: &[Wide<L>],
+    data: &mut [bool],
+) -> super::work::WorkTotal
+where
+    Wide<L>: SupportedWidth,
+{
+    use super::work::WorkTotal;
+    data.fill(false);
+    let mut visits = WorkTotal::zero();
+    for (a, &g) in ordering.free.iter().enumerate() {
+        visits = visits.add(WorkTotal::exact_count(1));
+        let b = blocks.of[a] as usize;
+        if data[b] {
+            continue;
+        }
+        let (nonzero, spent) = ledger.nonzero_term_spent(g);
+        visits = visits.add(spent);
+        if nonzero || !u[g].is_zero() {
+            data[b] = true;
+            continue;
+        }
+        for index in structure.pattern.row_range(g) {
+            visits = visits.add(WorkTotal::exact_count(1));
+            let c = structure.pattern.column(index);
+            if ordering.position[c] == usize::MAX && prescribed_nonzero[c] {
+                data[b] = true;
+                break;
+            }
+        }
+    }
+    visits
+}
+
 // ------------------------------------------------------------ est_c (7c)
 
 /// Per block, the largest ratio ‖(K̃⁻¹x)_c‖₁/‖x_c‖₁ over the condition
@@ -299,6 +341,14 @@ pub(crate) fn refusable<T>(
     pass: BoundPass,
     row: usize,
 ) -> Result<Option<T>, AttemptStop> {
+    if let Err(fault) = sum.work().checked_lme().exact() {
+        // A pre-existing numerical stop remains the terminal prior; no reset or
+        // block-local refusal may hide the unavailable accounting state.
+        return match result {
+            Err(stop) => Err(stop),
+            Ok(_) => Err(fault.into()),
+        };
+    }
     match result {
         Ok(v) => Ok(Some(v)),
         Err(stop) => {
@@ -946,10 +996,10 @@ where
 pub(crate) fn ceil_sqrt(n: usize) -> u64 {
     let n = n as u64;
     let mut r = (n as f64).sqrt() as u64;
-    while r * r > n {
+    while u128::from(r) * u128::from(r) > u128::from(n) {
         r -= 1;
     }
-    while r * r < n {
+    while u128::from(r) * u128::from(r) < u128::from(n) {
         r += 1;
     }
     r
@@ -992,7 +1042,7 @@ where
     sum.clear();
     sum.add_wide(uc, false)?;
     sum.add_wide_scaled(est, true, 2 * ceil_sqrt(n_c), 0)?;
-    let above = sum.signum() > 0;
+    let above = sum.signum()? > 0;
     sum.clear();
     Ok(above)
 }
