@@ -1052,7 +1052,10 @@ pub(crate) fn validate_in(
         );
         covered.extend(expected);
         let mut used = HashSet::new();
-        for (&id, treatment) in &treatments {
+        // Receipt row order, never hash order: the first refusal must be stable
+        // across runs and match the Python reader's insertion-ordered walk.
+        for treatment in rows {
+            let id = text(&treatment["result_id"])?;
             let row = raw[id];
             let s = signature(row, composite)?;
             let inputs = array(&treatment["input_result_ids"])?;
