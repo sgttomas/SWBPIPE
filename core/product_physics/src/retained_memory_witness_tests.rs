@@ -3,7 +3,7 @@
 //! Each witness runs, on one thread with R/k = 4 MiB of reserved stack (the
 //! `on_reserved_stack` the permitted dispatch uses), the work the permitted path
 //! runs there: the single observed ordinary run with capture installed, then the
-//! W1 phases (`retained_w1`). No permit exists (decision 7), so the private driver
+//! W1 phases (`retained_w1`). The witnesses mint no permit (decision 7): the private driver
 //! enters `retained_w1` directly, as the facade tests do; G-B and G-C are not
 //! consulted. The witness is measured evidence for this build and these inputs,
 //! not a proof (D-3 = S1). A stack overflow aborts the test process, so the

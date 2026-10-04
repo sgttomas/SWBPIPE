@@ -65,8 +65,8 @@ class PolicyTests(unittest.TestCase):
             self.assertFalse(ci.numerical_input(path), path)
         # A desktop source a numerical crate test reads is a numerical input;
         # the rest of apps/ stays UI-only.
+        self.assertEqual(ci.NUMERICAL_APP_INPUTS, {ci.DESKTOP + 'src-tauri/src/lib.rs'})
         for path in ci.NUMERICAL_APP_INPUTS:
-            self.assertTrue(path.startswith(ci.DESKTOP))
             self.assertTrue(ci.numerical_input(path), path)
         resource = next(iter(ci.NUMERICAL_EVIDENCE_INPUTS))
         self.write(resource)

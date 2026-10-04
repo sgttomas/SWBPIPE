@@ -1,7 +1,7 @@
 //! U4 G5: the admission law's tests, through pure functions and the actual G-A
-//! census. No profile and no permit is constructed here (decision 7): the
-//! registered-identity list stays empty, and every check that needs a matched
-//! build passes its inputs to the pure function directly.
+//! census. The tests construct no profile (decision 7): the one registered entry
+//! is the production one, a permit comes only from `admit` in the registered build,
+//! and a check that needs another matched build passes its inputs to the pure function.
 use super::*;
 use crate::source_receipt::CapturedInvocation;
 use crate::PreviewSolverMode;

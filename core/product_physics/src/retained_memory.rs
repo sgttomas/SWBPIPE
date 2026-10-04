@@ -2754,7 +2754,7 @@ pub enum AllowanceStatus {
 }
 
 /// Borrowed actual caller roots, never a qualified label or caller byte total.
-/// Cross-crate visibility is not authentication. No production profile exists;
+/// Cross-crate visibility is not authentication. Headless is refused at D1.0 (D-2), even in the registered build;
 /// these roots only supply facts and cannot authorize an observer or solve.
 pub struct RetainedHeadlessContext<'a> {
     payload: &'a Value,

@@ -3,11 +3,11 @@
 //!
 //! This binary's own global allocator records the peak of live requested heap
 //! bytes (the f1b_sparse_pattern_memory.rs pattern). Through the public retained
-//! Direct entry (no permit exists, so the ordinary span runs: G-A's census and
-//! law, the parse, the ordinary run), it measures the peak on the milestone and on
-//! a cap-maximal D1 input, in both modes, and challenges the cap-priced profile:
-//! each measured peak must stay at or below the profile's in-build W1 phase (the
-//! ordinary span, requested plus moving, without R). The bounds below are the
+//! Direct entry (G-A's census and law, the parse, the ordinary run, and the W1
+//! phases when the registered build permits the call), it measures the peak on the
+//! milestone and on a cap-maximal D1 input, in both modes, against the cap-priced
+//! profile: a permitted run's peak (the milestone, registered build) at or below E_mov,max,
+//! any other's at or below the in-build W1 phase, without R. The bounds below are the
 //! generated profile's values; a lib test (`challenge_bounds_are_the_profile`)
 //! reads this file and checks they equal the in-build evaluation.
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_retained_direct, PreviewSolverMode};

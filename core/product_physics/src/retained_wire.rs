@@ -3,15 +3,15 @@
 //! Maps one completed, certified, one-case prepared attempt and its typed
 //! ordinary capture (G-b, G-l) to the successor envelope carrying
 //! `retained_precision {body, receipt_sha256}` (C1 §3-4, C2 §5, C3), or to a
-//! typed [`ReceiptFailure`]. Production-unreachable: no public entrypoint calls
-//! it; U3 installs it behind the capture permit. It never reads diagnostic text
+//! typed [`ReceiptFailure`]. In production it is reached only behind the capture permit
+//! (U3, `retained_w1`): D1 Direct calls in the registered build. It never reads diagnostic text
 //! or Debug output: a variant this grant does not translate refuses typed
 //! (`ReceiptCheck::Untranslated`, closed in grant 2 with G-i and D38).
 //!
 //! The experiments' emitter (R/I61/receipt_experiment_02-03) is the reference;
 //! the differences are the closed gaps G-a (fixed product text), G-b, G-c (D6a,
 //! decision 2), G-d, G-e, G-j, G-l, A1 (decision 1), D39 and U2.
-// Production-unreachable until U3 installs it behind the capture permit.
+// In production, reached only behind the capture permit (U3): D1 Direct calls in the registered build (G6).
 #![allow(dead_code)]
 use super::retained_product as rp;
 use super::retained_receipt as rr;

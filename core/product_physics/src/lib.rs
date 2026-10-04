@@ -2173,7 +2173,7 @@ pub fn run_linear_static_preview_value_with_mode(
         .map(|outcome| outcome.envelope)
 }
 
-/// Ordinary result plus non-wire admission facts. No production permit exists.
+/// Ordinary result plus non-wire admission facts. A production permit exists only for a D1 Direct call in the one registered (dev/test) build; any other build is Stale and keeps the ordinary route.
 pub struct RetainedPreviewOutput {
     envelope: MechanicsEnvelope,
     admission: Option<RetainedAdmissionReport>,
