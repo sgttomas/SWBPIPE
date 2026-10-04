@@ -112,11 +112,17 @@ def e2e_irrelevant(path):
 NUMERICAL_EVIDENCE_INPUTS = {
     PROJECT + 'validation/evidence/comparison_measurement/DEL0904_VD_20260811/CURRENT_25_FIXTURE_RUNNER_OUTPUT.json',
 }
+# Maintained desktop source that a numerical crate test reads with include_str!
+# (product_physics tests/retained_precision_admission.rs: the native desktop
+# calls only the ordinary preview route, never a retained entry).
+NUMERICAL_APP_INPUTS = {
+    PROJECT + 'apps/desktop/src-tauri/src/lib.rs',
+}
 
 
 def numerical_input(path):
     """Independent numerical policy; removals and rename halves use the same rule."""
-    if path in NUMERICAL_EVIDENCE_INPUTS:
+    if path in NUMERICAL_EVIDENCE_INPUTS or path in NUMERICAL_APP_INPUTS:
         return True
     if irrelevant(path):
         return False

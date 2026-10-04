@@ -63,6 +63,11 @@ class PolicyTests(unittest.TestCase):
                 'execution/_Coordination/NOTICE.md', 'tools/validation/test_x.py',
                 '.github/workflows/governance-harness.yml']:
             self.assertFalse(ci.numerical_input(path), path)
+        # A desktop source a numerical crate test reads is a numerical input;
+        # the rest of apps/ stays UI-only.
+        for path in ci.NUMERICAL_APP_INPUTS:
+            self.assertTrue(path.startswith(ci.DESKTOP))
+            self.assertTrue(ci.numerical_input(path), path)
         resource = next(iter(ci.NUMERICAL_EVIDENCE_INPUTS))
         self.write(resource)
         self.commit()
