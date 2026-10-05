@@ -90,3 +90,20 @@ It checked 194 destination quotes with `grep -F`, every draft path with `test -e
 - **NOTE-A1.** Addendum A's "re-cut from that main" means that main was merged into the PR branch, twice: after #1090/#1091, then after #1093.
 - **NOTE-A2.** Section B (B1–B3) and the contributor guide's row 8 are carried into tranche ROOT-LOOPINIT-AUM-ALIGNMENT-20261005, as routed.
 - **NOTE-A3 and NOTE-A4** are accepted. The merge waits for `harness` on the final head, and `WT/loop-init-pr` is removed after the merge.
+
+## Addendum C: merged (2026-10-05)
+
+**The merge.** PR #1092 was squash-merged at 2026-10-05T16:38:21Z as `87661be164179046710f0fd60002c9ce752f029d`, with a single parent, main `a2addb20d2`. The command was `gh pr merge --squash --match-head-commit 1ca59756f7…`, with an explicit subject and body. Auto-merge stayed off.
+- **Checked:** main's tree equals the reviewed head H4's tree. No integration-branch (NUM) commit is in main's history.
+
+**The gates at H4:**
+- LR, READY after addenda A and B (`reviews/LR-LOOPINIT.md`, sha256 `2de7d5d4…`; the newest line of `reviews/SHA256SUMS`);
+- G4, in CI and diff mode;
+- the entrypoint validator;
+- `test_ci_e2e_plan.py`, which ran on NUM;
+- GEN-8;
+- the PR's automatic CI, including `harness`.
+
+**Since the merge:**
+- LR's Addendum B and this addendum are on NUM. They reach main with tranche ROOT-LOOPINIT-AUM-ALIGNMENT-20261005's PR.
+- That tranche also carries Section B (B1–B3) and the contributor guide's row 8, as Addendum B routed.

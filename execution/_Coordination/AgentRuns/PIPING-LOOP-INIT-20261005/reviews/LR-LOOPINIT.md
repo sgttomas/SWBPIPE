@@ -354,3 +354,29 @@ Logs are in `WT/scratch/lr_loopinit_01/A_*`.
 - **Main.** Main is `a2addb20d2`, which H3 contains, so no carry-over ruling is needed unless main moves again.
 - **Hosted CI.** The hosted `harness` check on H3 was pending when I looked.
 - **Host cleanup.** The two gitignored `target/` folders from my original run remain in `WT/loop-init-pr`, and this addendum added no build output. They go when that worktree is removed after the merge.
+
+---
+
+## Addendum B: confirmation at H4 (2026-10-05)
+
+**Reviewer:** the same LR instance. I made no Git writes, used only `gh` for network reads, and did not run `test_ci_e2e_plan.py`. Addendum A and everything before it are bytes 1–36,845 of this file (sha256 `787b8443…`, the second line of `SHA256SUMS`).
+
+**Candidate.** H4 = `1ca59756f7c6fd19c402424ae031193dc83fe90f`, whose single parent is H3 `32b7802403`. Its tree is `96ed3e1296…`, equal to NUM `b8d8971908`'s. Main is still `a2addb20d2`, which H4 contains. The PR is draft, open and MERGEABLE.
+
+**The H3→H4 delta** is exactly these four paths:
+- **`P/loop/LOOP_INIT.md`:** one sentence. The new text is MINOR-A1's wording exactly: "Its revision notes record each amendment that changed it, and `execution/_ScopeChange/_LATEST.md` selects the latest accepted one." It is true. SCA-006, which has no `_ScopeChange/` folder, is in the v0.9 note, and `_LATEST.md` selects SCA-011. The file's sha256 at H4 is `65cb34a71d95…`.
+- **This review and `SHA256SUMS`:** byte-identical to what I wrote. The review's sha256 at H4 is `787b8443…`.
+- **`RULINGS.md` Addendum B:** accurate. It records MINOR-A1 as adopted with an erratum to my Addendum A wording, clarifies NOTE-A1, and accepts NOTE-A3 and NOTE-A4.
+
+**Checks at H4.** Logs are in `WT/scratch/lr_loopinit_01/B_*`.
+- **G4 diff mode** against `a2addb20d2`, with `--tranche PIPING-LOOP-INIT-20261005` and with `--added-manifests-only`: PASS, 51 paths, 2 on the instruction surface, no BLOCK.
+- **The entry validator:** PASS.
+- **GEN-8:** 1 passed in `WT/loop-init-pr` at H4.
+- **Machine paths:** none in H3→H4.
+- **Hosted CI on H4:** every finished check passed or was skipped by coverage selection; `harness` was pending.
+
+**Verdict at H4: READY.** There are no open BLOCKING, MAJOR or MINOR findings. Merge conditions under Root `AGENTS.md`:
+1. **`harness`** must pass on H4, or on whatever final head is merged.
+2. **Main must not have moved** at merge. If it has, refresh or carry over the gates by ruling.
+
+**NOTE-B1: the AUM tranche must actually carry Section B.** RULINGS Addendum B says Section B and the contributor guide's row 8 "are carried into tranche ROOT-LOOPINIT-AUM-ALIGNMENT-20261005". That tranche's drafts in NUM, still untracked, do not include them yet, so the statement holds only once they are added. Separately, `WT/loop-init-pr` and its gitignored `target/` folders are removed after the merge.

@@ -101,8 +101,7 @@ history at this path.
 
 ## Pointers
 
-- Session entry: `init/dev-loop-init-prompt.md` → `loop/LOOP_INIT.md` → the newest
-  `loop/WORKPLAN_*.md` → `loop/LOOP_RECEIPTS.md`.
+- Session entry: `init/dev-loop-init-prompt.md` → `loop/LOOP_INIT.md`.
 - Work surface: deliverable folders (`execution/PKG-*/1_Working/DEL-*/`) and
   `tools/coordination/list_deliverable_status.py` (read-only discovery).
 - Decision register: `execution/_Coordination/_DECISIONS/_REGISTER.md`.
