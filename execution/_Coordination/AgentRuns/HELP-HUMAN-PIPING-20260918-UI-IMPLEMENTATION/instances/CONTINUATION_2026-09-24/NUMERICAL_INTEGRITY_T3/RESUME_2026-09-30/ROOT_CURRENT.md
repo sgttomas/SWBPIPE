@@ -1,46 +1,7 @@
-# T3 current state — handoff, 2026-10-05
+# T3 current state — retired (2026-10-05)
 
-**Handed off at the owner's request. Nothing is running. The memory guard stays active.**
+This file is no longer maintained. Under the owner's direction for loop instructions, no separate record type should have to be kept up to date to carry current state (`execution/_Coordination/AgentRuns/PIPING-LOOP-INIT-20261005/OWNER_DECISIONS.md`, and the App v4 decisions it cites).
 
-[Handoff](../HANDOFF_2026-10-05_TO_NEXT_ROOT.md) · [Terms](GLOSSARY.md) · [Decision history](../ROOT_RULINGS_V1.md) · [Previous handoff](../HANDOFF_2026-10-03_TO_NEXT_ROOT.md)
-
-## Closed or accepted
-
-- **A1:** PR1070. **K6c:** PR1071, with its recorded limits.
-- **The F2a D1 milestone: PR #1082,** merge `0b00b8e8b6`, at F′ `5488136a19`.
-  - RF-SKEW-T-CANT-OFF-122-r1e-04 publishes its M03-INTEGRITY-MP-v2 successor through the Direct entry in both modes, in the registered dev/test build only. It matches its independent reference, and the refusal and coexistence controls are preserved.
-  - The Python, Rust and TS readers treat it as eligible with its invocation, and the carriers transport it.
-  - No product caller exists.
-  - The records are `../IMPLEMENTATION/F2A_D1/` and `../IMPLEMENTATION/F2A_D1_MERGE/` (with ERRATA E-1).
-- **T3's records through the handoff go to main in #1084** (merged, squash `f506f3e2de`) **and #1088.** Their merge records are `../IMPLEMENTATION/RECORDS_MERGE_2026-10-05/` and, on NUM, `RECORDS_MERGE_2026-10-05B/`, which confirms #1088's merge.
-- **U8,** the F2a-breadth roadmap and S-I1's readiness are planned (`I61/u8_plan_01/PLAN.md`) and ruled. The owner pulled T6's successor-output slice forward.
-
-## Open
-
-- **G10:** the native witness, on the owner's Mac.
-- **U8,** whose briefs are ready.
-- **The rest of F2a:**
-  - **B0–B6 (numerical breadth):**
-    - B0, contract and identities;
-    - B1, multi-case, with W-C2 and D38;
-    - B2, combinations, preparation-only and mixed invocations;
-    - B3, the exact routes;
-    - B4, cap growth, if ruled;
-    - B6, the reader items;
-  - **B7,** the release identity;
-  - **B8,** activation with native Current.
-- **S-I1,** in parallel.
-- **The T6 successor-output slice,** in parallel.
-- **Then** S-I2, F2b per family, and F3.
-
-## Next
-
-Follow the handoff's "The next work, in order": verify the state (including that #1088 merged), absorb main if needed, then dispatch U8 (I68 Part 1), with S-I1 (I73) and the T6 slice plan (I74) alongside.
-
-## Branches
-
-- **NUM** (`codex/piping-numerical-integrity-20260926`) is the integration branch. Its maintained source equals main's.
-- **Product PRs** are cut compactly from main. **Records** reach main only through records-only PRs, which are squash-merged.
-- **NUM itself is never merged into main.** Its history holds #1084's redacted originals.
-- **The next unused IDs are I75 and RV101.**
-- **All T3 component branches** are pushed, and contained in main or NUM.
+- **T3's current account** is the piping work graph's **T3 current route** section, `execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md`.
+- **T3's history** is in [ROOT_RULINGS_V1.md](../ROOT_RULINGS_V1.md).
+- **Earlier versions** of this file are in Git history. Records that cite it refer to those versions.

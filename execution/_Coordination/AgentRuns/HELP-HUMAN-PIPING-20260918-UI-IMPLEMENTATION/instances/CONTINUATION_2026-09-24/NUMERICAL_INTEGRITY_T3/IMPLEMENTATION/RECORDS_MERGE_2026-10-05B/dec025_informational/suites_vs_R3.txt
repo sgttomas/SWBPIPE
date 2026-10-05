@@ -1,0 +1,2 @@
+# DEC-025 on H e2b83da584 against R3 5758e1c3df (same piping source)
+manifests 40; identical 40; differing 0

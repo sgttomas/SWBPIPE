@@ -1,6 +1,7 @@
 # Coordination Record
 
-> **Current procedure:** `loop/LOOP_INIT.md` is the sole recurring development
+> **Current procedure:** `loop/LOOP_INIT.md` is the sole development-loop entry;
+> it binds Piping to the shared workflows and manuals that carry the recurring
 > procedure. Read the historical rules and phase decisions below for their
 > actual subject and revision; their workplan/Remaining/receipt mechanics do
 > not supply an alternative entry or work-selection procedure. Task Management

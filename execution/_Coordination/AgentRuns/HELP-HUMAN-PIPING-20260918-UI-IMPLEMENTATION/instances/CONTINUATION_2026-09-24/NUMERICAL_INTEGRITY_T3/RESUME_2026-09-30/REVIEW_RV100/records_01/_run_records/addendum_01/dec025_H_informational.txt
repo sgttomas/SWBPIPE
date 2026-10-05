@@ -1,0 +1,47 @@
+DEC-025 on H (informational per the owner-direction ruling): WT/scratch/u9_dec025/H1088
+start 2026-10-05T14:15:11Z head e2b83da5841e749e90ba54af6d4a45971693bc4b
+sweep exit 1 2026-10-05T14:16:31Z
+suites done 2026-10-05T14:28:39Z
+ALL-DONE 2026-10-05T14:48:51Z
+per-manifest passed/failed/ignored totals ('test result:' lines), H1088 vs R3: identical for all 41 suite logs
+000_core_gui_viewport_editor_Cargo.toml.log	R3 6/0/0	H 6/0/0
+001_core_library_import_library_import_document_Cargo.toml.log	R3 19/0/0	H 19/0/0
+002_core_loads_load_case_algebra_Cargo.toml.log	R3 21/0/0	H 21/0/0
+003_core_loads_primitive_loads_Cargo.toml.log	R3 49/0/0	H 49/0/0
+004_core_loads_self_weight_wasm_Cargo.toml.log	R3 14/0/0	H 14/0/0
+005_core_loads_stress_recovery_Cargo.toml.log	R3 48/0/0	H 48/0/0
+006_core_loads_user_loads_Cargo.toml.log	R3 28/0/0	H 28/0/0
+007_core_model_operations_operation_applier_Cargo.toml.log	R3 194/0/0	H 194/0/0
+008_core_product_physics_Cargo.toml.log	R3 705/1/10	H 705/1/10
+009_core_reporting_audit_manifest_Cargo.toml.log	R3 13/0/0	H 13/0/0
+010_core_reporting_pdf_emitter_Cargo.toml.log	R3 8/0/0	H 8/0/0
+011_core_reporting_protected_content_linter_Cargo.toml.log	R3 23/0/0	H 23/0/0
+012_core_reporting_report_generator_Cargo.toml.log	R3 10/0/0	H 10/0/0
+013_core_reporting_report_package_Cargo.toml.log	R3 20/0/0	H 20/0/0
+014_core_reporting_report_renderer_Cargo.toml.log	R3 8/0/0	H 8/0/0
+015_core_reporting_report_sections_Cargo.toml.log	R3 13/0/0	H 13/0/0
+016_core_reporting_result_export_Cargo.toml.log	R3 172/0/0	H 172/0/0
+017_core_rules_completeness_checker_Cargo.toml.log	R3 12/0/0	H 12/0/0
+018_core_rules_expression_evaluator_Cargo.toml.log	R3 32/0/0	H 32/0/0
+019_core_rules_rule_check_runner_Cargo.toml.log	R3 21/0/0	H 21/0/0
+020_core_rules_rule_pack_document_Cargo.toml.log	R3 10/0/0	H 10/0/0
+021_core_rules_rule_pack_lifecycle_Cargo.toml.log	R3 12/0/0	H 12/0/0
+022_core_runner_headless_Cargo.toml.log	R3 85/2/0	H 85/2/0
+023_core_serialization_canonical_json_Cargo.toml.log	R3 24/0/0	H 24/0/0
+024_core_solver_curved_bend_Cargo.toml.log	R3 25/0/0	H 25/0/0
+025_core_solver_diagnostics_Cargo.toml.log	R3 25/0/0	H 25/0/0
+026_core_solver_frame_kernel_Cargo.toml.log	R3 546/0/1	H 546/0/1
+027_core_solver_linear_supports_Cargo.toml.log	R3 15/0/0	H 15/0/0
+028_core_solver_nonlinear_integration_Cargo.toml.log	R3 134/0/0	H 134/0/0
+029_core_solver_nonlinear_supports_Cargo.toml.log	R3 22/0/0	H 22/0/0
+030_core_solver_performance_harness_Cargo.toml.log	R3 93/0/0	H 93/0/0
+031_core_solver_sparse_direct_Cargo.toml.log	R3 30/0/0	H 30/0/0
+032_core_solver_straight_pipe_Cargo.toml.log	R3 42/0/0	H 42/0/0
+033_core_units_Cargo.toml.log	R3 17/0/0	H 17/0/0
+034_validation_benchmarks_mechanics_Cargo.toml.log	R3 41/0/0	H 41/0/0
+035_validation_benchmarks_nonlinear_Cargo.toml.log	R3 19/0/0	H 19/0/0
+036_validation_benchmarks_numerical_integrity_Cargo.toml.log	R3 0/0/0	H 0/0/0
+037_validation_benchmarks_numerical_robustness_Cargo.toml.log	R3 61/0/0	H 61/0/0
+038_validation_benchmarks_physics_audit_regression_Cargo.toml.log	R3 15/0/0	H 15/0/0
+039_validation_benchmarks_stress_Cargo.toml.log	R3 23/0/0	H 23/0/0
+manifests.txt	R3 0/0/0	H 0/0/0

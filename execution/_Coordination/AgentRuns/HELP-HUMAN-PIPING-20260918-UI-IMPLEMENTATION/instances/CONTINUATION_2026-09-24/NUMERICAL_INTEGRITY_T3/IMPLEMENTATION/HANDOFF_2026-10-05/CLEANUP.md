@@ -122,3 +122,15 @@ The largest items:
 **The hash list's paths are relative to the stray root,** which is the parent checkout's `scratch/`. Lines under `i54_direct_container_profile/` map to `WT/scratch/i54_direct_container_profile_from_parent_checkout/`.
 
 **The move was made by hand,** before `gather` existed, so there is no gather log. The hash list and the first addendum record it.
+
+## Addendum 3, 2026-10-05: after #1088's merge
+
+**Before the cleanup:**
+- `gather` found no stray scratch.
+- The merged records worktree `records-pr2` was removed (clean, and pushed as-is).
+
+**The cleanup:** `plan` listed 16 caches, about 9.6 GB: today's DEC-025 build outputs in `sweep-skewpin` and `sweep-skewpin-target`.
+- **The age guard was set to zero** (`apply --min-age-hours 0`). The caches were under 2 hours old, but no build or test was running.
+- **All 16 were removed** (`cleanup/manifest_20261005d.jsonl`).
+
+**After:** only `numerics` and `sweep-skewpin` remain, and 1.1 TiB is free.

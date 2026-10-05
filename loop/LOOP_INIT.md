@@ -1,146 +1,87 @@
 # Piping development loop
 
 Resolve `REPO_ROOT` from the active checkout and set `WORKING_ROOT` to
-`{REPO_ROOT}/projects/chirality-piping`. Paths below are relative to `WORKING_ROOT`.
-Enter through `init/dev-loop-init-prompt.md` with the selected role and the
-human's steering. This file owns the recurring development-loop procedure;
-project `AGENTS.md` supplies standing responsibilities, boundaries and checks.
-Keep this file evergreen: undertaking selection and graph references come from
-the init steering and subsequent human directions; execution state lives in the
-selected work graph.
+`{REPO_ROOT}/projects/chirality-piping`. Paths below are relative to
+`WORKING_ROOT` unless they begin with `{REPO_ROOT}`.
 
-## Project pointers
+This file binds Piping to Root `AGENTS.md`, the active role, project
+`AGENTS.md`, the bundled workflows and the manuals. It states only what is
+specific to Piping and stated in none of them. The human's steering selects
+the undertaking, and its work graph carries the state.
 
-- Purpose and scope: `docs/PRD.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md`,
-  and the relevant adopted amendments or design specifications.
-- Project dependency basis: `execution/_DAG/_LATEST.md`.
-- Deliverables: relevant `execution/PKG-*/1_Working/DEL-*/` folders and their
-  accepted production form, MEMORY.md, dependencies and lifecycle _STATUS.md.
-  Piping also has ArchitectureBasis and bespoke contracts; use the actual form.
-- Decisions and boundaries: project `AGENTS.md`, applicable entries in
-  `execution/_Coordination/_DECISIONS/_REGISTER.md`, and relevant notices.
-- Checks: `software-workflow.json` and the applicable project verification rules.
-- Task Management register: `execution/_Coordination/_TaskManagement/REGISTER.csv`.
+## Entry reading
 
-## 0. Read the steering and recover the situation
+1. Take the current editions from
+   `{REPO_ROOT}/docs/alignment-manual/README.md`. Read the Agent User
+   Manual's headings to three levels (`grep -nE '^#{1,3} '` on its
+   Markdown), then read the Field Book in full.
+2. Read project `AGENTS.md` in full before you write anything.
+3. Read the work graph of the undertaking the steering names. If it has
+   none, construct one.
 
-The init steering and subsequent human directions establish the purpose, phase,
-priorities and limits. Recover the graph for that undertaking from the supplied
-references and relevant project records. Read it, relevant deliverable contracts,
-MEMORY run pointers, dependencies, implementation and evidence. Give a concise
-reading of the intended outcome and proceed where the direction is clear.
+## When to read further
 
-Verify branch/worktree state, partial edits, active workers and prior integration
-before repeating work. Recover the actual graph and its accepted basis when
-continuing an undertaking. Preserve unrelated edits and transfer shared-file or
-test-resource ownership explicitly. Missing or stale pointers require recovery
-from their sources; they are not permission to restart completed work.
+Go to a section:
+- when you are about to make a choice it addresses;
+- when something contradicts what you expected;
+- before you prepare a decision for the human;
+- when you enter unfamiliar work.
 
-## 1. Construct or revise the work graph
+Read the section, not the chapter. Instructions and the human's decisions
+govern; the manuals explain. Record what you read in the run evidence, as
+Root `AGENTS.md` requires. If you are unsure whether a section
+matters, read it.
 
-Use `chirality-root:bundled:workflow:construct-local-work-graph` when no graph
-exists or its route needs substantial revision. Relate the intended outcome to
-the project DAG, deliverables and present work. Before the first DAG exists,
-follow the phase steering and applicable dependency/cycle-resolution method.
+## Methods
 
-Create the Git-tracked graph at
-`execution/_Coordination/WorkGraphs/<undertaking>/WORK_GRAPH.md`. Return its
-path for continuation and commit it in the undertaking's PR sequence early
-enough for handoff. Keep the graph current across sessions and preserve
-historical graphs at their existing locations.
+Load each workflow when it is needed, as
+`chirality-root:bundled:workflow:<name>`:
+- `construct-local-work-graph`: Piping adopts its graph, closeout, receipt
+  and MEMORY conventions;
+- `coordinated-knowledge-work`, for coordination and delegation, applied in
+  proportion to the work;
+- `bounded-reconciliation`, for the closeout comparisons;
+- `task-management`: Piping permits bounded intake, through WORKING_ITEMS, of
+  a material, evidenced concern that has no current or identified successor
+  home;
+- `scope-change`, `dependency-extract`, `audit-dep-closure` and
+  `project-dag`, when a change reaches the decomposition, the registers or
+  the DAG.
 
-Plan substantive implementation and evidence through PRs, each carrying the
-documentation, reconciliation and conditional Task Management work its slice
-needs. Then plan one final bounded documentation/governance closeout stage:
-reconciliation, conditional Task Management, one central loop receipt, terse
-MEMORY entries and the final PR. Steps 2–6 supply the mechanics; no formal
-reconciliation pass is required
-after every node.
+## Piping records
 
-## 2. Advance implementation and evidence
+- **Basis.** `docs/PRD.md`.
+- **Decomposition.** `execution/_Decomposition/SOFTWARE_DECOMP.md`, at the
+  revision named by `execution/_Decomposition/_LATEST.md`. Its revision notes
+  record each amendment that changed it, and `execution/_ScopeChange/_LATEST.md`
+  selects the latest accepted one.
+- **DAG.** `execution/_DAG/_LATEST.md` names the accepted version and how its
+  currency is decided.
+- **Deliverables.** `execution/PKG-*/1_Working/DEL-*/`: the production
+  contract (`ScopeOfWork.md`, or an accepted bespoke form such as PKG-00's
+  `ArchitectureBasis.md`), `_DEPENDENCIES.md`, `Dependencies.csv`,
+  `_STATUS.md` and `MEMORY.md`.
+- **Decisions.** `execution/_Coordination/_DECISIONS/_REGISTER.md` tracks
+  decision packets and points to each ruling; its header says how to record
+  one. Codified rulings are the `DEC` entries in the decomposition's §12.
+  Notices are `execution/_Coordination/NOTICE_*.md`, and run records are in
+  `execution/_Coordination/AgentRuns/<RunID>/`.
+- **Checks.** `software-workflow.json`, as project `AGENTS.md` describes
+  under "Software checks".
+- **Task Management.** `execution/_Coordination/_TaskManagement/REGISTER.csv`.
+- **Work graphs.** `execution/_Coordination/WorkGraphs/`.
 
-Use Agent 0/1/2 responsibilities to maintain alignment, manage connected work and
-execute bounded contributions. Managers integrate their children's returns and
-advance independent ready work. Size concurrency to actual review and integration
-capacity, with one owner for shared writes.
+## Conventions
 
-Implement, verify, validate where applicable, review, repair and integrate via
-PRs under the graph and project requirements. Each PR carries the document,
-reconciliation and governance consequences needed for that slice, including a
-qualified Task Management transfer when needed under Step 4. Exercise meaningful connected behavior and
-record the actual candidate and evidence. Prepare consequential decisions for
-the human while unaffected work proceeds. Keep required production work in the
-graph until its conditions are satisfied; an intermediate merge does not finish
-the undertaking.
+- **MEMORY.** Add a terse Runs entry to each affected deliverable's
+  `MEMORY.md`, and create the file the first time it is needed.
+- **LOOP_RECEIPTS.** `loop/LOOP_RECEIPTS.md` is a closed historical ledger
+  that ends at Receipt 162. Do not append to it, and do not use it as the
+  receipt or the recovery cursor of a new undertaking.
 
-## 3. Perform the bounded documentation and governance closeout
+## Standing constraints
 
-After integrating the intended implementation and evidence work—normally the
-penultimate merge—perform one planned documentation/governance closeout stage.
-Use `chirality-root:bundled:workflow:bounded-reconciliation` for bounded
-per-deliverable comparisons as needed within that stage. The closeout precedes
-the final PR. Compare the delivered result and evidence with the actual
-Scope of Work, dependency and governance records; apply warranted edits and
-accepted decisions. Preserve future requirements and owning authority for scope,
-lifecycle, protected criteria and issued baselines.
-
-This closeout is bounded to the undertaking. A supported no-change result is
-sufficient. If it finds missing required implementation or evidence, return that
-work to the graph and repair it before completing closeout. Recheck affected
-comparisons after a change; do not declare required work complete through a
-report or transfer.
-
-## 4. Route exceptional concerns
-
-For a substantive PR or the final closeout, first resolve a concern through
-authorized graph work,
-a warranted document amendment, or the owning decision/scope-change route.
-Work already allocated to an identified successor stays there. Ordinary future
-requirements remain in their governing scope.
-
-Only a material, evidenced concern without a current or identified successor
-home qualifies for bounded Task Management intake. Give it to WORKING_ITEMS
-selecting `chirality-root:bundled:workflow:task-management`, with the source,
-significance, missing home and proposed treatment. Perform that workflow's
-federation preflight; no general harvest is required. Promotion, disposition
-and external assignment remain actual human acts. Retain the outcome or pending
-intake in Task Management and link it from the originating PR/graph node and
-final closeout as applicable. Routing does not
-satisfy an unmet requirement or permit graph completion that depends on it.
-
-## 5. Write the central receipt and affected MEMORY entries
-
-Near final PR preparation, write one receipt for the undertaking at
-`execution/_Coordination/AgentRuns/<RunID>/RECEIPT.md`, using the graph's stable
-run identity. It is a concise, derivative account of what landed, affected
-deliverables, actual PRs, checks and evidence, decisions or Task Management
-transfers, and material limits. Use its result/checks/limits account for the
-final PR description, adjusting links for the PR surface. Keep detailed logs at
-their sources and link the graph; the receipt is neither a second execution
-graph, a future-work list nor decision authority. A graph node or Task
-Management invocation does not create another loop receipt.
-
-Then add a terse entry to each affected deliverable's `MEMORY.md`: run/date,
-what this run did there, and a link to the central receipt. Add the relevant PR,
-decision, scope-change or transfer pointer when useful. MEMORY is a local run
-index, not a decision record or future assignment. Preserve existing history.
-Include the receipt and MEMORY changes in the final PR; use a stable run/branch
-link until its PR URL exists, then bind that URL before final checks. Do not
-claim a pending merge as complete. Root SPEC §9.8 still governs required
-multi-agent execution provenance.
-
-## 6. Complete the graph and merge the final PR
-
-Complete the graph's promised work, bounded closeout, central receipt and
-memory entries, and prepare the final PR with the integrated result and
-evidence. Review and required checks must cover the actual final candidate;
-resolve blocking findings and
-obtain the decisions reserved to the human. Record readiness for final merge and
-the PR URL in the candidate graph. Verify the actual merged state afterward
-through Git or the PR service; do not assert a future merge SHA in the candidate or require a later completion-record commit.
-
-The loop ends when the completed work graph's final PR merges under standing
-Git authority. A review hold, unfinished required node or unmerged final PR
-means it remains open. On interruption, retain the candidate, open checks,
-active operations and next safe action in the graph. Final integration does not
-itself issue a deliverable, accept a product or authorize release.
+- Piping's stage gate is the target stage and the exit criteria recorded in
+  `execution/_Coordination/_COORDINATION.md` under "Current Target Stage".
+  Assess against those criteria, not against a `docs/PRD.md` §24 milestone
+  read by its label; only the owner's approved update advances the target.

@@ -1,0 +1,17 @@
+37328163446 Piping Desktop E2E 020d25a3d6 success
+   Select source coverage: success
+   Desktop E2E (source mode): success
+   Source remainder (${{ matrix.shard }}/4): skipped
+   Accessibility barrier and selected coverage: skipped
+   Numerical cargo suite: skipped
+37328163403 pec-tests 020d25a3d6 success
+   Select PEC coverage: success
+   pec: success
+   PEC workspace tests: skipped
+37328163411 Harness Pre-merge Validation 020d25a3d6 success
+   Select App coverage: success
+   Harness pre-merge: success
+   App Runtime integration: skipped
+   App instruction bundle: skipped
+37328163454 governance-harness 020d25a3d6 success
+   harness: success

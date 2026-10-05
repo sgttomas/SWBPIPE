@@ -1,0 +1,39 @@
+main move f506f3e2de..a5ecca3b59 (#1089): 34 paths; outside projects/chirality-app-v4/: 0
+local combination: git merge-tree --write-tree a5ecca3b59 020d25a3d6 -> tree 5033cd22fbcba37c60a4a47ddf540230c21d7cff
+hosted merge ref c19a8ae574f63be55187a25217eac581610e3564 (parents a5ecca3b59, 020d25a3d6) has tree 5033cd22fbcba37c60a4a47ddf540230c21d7cff (gh api)
+combination vs a5ecca3b59 outside execution: 0 paths; combination:P/execution = H2:P/execution = 524da973ec25
+
+projects/chirality-app-v4/app/src-tauri/resources/external_trace/receiving/EXP-missing-build.json
+projects/chirality-app-v4/app/src-tauri/resources/external_trace/receiving/EXP-overlap-refused.json
+projects/chirality-app-v4/app/src-tauri/resources/external_trace/receiving/EXP-person-stated-basis.json
+projects/chirality-app-v4/app/src-tauri/resources/external_trace/receiving/EXP-same-revision-other-build.json
+projects/chirality-app-v4/app/src-tauri/resources/external_trace/receiving/XT-false-joined-pass.json
+projects/chirality-app-v4/app/src-tauri/resources/external_trace/receiving/XT-unverified-joined-claim.json
+projects/chirality-app-v4/app/src-tauri/resources/external_trace/receiving/manifest.json
+projects/chirality-app-v4/app/src-tauri/resources/hosting/hosting.client-request-record.schema.json
+projects/chirality-app-v4/app/src-tauri/resources/hosting/manifest.json
+projects/chirality-app-v4/app/src-tauri/src/attachment_custody.rs
+projects/chirality-app-v4/app/src-tauri/src/hosting.rs
+projects/chirality-app-v4/app/src-tauri/src/lib.rs
+projects/chirality-app-v4/app/src-tauri/src/runtime_session.rs
+projects/chirality-app-v4/app/src-tauri/src/trace_receiving.rs
+projects/chirality-app-v4/app/src-tauri/tests/attachment_transport.rs
+projects/chirality-app-v4/app/src-tauri/tests/steering_integration.rs
+projects/chirality-app-v4/app/src-tauri/tests/trace_integration.rs
+projects/chirality-app-v4/app/src-tauri/tests/trace_receiving.rs
+projects/chirality-app-v4/app/src/App.tsx
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/changes/CC-H-ATTACHMENT-PERSISTENCE-ALLOCATION.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/changes/I1-ATTACHMENT-TRANSPORT-PLAN.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/changes/I1-ATTACHMENT-TRANSPORT.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/changes/I1-STEERING-INTEGRATION.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/changes/I5-TRACE-CONSUMER.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/changes/I5-TRACE-INTEGRATION.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/changes/I5-TRACE-RECEIVING.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/reviews/V1-I5-TRACE-RECEIVING.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/reviews/V2-ATTACHMENT-TRANSPORT-R1.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/reviews/V2-ATTACHMENT-TRANSPORT-R2.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/reviews/V2-ATTACHMENT-TRANSPORT-R3.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/reviews/V2-ATTACHMENT-TRANSPORT.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/reviews/V2-I5-TRACE-INTEGRATION.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/reviews/V3-I1-STEERING-INTEGRATION.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-GROUP-A-20261004/validation/P4-CANDIDATE-14849.md

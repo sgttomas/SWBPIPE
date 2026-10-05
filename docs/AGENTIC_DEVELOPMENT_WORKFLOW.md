@@ -15,8 +15,9 @@ refs:
     to: OPS-COORDINATION
 ---
 
-> **Loop procedure reference:** `loop/LOOP_INIT.md` owns the recurring development
-> procedure. Older agent names, workplan selectors and development step tables
+> **Loop procedure reference:** `loop/LOOP_INIT.md` binds the recurring development
+> procedure to the shared workflows and manuals. Older agent names, workplan
+> selectors and development step tables
 > below do not supply alternate loop mechanics. Current domain constraints and
 > accepted product/checking rules retain their owning authority. Current roles
 > come from AGENTS.md; Task Management is selected as a workflow.

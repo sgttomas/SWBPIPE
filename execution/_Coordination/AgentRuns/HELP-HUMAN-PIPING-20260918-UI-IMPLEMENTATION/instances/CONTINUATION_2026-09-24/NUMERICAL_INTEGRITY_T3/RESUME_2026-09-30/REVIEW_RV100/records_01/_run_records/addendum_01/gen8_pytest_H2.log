@@ -1,0 +1,11 @@
+head 020d25a3d61c0a8f63ad92b5e0c602328b1a3ddb
+checkout: WT/records-pr2, the PR branch worktree, clean
+command: VENV -m pytest -q -p no:cacheprovider -rA tools/practitioner_harness/test_live_baseline.py -k gen8 (PYTHONDONTWRITEBYTECODE=1, GIT_OPTIONAL_LOCKS=0, TMPDIR=WT/scratch/rv100_records_01/addendum_01/tmp)
+start 2026-10-05T14:55:37Z
+.                                                                        [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants
+1 passed, 10 deselected in 29.93s
+exit 0 end 2026-10-05T14:56:07Z
+tree dirty entries after:        0

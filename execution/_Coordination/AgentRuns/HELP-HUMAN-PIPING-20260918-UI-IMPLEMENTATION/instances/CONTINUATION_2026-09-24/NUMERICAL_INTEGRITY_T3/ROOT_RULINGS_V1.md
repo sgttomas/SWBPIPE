@@ -12194,3 +12194,109 @@ Their bytes are records, and many are bound by SHA256SUMS, so they cannot be rel
 - **DEC-025 on H** (`run_dec025.sh`'s predecessor; ALL-DONE 14:48:51Z) is recorded as **informational**: 40 of 40 manifests identical to R3's; pytest 3,540; vitest 3,552; builds exit 0.
 - **H's dispatch 37322486897** succeeded, and is not rerun on the re-cut.
 - **The re-cut's gates:** GEN-8 on its exact head (saved with the SHA and the command), the PR's automatic CI, and RV100's confirmation.
+
+## #1088 squash-merged; RV100's addendum notes; erratum E-5 (ROOT, 2026-10-05 UTC)
+
+**RV100 confirms H2** `020d25a3d6`: `ADDENDUM_01.md`, sha256 `b3ac02b3…`, SHA256SUMS 28/28. Verdict **PASS**, 0/0/5.
+- **The H→H2 delta** is 26 execution paths with no deletions, and RR is append-only.
+- **S-1 and N-1 to N-6** are resolved.
+- **The proportionate-CI rule** reads consistently.
+- **Main's move to `a5ecca3b59`** is app-v4 only, and GEN-8 passes on the combination.
+- **The publication screen** is clean.
+- **All four automatic runs** succeeded.
+
+**The owner reported:** "ci is green".
+- ROOT confirmed main was still `a5ecca3b59`, updated the PR description (A-5), and ran `gh pr merge 1088 --squash --match-head-commit` H2 with an explicit subject and body.
+- **The result is `efca0cf6b6`,** a single parent on `a5ecca3b59`. Main's execution tree equals H2's.
+- **The record** is `IMPLEMENTATION/RECORDS_MERGE_2026-10-05B/`.
+
+**The addendum's notes:**
+- **A-1(a), ruled: a records-only PR keeps the records-only gates even when it also appends portability-policy entries.** The policy's readers are GEN-8 and the governance harness, and the PR's automatic CI selects its own coverage. The full gate set is for PRs changing source, tests, CI or tools. This corrects the ruling "Owner direction: proportionate CI…", whose full-gate list named the policy. The handoff and prompt now agree.
+- **A-1(b), adopted:** the records-PR texts in the handoff and prompt now carry E-4's GEN-8 method.
+- **A-2, adopted:** T3's `REFERENCES/` and `DESIGN_NUMERICS/` are read by three scripts:
+  - `gen_k4_vectors.py`;
+  - `validation/benchmarks/numerical_robustness/cases/gen_vk_cases.py`;
+  - `…/runner/run_harness_mutants.py`.
+  
+  The handoff now names all three. The conclusion for #1088 is unchanged, because it touched neither folder.
+- **A-3:** the three past-tense phrases (handoff "reached main" and "is merged", and the work-graph row) are true now that #1088 has merged. No edit is needed.
+- **A-4: erratum E-5.** The ruling "RV100 passes #1088 at H…" says the re-cut "gains one commit". It gained two, `af7510c3a3` and `020d25a3d6`. The squash made one commit on main.
+- **A-5:** the PR description was updated before the merge.
+
+**Next:**
+- ROOT absorbs main into NUM, removes the records worktree, and runs the periodic cleanup.
+- **NUM is ahead of main** by #1088's merge record, RV100's addendum and this ruling. The next records PR carries them.
+- **The handoff is complete.**
+
+## Owner direction: piping LOOP_INIT in the binding form; T3's handoff becomes an init steer; ROOT_CURRENT retired (ROOT, 2026-10-05 UTC)
+
+**The owner compared** App v4's LOOP_INIT with piping's and App v3's, and directed: "Make appropriate changes to the LOOP_INIT and your own handoff steering instruction (that will just be copied and pasted into the next init-prompt to begin the session)." The owner also said "The steering instructions can be more extensive that one or two sentences. In fact, they can be quite elaborate if justified." The exact text and the piping-level rulings are in run `PIPING-LOOP-INIT-20261005` (`OWNER_DECISIONS.md`, `RULINGS.md`).
+
+**Piping's LOOP_INIT** becomes a binding pointer, in App v4's form, under tranche `PIPING-LOOP-INIT-20261005`. That tranche also makes minimal consistency edits in project `AGENTS.md`, the Root launcher, `_COORDINATION.md`, a DEL-11-05 banner and the newest WORKPLAN.
+
+**T3's records change accordingly.** Under the owner's App v4 decision, no record type should have to be kept up to date to carry current state, and the handoff is ephemeral.
+- **The current account moves to the work graph.** The piping work graph gains the section "T3 current route (numerical integrity)", which carries:
+  - the route as nodes;
+  - the owner-held choices;
+  - the owner decisions and the T3 rulings in force;
+  - the next IDs (I75, RV101);
+  - the routed notes;
+  - the next safe action.
+  
+  The T3 row's status points to it.
+- **`RESUME_2026-09-30/ROOT_CURRENT.md` is retired** to a pointer. Sealed records cite it, so the path stays.
+- **`HANDOFF_2026-10-05_TO_NEXT_ROOT.md` is now an ephemeral note:** where things are, the machine-local host details, and open owner items. It no longer restates the loop, the gates or the rules, which live in the workflows, project `AGENTS.md`, LOOP_INIT and these rulings.
+- **`HANDOFF_2026-10-05_PROMPT.md` is now piping's init prompt with the steer filled in.** The steer is elaborate where justified. It names the undertaking and where its state lives, the first actions and the order of work, and the T3 practices that neither LOOP_INIT nor project `AGENTS.md` states:
+  - the memory guard and one cargo job at a time;
+  - DEC-025 through `run_dec025.sh`, counting only at `ALL-DONE`;
+  - the full suite before a freeze;
+  - compact product PRs;
+  - never merging NUM itself into main;
+  - records-only PRs;
+  - fresh IDs;
+  - owner-held choices;
+  - cleanup.
+
+**Delivery:** one PR carries the tranche and these T3 records. Its gates are LR's independent review, GEN-8 and the PR's automatic CI.
+
+## T3's gate set and Git rules, consolidated after the handoff was made ephemeral (ROOT, 2026-10-05 UTC)
+
+**Why this ruling exists.** LR's review of #1092 (MINOR-3) found that making the handoff ephemeral dropped its "Rules that continue". Those rules gathered T3 practice from many rulings. The ruling "Owner direction: proportionate CI…" says "the full gate set stays", but after the change that set was stated only in Git history. This ruling states the set once. It changes no rule; each item cites its source.
+
+**Product PRs:** S-I1, the T6 slice, U8, PR-B1, PR-B2 and later. These are PRs that change source, tests, CI or tools.
+1. **Cut compactly from main,** with maintained-source equality to the NUM head (`IMPLEMENTATION/F2A_D1/source_equality.py`), a concise evidence package, and checked citations. The precedent is #1082 ("#1082 merged at F′…").
+2. **A fresh independent complete-diff review,** with the same reviewer confirming each repair (project `AGENTS.md`, "Software checks").
+3. **The full 40-manifest suite before the freeze** ("DEC-025 on F finds a test-walker defect…").
+4. **Hosted CI on the PR, and the full-SHA dispatch** (`target_base` = main).
+5. **GEN-8 on the exact head,** by E-4's method ("RV100 passes #1088 at H…").
+6. **An exact-final-head Mac DEC-025,** compared per manifest and per test (`compare_suites.py`) against a fresh baseline of current main. Use `run_dec025.sh`; a run counts only at `ALL-DONE` (project `AGENTS.md`, for product code; same ruling for the wrapper).
+7. **Where the D1 call graph or a registered identity is touched:** Pass B with an independent confirmation, plus T9 and the both-entry gates where product behaviour can change (the F2a D1 rulings).
+
+**Records-only PRs:**
+- **Gates:** GEN-8, the PR's automatic CI and an independent review.
+- **Not run:** DEC-025 and the dispatch.
+- **Merge:** squash with `--match-head-commit` and an explicit subject and body.
+
+Sources: "Owner direction: proportionate CI…" and A-1 in "#1088 squash-merged…".
+
+**Git:**
+- **Who writes:** TASKs make no Git writes; ROOT commits, merges and pushes.
+- **Never** rebase or force-push.
+- **Merging:** product PRs merge with `gh pr merge --merge --match-head-commit`; records-only PRs squash. Either one merges only after confirming main has not moved. If it has, refresh the gates, or carry them over by a ruling under "RV100 passes #1088 at H…".
+- **No auto-merge.**
+- **Never merge NUM itself into main** ("A follow-up records-only PR before the handoff").
+- **Add records with explicit paths,** never `git add -A`.
+
+**Returns and IDs:**
+- **Verify every return:** SHA256SUMS, the fence, and cheap reproduction of claims. No report is accepted unchecked.
+- **Fresh IDs:** implementers and independent reviewers get separate, fresh IDs. An ID is a records folder and a role, not a memory.
+
+This consolidates long-standing T3 practice: the 2026-10-03 and 2026-10-05 handoffs, as committed in Git history.
+
+**Host:**
+- **Heavy work** runs only with the memory guard running, and one cargo job at a time.
+- **TASKs** run no DEC-025, native or solver-at-scale jobs.
+- **Scratch** lives in `WT/scratch`.
+- **Cleanup** is gather, then plan, then apply ("Stray scratch gathered…").
+
+The work graph's T3 section lists this ruling among the rulings in force, and the T3 steer refers to it.

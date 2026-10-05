@@ -1,0 +1,3 @@
+combination: head 020d25a3d61c0a8f63ad92b5e0c602328b1a3ddb merged locally (unpushed) with main a5ecca3b598ecd145a6b08d828c792fa8ae0c81e
+command: python -m pytest -q -p no:cacheprovider tools/practitioner_harness/test_live_baseline.py -k gen8
+1 passed, 10 deselected in 29.11s

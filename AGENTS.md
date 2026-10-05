@@ -9,8 +9,9 @@ revised: 2026-09-19
 # AGENTS — SWBPIPE Project Instructions
 
 Root `AGENTS.md` and the selected `agents/AGENT_*.md` package govern agent roles
-and delegation. This file holds Piping-specific constraints. The recurrent
-development procedure is `loop/LOOP_INIT.md`; the init prompt enters it.
+and delegation. This file holds Piping-specific constraints. The init prompt
+enters the development loop at `loop/LOOP_INIT.md`, which binds Piping to the
+shared workflows and manuals that carry its recurring procedure.
 The owner's handoff prompt or current directions supply session steering.
 An agent's plan, handoff or interpretation does not create owner authority.
 
@@ -36,7 +37,7 @@ in F-PIP-1 through F-PIP-4 remain subject to their owning rulings. Their retaine
 definitions are in `loop/WORKPLAN_2026-07-18b_piping_loop.md`, under "Standing
 constraints — fences"; later owner rulings govern explicit amendments. Replacing
 the old loop procedure does not waive those boundaries. It supersedes F-PIP-5's
-deliverable-only work-selection procedure with the local work graph described in `loop/LOOP_INIT.md`.
+deliverable-only work-selection procedure with the local work graph that `loop/LOOP_INIT.md` adopts.
 Do not edit historical fence definitions or infer release/issuance authority.
 
 Write only inside the authorised scope, including required work evidence. Root
@@ -57,8 +58,8 @@ truthfully. Do not copy another harness's model or co-author identity.
 
 ## Deliverable records and loop ownership
 
-`loop/LOOP_INIT.md` owns the recurring development procedure. Its named
-workflows provide bounded methods; other historical plans and coordination
+`loop/LOOP_INIT.md` binds the recurring development procedure to its named
+workflows and the shared manuals; other historical plans and coordination
 records do not supply alternate loop mechanics. The development init prompt
 supplies the current human steering, including phase changes.
 Keep LOOP_INIT evergreen, with no undertaking-specific graph pointer or execution
