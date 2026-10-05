@@ -10,11 +10,11 @@
 
 This is an intermediate F2a PR, not the completion of F2a. The obligations in §5 stay open by name. The review is agent review, not personal review by the owner.
 
-**Status of this file.** Regenerated at the freeze (RV95 S-2).
-- **The PR's source head** is `35d8ae59a7`.
-- **Its integration head** is NUM `bb3d766379` (`codex/piping-numerical-integrity-20260926`). Its maintained source equals the PR's, except the two files main also changed, which are recorded three-way merges (§2).
-- **The cut** was `5a0461661f`, from U = `2e03d7cc25`. The five source commits since the cut are in §3, "After the cut".
-- **This package's commit makes the frozen head F.** Gates run on F are recorded in the post-merge record (§7).
+**Status of this file.** Regenerated at the freeze (RV95 S-2), then updated by ROOT at the refreeze for the one defect DEC-025 and hosted CI found on the first freeze (§3, After the cut).
+- **The PR's source head** is `6cfe50d368`.
+- **Its integration head** is NUM `42009dba72` (`codex/piping-numerical-integrity-20260926`). Its maintained source equals the PR's, except the two files main also changed, which are recorded three-way merges (§2).
+- **The cut** was `5a0461661f`, from U = `2e03d7cc25`. The six source changes since the cut are in §3, "After the cut".
+- **This package's commit makes the frozen head F′.** The first freeze, F = `20dd3d929d`, failed one test crate in DEC-025 and hosted CI (§3). Gates on F′ are rerun or carried over by ruling, and recorded in the post-merge record (§7).
 
 **Notation:**
 - **P** = `projects/chirality-piping`.
@@ -28,8 +28,8 @@ This is an intermediate F2a PR, not the completion of F2a. The obligations in §
 
 | | |
 |---|---|
-| **Maintained source (S)** | 139 files under P: 59 added, 80 modified, 11,944,314 B; +204,659 / −897 lines against main `5fdc5ab601`. 137 are byte-identical to the integration head `bb3d766379`. The other two, `compatibility.py` and `source_blocks.rs`, equal the recorded three-way merges (§2) |
-| **This package** | 10 files, 192,326 B including `SHA256SUMS`: this record, the PR body, `source_equality.py`, `check_citations.py`, `citations.json`, four copied records, `SHA256SUMS` |
+| **Maintained source (S)** | 140 files under P: 59 added, 81 modified, 12,016,302 B; +204,707 / −908 lines against main `5fdc5ab601`. 138 are byte-identical to the integration head `42009dba72`. The other two, `compatibility.py` and `source_blocks.rs`, equal the recorded three-way merges (§2) |
+| **This package** | 10 files, 194,107 B including `SHA256SUMS`: this record, the PR body, `source_equality.py`, `check_citations.py`, `citations.json`, four copied records, `SHA256SUMS` |
 | **Not included** | The integration branch's 5,677 execution-record files (191.4 MB). Under the handoff packaging rule and U9 decision 5, they stay on NUM. Gate bulk stays in the T3 scratch area, with hashes in the post-merge record |
 
 **By area:**
@@ -158,7 +158,7 @@ Commits are on NUM and the U7 branch. Reviews are fresh and independent, and eac
 - **RV94: PASS** on `ffe65ef203`, and **PASS** on its confirmation of the round (`R/REVIEW_RV94/u7_01/ADDENDUM_01.md`, 0/0/2). The citation rewording (`2e03d7cc25`) is covered by RV95.
 - **RV89: PASS** on Pass B at `cfda60403f`.
 
-### After the cut: five source commits (NUM, then carried to the PR)
+### After the cut: six source changes (NUM, then carried to the PR)
 
 | What | NUM | PR | Why |
 |---|---|---|---|
@@ -167,11 +167,12 @@ Commits are on NUM and the U7 branch. Reviews are fresh and independent, and eac
 | **The U1 pin, scoped to the registered target** | `d069ab3ccf` | `6d8f8a82b2` | `retained_wire_tests::u1_ordinary_bytes_unchanged_under_capture` asserts the protected ordinary-bytes digest only where `ORDINARY_PINNED_TARGET` (aarch64 and macOS) holds. Dense ordinary binary64 bytes are target-dependent (Linux x86_64 differs). On every target it still asserts its claims: the Direct entry's ordinary envelope, and the captured run, equal the plain bytes. The successor pins are platform-stable and stay ungated. Found by the third hosted run |
 | **RV95 N-3** | `c5adc16384` | `35d8ae59a7` | The policy pin asserts that `NUMERICAL_APP_INPUTS` is exactly the desktop source, so emptying the set fails |
 | **RV95 S-1** | `bb3d766379` | `35d8ae59a7` | Six more stale pre-registration texts corrected, comment- and doc-only and line-neutral: `lib.rs`, `retained_memory.rs`, `retained_wire.rs` (two places), and the law, witness and challenge test headers (I65, `R/I65/u9_repair_01`) |
+| **The K-D5/K2b module walker** | `42009dba72` | `6cfe50d368` | nonlinear_integration's source pins walk PP's module tree. The walker resolved `mod grant2;`, declared inside PP's test-only inline `retained_tests_hooks` module, as `src/grant2/mod.rs` and panicked; it now follows enclosing inline modules as rustc does. That exposed K2b's exact-site pin: the F2a capture split (`52842022cc`) moved PP's one `ForceScale::UNSCALED` from `solve_load_case` into `solve_load_case_observed`, and the pin now names that item, with the same token and count. Test-only, in a `#[cfg(test)]` module that PP's build never compiles. Found by DEC-025 on F and F's hosted run |
 
 **Reviews of these commits:**
 - **RV95** reviewed the first three as part of its complete review.
-- **RV95's same-reviewer confirmation** of S-1 and S-2 runs on F, and is recorded in the post-merge record.
-- **No Pass B rerun is needed for the CI-policy commit** (`not-d1`, RV89). Every other commit is unreachable on D1 or is comment- or test-only, and the frozen-head Pass B on F carries their reviewed entries (§7).
+- **RV95's same-reviewer confirmation** of S-1 and S-2 ran on F; its confirmation of the walker repair runs on F′. Both are recorded in the post-merge record.
+- **No Pass B rerun is needed for the CI-policy commit** (`not-d1`, RV89). Every other commit is unreachable on D1 or is comment- or test-only, and the frozen-head Pass B on F carries their reviewed entries (§7). The walker repair is a test file outside PP's compiled inputs, so Pass B's tree and delta inventory are rerun on F′ without a build, and RV89 confirms them.
 
 **What eligibility means.** A supplied successor statement with its actual invocation stands `numerically_eligible`.
 - **In TS,** it is eligible only while the live native capture holds (D-U7-4, a declared difference).
@@ -227,8 +228,8 @@ Commits are on NUM and the U7 branch. Reviews are fresh and independent, and eac
 
 | File | Purpose |
 |---|---|
-| `source_equality.py` | The five equality checks (U9 decision 2). Check 3 requires every S file main also changed to equal the recorded three-way merge; a conflict needs a recorded rule.<br>**At `35d8ae59a7` against `bb3d766379`: 5/5 PASS.** 137 paths identical; `compatibility.py` (one conflict, the rule holds) and `source_blocks.rs` (clean) equal their merges; the execution files are exactly this package.<br>**Negative controls fail as they should:** a stale PR head, a conflict without a rule, and a PR without the merge |
-| `check_citations.py`, `citations.json` | Every record, design-document and code-line citation the PR adds resolves (U9 decision 5).<br>**At `35d8ae59a7` against main** (unchanged from the cut). The NUM pin `cfcdb5997a` is on the pushed integration branch, and no cited record moved:<br>• **Totals:** 368 resolved, 0 ambiguous, 0 unresolved.<br>• **Records and RR:** 65 occurrences.<br>• **Design documents:** 289, against a table of 23 names. Anchors are verified in the pinned version; D1 resolves on main. `API.md` and `COMP` are decided by recorded context rules; COMP is ROOT's ruling.<br>• **Code lines:** 14, each pinned with its anchor text: 11 generated in the GENERATED PROFILE block and 3 in the hash-pinned corpus data. Every other bare `FILE:line` code citation is forbidden.<br>The 93 previously in comments now name their symbol. At `e543c3d8f3` itself the check fails with those 93 |
+| `source_equality.py` | The five equality checks (U9 decision 2). Check 3 requires every S file main also changed to equal the recorded three-way merge; a conflict needs a recorded rule.<br>**At `6cfe50d368` against `42009dba72`: 5/5 PASS.** 138 paths identical; `compatibility.py` (one conflict, the rule holds) and `source_blocks.rs` (clean) equal their merges; the execution files are exactly this package.<br>**Negative controls fail as they should:** a stale PR head, a conflict without a rule, and a PR without the merge |
+| `check_citations.py`, `citations.json` | Every record, design-document and code-line citation the PR adds resolves (U9 decision 5).<br>**At `6cfe50d368` against main** (unchanged from the cut). The NUM pin `cfcdb5997a` is on the pushed integration branch, and no cited record moved:<br>• **Totals:** 368 resolved, 0 ambiguous, 0 unresolved.<br>• **Records and RR:** 65 occurrences.<br>• **Design documents:** 289, against a table of 23 names. Anchors are verified in the pinned version; D1 resolves on main. `API.md` and `COMP` are decided by recorded context rules; COMP is ROOT's ruling.<br>• **Code lines:** 14, each pinned with its anchor text: 11 generated in the GENERATED PROFILE block and 3 in the hash-pinned corpus data. Every other bare `FILE:line` code citation is forbidden.<br>The 93 previously in comments now name their symbol. At `e543c3d8f3` itself the check fails with those 93 |
 | `copies/g5_profile.py`, `copies/profile_tree.json` | The generator and input that regenerate `retained_memory.rs`'s GENERATED PROFILE block byte for byte, at the cut and again at `35d8ae59a7`: `python3 g5_profile.py profile_tree.json retained_memory.rs` |
 | `copies/QUALIFICATION.md` | G6's qualification, the basis of M and the registered identity |
 | `copies/G2_AMENDMENTS.md` | D-6's identity encoding (`build_identity.rs`) |
@@ -253,16 +254,17 @@ python3 check_citations.py --repo . --base <main> --head <PR head>
 | **G7, src-tauri suite** (ROOT) | M 116, C 116, with outcomes identical | RR "U9 gates G7 and G8 pass…" |
 | **G8, pressure, coexistence, the sweep and callers** (C) | Pressure refused at D1.5 with exact bytes; the milestone publishes its successor. n05/n06 give `Coexistence` with exact bytes. The 324-output sweep is byte-identical (registered `9a74ff16…`, Stale `0e2db8b8…`). No product caller | `R/I61/u9_g8_01/` |
 | **G9a, full Pass B** (I65, on `6b9bb19a5f`) | Exit 6, on the six added tests only. Entry byte-identical to `0c7827b6ad`'s; maxima 0.8881 / 0.8929 M; law 42/0. **RV89: PASS** (0/0/1), including the classification of PR1080 and the 32-bit bound as unreachable on D1 | `R/I65/u4_g7_05/`, `R/REVIEW_RV89/u4_g7_03/` |
-| **Source equality and citations** (`35d8ae59a7`) | 5/5 PASS; 368/0/0 PASS | `R/I61/u9_freeze_01/` |
+| **Source equality and citations** (`35d8ae59a7`, then `6cfe50d368`) | 5/5 PASS; 368/0/0 PASS on each | `R/I61/u9_freeze_01/`; the post-merge record |
+| **DEC-025 and hosted CI on the first freeze F** (`20dd3d929d`) | nonlinear_integration: 132 passed, 2 failed on the Mac, against main's 134; hosted CI stopped at the same crate. Every other manifest equals main's or adds named tests. Repaired after the freeze (§3) | RR "DEC-025 on F finds…" |
 | **Hosted CI before the freeze** | Three runs found three defects, all fixed after the cut (§3) | RR "PR #1082's first/second/third hosted run…" |
 
-**Run on F after the freeze, and recorded in the post-merge record `IMPLEMENTATION/F2A_D1_MERGE/` on NUM:**
-- hosted CI on F and the full-SHA dispatch (`target_base` = main);
-- GEN-8 on F;
-- the Mac baseline on main and DEC-025 on F;
+**Run on the frozen head, and recorded in the post-merge record `IMPLEMENTATION/F2A_D1_MERGE/` on NUM:**
+- hosted CI on F′ and the full-SHA dispatch (`target_base` = main);
+- GEN-8 on F′;
+- the Mac baseline on main (main is unmoved, so it stands) and DEC-025 on F′;
 - the native witness (the ordinary route and the panel gates);
-- the frozen-head Pass B (I65, with its prepared reviewed entries), confirmed by RV89;
-- RV95's same-reviewer confirmation of S-1, S-2 and the gate evidence.
+- the frozen-head Pass B on F (I65, with its prepared reviewed entries), confirmed by RV89, and its tree and delta inventory on F′;
+- RV95's same-reviewer confirmation of S-1, S-2, the walker repair and the gate evidence.
 
 **Acceptance runs on the reviewed source:**
 

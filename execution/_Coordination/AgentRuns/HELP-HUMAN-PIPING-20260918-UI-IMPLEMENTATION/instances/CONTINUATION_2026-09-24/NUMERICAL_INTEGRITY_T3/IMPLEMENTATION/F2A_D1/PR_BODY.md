@@ -29,13 +29,13 @@ The Python, Rust and TypeScript readers now treat such a statement as numericall
 
 ## Source and packaging
 
-- **Source.** 139 maintained files under `projects/chirality-piping` (59 added, 80 modified). They are byte-identical to the integration head NUM `bb3d766379`, except two files main also changed, each equal to its recorded three-way merge:
+- **Source.** 140 maintained files under `projects/chirality-piping` (59 added, 81 modified). They are byte-identical to the integration head NUM `42009dba72`, except two files main also changed, each equal to its recorded three-way merge:
   - `core/analysis_runs/compatibility.py` keeps a single `_same_canonical` helper (byte-identical to main's #1078) and takes main's two call-site changes;
   - `core/reporting/result_export/src/source_blocks.rs` merges cleanly: main's #1080 plus this PR's 32-bit bound.
   - `source_equality.py` proves this: 5/5 PASS.
-- **After the cut,** four commits carried five source changes found by hosted CI and RV95: the CI policy, the 32-bit bound, the U1 pin scoped to the registered target, RV95 N-3 and RV95 S-1 (CHANGE_RECORD §3).
-- **This branch is cut from main.** It carries none of the integration branch's history, which stays on `codex/piping-numerical-integrity-20260926`. Its evidence package was regenerated at the freeze.
-- **Records committed:** 10 files, 192,326 B including `SHA256SUMS`, all in `…/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/F2A_D1/`.
+- **After the cut,** five commits carried six source changes found by hosted CI, RV95 and DEC-025: the CI policy, the 32-bit bound, the U1 pin scoped to the registered target, RV95 N-3, RV95 S-1, and the module walker in nonlinear_integration's source-pin tests (CHANGE_RECORD §3).
+- **This branch is cut from main.** It carries none of the integration branch's history, which stays on `codex/piping-numerical-integrity-20260926`. Its evidence package was regenerated at the freeze and updated at the refreeze.
+- **Records committed:** 10 files, 194,107 B including `SHA256SUMS`, all in `…/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/F2A_D1/`.
   - **Why:** the change record, the two verification scripts, the citation index, and four small records that maintained comments depend on. One of them is the generator that rebuilds the memory profile block.
   - The integration branch's 5,677 record files (191.4 MB) are not brought. Maintained-source citations of them resolve through `citations.json` to commit-pinned URLs.
 
@@ -71,6 +71,6 @@ These are agent reviews, not personal review by the owner. Details: [CHANGE_RECO
 | `source_equality.py` and `check_citations.py` | 5/5 and 368/0/0 PASS |
 | GEN-8 at the cut | 1 passed |
 
-**On the frozen head:** hosted CI with the full-SHA dispatch, GEN-8, the Mac baseline with DEC-025, the native witness, the frozen-head Pass B and RV95's confirmation are recorded in the post-merge record (`…/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/F2A_D1_MERGE/`, on the integration branch).
+**On the frozen head:** the first freeze failed one test crate in DEC-025 and hosted CI, and was repaired and refrozen (CHANGE_RECORD §3). Hosted CI with the full-SHA dispatch, GEN-8, the Mac baseline with DEC-025, the native witness, Pass B and RV95's confirmation are recorded in the post-merge record (`…/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/F2A_D1_MERGE/`, on the integration branch).
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
