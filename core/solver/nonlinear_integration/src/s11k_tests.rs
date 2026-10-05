@@ -969,14 +969,16 @@ const FORMATION_ENTRY_POINTS: &[&str] = &[
 
 /// The non-test source of the crate rooted at `src_dir`. The module tree is
 /// walked from `lib.rs` through every `mod name;` declaration (honouring
-/// `#[path]` and `mod.rs`). A module is a test module when it is declared
-/// under `#[cfg(test)]` (the declaration disappears under `strip_cfg_test`)
-/// or declared inside a test module: `s11k_tests`, `kd5_tests` and its
-/// `kd5_models`, and the product crate's test modules are excluded by their
-/// own declarations, never by file path. A non-test module added later is
-/// scanned. Every `.rs` file under `src_dir` must be reached, so nothing is
-/// skipped silently (RV5 E4). Returns (path relative to `src_dir`, non-test
-/// code with comments, literals and `#[cfg(test)]` items blanked).
+/// `#[path]`, `mod.rs` and enclosing inline modules, as the product's
+/// test-only `retained_tests_hooks` declares `grant2`). A module is a test
+/// module when it is declared under `#[cfg(test)]` (the declaration
+/// disappears under `strip_cfg_test`) or declared inside a test module:
+/// `s11k_tests`, `kd5_tests` and its `kd5_models`, and the product crate's
+/// test modules are excluded by their own declarations, never by file path.
+/// A non-test module added later is scanned. Every `.rs` file under
+/// `src_dir` must be reached, so nothing is skipped silently (RV5 E4).
+/// Returns (path relative to `src_dir`, non-test code with comments,
+/// literals and `#[cfg(test)]` items blanked).
 fn non_test_modules(src_dir: &std::path::Path) -> Vec<(String, String)> {
     use std::path::{Path, PathBuf};
     fn rs_files(dir: &Path, out: &mut Vec<PathBuf>) {
@@ -1018,10 +1020,40 @@ fn non_test_modules(src_dir: &std::path::Path) -> Vec<(String, String)> {
             file.with_extension("")
         }
     }
+    // The inline modules (`mod name { ... }`) enclosing byte offset `at` in
+    // lexed code, outermost first. Braces in lexed code are code braces.
+    fn enclosing(code: &str, at: usize) -> Vec<String> {
+        let mut open: Vec<Option<String>> = Vec::new();
+        for (k, c) in code[..at].char_indices() {
+            if c == '{' {
+                let head = code[..k].trim_end();
+                let start = head
+                    .char_indices()
+                    .rev()
+                    .find(|&(_, c)| !(c.is_alphanumeric() || c == '_'))
+                    .map_or(0, |(i, c)| i + c.len_utf8());
+                let name = &head[start..];
+                let before = head[..head.len() - name.len()].trim_end();
+                let keyword = before.strip_suffix("mod").is_some_and(|rest| {
+                    !rest
+                        .chars()
+                        .next_back()
+                        .is_some_and(|p| p.is_alphanumeric() || p == '_')
+                });
+                open.push((keyword && !name.is_empty()).then(|| name.to_string()));
+            } else if c == '}' {
+                open.pop();
+            }
+        }
+        open.into_iter().flatten().collect()
+    }
     // The file a declaration names. `lex` keeps line structure, so a
     // `#[path = "..."]` attribute is read from the raw lines before it.
+    // Inside inline modules, rustc resolves both forms under one directory
+    // per enclosing module (the Reference, "Modules": the path attribute).
     fn target(file: &Path, raw: &str, code: &str, name: &str, at: usize) -> PathBuf {
         let head = &code[..at];
+        let inline = enclosing(code, at);
         let from = head.rfind([';', '}', '{']).map_or(0, |k| k + 1);
         if head[from..].contains("#[path") {
             let line = head.matches('\n').count();
@@ -1031,9 +1063,14 @@ fn non_test_modules(src_dir: &std::path::Path) -> Vec<(String, String)> {
                 .map(|l| raw_lines[l])
                 .find(|l| l.contains("#[path"))
                 .unwrap();
-            return file.parent().unwrap().join(attr.split('"').nth(1).unwrap());
+            let base = if inline.is_empty() {
+                file.parent().unwrap().to_path_buf()
+            } else {
+                inline.iter().fold(child_dir(file), |d, m| d.join(m))
+            };
+            return base.join(attr.split('"').nth(1).unwrap());
         }
-        let dir = child_dir(file);
+        let dir = inline.iter().fold(child_dir(file), |d, m| d.join(m));
         let flat = dir.join(format!("{name}.rs"));
         if flat.is_file() {
             flat
@@ -1701,7 +1738,7 @@ const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
     ("lib.rs", "fn force_scaled_publication", "ForceScale", 8),
     ("lib.rs", "fn force_scaling_attempt", "ForceScale", 3),
     ("lib.rs", "fn range_scaling_evidence_line", "ForceScale", 1),
-    ("lib.rs", "fn solve_load_case", "ForceScale", 1),
+    ("lib.rs", "fn solve_load_case_observed", "ForceScale", 1),
     ("lib.rs", "impl ForceScaledPublication", "ForceScale", 1),
     ("lib.rs", "struct ForceScaledPublication", "ForceScale", 1),
     (
